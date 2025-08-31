@@ -56,6 +56,8 @@ export default {
 				forest: 'hsl(var(--forest-green))',
 				citrus: 'hsl(var(--citrus))',
 				carrot: 'hsl(var(--carrot))',
+				berry: 'hsl(var(--berry))',
+				avocado: 'hsl(var(--avocado))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -70,11 +72,13 @@ export default {
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-fresh': 'var(--gradient-fresh)',
-				'gradient-warm': 'var(--gradient-warm)'
+				'gradient-warm': 'var(--gradient-warm)',
+				'gradient-fun': 'var(--gradient-fun)'
 			},
 			boxShadow: {
 				'fresh': 'var(--shadow-fresh)',
-				'glow': 'var(--shadow-glow)'
+				'glow': 'var(--shadow-glow)',
+				'playful': 'var(--shadow-playful)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

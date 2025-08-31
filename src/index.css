@@ -8,48 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 50 20% 98%;
-    --foreground: 120 12% 15%;
+    --background: 45 60% 97%;
+    --foreground: 280 20% 25%;
 
     --card: 0 0% 100%;
-    --card-foreground: 120 12% 15%;
+    --card-foreground: 280 20% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 120 12% 15%;
+    --popover-foreground: 280 20% 25%;
 
-    --primary: 125 45% 35%;
+    --primary: 280 65% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 85 35% 90%;
-    --secondary-foreground: 120 12% 15%;
+    --secondary: 45 75% 85%;
+    --secondary-foreground: 280 20% 25%;
 
-    --muted: 85 25% 95%;
-    --muted-foreground: 120 8% 45%;
+    --muted: 45 40% 95%;
+    --muted-foreground: 280 15% 50%;
 
-    --accent: 45 85% 65%;
-    --accent-foreground: 120 12% 15%;
+    --accent: 15 90% 65%;
+    --accent-foreground: 280 20% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 350 85% 65%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 85 20% 88%;
-    --input: 85 20% 88%;
-    --ring: 125 45% 35%;
+    --border: 45 30% 85%;
+    --input: 45 30% 85%;
+    --ring: 280 65% 55%;
 
-    /* Custom design tokens for vegan meal planning */
-    --primary-glow: 125 55% 45%;
-    --forest-green: 140 50% 25%;
-    --citrus: 45 90% 60%;
-    --carrot: 25 85% 55%;
+    /* Fun cartoonish design tokens */
+    --primary-glow: 280 75% 65%;
+    --forest-green: 120 70% 45%;
+    --citrus: 60 95% 60%;
+    --carrot: 25 95% 60%;
+    --berry: 320 80% 60%;
+    --avocado: 90 50% 50%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(125, 45%, 35%), hsl(125, 55%, 45%));
-    --gradient-fresh: linear-gradient(135deg, hsl(125, 55%, 45%), hsl(85, 60%, 50%));
-    --gradient-warm: linear-gradient(135deg, hsl(45, 85%, 65%), hsl(25, 85%, 55%));
+    /* Playful gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(280, 65%, 55%), hsl(320, 80%, 60%));
+    --gradient-fresh: linear-gradient(135deg, hsl(120, 70%, 45%), hsl(90, 50%, 50%));
+    --gradient-warm: linear-gradient(135deg, hsl(60, 95%, 60%), hsl(25, 95%, 60%));
+    --gradient-fun: linear-gradient(135deg, hsl(280, 65%, 55%), hsl(60, 95%, 60%), hsl(15, 90%, 65%));
     
-    /* Shadows */
-    --shadow-fresh: 0 10px 40px -10px hsl(125 45% 35% / 0.2);
-    --shadow-glow: 0 0 30px hsl(125 55% 45% / 0.3);
+    /* Bouncy shadows */
+    --shadow-fresh: 0 15px 35px -5px hsl(120 70% 45% / 0.3);
+    --shadow-glow: 0 0 40px hsl(280 65% 55% / 0.4);
+    --shadow-playful: 0 20px 40px -10px hsl(280 65% 55% / 0.25);
 
     --radius: 0.5rem;
 
