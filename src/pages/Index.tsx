@@ -1,7 +1,9 @@
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { FeaturedRecipes } from "@/components/FeaturedRecipes";
-import { MealPlannerPreview } from "@/components/MealPlannerPreview";
+import { InteractiveMealPlanner } from "@/components/InteractiveMealPlanner";
+import { MealPlanHistory } from "@/components/MealPlanHistory";
+import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
   return (
@@ -9,7 +11,9 @@ const Index = () => {
       <Navigation />
       <Hero />
       <FeaturedRecipes />
-      <MealPlannerPreview />
+      <InteractiveMealPlanner />
+      <MealPlanHistory />
+      <Toaster />
     </div>
   );
 };
