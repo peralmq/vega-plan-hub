@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, ChefHat, ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-vegan-meal-planning.jpg";
 
 export const Hero = () => {
@@ -23,12 +24,16 @@ export const Hero = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-gradient-primary hover:shadow-fresh transition-all duration-300">
-                Start Planning
-              </Button>
-              <Button variant="outline" size="lg">
-                Browse Recipes
-              </Button>
+              <Link to="/meal-planner">
+                <Button size="lg" className="bg-gradient-primary hover:shadow-fresh transition-all duration-300">
+                  Start Planning
+                </Button>
+              </Link>
+              <Link to="/recipes">
+                <Button variant="outline" size="lg">
+                  Browse Recipes
+                </Button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-3 gap-6 pt-8">

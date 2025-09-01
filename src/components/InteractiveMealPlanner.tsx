@@ -88,8 +88,8 @@ export const InteractiveMealPlanner = () => {
     addRecipeToDay(day, recipe);
     setSelectedDay(null);
     toast({
-      title: "Recipe Added! ✨",
-      description: `${recipe.title} added to ${day}. Leftovers ready for tomorrow's lunch!`,
+      title: "Recipe Added! ✨", 
+      description: `${recipe.title} added to ${day}!`,
     });
   };
 
@@ -101,7 +101,7 @@ export const InteractiveMealPlanner = () => {
             Interactive <span className="bg-gradient-fun bg-clip-text text-transparent">Meal Planner</span> 🎯
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Click the + buttons to add dinners! Each meal provides tomorrow's lunch via leftovers 🥡
+            Click the + buttons to add dinners to your weekly plan! 🎯
           </p>
         </div>
 
@@ -132,7 +132,7 @@ export const InteractiveMealPlanner = () => {
                   <h4 className="font-bold text-center mb-4 text-sm text-primary">{day}</h4>
                   
                   {/* Dinner Slot */}
-                  <div className="min-h-[100px] flex items-center justify-center mb-3">
+                  <div className="min-h-[100px] flex items-center justify-center">
                     {dayPlan ? (
                       <div className="bg-gradient-fun text-primary-foreground text-xs rounded-xl p-3 text-center w-full shadow-glow relative group">
                         <div className="font-bold">🍽️ Dinner</div>
@@ -157,20 +157,6 @@ export const InteractiveMealPlanner = () => {
                         <Plus className="h-4 w-4" />
                         <span className="text-xs">Add Dinner 🍽️</span>
                       </Button>
-                    )}
-                  </div>
-                  
-                  {/* Lunch Preview */}
-                  <div className="min-h-[50px] flex items-center justify-center">
-                    {dayPlan ? (
-                      <div className="bg-gradient-warm text-primary-foreground text-xs rounded-lg p-2 text-center w-full opacity-75">
-                        <div className="font-medium">🥡 Tomorrow's Lunch</div>
-                        <div className="text-white/80">Leftovers!</div>
-                      </div>
-                    ) : (
-                      <div className="text-xs text-muted-foreground text-center py-2">
-                        No leftovers planned
-                      </div>
                     )}
                   </div>
                 </Card>
@@ -233,9 +219,9 @@ export const InteractiveMealPlanner = () => {
           {/* Help Text */}
           {stats.totalMeals > 0 && (
             <div className="text-center mt-6 p-4 bg-gradient-fresh/10 rounded-xl border border-primary/20">
-              <p className="text-sm text-muted-foreground">
-                🎉 Great job! You'll have <strong>{stats.totalMeals} dinners</strong> and <strong>{stats.totalMeals} leftover lunches</strong> this week!
-              </p>
+            <p className="text-sm text-muted-foreground">
+              🎉 Great job! You have <strong>{stats.totalMeals} dinners</strong> planned for this week!
+            </p>
             </div>
           )}
         </Card>

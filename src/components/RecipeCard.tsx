@@ -78,7 +78,7 @@ export const RecipeCard = ({ title, image, cookTime, servings, difficulty, tags 
         </div>
         
         <div className="text-xs text-muted-foreground text-center border-t pt-3">
-          Perfect for dinner + leftovers! 🥡
+          Perfect for dinner planning! 🍽️
         </div>
       </div>
     </Card>

@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -83,9 +84,11 @@ export const MealPlannerPreview = () => {
           </div>
 
           <div className="flex justify-center mt-8">
-            <Button size="lg" className="bg-gradient-fun shadow-playful hover:shadow-glow transition-all duration-300 hover:scale-105">
-              🌟 Create My Weekly Plan 🌟
-            </Button>
+            <Link to="/meal-planner">
+              <Button size="lg" className="bg-gradient-fun shadow-playful hover:shadow-glow transition-all duration-300 hover:scale-105">
+                🌟 Create My Weekly Plan 🌟
+              </Button>
+            </Link>
           </div>
         </Card>
       </div>

@@ -2,6 +2,7 @@ import { RecipeCard } from "./RecipeCard";
 import { RecipeFilters } from "./RecipeFilters";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 // Mock data - in real app this would come from your API
 const featuredRecipes = [
@@ -124,9 +125,11 @@ export const FeaturedRecipes = () => {
         </div>
 
         <div className="text-center">
-          <Button variant="outline" size="lg" className="rounded-xl border-2 border-dashed hover:border-primary/50">
-            🍽️ Browse All Recipes
-          </Button>
+          <Link to="/recipes">
+            <Button variant="outline" size="lg" className="rounded-xl border-2 border-dashed hover:border-primary/50">
+              🍽️ Browse All Recipes
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
