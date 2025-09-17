@@ -10,6 +10,7 @@ export interface Recipe {
   tags: string[];
   theme: string;
   lastUsed?: Date;
+  ingredients?: string[];
 }
 
 export interface MealPlan {

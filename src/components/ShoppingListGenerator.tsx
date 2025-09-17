@@ -1,24 +1,53 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Check, Copy } from "lucide-react";
+import { ShoppingCart, Check, Copy, Calculator } from "lucide-react";
 import { useMealPlans } from "@/hooks/useMealPlans";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { MathemPriceService } from "@/services/mathemPriceService";
 
-// Mock ingredients data - in real app this would come from recipe database
+// Mock ingredients data with proper ingredient names for Mathem price lookups
 const recipeIngredients: { [key: string]: string[] } = {
-  "1": ["Pasta (500g)", "Cherry tomatoes (300g)", "Olives (150g)", "Olive oil", "Garlic (3 cloves)", "Fresh basil"],
-  "2": ["Arborio rice (300g)", "Mushrooms (400g)", "Vegetable broth (1L)", "Nutritional yeast", "White wine (250ml)", "Onion (1 large)"],
-  "3": ["Coconut milk (400ml)", "Thai green curry paste", "Vegetables mix (500g)", "Jasmine rice (200g)", "Lime (2 pieces)", "Thai basil"],
-  "4": ["Bell peppers (3 pieces)", "Broccoli (300g)", "Carrots (200g)", "Soy sauce", "Ginger (30g)", "Garlic (2 cloves)", "Sesame oil"],
+  "1": ["Pasta", "Cherry tomatoes", "Olives", "Olive oil", "Garlic", "Fresh basil"],
+  "2": ["Arborio rice", "Mushrooms", "Vegetable broth", "Nutritional yeast", "White wine", "Onion"],
+  "3": ["Coconut milk", "Thai green curry paste", "Vegetables mix", "Jasmine rice", "Lime", "Thai basil"],
+  "4": ["Bell peppers", "Broccoli", "Carrots", "Soy sauce", "Ginger", "Garlic", "Sesame oil"],
 };
 
 export const ShoppingListGenerator = () => {
   const { mealPlans } = useMealPlans();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [shoppingListCost, setShoppingListCost] = useState<{
+    totalCost: number;
+    itemCosts: { ingredient: string; price: number; found: boolean }[];
+    currency: string;
+  } | null>(null);
+  const [loadingCost, setLoadingCost] = useState(false);
+
+  // Load shopping list cost when ingredients change
+  useEffect(() => {
+    const loadCost = async () => {
+      if (!selectedPlan) return;
+      
+      const ingredients = generateShoppingList(selectedPlan);
+      if (ingredients.length === 0) return;
+      
+      setLoadingCost(true);
+      try {
+        const costData = await MathemPriceService.calculateTotalCost(ingredients);
+        setShoppingListCost(costData);
+      } catch (error) {
+        console.error('Failed to load shopping list cost:', error);
+      } finally {
+        setLoadingCost(false);
+      }
+    };
+
+    loadCost();
+  }, [selectedPlan, mealPlans]);
 
   const generateShoppingList = (planId: string) => {
     const plan = mealPlans.find(p => p.id === planId);
@@ -144,6 +173,17 @@ export const ShoppingListGenerator = () => {
                     <Badge variant="secondary" className="bg-gradient-warm text-primary-foreground">
                       {shoppingList.length} items
                     </Badge>
+                    {loadingCost ? (
+                      <Badge className="bg-gradient-fresh text-primary-foreground animate-pulse">
+                        <Calculator className="h-3 w-3 mr-1" />
+                        Calculating...
+                      </Badge>
+                    ) : shoppingListCost ? (
+                      <Badge className="bg-gradient-fun text-primary-foreground">
+                        <Calculator className="h-3 w-3 mr-1" />
+                        ~{MathemPriceService.formatPrice(shoppingListCost.totalCost)}
+                      </Badge>
+                    ) : null}
                     <Button
                       variant="outline"
                       size="sm"
@@ -160,14 +200,24 @@ export const ShoppingListGenerator = () => {
                   <p className="text-sm font-medium">
                     Week of {selectedPlanData.weekStarting.toLocaleDateString()}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {Object.values(selectedPlanData.meals).filter(Boolean).length} recipes • Shopping list auto-generated
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {Object.values(selectedPlanData.meals).filter(Boolean).length} recipes • Shopping list auto-generated
+                    </p>
+                    {shoppingListCost && !loadingCost && (
+                      <p className="text-xs font-medium text-emerald-600">
+                        Est. cost: ~{MathemPriceService.formatPrice(shoppingListCost.totalCost)} 💰
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {shoppingList.map((ingredient, index) => {
                     const isChecked = checkedItems.has(ingredient);
+                    const itemCost = shoppingListCost?.itemCosts.find(item => 
+                      item.ingredient.toLowerCase() === ingredient.toLowerCase()
+                    );
                     
                     return (
                       <div
@@ -189,6 +239,11 @@ export const ShoppingListGenerator = () => {
                         <span className={`flex-1 ${isChecked ? "line-through text-muted-foreground" : ""}`}>
                           {ingredient}
                         </span>
+                        {itemCost && itemCost.found && (
+                          <Badge variant="outline" className="text-xs rounded-full border-dashed">
+                            {MathemPriceService.formatPrice(itemCost.price)}
+                          </Badge>
+                        )}
                       </div>
                     );
                   })}
