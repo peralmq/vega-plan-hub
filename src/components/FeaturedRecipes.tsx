@@ -121,7 +121,7 @@ export const FeaturedRecipes = () => {
           <div className="lg:col-span-3">
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredRecipes.map((recipe, index) => (
-                <RecipeCard key={index} {...recipe} />
+                <RecipeCard key={recipe.id} {...recipe} />
               ))}
             </div>
             

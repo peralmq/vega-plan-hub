@@ -8,6 +8,7 @@ import Recipes from "./pages/Recipes";
 import MealPlanner from "./pages/MealPlanner";
 import ShoppingList from "./pages/ShoppingList";
 import NotFound from "./pages/NotFound";
+import { CookingView } from "./components/CookingView";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/recipes" element={<Recipes />} />
+          <Route path="/cooking/:id" element={<CookingView />} />
           <Route path="/meal-planner" element={<MealPlanner />} />
           <Route path="/shopping-list" element={<ShoppingList />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

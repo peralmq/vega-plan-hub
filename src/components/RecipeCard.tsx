@@ -1,10 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, Users, ShoppingCart, ChefHat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { MathemPriceService } from "@/services/mathemPriceService";
+import { Link } from "react-router-dom";
 
 interface RecipeCardProps {
+  id?: string;
   title: string;
   image: string;
   cookTime: number;
@@ -15,7 +18,7 @@ interface RecipeCardProps {
   ingredients?: string[];
 }
 
-export const RecipeCard = ({ title, image, cookTime, servings, difficulty, tags, ingredients = [] }: RecipeCardProps) => {
+export const RecipeCard = ({ id, title, image, cookTime, servings, difficulty, tags, ingredients = [] }: RecipeCardProps) => {
   const [cost, setCost] = useState<{ total: number; currency: string } | null>(null);
   const [loadingCost, setLoadingCost] = useState(false);
 
@@ -121,7 +124,18 @@ export const RecipeCard = ({ title, image, cookTime, servings, difficulty, tags,
           )}
         </div>
         
-        <div className="text-xs text-muted-foreground text-center border-t pt-3">
+        {id && (
+          <div className="border-t pt-4">
+            <Link to={`/cooking/${id}`}>
+              <Button className="w-full rounded-xl bg-gradient-fun text-white border-0 hover:scale-105 transition-transform">
+                <ChefHat className="w-4 h-4 mr-2" />
+                Start Cooking 👨‍🍳
+              </Button>
+            </Link>
+          </div>
+        )}
+        
+        <div className="text-xs text-muted-foreground text-center">
           Perfect for dinner planning! 🍽️
         </div>
       </div>
