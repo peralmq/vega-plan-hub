@@ -3,21 +3,29 @@ import { useState, useEffect } from 'react';
 export interface Recipe {
   id: string;
   title: string;
+  description?: string;
   image: string;
   cookTime: number;
   servings: number;
   difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
   theme: string;
+  ingredients: string[];
+  instructions?: string[];
+  nutritionInfo?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
   lastUsed?: Date;
-  ingredients?: string[];
 }
 
 export interface MealPlan {
   id: string;
-  weekStarting: Date;
+  startDate: Date;
   meals: {
-    [key: string]: Recipe | null; // Mon, Tue, Wed, etc.
+    [key: string]: Recipe | null; // Day 1, Day 2, Day 3, etc.
   };
   createdAt: Date;
 }
@@ -29,13 +37,13 @@ export const useMealPlans = () => {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [currentPlan, setCurrentPlan] = useState<Partial<MealPlan>>({
     meals: {
-      Mon: null,
-      Tue: null,
-      Wed: null,
-      Thu: null,
-      Fri: null,
-      Sat: null,
-      Sun: null,
+      "Day 1": null,
+      "Day 2": null,
+      "Day 3": null,
+      "Day 4": null,
+      "Day 5": null,
+      "Day 6": null,
+      "Day 7": null,
     }
   });
 
@@ -47,7 +55,7 @@ export const useMealPlans = () => {
         const parsed = JSON.parse(stored);
         const plansWithDates = parsed.map((plan: any) => ({
           ...plan,
-          weekStarting: new Date(plan.weekStarting),
+          startDate: new Date(plan.startDate || plan.weekStarting), // Support old format
           createdAt: new Date(plan.createdAt),
         }));
         setMealPlans(plansWithDates);
@@ -71,7 +79,7 @@ export const useMealPlans = () => {
     const recentRecipeIds = new Set<string>();
     
     mealPlans.forEach(plan => {
-      if (plan.weekStarting >= cutoffDate) {
+      if (plan.startDate >= cutoffDate) {
         Object.values(plan.meals).forEach(recipe => {
           if (recipe) {
             recentRecipeIds.add(recipe.id);
@@ -112,10 +120,10 @@ export const useMealPlans = () => {
   };
 
   // Save current plan
-  const saveCurrentPlan = (weekStarting: Date = new Date()) => {
+  const saveCurrentPlan = (startDate: Date = new Date()) => {
     const newPlan: MealPlan = {
       id: Date.now().toString(),
-      weekStarting,
+      startDate,
       meals: currentPlan.meals!,
       createdAt: new Date(),
     };
@@ -126,13 +134,13 @@ export const useMealPlans = () => {
     // Reset current plan
     setCurrentPlan({
       meals: {
-        Mon: null,
-        Tue: null,
-        Wed: null,
-        Thu: null,
-        Fri: null,
-        Sat: null,
-        Sun: null,
+        "Day 1": null,
+        "Day 2": null,
+        "Day 3": null,
+        "Day 4": null,
+        "Day 5": null,
+        "Day 6": null,
+        "Day 7": null,
       }
     });
 
@@ -169,6 +177,27 @@ export const useMealPlans = () => {
     };
   };
 
+  // Find similar recipes based on common ingredients
+  const findSimilarRecipes = (recipe: Recipe, allRecipes: Recipe[]): Recipe[] => {
+    if (!recipe.ingredients || recipe.ingredients.length === 0) return [];
+    
+    const recipeIngredients = new Set(recipe.ingredients.map(ing => ing.toLowerCase()));
+    
+    return allRecipes
+      .filter(r => r.id !== recipe.id && r.ingredients && r.ingredients.length > 0)
+      .map(r => {
+        const commonIngredients = r.ingredients!.filter(ing => 
+          recipeIngredients.has(ing.toLowerCase())
+        ).length;
+        const similarity = commonIngredients / Math.max(recipe.ingredients!.length, r.ingredients!.length);
+        return { recipe: r, similarity };
+      })
+      .filter(({ similarity }) => similarity > 0.3) // At least 30% ingredient overlap
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 5)
+      .map(({ recipe }) => recipe);
+  };
+
   return {
     mealPlans,
     currentPlan,
@@ -180,5 +209,6 @@ export const useMealPlans = () => {
     getAvailableRecipes,
     getRecentlyUsedRecipes,
     getPlanStats,
+    findSimilarRecipes,
   };
 };

@@ -15,10 +15,10 @@ interface RecipeCardProps {
   difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
   theme?: string;
-  ingredients?: string[];
+  ingredients: string[];
 }
 
-export const RecipeCard = ({ id, title, image, cookTime, servings, difficulty, tags, ingredients = [] }: RecipeCardProps) => {
+export const RecipeCard = ({ id, title, image, cookTime, servings, difficulty, tags, ingredients }: RecipeCardProps) => {
   const [cost, setCost] = useState<{ total: number; currency: string } | null>(null);
   const [loadingCost, setLoadingCost] = useState(false);
 

@@ -5,7 +5,7 @@ import { Calendar, Clock, Copy, Trash2 } from "lucide-react";
 import { useMealPlans, MealPlan } from "@/hooks/useMealPlans";
 import { formatDistanceToNow } from "date-fns";
 
-const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const planDays = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
 
 export const MealPlanHistory = () => {
   const { mealPlans, loadPlan, deletePlan } = useMealPlans();
@@ -61,7 +61,7 @@ export const MealPlanHistory = () => {
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-primary" />
                       <span className="font-semibold text-sm">
-                        Week of {plan.weekStarting.toLocaleDateString()}
+                        Plan from {plan.startDate.toLocaleDateString()}
                       </span>
                     </div>
                     <Badge variant="secondary" className="bg-gradient-warm text-primary-foreground">
@@ -80,9 +80,9 @@ export const MealPlanHistory = () => {
                     </div>
                   </div>
 
-                  {/* Mini Calendar View */}
+                  {/* Mini Plan View */}
                   <div className="grid grid-cols-7 gap-1">
-                    {weekDays.map((day) => {
+                    {planDays.map((day) => {
                       const meal = plan.meals[day];
                       return (
                         <div key={day} className="text-center">
@@ -103,7 +103,7 @@ export const MealPlanHistory = () => {
 
                   {/* Meal Preview */}
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">This Week's Dinners:</h4>
+                    <h4 className="font-semibold text-sm">Planned Dinners:</h4>
                     <div className="space-y-1 max-h-20 overflow-y-auto">
                       {Object.entries(plan.meals)
                         .filter(([_, recipe]) => recipe)

@@ -1,8 +1,10 @@
 import { RecipeCard } from "./RecipeCard";
-import { RecipeFilters } from "./RecipeFilters";
+import { RecipeSearch } from "./RecipeSearch";
+import { SimilarRecipes } from "./SimilarRecipes";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMealPlans } from "@/hooks/useMealPlans";
 
 // Mock data - in real app this would come from your API
 const featuredRecipes = [
@@ -75,8 +77,11 @@ const featuredRecipes = [
 ];
 
 export const FeaturedRecipes = () => {
+  const { findSimilarRecipes } = useMealPlans();
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
   const [quickMealsOnly, setQuickMealsOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRecipeForSimilar, setSelectedRecipeForSimilar] = useState<any>(null);
 
   const handleThemeToggle = (theme: string) => {
     setSelectedThemes(prev => 
@@ -90,9 +95,16 @@ export const FeaturedRecipes = () => {
     const matchesTheme = selectedThemes.length === 0 || selectedThemes.some(theme => 
       recipe.tags.includes(theme) || recipe.theme === theme
     );
-    const matchesCookTime = !quickMealsOnly || recipe.cookTime <= 60;
-    return matchesTheme && matchesCookTime;
+    const matchesCookTime = !quickMealsOnly || recipe.cookTime <= 30;
+    const matchesSearch = !searchQuery || 
+      recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      recipe.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    return matchesTheme && matchesCookTime && matchesSearch;
   });
+
+  const availableThemes = Array.from(new Set(featuredRecipes.flatMap(recipe => recipe.tags)));
 
   return (
     <section className="py-20 bg-muted/30">
@@ -107,31 +119,56 @@ export const FeaturedRecipes = () => {
         </div>
 
         <div className="grid lg:grid-cols-4 gap-8 mb-12">
-          {/* Filters Sidebar */}
+          {/* Search & Filters Sidebar */}
           <div className="lg:col-span-1">
-            <RecipeFilters
+            <RecipeSearch
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
               selectedThemes={selectedThemes}
               onThemeToggle={handleThemeToggle}
               quickMealsOnly={quickMealsOnly}
               onQuickMealsToggle={() => setQuickMealsOnly(!quickMealsOnly)}
+              availableThemes={availableThemes}
             />
           </div>
 
           {/* Recipes Grid */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 space-y-8">
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredRecipes.map((recipe, index) => (
-                <RecipeCard key={recipe.id} {...recipe} />
+                <div key={recipe.id}>
+                  <RecipeCard {...recipe} />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedRecipeForSimilar(
+                      selectedRecipeForSimilar?.id === recipe.id ? null : recipe
+                    )}
+                    className="mt-2 w-full text-xs text-muted-foreground hover:text-primary"
+                  >
+                    {selectedRecipeForSimilar?.id === recipe.id 
+                      ? "Hide similar recipes" 
+                      : "Show similar recipes"}
+                  </Button>
+                </div>
               ))}
             </div>
             
             {filteredRecipes.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-lg text-muted-foreground">
-                  No recipes match your filters 😅<br/>
-                  Try adjusting your theme selections!
+                  No recipes match your search 😅<br/>
+                  Try different keywords or filters!
                 </p>
               </div>
+            )}
+
+            {/* Similar Recipes Section */}
+            {selectedRecipeForSimilar && (
+              <SimilarRecipes
+                recipe={selectedRecipeForSimilar}
+                similarRecipes={findSimilarRecipes(selectedRecipeForSimilar, featuredRecipes)}
+              />
             )}
           </div>
         </div>

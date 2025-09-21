@@ -141,7 +141,7 @@ export const ShoppingListGenerator = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-semibold">
-                            Week of {plan.weekStarting.toLocaleDateString()}
+                            Plan from {plan.startDate.toLocaleDateString()}
                           </h4>
                           <p className="text-sm text-muted-foreground">
                             {mealCount} dinners planned
@@ -198,7 +198,7 @@ export const ShoppingListGenerator = () => {
 
                 <div className="mb-4 p-3 bg-gradient-fresh/10 rounded-xl border border-primary/20">
                   <p className="text-sm font-medium">
-                    Week of {selectedPlanData.weekStarting.toLocaleDateString()}
+                    Plan from {selectedPlanData.startDate.toLocaleDateString()}
                   </p>
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">

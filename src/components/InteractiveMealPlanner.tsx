@@ -6,7 +6,7 @@ import { useMealPlans } from "@/hooks/useMealPlans";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
-const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const planDays = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
 
 // Mock recipes - in real app this would come from your recipe data
 const availableRecipes = [
@@ -18,7 +18,8 @@ const availableRecipes = [
     servings: 4,
     difficulty: "Easy" as const,
     tags: ["Mediterranean", "Fresh & Light"],
-    theme: "Mediterranean"
+    theme: "Mediterranean",
+    ingredients: ["Pasta", "Cherry tomatoes", "Olives", "Olive oil", "Garlic", "Fresh basil"]
   },
   {
     id: "2", 
@@ -28,7 +29,8 @@ const availableRecipes = [
     servings: 6,
     difficulty: "Medium" as const,
     tags: ["Comfort Food", "Hearty & Filling"],
-    theme: "Comfort Food"
+    theme: "Comfort Food",
+    ingredients: ["Arborio rice", "Mushrooms", "Vegetable broth", "Nutritional yeast", "White wine", "Onion"]
   },
   {
     id: "3",
@@ -38,7 +40,8 @@ const availableRecipes = [
     servings: 4,
     difficulty: "Medium" as const,
     tags: ["Asian Fusion", "Spicy Heat"],
-    theme: "Asian Fusion"
+    theme: "Asian Fusion",
+    ingredients: ["Coconut milk", "Thai green curry paste", "Vegetables mix", "Jasmine rice", "Lime", "Thai basil"]
   },
   {
     id: "4",
@@ -48,7 +51,8 @@ const availableRecipes = [
     servings: 3,
     difficulty: "Easy" as const,
     tags: ["Asian Fusion", "Fresh & Light"],
-    theme: "Asian Fusion"
+    theme: "Asian Fusion",
+    ingredients: ["Bell peppers", "Broccoli", "Carrots", "Soy sauce", "Ginger", "Garlic", "Sesame oil"]
   },
 ];
 
@@ -122,9 +126,9 @@ export const InteractiveMealPlanner = () => {
             </div>
           </div>
 
-          {/* Week Grid */}
+          {/* Plan Grid */}
           <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-6">
-            {weekDays.map((day) => {
+            {planDays.map((day) => {
               const dayPlan = currentPlan.meals?.[day];
               
               return (
@@ -198,7 +202,7 @@ export const InteractiveMealPlanner = () => {
             <Button 
               variant="outline" 
               onClick={() => {
-                weekDays.forEach(day => removeRecipeFromDay(day));
+                planDays.forEach(day => removeRecipeFromDay(day));
                 toast({ title: "Plan cleared! 🧹", description: "Ready to start fresh!" });
               }}
               className="rounded-xl border-2 border-dashed hover:border-destructive/50"
@@ -212,7 +216,7 @@ export const InteractiveMealPlanner = () => {
               className="bg-gradient-fun shadow-playful hover:shadow-glow transition-all duration-300 hover:scale-105"
             >
               <Save className="h-4 w-4 mr-2" />
-              🌟 Save This Week's Plan 🌟
+              🌟 Save This Plan 🌟
             </Button>
           </div>
 
