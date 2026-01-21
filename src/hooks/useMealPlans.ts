@@ -31,7 +31,8 @@ export interface MealPlan {
 }
 
 const STORAGE_KEY = 'vegan-meal-plans';
-const GRACE_PERIOD_WEEKS = 4; // Don't repeat recipes for 4 weeks
+const GRACE_PERIOD_WEEKS = 3; // Don't repeat recipes for 3 weeks
+const PLAN_DAYS = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
 
 export const useMealPlans = () => {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
@@ -71,30 +72,118 @@ export const useMealPlans = () => {
     setMealPlans(plans);
   };
 
-  // Get recently used recipes (within grace period)
-  const getRecentlyUsedRecipes = (): Set<string> => {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - (GRACE_PERIOD_WEEKS * 7));
-    
-    const recentRecipeIds = new Set<string>();
+  // Get recently used recipes with decay scoring (more recent = higher penalty)
+  const getRecipeDecayScores = (): Map<string, number> => {
+    const now = new Date();
+    const decayScores = new Map<string, number>();
     
     mealPlans.forEach(plan => {
-      if (plan.startDate >= cutoffDate) {
-        Object.values(plan.meals).forEach(recipe => {
-          if (recipe) {
-            recentRecipeIds.add(recipe.id);
-          }
-        });
-      }
+      const daysSincePlan = Math.floor((now.getTime() - plan.startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const weeksAgo = daysSincePlan / 7;
+      
+      // Skip if beyond grace period (3 weeks)
+      if (weeksAgo >= GRACE_PERIOD_WEEKS) return;
+      
+      // Calculate decay: 1.0 for this week, decreasing to 0 at cutoff
+      // Recent weeks have higher penalty (closer to 1)
+      const decayPenalty = Math.max(0, 1 - (weeksAgo / GRACE_PERIOD_WEEKS));
+      
+      Object.values(plan.meals).forEach(recipe => {
+        if (recipe) {
+          const existingScore = decayScores.get(recipe.id) || 0;
+          // Accumulate penalties (in case recipe was used multiple times)
+          decayScores.set(recipe.id, Math.min(1, existingScore + decayPenalty));
+        }
+      });
     });
     
-    return recentRecipeIds;
+    return decayScores;
+  };
+
+  // Get recently used recipes (within grace period) - for backward compatibility
+  const getRecentlyUsedRecipes = (): Set<string> => {
+    const decayScores = getRecipeDecayScores();
+    // Return recipes with any penalty as "recently used"
+    return new Set(Array.from(decayScores.keys()).filter(id => decayScores.get(id)! > 0));
   };
 
   // Filter recipes to avoid repetition
   const getAvailableRecipes = (allRecipes: Recipe[]): Recipe[] => {
     const recentlyUsed = getRecentlyUsedRecipes();
     return allRecipes.filter(recipe => !recentlyUsed.has(recipe.id));
+  };
+
+  // Calculate ingredient overlap score between two recipes (0-1, higher = more overlap)
+  const calculateIngredientOverlap = (recipe1: Recipe, recipe2: Recipe): number => {
+    if (!recipe1.ingredients?.length || !recipe2.ingredients?.length) return 0;
+    
+    const ingredients1 = new Set(recipe1.ingredients.map(i => i.toLowerCase().trim()));
+    const ingredients2 = new Set(recipe2.ingredients.map(i => i.toLowerCase().trim()));
+    
+    let overlap = 0;
+    ingredients1.forEach(ing => {
+      if (ingredients2.has(ing)) overlap++;
+    });
+    
+    return overlap / Math.max(ingredients1.size, ingredients2.size);
+  };
+
+  // Score a recipe for auto-fill selection (lower = better)
+  const scoreRecipeForSelection = (
+    recipe: Recipe, 
+    selectedRecipes: Recipe[],
+    decayScores: Map<string, number>
+  ): number => {
+    // Penalty for recently used (0-100 points)
+    const decayPenalty = (decayScores.get(recipe.id) || 0) * 100;
+    
+    // Bonus for ingredient overlap with already-selected recipes (-10 to 0 per recipe)
+    const overlapBonus = selectedRecipes.reduce((bonus, selected) => {
+      return bonus - (calculateIngredientOverlap(recipe, selected) * 10);
+    }, 0);
+    
+    // Random factor for variety (0-5 points)
+    const randomFactor = Math.random() * 5;
+    
+    return decayPenalty + overlapBonus + randomFactor;
+  };
+
+  // Auto-fill the week with unique recipes, prioritizing ingredient overlap and avoiding recent recipes
+  const autoFillWeek = (allRecipes: Recipe[]): { filled: number; recipes: Recipe[] } => {
+    const decayScores = getRecipeDecayScores();
+    const selectedRecipes: Recipe[] = [];
+    const usedIds = new Set<string>();
+    
+    // Also exclude recipes already in current plan
+    Object.values(currentPlan.meals || {}).forEach(recipe => {
+      if (recipe) usedIds.add(recipe.id);
+    });
+    
+    // Get available recipes (not recently used and not already in plan)
+    const candidates = allRecipes.filter(r => !usedIds.has(r.id));
+    
+    // Fill each empty day
+    PLAN_DAYS.forEach(day => {
+      if (currentPlan.meals?.[day]) return; // Skip if already filled
+      
+      // Score all remaining candidates
+      const scoredCandidates = candidates
+        .filter(r => !usedIds.has(r.id))
+        .map(recipe => ({
+          recipe,
+          score: scoreRecipeForSelection(recipe, selectedRecipes, decayScores)
+        }))
+        .sort((a, b) => a.score - b.score);
+      
+      if (scoredCandidates.length > 0) {
+        const selected = scoredCandidates[0].recipe;
+        addRecipeToDay(day, selected);
+        selectedRecipes.push(selected);
+        usedIds.add(selected.id);
+      }
+    });
+    
+    return { filled: selectedRecipes.length, recipes: selectedRecipes };
   };
 
   // Add recipe to current plan
@@ -210,5 +299,7 @@ export const useMealPlans = () => {
     getRecentlyUsedRecipes,
     getPlanStats,
     findSimilarRecipes,
+    autoFillWeek,
+    getRecipeDecayScores,
   };
 };
