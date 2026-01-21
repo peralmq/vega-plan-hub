@@ -14,11 +14,14 @@ src/data/recipes/
 
 Each recipe is a Markdown file with the following structure:
 
+
+
 ```markdown
 ---
 id: "unique-id"
 title: "Recipe Title"
-image: "image-filename.jpg"
+imageUrl: "image-filename.jpg" # Local filename or URL for the dish image
+url: "" # Original recipe URL (if imported)
 cookTime: 30
 servings: 4
 difficulty: "Easy"
@@ -44,11 +47,14 @@ tags: ["Tag1", "Tag2"]
 
 ## Field Descriptions & Reasoning
 
+
+
 ### YAML Frontmatter
 
 - **id**: Unique identifier for the recipe (used for lookups and URLs).
 - **title**: Human-friendly recipe name.
-- **image**: Filename or URL for the recipe image.
+- **imageUrl**: Filename or URL for the recipe image (local or remote).
+- **url**: Original recipe URL (if imported; empty if not applicable).
 - **cookTime**: Estimated cooking time in minutes (integer).
 - **servings**: Number of servings (integer).
 - **difficulty**: One of "Easy", "Medium", or "Hard" (for filtering).

@@ -21,13 +21,16 @@ Add a new recipe to the local database in `src/data/recipes/` in the Vega Plan H
 
 See `src/data/recipes/README.md` for full documentation and rationale.
 
+
+
 ### Example Markdown Format
 
 ```markdown
 ---
 id: 'chickpea-curry'
 title: 'Chickpea Curry'
-image: 'chickpea-curry.jpg'
+imageUrl: 'chickpea-curry.jpg'
+url: ''
 cookTime: 30
 servings: 4
 difficulty: 'Easy'
@@ -68,6 +71,8 @@ If a URL is provided, use the following prompt:
 Parse the recipe at this URL into a Vega Plan Hub markdown recipe file. Use the format described in src/data/recipes/README.md. Only output the markdown file content. URL: <URL>
 ```
 
+
+
 ## Template (for title input)
 
 If a title is provided, create a file with this content:
@@ -76,7 +81,8 @@ If a title is provided, create a file with this content:
 ---
 id: "<slugified-title>"
 title: "<title>"
-image: ""
+imageUrl: ""
+url: ""
 cookTime:
 servings:
 difficulty: ""
