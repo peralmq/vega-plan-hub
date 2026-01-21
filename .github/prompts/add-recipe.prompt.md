@@ -27,7 +27,8 @@ See `src/data/recipes/README.md` for full documentation and rationale.
 ---
 id: 'chickpea-curry'
 title: 'Chickpea Curry'
-image: 'chickpea-curry.jpg'
+imageUrl: 'chickpea-curry.jpg'
+url: ''
 cookTime: 30
 servings: 4
 difficulty: 'Easy'
@@ -76,7 +77,8 @@ If a title is provided, create a file with this content:
 ---
 id: "<slugified-title>"
 title: "<title>"
-image: ""
+imageUrl: ""
+url: ""
 cookTime:
 servings:
 difficulty: ""
