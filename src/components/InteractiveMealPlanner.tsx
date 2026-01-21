@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, Save, RotateCcw } from "lucide-react";
+import { Plus, Calendar, Save, RotateCcw, Sparkles } from "lucide-react";
 import { useMealPlans } from "@/hooks/useMealPlans";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -63,13 +63,35 @@ export const InteractiveMealPlanner = () => {
     removeRecipeFromDay, 
     saveCurrentPlan, 
     getAvailableRecipes,
-    getPlanStats 
+    getPlanStats,
+    autoFillWeek,
   } = useMealPlans();
   
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const availableToday = getAvailableRecipes(availableRecipes);
   const stats = getPlanStats();
+
+  const handleAutoFill = () => {
+    const result = autoFillWeek(availableRecipes);
+    if (result.filled === 0) {
+      toast({
+        title: "No recipes available 😅",
+        description: "All recipes were recently used. Try again next week!",
+        variant: "destructive",
+      });
+    } else if (result.filled < 7) {
+      toast({
+        title: `Filled ${result.filled} days! 🎲`,
+        description: `Only ${result.filled} unique recipes available. Add more recipes to fill the week!`,
+      });
+    } else {
+      toast({
+        title: "Week auto-filled! 🎉",
+        description: "7 unique dinners selected based on variety and ingredient overlap!",
+      });
+    }
+  };
 
   const handleSavePlan = () => {
     if (stats.totalMeals === 0) {
@@ -198,7 +220,7 @@ export const InteractiveMealPlanner = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <Button 
               variant="outline" 
               onClick={() => {
@@ -209,6 +231,14 @@ export const InteractiveMealPlanner = () => {
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Clear Plan
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={handleAutoFill}
+              className="rounded-xl border-2 border-dashed hover:border-primary/50 bg-gradient-to-r from-primary/5 to-accent/5"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Auto-Fill Week ✨
             </Button>
             <Button 
               size="lg" 
