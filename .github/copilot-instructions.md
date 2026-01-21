@@ -5,6 +5,7 @@
 Vega Plan Hub is a modern vegan meal planning application that helps users discover recipes, plan weekly meals, and generate shopping lists with estimated costs. The application features a playful, cartoonish design with vibrant gradients and emoji accents, targeting Swedish users with integration to Swedish grocery prices from Mathem.se.
 
 **Core Features:**
+
 - Recipe browsing and filtering
 - Interactive meal planning with 7-day planning cycles
 - Cooking view with step-by-step instructions
@@ -16,12 +17,14 @@ Vega Plan Hub is a modern vegan meal planning application that helps users disco
 ## Technology Stack
 
 ### Core Framework
+
 - **React 19.2.3** - UI framework
 - **TypeScript 5.8.3** - Type-safe JavaScript with relaxed strictness settings
 - **Vite 5.4.19** - Build tool and dev server
 - **React Router DOM 7.12.0** - Client-side routing
 
 ### UI & Styling
+
 - **shadcn-ui** - Radix UI-based component library
 - **Tailwind CSS 3.4.17** - Utility-first CSS framework
 - **Lucide React 0.562.0** - Icon library
@@ -29,12 +32,14 @@ Vega Plan Hub is a modern vegan meal planning application that helps users disco
 - **tailwindcss-animate 1.0.7** - Animation utilities
 
 ### State Management & Data
+
 - **TanStack Query 5.90.19** - Server state management
 - **React Hook Form 7.71.1** - Form handling
 - **Zod 4.3.5** - Schema validation
 - **localStorage** - Client-side persistence for meal plans
 
 ### Development Tools
+
 - **ESLint 9.32.0** - Linting
 - **TypeScript ESLint 8.38.0** - TypeScript-specific linting
 - **Bun** - Alternative package manager (bun.lockb present)
@@ -44,6 +49,7 @@ Vega Plan Hub is a modern vegan meal planning application that helps users disco
 ### TypeScript Conventions
 
 **Strictness Configuration:**
+
 ```json
 {
   "noImplicitAny": false,
@@ -60,6 +66,7 @@ Vega Plan Hub is a modern vegan meal planning application that helps users disco
 - Use `type` for unions, intersections, and utility types
 
 **DO:** Define clear interfaces for component props and data models
+
 ```typescript
 interface RecipeCardProps {
   id?: string;
@@ -67,13 +74,14 @@ interface RecipeCardProps {
   image: string;
   cookTime: number;
   servings: number;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: 'Easy' | 'Medium' | 'Hard';
   tags: string[];
   ingredients: string[];
 }
 ```
 
 **DON'T:** Skip types entirely even though strictness is off
+
 ```typescript
 // Avoid
 function processRecipe(recipe) { ... }
@@ -85,12 +93,14 @@ function processRecipe(recipe: Recipe) { ... }
 ### React Patterns
 
 **Component Structure:**
+
 - Use functional components with hooks
 - Export components as named exports (except for pages, which use default exports)
 - Place component files in appropriate directories (`src/components`, `src/pages`)
 - Keep component files focused on a single responsibility
 
 **DO:** Use hooks for state and side effects
+
 ```typescript
 export const RecipeCard = ({ id, title, ingredients }: RecipeCardProps) => {
   const [cost, setCost] = useState<{ total: number; currency: string } | null>(null);
@@ -105,6 +115,7 @@ export const RecipeCard = ({ id, title, ingredients }: RecipeCardProps) => {
 ```
 
 **DON'T:** Use class components
+
 ```typescript
 // Avoid
 class RecipeCard extends React.Component { ... }
@@ -113,12 +124,14 @@ class RecipeCard extends React.Component { ... }
 ### Routing Conventions
 
 **Route Organization:**
+
 - All routes defined in `src/App.tsx`
 - Page components in `src/pages/`
 - Catch-all route (`*`) must be last
 - Use React Router DOM's `BrowserRouter`
 
 **DO:** Add new routes above the catch-all
+
 ```typescript
 <Routes>
   <Route path="/" element={<Index />} />
@@ -131,20 +144,23 @@ class RecipeCard extends React.Component { ... }
 ### Import Path Conventions
 
 **Path Aliases:**
+
 - Use `@/` for absolute imports from `src/`
 - Always use the alias for cleaner imports
 
 **DO:**
+
 ```typescript
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useMealPlans } from "@/hooks/useMealPlans";
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { useMealPlans } from '@/hooks/useMealPlans';
 ```
 
 **DON'T:**
+
 ```typescript
-import { Button } from "../../../components/ui/button";
-import { cn } from "../../lib/utils";
+import { Button } from '../../../components/ui/button';
+import { cn } from '../../lib/utils';
 ```
 
 ## Styling with Tailwind CSS
@@ -153,6 +169,7 @@ import { cn } from "../../lib/utils";
 
 **Color Palette:**
 The application uses a vibrant, food-themed color palette defined in HSL:
+
 - `forest` (120, 70%, 45%) - Green vegetables
 - `citrus` (60, 95%, 60%) - Yellow citrus fruits
 - `carrot` (25, 95%, 60%) - Orange root vegetables
@@ -161,17 +178,20 @@ The application uses a vibrant, food-themed color palette defined in HSL:
 
 **Gradients:**
 Use predefined gradient classes for consistent branding:
+
 - `bg-gradient-primary` - Purple to berry gradient
 - `bg-gradient-fresh` - Forest green to avocado
 - `bg-gradient-warm` - Citrus to carrot
 - `bg-gradient-fun` - Multi-color playful gradient
 
 **Shadows:**
+
 - `shadow-fresh` - Subtle green shadow for natural elements
 - `shadow-glow` - Purple glow effect
 - `shadow-playful` - Purple shadow with bounce effect
 
 **DO:** Use semantic color tokens from the design system
+
 ```typescript
 <Badge className="bg-gradient-fresh text-primary-foreground">
   Easy ✨
@@ -179,6 +199,7 @@ Use predefined gradient classes for consistent branding:
 ```
 
 **DON'T:** Use arbitrary color values
+
 ```typescript
 // Avoid
 <Badge className="bg-[#4ade80] text-white">
@@ -189,11 +210,13 @@ Use predefined gradient classes for consistent branding:
 ### Component Styling
 
 **Utility Usage:**
+
 - Use `cn()` helper from `@/lib/utils` to merge Tailwind classes
 - Apply hover states, transitions, and animations for interactivity
 - Use responsive design utilities (`sm:`, `md:`, `lg:`, etc.)
 
 **DO:** Use cn() for conditional styling
+
 ```typescript
 import { cn } from "@/lib/utils";
 
@@ -205,6 +228,7 @@ import { cn } from "@/lib/utils";
 ```
 
 **DON'T:** Manually concatenate class strings
+
 ```typescript
 // Avoid
 <div className={`base-class ${isActive ? 'active-class' : ''} ${className}`}>
@@ -216,6 +240,7 @@ import { cn } from "@/lib/utils";
 This application embraces emojis as part of its friendly, approachable design. They should be used consistently throughout the UI.
 
 **DO:** Add emojis to enhance user experience
+
 ```typescript
 <Badge>Easy ✨</Badge>
 <Badge>⚡ Quick!</Badge>
@@ -224,6 +249,7 @@ This application embraces emojis as part of its friendly, approachable design. T
 ```
 
 **Guidelines:**
+
 - Use food-related emojis (🍽️, 👨‍🍳, 🥗, 🥕, etc.)
 - Add sparkles (✨) for emphasis
 - Include time indicators (⏰, ⏱️)
@@ -235,6 +261,7 @@ This application embraces emojis as part of its friendly, approachable design. T
 ### Component Library Structure
 
 All UI components are in `src/components/ui/` and follow shadcn-ui conventions:
+
 - Built on Radix UI primitives
 - Styled with Tailwind CSS
 - Use `class-variance-authority` for variants
@@ -243,6 +270,7 @@ All UI components are in `src/components/ui/` and follow shadcn-ui conventions:
 ### Common Components
 
 **Button:**
+
 ```typescript
 import { Button } from "@/components/ui/button";
 
@@ -255,6 +283,7 @@ import { Button } from "@/components/ui/button";
 ```
 
 **Badge:**
+
 ```typescript
 import { Badge } from "@/components/ui/badge";
 
@@ -266,6 +295,7 @@ import { Badge } from "@/components/ui/badge";
 ```
 
 **Card:**
+
 ```typescript
 import { Card } from "@/components/ui/card";
 
@@ -275,6 +305,7 @@ import { Card } from "@/components/ui/card";
 ```
 
 **DO:** Use existing shadcn-ui components
+
 ```typescript
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -285,6 +316,7 @@ import { Card } from "@/components/ui/card";
 ```
 
 **DON'T:** Create custom basic components when shadcn-ui provides them
+
 ```typescript
 // Avoid reinventing existing components
 const CustomButton = ({ children }) => (
@@ -297,6 +329,7 @@ const CustomButton = ({ children }) => (
 ### Adding New shadcn-ui Components
 
 When adding new components from shadcn-ui:
+
 1. Use the CLI: `npx shadcn@latest add [component-name]`
 2. Components are added to `src/components/ui/`
 3. Update `components.json` if needed
@@ -311,16 +344,17 @@ When adding new components from shadcn-ui:
 Custom hooks encapsulate reusable logic and state management.
 
 **DO:** Create custom hooks for complex state logic
+
 ```typescript
 // src/hooks/useMealPlans.ts
 export const useMealPlans = () => {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
-  
+
   const saveMealPlans = (plans: MealPlan[]) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
     setMealPlans(plans);
   };
-  
+
   return {
     mealPlans,
     saveMealPlans,
@@ -332,11 +366,13 @@ export const useMealPlans = () => {
 ### localStorage Usage
 
 **Persistence Strategy:**
+
 - Meal plans are stored in localStorage under key `'vegan-meal-plans'`
 - Data is serialized as JSON
 - Dates are stored as ISO strings and converted on load
 
 **DO:** Handle localStorage errors gracefully
+
 ```typescript
 useEffect(() => {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -352,6 +388,7 @@ useEffect(() => {
 ```
 
 **DON'T:** Assume localStorage is always available
+
 ```typescript
 // Avoid
 const data = JSON.parse(localStorage.getItem(key));
@@ -360,6 +397,7 @@ const data = JSON.parse(localStorage.getItem(key));
 ### TanStack Query
 
 **Usage:**
+
 - Set up in `App.tsx` with `QueryClientProvider`
 - Use for server state management when needed
 - Currently used for potential API integrations
@@ -373,14 +411,18 @@ const data = JSON.parse(localStorage.getItem(key));
 Services encapsulate business logic and external integrations.
 
 **Example: MathemPriceService**
+
 ```typescript
 export class MathemPriceService {
-  private static cache: Map<string, { data: PriceLookupResult; timestamp: number }> = new Map();
-  
+  private static cache: Map<
+    string,
+    { data: PriceLookupResult; timestamp: number }
+  > = new Map();
+
   static async lookupPrice(ingredient: string): Promise<PriceLookupResult> {
     // Implementation with caching
   }
-  
+
   static formatPrice(price: number): string {
     return `${price.toFixed(2)} kr`;
   }
@@ -388,29 +430,32 @@ export class MathemPriceService {
 ```
 
 **DO:** Use static methods for stateless services
+
 ```typescript
 const cost = await MathemPriceService.calculateTotalCost(ingredients);
 const formattedPrice = MathemPriceService.formatPrice(cost.totalCost);
 ```
 
 **DO:** Implement caching for expensive operations
+
 ```typescript
 private static cache: Map<string, { data: T; timestamp: number }> = new Map();
 ```
 
 **DON'T:** Put business logic directly in components
+
 ```typescript
 // Avoid
 const RecipeCard = () => {
   const [price, setPrice] = useState(0);
-  
+
   // Complex pricing logic here...
 };
 
 // Prefer
 const RecipeCard = () => {
   const [price, setPrice] = useState(0);
-  
+
   useEffect(() => {
     PriceService.calculatePrice(ingredients).then(setPrice);
   }, [ingredients]);
@@ -422,6 +467,7 @@ const RecipeCard = () => {
 ### Testing
 
 **Current State:**
+
 - No testing infrastructure is currently set up
 - When adding tests, prefer:
   - Vitest for unit testing
@@ -431,11 +477,13 @@ const RecipeCard = () => {
 ### Documentation
 
 **Code Comments:**
+
 - Use JSDoc comments for public functions and complex logic
 - Comment on "why" not "what"
 - Keep comments up to date with code changes
 
 **DO:**
+
 ```typescript
 /**
  * Simulates fetching ingredient prices from Mathem.se
@@ -445,6 +493,7 @@ static async lookupPrice(ingredient: string): Promise<PriceLookupResult>
 ```
 
 **DON'T:** State the obvious
+
 ```typescript
 // Set the price
 setPrice(100);
@@ -453,12 +502,14 @@ setPrice(100);
 ### ESLint Configuration
 
 **Rules:**
+
 - React Hooks rules enforced
 - React Refresh for component updates
 - `@typescript-eslint/no-unused-vars` disabled for development speed
 - Standard JS and TypeScript recommended rules
 
 **DO:** Run linting before commits
+
 ```bash
 npm run lint
 ```
@@ -484,18 +535,21 @@ src/
 ### Component Organization
 
 **Page Components:**
+
 - Located in `src/pages/`
 - One page per route
 - Export as default
 - Compose feature components
 
 **Feature Components:**
+
 - Located in `src/components/`
 - Reusable across pages
 - Export as named exports
 - Single responsibility
 
 **UI Components:**
+
 - Located in `src/components/ui/`
 - From shadcn-ui library
 - Don't modify directly; extend if needed
@@ -503,16 +557,19 @@ src/
 ### Data Flow
 
 **Recipe Data:**
+
 - Currently hardcoded in components/pages
 - Should be treated as if fetched from an API
 - Use the `Recipe` interface from `src/hooks/useMealPlans.ts`
 
 **Meal Plans:**
+
 - Managed by `useMealPlans` hook
 - Persisted to localStorage
 - No server synchronization
 
 **Price Data:**
+
 - Fetched through `MathemPriceService`
 - Cached for 30 minutes
 - Mock data, simulates Mathem.se API
@@ -532,6 +589,7 @@ src/
 **Problem:** Changes to localStorage not reflected in UI
 
 **Solution:** Always update React state when writing to localStorage
+
 ```typescript
 const saveMealPlans = (plans: MealPlan[]) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
@@ -544,6 +602,7 @@ const saveMealPlans = (plans: MealPlan[]) => {
 **Problem:** Dates become strings when stored in localStorage
 
 **Solution:** Convert dates when loading from storage
+
 ```typescript
 const parsed = JSON.parse(stored);
 const plansWithDates = parsed.map((plan: any) => ({
@@ -558,19 +617,20 @@ const plansWithDates = parsed.map((plan: any) => ({
 **Problem:** Missing cleanup or race conditions
 
 **Solution:** Handle cleanup properly
+
 ```typescript
 useEffect(() => {
   let cancelled = false;
-  
+
   const loadData = async () => {
     const result = await fetchData();
     if (!cancelled) {
       setData(result);
     }
   };
-  
+
   loadData();
-  
+
   return () => {
     cancelled = true;
   };
@@ -582,6 +642,7 @@ useEffect(() => {
 **Problem:** Classes not applying due to specificity issues
 
 **Solution:** Use `cn()` utility for proper class merging
+
 ```typescript
 // Wrong - later classes might not apply
 <div className={`base-class ${conditionalClass}`} />
@@ -595,6 +656,7 @@ useEffect(() => {
 **Problem:** Catch-all route matching before specific routes
 
 **Solution:** Always add new routes above the `*` route in `App.tsx`
+
 ```typescript
 <Routes>
   <Route path="/new-route" element={<NewPage />} />
@@ -608,19 +670,20 @@ useEffect(() => {
 **Problem:** Inconsistent prop naming between components
 
 **Solution:** Follow consistent naming patterns
+
 ```typescript
 // DO: Use consistent patterns
 interface RecipeCardProps {
-  cookTime: number;      // camelCase for numbers
-  difficulty: string;    // lowercase for strings
-  tags: string[];        // plural for arrays
+  cookTime: number; // camelCase for numbers
+  difficulty: string; // lowercase for strings
+  tags: string[]; // plural for arrays
 }
 
 // DON'T: Mix conventions
 interface RecipeCardProps {
-  cook_time: number;     // snake_case
-  Difficulty: string;    // PascalCase
-  tag: string[];         // singular for array
+  cook_time: number; // snake_case
+  Difficulty: string; // PascalCase
+  tag: string[]; // singular for array
 }
 ```
 
@@ -629,6 +692,7 @@ interface RecipeCardProps {
 **Problem:** React warnings about missing keys in list renders
 
 **Solution:** Always provide stable keys
+
 ```typescript
 // DO: Use unique, stable keys
 {tags.map((tag) => (
@@ -737,6 +801,7 @@ npm run preview
 ## Swedish Market Considerations
 
 This application targets Swedish users:
+
 - All prices in Swedish Kronor (SEK, "kr")
 - Measurements in metric system
 - Integration with Mathem.se (Swedish online grocery)
@@ -746,6 +811,7 @@ This application targets Swedish users:
 ## Lovable Integration
 
 This project was initially created with Lovable (GPTEngineer fork) and maintains that workflow:
+
 - Changes can be made via Lovable IDE
 - Local development supported
 - Commits from Lovable automatically sync
