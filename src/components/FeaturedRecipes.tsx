@@ -2,79 +2,10 @@ import { RecipeCard } from "./RecipeCard";
 import { RecipeSearch } from "./RecipeSearch";
 import { SimilarRecipes } from "./SimilarRecipes";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useMealPlans } from "@/hooks/useMealPlans";
-
-// Mock data - in real app this would come from your API
-const featuredRecipes = [
-  {
-    id: "1",
-    title: "Mediterranean Buddha Bowl",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
-    cookTime: 25,
-    servings: 4,
-    difficulty: "Easy" as const,
-    tags: ["Mediterranean", "Fresh & Light"],
-    theme: "Mediterranean",
-    ingredients: ["Pasta", "Cherry tomatoes", "Olives", "Olive oil", "Garlic", "Fresh basil"]
-  },
-  {
-    id: "2",
-    title: "Creamy Mushroom Risotto", 
-    image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=300&fit=crop",
-    cookTime: 35,
-    servings: 6,
-    difficulty: "Medium" as const,
-    tags: ["Comfort Food", "Hearty & Filling"],
-    theme: "Comfort Food",
-    ingredients: ["Arborio rice", "Mushrooms", "Vegetable broth", "Nutritional yeast", "White wine", "Onion"]
-  },
-  {
-    id: "3",
-    title: "Thai Green Curry",
-    image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&h=300&fit=crop",
-    cookTime: 30,
-    servings: 4,
-    difficulty: "Medium" as const,
-    tags: ["Asian Fusion", "Spicy Heat"],
-    theme: "Asian Fusion",
-    ingredients: ["Coconut milk", "Thai green curry paste", "Vegetables mix", "Jasmine rice", "Lime", "Thai basil"]
-  },
-  {
-    id: "4",
-    title: "Rainbow Veggie Stir-fry",
-    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=300&fit=crop",
-    cookTime: 15,
-    servings: 3,
-    difficulty: "Easy" as const,
-    tags: ["Asian Fusion", "Fresh & Light"],
-    theme: "Asian Fusion",
-    ingredients: ["Bell peppers", "Broccoli", "Carrots", "Soy sauce", "Ginger", "Garlic", "Sesame oil"]
-  },
-  {
-    id: "5",
-    title: "Spicy Lentil Tacos",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    cookTime: 20,
-    servings: 4,
-    difficulty: "Easy" as const,
-    tags: ["Spicy Heat", "Comfort Food"],
-    theme: "Spicy Heat",
-    ingredients: ["Lentils", "Onion", "Garlic", "Bell peppers", "Lime", "Nutritional yeast"]
-  },
-  {
-    id: "6",
-    title: "Stuffed Bell Peppers",
-    image: "https://images.unsplash.com/photo-1571197724963-f0d1b5d2ec44?w=400&h=300&fit=crop",
-    cookTime: 45,
-    servings: 4,
-    difficulty: "Medium" as const,
-    tags: ["Hearty & Filling", "Mediterranean"],
-    theme: "Mediterranean",
-    ingredients: ["Bell peppers", "Jasmine rice", "Mushrooms", "Onion", "Garlic", "Nutritional yeast"]
-  }
-];
+import { loadAllRecipes } from "@/services/recipeLoader";
 
 export const FeaturedRecipes = () => {
   const { findSimilarRecipes } = useMealPlans();
@@ -82,6 +13,9 @@ export const FeaturedRecipes = () => {
   const [quickMealsOnly, setQuickMealsOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRecipeForSimilar, setSelectedRecipeForSimilar] = useState<any>(null);
+
+  // Load recipes from markdown files
+  const featuredRecipes = useMemo(() => loadAllRecipes(), []);
 
   const handleThemeToggle = (theme: string) => {
     setSelectedThemes(prev => 
