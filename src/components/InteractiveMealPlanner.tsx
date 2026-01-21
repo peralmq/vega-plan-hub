@@ -3,58 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, Save, RotateCcw, Sparkles } from "lucide-react";
 import { useMealPlans } from "@/hooks/useMealPlans";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
+import { loadAllRecipes } from "@/services/recipeLoader";
 
 const planDays = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
-
-// Mock recipes - in real app this would come from your recipe data
-const availableRecipes = [
-  {
-    id: "1",
-    title: "Mediterranean Pasta",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
-    cookTime: 45,
-    servings: 4,
-    difficulty: "Easy" as const,
-    tags: ["Mediterranean", "Fresh & Light"],
-    theme: "Mediterranean",
-    ingredients: ["Pasta", "Cherry tomatoes", "Olives", "Olive oil", "Garlic", "Fresh basil"]
-  },
-  {
-    id: "2", 
-    title: "Mushroom Risotto",
-    image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=300&fit=crop",
-    cookTime: 35,
-    servings: 6,
-    difficulty: "Medium" as const,
-    tags: ["Comfort Food", "Hearty & Filling"],
-    theme: "Comfort Food",
-    ingredients: ["Arborio rice", "Mushrooms", "Vegetable broth", "Nutritional yeast", "White wine", "Onion"]
-  },
-  {
-    id: "3",
-    title: "Thai Green Curry",
-    image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&h=300&fit=crop",
-    cookTime: 30,
-    servings: 4,
-    difficulty: "Medium" as const,
-    tags: ["Asian Fusion", "Spicy Heat"],
-    theme: "Asian Fusion",
-    ingredients: ["Coconut milk", "Thai green curry paste", "Vegetables mix", "Jasmine rice", "Lime", "Thai basil"]
-  },
-  {
-    id: "4",
-    title: "Rainbow Stir-fry",
-    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=300&fit=crop",
-    cookTime: 15,
-    servings: 3,
-    difficulty: "Easy" as const,
-    tags: ["Asian Fusion", "Fresh & Light"],
-    theme: "Asian Fusion",
-    ingredients: ["Bell peppers", "Broccoli", "Carrots", "Soy sauce", "Ginger", "Garlic", "Sesame oil"]
-  },
-];
 
 export const InteractiveMealPlanner = () => {
   const { 
@@ -68,6 +21,9 @@ export const InteractiveMealPlanner = () => {
   } = useMealPlans();
   
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  // Load recipes from markdown files
+  const availableRecipes = useMemo(() => loadAllRecipes(), []);
 
   const availableToday = getAvailableRecipes(availableRecipes);
   const stats = getPlanStats();
@@ -197,7 +153,7 @@ export const InteractiveMealPlanner = () => {
                 Choose dinner for <span className="text-primary">{selectedDay}</span> 🍽️
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                {availableToday.slice(0, 4).map((recipe) => (
+                {availableToday.slice(0, 8).map((recipe) => (
                   <Card 
                     key={recipe.id}
                     className="p-3 cursor-pointer hover:shadow-playful transition-all duration-200 hover:scale-105 border-2 border-dashed hover:border-primary/50"
@@ -208,7 +164,7 @@ export const InteractiveMealPlanner = () => {
                       alt={recipe.title}
                       className="w-full h-20 object-cover rounded-lg mb-2"
                     />
-                    <h5 className="font-medium text-sm mb-1">{recipe.title}</h5>
+                    <h5 className="font-medium text-sm mb-1 truncate">{recipe.title}</h5>
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>⏱️ {recipe.cookTime}min</span>
                       <span>🍽️ {recipe.servings} portions</span>
@@ -216,6 +172,11 @@ export const InteractiveMealPlanner = () => {
                   </Card>
                 ))}
               </div>
+              {availableToday.length === 0 && (
+                <p className="text-center text-muted-foreground py-4">
+                  All recipes have been recently used! Add more recipes to the database 📚
+                </p>
+              )}
             </Card>
           )}
 

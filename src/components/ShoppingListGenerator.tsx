@@ -8,14 +8,6 @@ import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { MathemPriceService } from "@/services/mathemPriceService";
 
-// Mock ingredients data with proper ingredient names for Mathem price lookups
-const recipeIngredients: { [key: string]: string[] } = {
-  "1": ["Pasta", "Cherry tomatoes", "Olives", "Olive oil", "Garlic", "Fresh basil"],
-  "2": ["Arborio rice", "Mushrooms", "Vegetable broth", "Nutritional yeast", "White wine", "Onion"],
-  "3": ["Coconut milk", "Thai green curry paste", "Vegetables mix", "Jasmine rice", "Lime", "Thai basil"],
-  "4": ["Bell peppers", "Broccoli", "Carrots", "Soy sauce", "Ginger", "Garlic", "Sesame oil"],
-};
-
 export const ShoppingListGenerator = () => {
   const { mealPlans } = useMealPlans();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -26,6 +18,25 @@ export const ShoppingListGenerator = () => {
     currency: string;
   } | null>(null);
   const [loadingCost, setLoadingCost] = useState(false);
+
+  // Generate shopping list from meal plan recipes
+  const generateShoppingList = (planId: string) => {
+    const plan = mealPlans.find(p => p.id === planId);
+    if (!plan) return [];
+
+    const allIngredients = new Set<string>();
+    Object.values(plan.meals).forEach(recipe => {
+      if (recipe && recipe.ingredients) {
+        recipe.ingredients.forEach(ingredient => {
+          // Clean ingredient string - remove quantities for better grouping
+          // For now, just add the full ingredient string
+          allIngredients.add(ingredient);
+        });
+      }
+    });
+
+    return Array.from(allIngredients).sort();
+  };
 
   // Load shopping list cost when ingredients change
   useEffect(() => {
@@ -48,22 +59,6 @@ export const ShoppingListGenerator = () => {
 
     loadCost();
   }, [selectedPlan, mealPlans]);
-
-  const generateShoppingList = (planId: string) => {
-    const plan = mealPlans.find(p => p.id === planId);
-    if (!plan) return [];
-
-    const allIngredients = new Set<string>();
-    Object.values(plan.meals).forEach(recipe => {
-      if (recipe && recipeIngredients[recipe.id]) {
-        recipeIngredients[recipe.id].forEach(ingredient => {
-          allIngredients.add(ingredient);
-        });
-      }
-    });
-
-    return Array.from(allIngredients).sort();
-  };
 
   const toggleIngredient = (ingredient: string) => {
     const newChecked = new Set(checkedItems);
@@ -248,6 +243,13 @@ export const ShoppingListGenerator = () => {
                     );
                   })}
                 </div>
+
+                {shoppingList.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No ingredients found in this meal plan.</p>
+                    <p className="text-sm">Make sure your recipes have ingredients listed!</p>
+                  </div>
+                )}
 
                 {checkedItems.size > 0 && (
                   <div className="mt-4 p-3 bg-gradient-fun/10 rounded-xl border border-primary/20 text-center">
