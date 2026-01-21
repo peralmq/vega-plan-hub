@@ -1,7 +1,8 @@
 ---
 id: "chickpea-curry"
 title: "Chickpea Curry"
-image: "chickpea-curry.jpg"
+imageUrl: "chickpea-curry.jpg"
+url: ""
 cookTime: 30
 servings: 4
 difficulty: "Easy"
