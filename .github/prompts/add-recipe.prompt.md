@@ -1,9 +1,11 @@
 # /add-recipe
 
 ## Purpose
+
 Add a new recipe to the local database in `src/data/recipes/` in the Vega Plan Hub markdown format. Accepts either a recipe URL (to be parsed by the LLM) or a recipe title (to create a template).
 
 ## Usage
+
 ```
 /add-recipe <url|title>
 ```
@@ -12,21 +14,24 @@ Add a new recipe to the local database in `src/data/recipes/` in the Vega Plan H
 - If a title is provided, create a new recipe template markdown file with that title.
 
 ## Output Location
+
 - All recipes are saved in `src/data/recipes/`.
 
 ## Recipe File Format
+
 See `src/data/recipes/README.md` for full documentation and rationale.
 
 ### Example Markdown Format
+
 ```markdown
 ---
-id: "chickpea-curry"
-title: "Chickpea Curry"
-image: "chickpea-curry.jpg"
+id: 'chickpea-curry'
+title: 'Chickpea Curry'
+image: 'chickpea-curry.jpg'
 cookTime: 30
 servings: 4
-difficulty: "Easy"
-tags: ["Indian", "Curry", "Quick"]
+difficulty: 'Easy'
+tags: ['Indian', 'Curry', 'Quick']
 ---
 
 ## Ingredients
@@ -56,6 +61,7 @@ tags: ["Indian", "Curry", "Quick"]
 ```
 
 ## LLM Prompt (for URL input)
+
 If a URL is provided, use the following prompt:
 
 ```
@@ -63,6 +69,7 @@ Parse the recipe at this URL into a Vega Plan Hub markdown recipe file. Use the 
 ```
 
 ## Template (for title input)
+
 If a title is provided, create a file with this content:
 
 ```
@@ -70,23 +77,23 @@ If a title is provided, create a file with this content:
 id: "<slugified-title>"
 title: "<title>"
 image: ""
-cookTime: 
-servings: 
+cookTime:
+servings:
 difficulty: ""
 tags: []
 ---
 
 ## Ingredients
 
-- 
+-
 
 ## Instructions
 
-1. 
+1.
 
 ## Notes
 
-- 
+-
 ```
 
 ---

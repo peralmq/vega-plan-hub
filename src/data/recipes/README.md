@@ -45,6 +45,7 @@ tags: ["Tag1", "Tag2"]
 ## Field Descriptions & Reasoning
 
 ### YAML Frontmatter
+
 - **id**: Unique identifier for the recipe (used for lookups and URLs).
 - **title**: Human-friendly recipe name.
 - **image**: Filename or URL for the recipe image.
@@ -54,6 +55,7 @@ tags: ["Tag1", "Tag2"]
 - **tags**: Array of tags for filtering and search (e.g., cuisine, meal type).
 
 ### Ingredients Section
+
 - Each ingredient is a Markdown list item.
 - Prefix with `[base]` if it's a pantry staple (e.g., oil, salt).
 - Prefix with `[esoteric]` for rare/specialty items.
@@ -61,10 +63,12 @@ tags: ["Tag1", "Tag2"]
 - This structure supports shopping list generation and future ingredient-based planning.
 
 ### Instructions Section
+
 - Markdown numbered list for step-by-step cooking instructions.
 - Emojis are encouraged for a playful, friendly tone.
 
 ### Notes Section
+
 - Optional. For tips, substitutions, or extra info.
 
 ## Example
@@ -72,6 +76,7 @@ tags: ["Tag1", "Tag2"]
 See `chickpea-curry.md` for a real example.
 
 ## Why This Format?
+
 - **Human-readable**: Easy to edit and review in code.
 - **Version-controlled**: Changes tracked in git.
 - **Structured**: Simple to parse for app features (meal planning, shopping lists, etc.).
