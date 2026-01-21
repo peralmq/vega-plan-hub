@@ -28,6 +28,7 @@ tags: ["Svenskt", "Vegan", "Stroganoff", "Middag", "Snabblagad"]
 - Black pepper, to taste
 
 ### For serving
+
 - 4 portions jasmine rice 🍚
 - Fresh parsley, chopped 🌱
 

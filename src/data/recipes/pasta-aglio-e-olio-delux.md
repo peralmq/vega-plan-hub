@@ -6,7 +6,8 @@ url: "https://javligtgott.se/recept/pasta-aglio-e-olio-delux/"
 cookTime: 25
 servings: 4
 difficulty: "Easy"
-tags: ["Italienskt", "Pasta", "Lunch", "Middag", "Snabblagad", "Vegan", "Lyxigt"]
+tags:
+  ["Italienskt", "Pasta", "Lunch", "Middag", "Snabblagad", "Vegan", "Lyxigt"]
 ---
 
 ## Ingredients

@@ -6,7 +6,16 @@ url: "https://javligtgott.se/recept/veganska-dan-dan-nudlar/"
 cookTime: 35
 servings: 4
 difficulty: "Medium"
-tags: ["Kinesiskt", "Asiatiskt", "Nudlar", "Vegan", "Lunch", "Middag", "Klimatsmart"]
+tags:
+  [
+    "Kinesiskt",
+    "Asiatiskt",
+    "Nudlar",
+    "Vegan",
+    "Lunch",
+    "Middag",
+    "Klimatsmart",
+  ]
 ---
 
 ## Ingredients

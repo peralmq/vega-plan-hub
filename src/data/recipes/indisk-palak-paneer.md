@@ -18,6 +18,7 @@ tags: ["Indian", "Spinach", "Paneer", "Tofu", "Vegan-Option", "Vegetarian"]
 - 2 tbsp chopped fresh ginger
 
 ### Tadka (tempering)
+
 - 0.5 dl neutral oil
 - 1 tsp whole cumin seeds
 - 1 onion, finely chopped
@@ -29,6 +30,7 @@ tags: ["Indian", "Spinach", "Paneer", "Tofu", "Vegan-Option", "Vegetarian"]
 - 400 g paneer (or firm tofu), cubed
 
 ### To serve
+
 - Cooked rice 🍚
 - Naan or roti/chapati (optional)
 

@@ -16,6 +16,7 @@ tags: ["Indian", "Dal", "Chickpea", "Vegan", "Comfort Food"]
 - 0.25 tsp turmeric
 
 ### Tadka (tempering)
+
 - 1 tbsp neutral oil
 - 1 tsp whole cumin seeds (or ground cumin)
 - 1 onion, finely chopped
@@ -28,6 +29,7 @@ tags: ["Indian", "Dal", "Chickpea", "Vegan", "Comfort Food"]
 - 2 tomatoes, finely chopped (or 2 dl crushed tomatoes)
 
 ### To serve
+
 - Garam masala (to sprinkle)
 - Roti or chapati (optional)
 

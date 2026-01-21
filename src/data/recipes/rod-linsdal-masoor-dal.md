@@ -16,6 +16,7 @@ tags: ["Indian", "Dal", "Red Lentil", "Vegan", "Comfort Food"]
 - 0.25 tsp turmeric
 
 ### Tadka (tempering)
+
 - 1 tbsp neutral oil
 - 1 tsp whole cumin seeds
 - 2 dried red chilies
@@ -29,6 +30,7 @@ tags: ["Indian", "Dal", "Red Lentil", "Vegan", "Comfort Food"]
 - 1 tsp salt
 
 ### To serve
+
 - Cooked rice 🍚
 - Roti or chapati (optional)
 

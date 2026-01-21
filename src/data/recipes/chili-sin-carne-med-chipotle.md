@@ -35,6 +35,7 @@ tags: ["Mexikanskt", "BBQ", "Gryta", "Festmat", "Lyxigt", "Vegan"]
 - Rapeseed or olive oil, for frying
 
 ### For serving
+
 - Cooked jasmine rice 🍚
 - Guacamole 🥑
 - Vegan sour cream 🥛

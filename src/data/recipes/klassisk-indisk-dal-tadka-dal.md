@@ -18,6 +18,7 @@ tags: ["Indian", "Dal", "Mixed Lentils", "Vegan", "Comfort Food"]
 - 0.5 tsp turmeric
 
 ### Tadka (tempering)
+
 - 1 tbsp neutral oil
 - 1 tsp whole cumin seeds
 - 1 onion, finely chopped
@@ -31,12 +32,14 @@ tags: ["Indian", "Dal", "Mixed Lentils", "Vegan", "Comfort Food"]
 - 1 tsp salt
 
 ### Chaunk (final tempering)
+
 - 1 tbsp neutral oil
 - 1 tsp whole cumin seeds
 - 2 dried red chilies
 - A pinch of chili powder
 
 ### To serve
+
 - Cooked rice 🍚
 - Roti or chapati (optional)
 - 2 tbsp finely chopped coriander (cilantro)
