@@ -1,4 +1,3 @@
-
 ---
 id: "saffransdoftande-linsgryta-med-potatis"
 title: "Saffron-Scented Lentil Stew with Potatoes"

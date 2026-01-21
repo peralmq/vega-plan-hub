@@ -1,4 +1,3 @@
-
 ---
 id: "maa-ki-dal-svart-linsdal"
 title: "Maa Ki Dal – Black Lentil Dal"

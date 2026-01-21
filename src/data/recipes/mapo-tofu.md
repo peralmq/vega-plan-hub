@@ -1,4 +1,3 @@
-
 ---
 id: "mapo-tofu"
 title: "Mapo Tofu"

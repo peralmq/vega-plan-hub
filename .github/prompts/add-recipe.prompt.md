@@ -21,8 +21,6 @@ Add a new recipe to the local database in `src/data/recipes/` in the Vega Plan H
 
 See `src/data/recipes/README.md` for full documentation and rationale.
 
-
-
 ### Example Markdown Format
 
 ```markdown
@@ -70,8 +68,6 @@ If a URL is provided, use the following prompt:
 ```
 Parse the recipe at this URL into a Vega Plan Hub markdown recipe file. Use the format described in src/data/recipes/README.md. Only output the markdown file content. URL: <URL>
 ```
-
-
 
 ## Template (for title input)
 

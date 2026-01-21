@@ -14,8 +14,6 @@ src/data/recipes/
 
 Each recipe is a Markdown file with the following structure:
 
-
-
 ```markdown
 ---
 id: "unique-id"
@@ -46,8 +44,6 @@ tags: ["Tag1", "Tag2"]
 ```
 
 ## Field Descriptions & Reasoning
-
-
 
 ### YAML Frontmatter
 

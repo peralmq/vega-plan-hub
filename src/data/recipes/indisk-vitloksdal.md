@@ -1,4 +1,3 @@
-
 ---
 id: "indisk-vitloksdal"
 title: "Indisk Vitlöksdal – Indian Garlic Dal"
