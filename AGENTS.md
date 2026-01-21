@@ -20,11 +20,11 @@ You are an AI assistant helping developers build and maintain Vega Plan Hub, a v
 // ✅ Component structure
 export const ComponentName = ({ prop1, prop2 }: ComponentProps) => {
   const [state, setState] = useState<Type>(initialValue);
-  
+
   useEffect(() => {
     // Side effects
   }, [dependencies]);
-  
+
   return (
     <div className={cn("base-classes", conditionalClasses)}>
       {/* Content with emojis */}
@@ -40,7 +40,7 @@ import { useMealPlans } from "@/hooks/useMealPlans";
 // ✅ Service pattern
 export class ServiceName {
   private static cache = new Map();
-  
+
   static async method(param: string): Promise<Result> {
     // Implementation with caching
   }
@@ -49,14 +49,43 @@ export class ServiceName {
 
 ### Common Tasks
 
-| Task | Action |
-|------|--------|
-| Add new page | Create in `src/pages/`, add route in `App.tsx` before `*` |
-| Add component | Create in `src/components/`, use named export |
-| Add UI component | Run `npx shadcn@latest add [component]` |
-| Style element | Use `cn()` with design tokens (no arbitrary colors) |
-| Store data | Use `useMealPlans` hook with localStorage |
-| Add emoji | Use food/cooking emojis consistently (✨🍽️👨‍🍳⏰) |
+| Task             | Action                                                    |
+| ---------------- | --------------------------------------------------------- |
+| Add new page     | Create in `src/pages/`, add route in `App.tsx` before `*` |
+| Add component    | Create in `src/components/`, use named export             |
+| Add UI component | Run `npx shadcn@latest add [component]`                   |
+| Style element    | Use `cn()` with design tokens (no arbitrary colors)       |
+| Store data       | Use `useMealPlans` hook with localStorage                 |
+| Add emoji        | Use food/cooking emojis consistently (✨🍽️👨‍🍳⏰)           |
+
+## Tech Stack Reference
+
+**Core Framework & Libraries:**
+
+- React 19.2.3
+- TypeScript 5.8.3
+- Vite 5.4.19
+- React Router DOM 7.12.0
+- TanStack Query 5.90.19
+- shadcn-ui (Radix UI)
+- Tailwind CSS 3.4.17
+- tailwindcss-animate 1.0.7
+- Lucide React 0.562.0
+- class-variance-authority 0.7.1
+- Zod 4.3.5
+- React Hook Form 7.71.1
+- ESLint 9.32.0 & TypeScript ESLint 8.38.0
+- Bun (bun.lockb) or npm
+
+**Other Notable Packages:**
+
+- @hookform/resolvers, date-fns, embla-carousel-react, recharts, sonner, vaul, next-themes, cmdk, tailwind-merge
+
+**Config Highlights:**
+
+- TypeScript: relaxed strictness (noImplicitAny: false, etc.)
+- Path alias: '@/'
+- Tailwind: custom colors, gradients, shadows in index.css & tailwind.config.ts
 
 ## Agent Workflow
 
@@ -68,10 +97,11 @@ export class ServiceName {
    - What patterns are used in similar code?
 
 2. **Check existing patterns:**
+
    ```bash
    # Search for similar components
    grep -r "similar-pattern" src/
-   
+
    # View related files
    ls src/components/
    ```
@@ -93,10 +123,11 @@ export class ServiceName {
    - [ ] Async operations cleaned up
 
 2. **Test incrementally:**
+
    ```bash
    # Run dev server
    npm run dev
-   
+
    # Run linter
    npm run lint
    ```
@@ -109,10 +140,11 @@ export class ServiceName {
    - Are emojis used appropriately?
 
 2. **Check for issues:**
+
    ```bash
    # Lint the code
    npm run lint
-   
+
    # Build to catch type errors
    npm run build
    ```
@@ -126,6 +158,7 @@ export class ServiceName {
 **Agent Response Pattern:**
 
 1. Create interface in the component file:
+
 ```typescript
 interface NutritionInfoProps {
   calories?: number;
@@ -134,11 +167,11 @@ interface NutritionInfoProps {
   fat?: number;
 }
 
-export const NutritionInfo = ({ 
-  calories, 
-  protein, 
-  carbs, 
-  fat 
+export const NutritionInfo = ({
+  calories,
+  protein,
+  carbs,
+  fat
 }: NutritionInfoProps) => {
   return (
     <Card className="p-4">
@@ -155,6 +188,7 @@ export const NutritionInfo = ({
 ```
 
 2. Import in parent component using `@/`:
+
 ```typescript
 import { NutritionInfo } from "@/components/NutritionInfo";
 ```
@@ -168,13 +202,14 @@ import { NutritionInfo } from "@/components/NutritionInfo";
 **Agent Response Pattern:**
 
 1. Create `src/pages/Favorites.tsx`:
+
 ```typescript
 import { Navigation } from "@/components/Navigation";
 import { RecipeCard } from "@/components/RecipeCard";
 
 const Favorites = () => {
   // Logic here
-  
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -192,6 +227,7 @@ export default Favorites;
 ```
 
 2. Add route in `src/App.tsx` BEFORE the catch-all:
+
 ```typescript
 <Route path="/favorites" element={<Favorites />} />
 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
@@ -207,6 +243,7 @@ export default Favorites;
 **Agent Response Pattern:**
 
 1. Use design tokens, not arbitrary values:
+
 ```typescript
 // ❌ Wrong
 <Button className="bg-[#9b59b6] text-white">
@@ -220,11 +257,13 @@ export default Favorites;
 ```
 
 2. Apply hover effects and transitions:
+
 ```typescript
 <Card className="hover:shadow-glow transition-all duration-300 hover:-translate-y-2">
 ```
 
 3. Use `cn()` for conditional classes:
+
 ```typescript
 <Badge className={cn(
   "rounded-xl border-0",
@@ -240,27 +279,28 @@ export default Favorites;
 **Agent Response Pattern:**
 
 1. Use localStorage pattern with error handling:
+
 ```typescript
 const [favorites, setFavorites] = useState<string[]>([]);
 
 useEffect(() => {
-  const stored = localStorage.getItem('favorites');
+  const stored = localStorage.getItem("favorites");
   if (stored) {
     try {
       setFavorites(JSON.parse(stored));
     } catch (error) {
-      console.error('Failed to load favorites:', error);
+      console.error("Failed to load favorites:", error);
     }
   }
 }, []);
 
 const toggleFavorite = (recipeId: string) => {
   const newFavorites = favorites.includes(recipeId)
-    ? favorites.filter(id => id !== recipeId)
+    ? favorites.filter((id) => id !== recipeId)
     : [...favorites, recipeId];
-  
+
   setFavorites(newFavorites);
-  localStorage.setItem('favorites', JSON.stringify(newFavorites));
+  localStorage.setItem("favorites", JSON.stringify(newFavorites));
 };
 ```
 
@@ -273,25 +313,18 @@ const toggleFavorite = (recipeId: string) => {
 **Agent Response Pattern:**
 
 1. Create service class with static methods:
+
 ```typescript
 // src/services/recipeFilterService.ts
 export class RecipeFilterService {
-  static filterByDifficulty(
-    recipes: Recipe[], 
-    difficulty: string
-  ): Recipe[] {
-    return recipes.filter(r => r.difficulty === difficulty);
+  static filterByDifficulty(recipes: Recipe[], difficulty: string): Recipe[] {
+    return recipes.filter((r) => r.difficulty === difficulty);
   }
-  
-  static filterByTags(
-    recipes: Recipe[], 
-    tags: string[]
-  ): Recipe[] {
-    return recipes.filter(r => 
-      tags.some(tag => r.tags.includes(tag))
-    );
+
+  static filterByTags(recipes: Recipe[], tags: string[]): Recipe[] {
+    return recipes.filter((r) => tags.some((tag) => r.tags.includes(tag)));
   }
-  
+
   static sortByPopularity(recipes: Recipe[]): Recipe[] {
     // Implementation
   }
@@ -299,8 +332,9 @@ export class RecipeFilterService {
 ```
 
 2. Use from components:
+
 ```typescript
-const filtered = RecipeFilterService.filterByDifficulty(recipes, 'Easy');
+const filtered = RecipeFilterService.filterByDifficulty(recipes, "Easy");
 ```
 
 ## Agent Constraints
@@ -315,8 +349,9 @@ const filtered = RecipeFilterService.filterByDifficulty(recipes, 'Easy');
 6. **Always handle localStorage errors** with try-catch
 7. **Always add routes before catch-all** in App.tsx
 8. **Always provide stable keys** in list renders
-9. **Always use shadcn-ui components** when available
-10. **Always clean up async operations** in useEffect
+9. **Always use shadcn-ui (Radix UI) components** when available
+10. **Always use latest versions of React, Vite, TanStack Query, React Router DOM, Tailwind CSS, Zod, Lucide React, ESLint, Bun or npm as per package.json**
+11. **Always clean up async operations** in useEffect
 
 ### DON'T ❌
 
@@ -339,31 +374,31 @@ Use these semantic tokens (defined in `src/index.css`):
 
 ```typescript
 // Primary colors
-"bg-primary"        // Purple
-"bg-secondary"      // Soft yellow
-"bg-accent"         // Orange
-"bg-destructive"    // Red
+"bg-primary"; // Purple
+"bg-secondary"; // Soft yellow
+"bg-accent"; // Orange
+"bg-destructive"; // Red
 
 // Custom colors
-"bg-forest"         // Green
-"bg-citrus"         // Yellow
-"bg-carrot"         // Orange
-"bg-berry"          // Purple-pink
-"bg-avocado"        // Green-yellow
+"bg-forest"; // Green
+"bg-citrus"; // Yellow
+"bg-carrot"; // Orange
+"bg-berry"; // Purple-pink
+"bg-avocado"; // Green-yellow
 
 // Gradients (use as className)
-"bg-gradient-primary"  // Purple to berry
-"bg-gradient-fresh"    // Green gradient
-"bg-gradient-warm"     // Yellow to orange
-"bg-gradient-fun"      // Multi-color
+"bg-gradient-primary"; // Purple to berry
+"bg-gradient-fresh"; // Forest green to avocado
+"bg-gradient-warm"; // Citrus to carrot
+"bg-gradient-fun"; // Multi-color playful gradient
 ```
 
 ### Shadows
 
 ```typescript
-"shadow-fresh"      // Green shadow
-"shadow-glow"       // Purple glow
-"shadow-playful"    // Purple bounce shadow
+"shadow-fresh"; // Green shadow
+"shadow-glow"; // Purple glow
+"shadow-playful"; // Purple bounce shadow
 ```
 
 ### Emojis by Category
@@ -401,7 +436,7 @@ try {
     // Use parsed data
   }
 } catch (error) {
-  console.error('Failed to load data:', error);
+  console.error("Failed to load data:", error);
   // Handle error gracefully
 }
 ```
@@ -412,7 +447,7 @@ try {
 // ✅ Include cleanup
 useEffect(() => {
   let cancelled = false;
-  
+
   const fetchData = async () => {
     try {
       const result = await someAsyncOperation();
@@ -421,13 +456,13 @@ useEffect(() => {
       }
     } catch (error) {
       if (!cancelled) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     }
   };
-  
+
   fetchData();
-  
+
   return () => {
     cancelled = true;
   };
@@ -445,6 +480,7 @@ Currently, no testing infrastructure exists. When adding tests:
 5. **Test error handling** paths
 
 Example test structure:
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { RecipeCard } from './RecipeCard';
@@ -465,19 +501,22 @@ Implement caching for expensive operations:
 
 ```typescript
 export class ExpensiveService {
-  private static cache = new Map<string, { 
-    data: Result; 
-    timestamp: number 
-  }>();
-  
+  private static cache = new Map<
+    string,
+    {
+      data: Result;
+      timestamp: number;
+    }
+  >();
+
   private static CACHE_DURATION = 30 * 60 * 1000; // 30 min
-  
+
   static async operation(key: string): Promise<Result> {
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       return cached.data;
     }
-    
+
     const result = await expensiveOperation();
     this.cache.set(key, { data: result, timestamp: Date.now() });
     return result;
@@ -571,7 +610,7 @@ const formatWeight = (grams: number) => `${grams}g`;
 ```typescript
 // Development logging
 if (import.meta.env.DEV) {
-  console.log('Debug info:', data);
+  console.log("Debug info:", data);
 }
 ```
 
@@ -584,6 +623,7 @@ When generating commit messages:
 3. **Reference patterns:** Mention which pattern was followed
 
 Examples:
+
 - "Add NutritionInfo component following shadcn-ui patterns"
 - "Implement recipe favoriting with localStorage persistence"
 - "Update RecipeCard styling to use design tokens"
