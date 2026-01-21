@@ -16,27 +16,27 @@ Vega Plan Hub is a modern vegan meal planning application that helps users disco
 ## Technology Stack
 
 ### Core Framework
-- **React 18.3.1** - UI framework
+- **React 19.2.3** - UI framework
 - **TypeScript 5.8.3** - Type-safe JavaScript with relaxed strictness settings
 - **Vite 5.4.19** - Build tool and dev server
-- **React Router DOM 6.30.1** - Client-side routing
+- **React Router DOM 7.12.0** - Client-side routing
 
 ### UI & Styling
 - **shadcn-ui** - Radix UI-based component library
 - **Tailwind CSS 3.4.17** - Utility-first CSS framework
-- **Lucide React 0.462.0** - Icon library
-- **class-variance-authority** - Type-safe component variants
-- **tailwindcss-animate** - Animation utilities
+- **Lucide React 0.562.0** - Icon library
+- **class-variance-authority 0.7.1** - Type-safe component variants
+- **tailwindcss-animate 1.0.7** - Animation utilities
 
 ### State Management & Data
-- **TanStack Query 5.83.0** - Server state management
-- **React Hook Form 7.61.1** - Form handling
-- **Zod 3.25.76** - Schema validation
+- **TanStack Query 5.90.19** - Server state management
+- **React Hook Form 7.71.1** - Form handling
+- **Zod 4.3.5** - Schema validation
 - **localStorage** - Client-side persistence for meal plans
 
 ### Development Tools
 - **ESLint 9.32.0** - Linting
-- **TypeScript ESLint** - TypeScript-specific linting
+- **TypeScript ESLint 8.38.0** - TypeScript-specific linting
 - **Bun** - Alternative package manager (bun.lockb present)
 
 ## Code Style & Patterns

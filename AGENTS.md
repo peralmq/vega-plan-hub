@@ -58,6 +58,32 @@ export class ServiceName {
 | Store data | Use `useMealPlans` hook with localStorage |
 | Add emoji | Use food/cooking emojis consistently (✨🍽️👨‍🍳⏰) |
 
+## Tech Stack Reference
+
+**Core Framework & Libraries:**
+- React 19.2.3
+- TypeScript 5.8.3
+- Vite 5.4.19
+- React Router DOM 7.12.0
+- TanStack Query 5.90.19
+- shadcn-ui (Radix UI)
+- Tailwind CSS 3.4.17
+- tailwindcss-animate 1.0.7
+- Lucide React 0.562.0
+- class-variance-authority 0.7.1
+- Zod 4.3.5
+- React Hook Form 7.71.1
+- ESLint 9.32.0 & TypeScript ESLint 8.38.0
+- Bun (bun.lockb) or npm
+
+**Other Notable Packages:**
+- @hookform/resolvers, date-fns, embla-carousel-react, recharts, sonner, vaul, next-themes, cmdk, tailwind-merge
+
+**Config Highlights:**
+- TypeScript: relaxed strictness (noImplicitAny: false, etc.)
+- Path alias: '@/'
+- Tailwind: custom colors, gradients, shadows in index.css & tailwind.config.ts
+
 ## Agent Workflow
 
 ### Before Making Changes
@@ -315,7 +341,8 @@ const filtered = RecipeFilterService.filterByDifficulty(recipes, 'Easy');
 6. **Always handle localStorage errors** with try-catch
 7. **Always add routes before catch-all** in App.tsx
 8. **Always provide stable keys** in list renders
-9. **Always use shadcn-ui components** when available
+9. **Always use shadcn-ui (Radix UI) components** when available
+11. **Always use latest versions of React, Vite, TanStack Query, React Router DOM, Tailwind CSS, Zod, Lucide React, ESLint, Bun or npm as per package.json**
 10. **Always clean up async operations** in useEffect
 
 ### DON'T ❌
@@ -353,9 +380,9 @@ Use these semantic tokens (defined in `src/index.css`):
 
 // Gradients (use as className)
 "bg-gradient-primary"  // Purple to berry
-"bg-gradient-fresh"    // Green gradient
-"bg-gradient-warm"     // Yellow to orange
-"bg-gradient-fun"      // Multi-color
+"bg-gradient-fresh"    // Forest green to avocado
+"bg-gradient-warm"     // Citrus to carrot
+"bg-gradient-fun"      // Multi-color playful gradient
 ```
 
 ### Shadows
