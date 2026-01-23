@@ -9,9 +9,7 @@ tags: ["Mexikanskt", "BBQ", "Gryta", "Festmat", "Lyxigt", "Vegan"]
 
 ## Ingredients
 
-
 ### For serving
-
 
 ## Instructions
 
@@ -25,5 +23,3 @@ tags: ["Mexikanskt", "BBQ", "Gryta", "Festmat", "Lyxigt", "Vegan"]
 8. Serve with rice, nachos, guacamole, vegan sour cream, and salad. Enjoy! ✨
 
 ## Notes
-
-
