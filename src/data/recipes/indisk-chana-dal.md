@@ -9,12 +9,9 @@ tags: ["Indian", "Dal", "Chickpea", "Vegan", "Comfort Food"]
 
 ## Ingredients
 
-
 ### Tadka (tempering)
 
-
 ### To serve
-
 
 ## Instructions
 

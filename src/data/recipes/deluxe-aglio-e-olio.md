@@ -11,16 +11,16 @@ tags: ["Italian", "Pasta", "Lunch", "Dinner", "Quick", "Vegan", "Luxury"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                       |
-|----------|------|-----------------|-----------------------------------|-----------------------------|
-| 12       |      | garlic          | garlic cloves                     |                            |
-| 1        | dl   | vegan-butter    | vegan butter                      | Eleplant or similar         |
-| 1        |      | lemon           | zest and juice of 1 lemon         |                            |
-| 1.5      | tbsp | chili-oil       | chili oil                         |                            |
-| 1        | dl   | parsley         | fresh parsley, chopped            |                            |
-| 1        | dl   | vegan-parmesan  | cashew parmesan or vegan parmesan |                            |
-| 500      | g    | spaghetti       | spaghetti                         |                            |
-|          |      | salt            | salt                              | to taste                   |
+| quantity | unit | key            | ingredient                        | notes               |
+| -------- | ---- | -------------- | --------------------------------- | ------------------- |
+| 12       |      | garlic         | garlic cloves                     |                     |
+| 1        | dl   | vegan-butter   | vegan butter                      | Eleplant or similar |
+| 1        |      | lemon          | zest and juice of 1 lemon         |                     |
+| 1.5      | tbsp | chili-oil      | chili oil                         |                     |
+| 1        | dl   | parsley        | fresh parsley, chopped            |                     |
+| 1        | dl   | vegan-parmesan | cashew parmesan or vegan parmesan |                     |
+| 500      | g    | spaghetti      | spaghetti                         |                     |
+|          |      | salt           | salt                              | to taste            |
 
 ## Instructions
 

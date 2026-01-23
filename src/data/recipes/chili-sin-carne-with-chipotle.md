@@ -11,36 +11,36 @@ tags: ["Mexican", "BBQ", "Stew", "Party", "Luxury", "Vegan"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                       |
-|----------|------|-----------------|-----------------------------------|-----------------------------|
-| 1        |      | red-onion       | red onion                         |                            |
-| 425      | g    | vegan-mince     | vegan mince                       | Anamma or similar           |
-| 1        |      | carrot          | carrot                            |                            |
-| 2        |      | chipotle        | dried chipotle chilies            |                            |
-| 3        |      | garlic          | garlic cloves                     |                            |
-| 50       | g    | dark-chocolate  | dark chocolate                    |                            |
-| 2        | tbsp | oregano         | dried oregano                     |                            |
-| 2        | tbsp | smoked-paprika  | smoked paprika powder             |                            |
-| 2        | tbsp | cumin           | ground cumin                      |                            |
-| 1        | dl   | bbq-sauce       | sweet and smoky BBQ sauce         |                            |
-| 400      | g    | crushed-tomato  | crushed tomatoes                  |                            |
-| 1.5      | dl   | red-wine        | red wine                          |                            |
-| 2        | tbsp | veg-stock       | vegetable stock concentrate       | fond                       |
-| 1.5      | tbsp | soy-sauce       | Japanese soy sauce                |                            |
-| 1        | tsp  | soy-sauce       | Chinese soy sauce                 |                            |
-| 4        | dl   | water           | water                             |                            |
-| 210      | g    | kidney-beans    | kidney beans                      | cooked                     |
-| 210      | g    | black-beans     | black beans                       | cooked                     |
-| 120      | g    | corn            | cooked corn                       |                            |
-| 0.5      |      | lime            | juice of 0.5 lime                 |                            |
-|          |      | salt            | salt                              | to taste                   |
-|          |      | black-pepper    | black pepper                      | to taste                   |
-|          |      | oil             | rapeseed or olive oil             | for frying                 |
-|          |      | rice            | cooked jasmine rice               | to serve                   |
-|          |      | guacamole       | guacamole                         | to serve                   |
-|          |      | vegan-sour-cream| vegan sour cream                  | to serve                   |
-|          |      | nachos          | nachos                            | to serve                   |
-|          |      | green-salad     | green salad                       | to serve                   |
+| quantity | unit | key              | ingredient                  | notes             |
+| -------- | ---- | ---------------- | --------------------------- | ----------------- |
+| 1        |      | red-onion        | red onion                   |                   |
+| 425      | g    | vegan-mince      | vegan mince                 | Anamma or similar |
+| 1        |      | carrot           | carrot                      |                   |
+| 2        |      | chipotle         | dried chipotle chilies      |                   |
+| 3        |      | garlic           | garlic cloves               |                   |
+| 50       | g    | dark-chocolate   | dark chocolate              |                   |
+| 2        | tbsp | oregano          | dried oregano               |                   |
+| 2        | tbsp | smoked-paprika   | smoked paprika powder       |                   |
+| 2        | tbsp | cumin            | ground cumin                |                   |
+| 1        | dl   | bbq-sauce        | sweet and smoky BBQ sauce   |                   |
+| 400      | g    | crushed-tomato   | crushed tomatoes            |                   |
+| 1.5      | dl   | red-wine         | red wine                    |                   |
+| 2        | tbsp | veg-stock        | vegetable stock concentrate | fond              |
+| 1.5      | tbsp | soy-sauce        | Japanese soy sauce          |                   |
+| 1        | tsp  | soy-sauce        | Chinese soy sauce           |                   |
+| 4        | dl   | water            | water                       |                   |
+| 210      | g    | kidney-beans     | kidney beans                | cooked            |
+| 210      | g    | black-beans      | black beans                 | cooked            |
+| 120      | g    | corn             | cooked corn                 |                   |
+| 0.5      |      | lime             | juice of 0.5 lime           |                   |
+|          |      | salt             | salt                        | to taste          |
+|          |      | black-pepper     | black pepper                | to taste          |
+|          |      | oil              | rapeseed or olive oil       | for frying        |
+|          |      | rice             | cooked jasmine rice         | to serve          |
+|          |      | guacamole        | guacamole                   | to serve          |
+|          |      | vegan-sour-cream | vegan sour cream            | to serve          |
+|          |      | nachos           | nachos                      | to serve          |
+|          |      | green-salad      | green salad                 | to serve          |
 
 ## Instructions
 

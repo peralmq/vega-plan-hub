@@ -11,24 +11,24 @@ tags: ["Indian", "Dal", "Red Lentil", "Vegan", "Comfort Food"]
 
 ## Ingredients
 
-| quantity | unit | key           | ingredient                        | notes                       |
-|----------|------|---------------|-----------------------------------|-----------------------------|
-| 3        | dl   | red-lentils   | red lentils (masoor dal)          |                            |
-| 8        | dl   | water         | water                             |                            |
-| 0.25     | tsp  | turmeric      | turmeric                          |                            |
-| 1        | tbsp | oil           | neutral oil                       | for tempering              |
-| 1        | tsp  | cumin-seeds   | whole cumin seeds                 |                            |
-| 2        |      | chili         | dried red chilies                 |                            |
-| 1        |      | onion         | onion, finely chopped             |                            |
-| 4        |      | garlic        | garlic cloves, finely chopped     |                            |
-| 1        | tbsp | ginger        | fresh ginger, grated              |                            |
-| 2        |      | tomato        | tomatoes, finely chopped          | or ~2 dl crushed            |
-| 1        | tsp  | chili-powder  | chili powder                      |                            |
-| 1        | tsp  | coriander     | ground coriander                  |                            |
-| 1        | tsp  | garam-masala  | garam masala                      |                            |
-| 1        | tsp  | salt          | salt                              |                            |
-|          |      | rice          | cooked rice                       | to serve                   |
-|          |      | roti          | roti or chapati                   | optional                   |
+| quantity | unit | key          | ingredient                    | notes            |
+| -------- | ---- | ------------ | ----------------------------- | ---------------- |
+| 3        | dl   | red-lentils  | red lentils (masoor dal)      |                  |
+| 8        | dl   | water        | water                         |                  |
+| 0.25     | tsp  | turmeric     | turmeric                      |                  |
+| 1        | tbsp | oil          | neutral oil                   | for tempering    |
+| 1        | tsp  | cumin-seeds  | whole cumin seeds             |                  |
+| 2        |      | chili        | dried red chilies             |                  |
+| 1        |      | onion        | onion, finely chopped         |                  |
+| 4        |      | garlic       | garlic cloves, finely chopped |                  |
+| 1        | tbsp | ginger       | fresh ginger, grated          |                  |
+| 2        |      | tomato       | tomatoes, finely chopped      | or ~2 dl crushed |
+| 1        | tsp  | chili-powder | chili powder                  |                  |
+| 1        | tsp  | coriander    | ground coriander              |                  |
+| 1        | tsp  | garam-masala | garam masala                  |                  |
+| 1        | tsp  | salt         | salt                          |                  |
+|          |      | rice         | cooked rice                   | to serve         |
+|          |      | roti         | roti or chapati               | optional         |
 
 ## Instructions
 

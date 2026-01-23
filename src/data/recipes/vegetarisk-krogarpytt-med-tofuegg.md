@@ -9,7 +9,6 @@ tags: ["Svenskt", "Snabbt", "Vegan", "Tofu", "Pyttipanna"]
 
 ## Ingredients
 
-
 ## Instructions
 
 1. Stek pytten: Hetta upp en stor stekpanna och stek den vegetariska krogpytten enligt anvisningarna på förpackningen, ca 13 minuter tills den är gyllene och genomvarm. 🥔
@@ -19,5 +18,3 @@ tags: ["Svenskt", "Snabbt", "Vegan", "Tofu", "Pyttipanna"]
 5. Servera pytten med "äggig" tofu, rödbetor, ketchup och HP-sås. Njut! ✨
 
 ## Notes
-
-

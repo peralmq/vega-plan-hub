@@ -11,23 +11,23 @@ tags: ["Pasta", "Vegan", "Budget", "Meal Prep", "Swedish"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                       |
-|----------|------|-----------------|-----------------------------------|-----------------------------|
-| 1        |      | onion           | yellow onion                      |                            |
-| 2        |      | garlic          | garlic cloves                     |                            |
-| 1        | tbsp | paprika         | paprika powder                    |                            |
-| 2        | dl   | beluga-lentils  | dried beluga lentils              |                            |
-| 1        | tbsp | tomato-paste    | tomato paste                      |                            |
-| 4        | dl   | crushed-tomato  | crushed tomatoes                  |                            |
-| 1        |      | veg-bouillon    | vegetable bouillon cube           |                            |
-| 2        | dl   | water           | water                             |                            |
-| 1        |      | parsnip         | parsnip                           |                            |
-| 2        | tbsp | frozen-herbs    | frozen herbs (basil, parsley)     |                            |
-| 1        | krm  | sambal-oelek    | sambal oelek or chili flakes      |                            |
-| 2        | dl   | oat-cream       | oat cream                         |                            |
-|          |      | salt            | salt                              | to taste                   |
-|          |      | black-pepper    | black pepper                      | to taste                   |
-| 4        | port | pasta           | pasta                             | to serve                   |
+| quantity | unit | key            | ingredient                    | notes    |
+| -------- | ---- | -------------- | ----------------------------- | -------- |
+| 1        |      | onion          | yellow onion                  |          |
+| 2        |      | garlic         | garlic cloves                 |          |
+| 1        | tbsp | paprika        | paprika powder                |          |
+| 2        | dl   | beluga-lentils | dried beluga lentils          |          |
+| 1        | tbsp | tomato-paste   | tomato paste                  |          |
+| 4        | dl   | crushed-tomato | crushed tomatoes              |          |
+| 1        |      | veg-bouillon   | vegetable bouillon cube       |          |
+| 2        | dl   | water          | water                         |          |
+| 1        |      | parsnip        | parsnip                       |          |
+| 2        | tbsp | frozen-herbs   | frozen herbs (basil, parsley) |          |
+| 1        | krm  | sambal-oelek   | sambal oelek or chili flakes  |          |
+| 2        | dl   | oat-cream      | oat cream                     |          |
+|          |      | salt           | salt                          | to taste |
+|          |      | black-pepper   | black pepper                  | to taste |
+| 4        | port | pasta          | pasta                         | to serve |
 
 ## Instructions
 

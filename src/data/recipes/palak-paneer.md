@@ -11,24 +11,24 @@ tags: ["Indian", "Spinach", "Paneer", "Tofu", "Vegan-Option", "Vegetarian"]
 
 ## Ingredients
 
-| quantity | unit | key           | ingredient                        | notes                       |
-|----------|------|---------------|-----------------------------------|-----------------------------|
-| 500      | g    | spinach       | fresh spinach                     | or same amount frozen, thawed|
-| 2-3      | dl   | water         | water                             | as needed for blending      |
-| 1        |      | green-chili   | green chili, finely chopped       |                            |
-| 2        |      | garlic        | garlic cloves, finely chopped     |                            |
-| 2        | tbsp | ginger        | fresh ginger, chopped             |                            |
-| 0.5      | dl   | oil           | neutral oil                       | for tempering              |
-| 1        | tsp  | cumin-seeds   | whole cumin seeds                 |                            |
-| 1        |      | onion         | onion, finely chopped             |                            |
-| 0.5      | tsp  | turmeric      | turmeric                          |                            |
-| 0.5      | tsp  | chili-powder  | chili powder                      |                            |
-|          |      | hing          | hing/asafoetida                   | optional                   |
-| 0.5      | tsp  | garam-masala  | garam masala                      |                            |
-| 1        | tsp  | salt          | salt                              |                            |
-| 400      | g    | paneer        | paneer or firm tofu, cubed        |                            |
-|          |      | rice          | cooked rice                       | to serve                   |
-|          |      | naan          | naan or roti/chapati              | optional                   |
+| quantity | unit | key          | ingredient                    | notes                         |
+| -------- | ---- | ------------ | ----------------------------- | ----------------------------- |
+| 500      | g    | spinach      | fresh spinach                 | or same amount frozen, thawed |
+| 2-3      | dl   | water        | water                         | as needed for blending        |
+| 1        |      | green-chili  | green chili, finely chopped   |                               |
+| 2        |      | garlic       | garlic cloves, finely chopped |                               |
+| 2        | tbsp | ginger       | fresh ginger, chopped         |                               |
+| 0.5      | dl   | oil          | neutral oil                   | for tempering                 |
+| 1        | tsp  | cumin-seeds  | whole cumin seeds             |                               |
+| 1        |      | onion        | onion, finely chopped         |                               |
+| 0.5      | tsp  | turmeric     | turmeric                      |                               |
+| 0.5      | tsp  | chili-powder | chili powder                  |                               |
+|          |      | hing         | hing/asafoetida               | optional                      |
+| 0.5      | tsp  | garam-masala | garam masala                  |                               |
+| 1        | tsp  | salt         | salt                          |                               |
+| 400      | g    | paneer       | paneer or firm tofu, cubed    |                               |
+|          |      | rice         | cooked rice                   | to serve                      |
+|          |      | naan         | naan or roti/chapati          | optional                      |
 
 ## Instructions
 

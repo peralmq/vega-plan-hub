@@ -9,7 +9,6 @@ tags: ["Pasta", "Vegan", "Budget", "Matlåda", "Svenskt"]
 
 ## Ingredients
 
-
 ## Instructions
 
 1. Hacka gul lök och vitlök fint. Hetta upp en stekpanna eller traktörpanna och fräs löken blank i olja på medelvärme (akta så att det ej bränns vid). Låt paprikapulver fräsa med.
@@ -20,5 +19,3 @@ tags: ["Pasta", "Vegan", "Budget", "Matlåda", "Svenskt"]
 6. Servera med pastan. 🍝✨
 
 ## Notes
-
-

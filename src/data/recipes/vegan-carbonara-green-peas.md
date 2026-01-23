@@ -11,18 +11,18 @@ tags: ["Pasta", "Vegan", "Quick", "Budget", "Swedish"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                       |
-|----------|------|-----------------|-----------------------------------|-----------------------------|
-| 2        |      | onion           | yellow onions                     |                            |
-| 1        | tsp  | smoked-paprika  | smoked paprika powder             |                            |
-| 4        | dl   | oat-cream       | oat cream                         | or other plant cream        |
-| 1        |      | veg-bouillon    | vegetable bouillon cube           |                            |
-| 600      | g    | green-peas      | frozen green peas                 |                            |
-| 4        | port | pasta           | pasta                             |                            |
-|          |      | salt            | salt                              | to taste                   |
-|          |      | black-pepper    | black pepper                      | to taste                   |
-|          |      | oil             | oil                               | for frying                  |
-|          |      | vegan-cheese    | vegan cheese                      | optional, for topping       |
+| quantity | unit | key            | ingredient              | notes                 |
+| -------- | ---- | -------------- | ----------------------- | --------------------- |
+| 2        |      | onion          | yellow onions           |                       |
+| 1        | tsp  | smoked-paprika | smoked paprika powder   |                       |
+| 4        | dl   | oat-cream      | oat cream               | or other plant cream  |
+| 1        |      | veg-bouillon   | vegetable bouillon cube |                       |
+| 600      | g    | green-peas     | frozen green peas       |                       |
+| 4        | port | pasta          | pasta                   |                       |
+|          |      | salt           | salt                    | to taste              |
+|          |      | black-pepper   | black pepper            | to taste              |
+|          |      | oil            | oil                     | for frying            |
+|          |      | vegan-cheese   | vegan cheese            | optional, for topping |
 
 ## Instructions
 

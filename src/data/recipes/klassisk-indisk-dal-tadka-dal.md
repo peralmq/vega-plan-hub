@@ -70,6 +70,7 @@ tags: ["Indian", "Dal", "Mixed Lentils", "Vegan", "Comfort Food"]
 - Adjust chili to taste for more or less heat.
 - For extra richness, add a knob of vegan butter before serving.
 - This dal is naturally vegan and perfect for cozy meals!
+
 ## <file contents removed>
 
 id: "klassisk-indisk-dal-tadka-dal"

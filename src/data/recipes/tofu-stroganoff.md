@@ -11,25 +11,25 @@ tags: ["Swedish", "Vegan", "Stroganoff", "Dinner", "Quick"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                       |
-|----------|------|-----------------|-----------------------------------|-----------------------------|
-| 1        |      | onion           | large yellow onion                |                            |
-| 2        |      | garlic          | garlic cloves                     |                            |
-|          |      | oil             | neutral oil                       | for frying                 |
-| 230      | g    | smoked-tofu     | smoked tofu                       |                            |
-| 4        | tbsp | tomato-paste    | tomato paste                      |                            |
-| 4        | dl   | plant-cream     | plant-based cream                 |                            |
-| 4        | tbsp | sun-dried-tomato| sun-dried tomatoes, sliced        | preferably in oil           |
-| 1        | dl   | veg-broth       | vegetable broth                   |                            |
-| 1.5      | tsp  | paprika         | paprika powder                    |                            |
-| 1        | tsp  | chili-flakes    | chili flakes                      | or sambal oelek             |
-| 1        | tbsp | dijon-mustard   | Dijon mustard                     |                            |
-| 2        | tsp  | sugar           | granulated sugar                  |                            |
-| 15       | g    | margarine       | dairy-free margarine              |                            |
-|          |      | salt            | salt                              | to taste                   |
-|          |      | black-pepper    | black pepper                      | to taste                   |
-| 4        | port | rice            | jasmine rice                      | to serve                   |
-|          |      | parsley         | fresh parsley, chopped            | to serve                   |
+| quantity | unit | key              | ingredient                 | notes             |
+| -------- | ---- | ---------------- | -------------------------- | ----------------- |
+| 1        |      | onion            | large yellow onion         |                   |
+| 2        |      | garlic           | garlic cloves              |                   |
+|          |      | oil              | neutral oil                | for frying        |
+| 230      | g    | smoked-tofu      | smoked tofu                |                   |
+| 4        | tbsp | tomato-paste     | tomato paste               |                   |
+| 4        | dl   | plant-cream      | plant-based cream          |                   |
+| 4        | tbsp | sun-dried-tomato | sun-dried tomatoes, sliced | preferably in oil |
+| 1        | dl   | veg-broth        | vegetable broth            |                   |
+| 1.5      | tsp  | paprika          | paprika powder             |                   |
+| 1        | tsp  | chili-flakes     | chili flakes               | or sambal oelek   |
+| 1        | tbsp | dijon-mustard    | Dijon mustard              |                   |
+| 2        | tsp  | sugar            | granulated sugar           |                   |
+| 15       | g    | margarine        | dairy-free margarine       |                   |
+|          |      | salt             | salt                       | to taste          |
+|          |      | black-pepper     | black pepper               | to taste          |
+| 4        | port | rice             | jasmine rice               | to serve          |
+|          |      | parsley          | fresh parsley, chopped     | to serve          |
 
 ## Instructions
 

@@ -6,29 +6,30 @@ url: "https://javligtgott.se/recept/veganska-dan-dan-nudlar/"
 cookTime: 35
 servings: 4
 difficulty: "Medium"
-tags: ["Chinese", "Asian", "Noodles", "Vegan", "Lunch", "Dinner", "Climate Smart"]
+tags:
+  ["Chinese", "Asian", "Noodles", "Vegan", "Lunch", "Dinner", "Climate Smart"]
 ---
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                       |
-|----------|------|-----------------|-----------------------------------|-----------------------------|
-| 500      | g    | udon-noodles    | udon noodles                      |                            |
-| 5        |      | scallion        | scallions (white and green parts) |                            |
-| 1        | tbsp | sichuan-pepper  | Sichuan peppercorns               |                            |
-| 300      | g    | vegan-mince     | vegan mince (soy-based)           |                            |
-| 2        | tsp  | sesame-oil      | sesame oil                        |                            |
-| 1.5      | tbsp | soy-sauce       | Japanese soy sauce                | divided                    |
-| 3        | tbsp | soy-sauce       | Japanese soy sauce                | divided                    |
-|          |      | oil             | rapeseed oil                      | for frying                 |
-| 6        |      | garlic          | garlic cloves                     |                            |
-| 3        | tbsp | ginger          | fresh ginger, grated              |                            |
-| 1        |      | red-chili       | fresh red chili                   | or 0–2 tbsp sambal oelek   |
-| 3        | tbsp | sauerkraut      | sauerkraut                        |                            |
-| 2.5      | tbsp | chili-oil       | chili oil                         |                            |
-| 3        | tbsp | vinegar         | Chinese vinegar                   |                            |
-| 1        | tbsp | agave-syrup     | agave syrup                       |                            |
-| 2        | tbsp | tahini          | tahini                            |                            |
+| quantity | unit | key            | ingredient                        | notes                    |
+| -------- | ---- | -------------- | --------------------------------- | ------------------------ |
+| 500      | g    | udon-noodles   | udon noodles                      |                          |
+| 5        |      | scallion       | scallions (white and green parts) |                          |
+| 1        | tbsp | sichuan-pepper | Sichuan peppercorns               |                          |
+| 300      | g    | vegan-mince    | vegan mince (soy-based)           |                          |
+| 2        | tsp  | sesame-oil     | sesame oil                        |                          |
+| 1.5      | tbsp | soy-sauce      | Japanese soy sauce                | divided                  |
+| 3        | tbsp | soy-sauce      | Japanese soy sauce                | divided                  |
+|          |      | oil            | rapeseed oil                      | for frying               |
+| 6        |      | garlic         | garlic cloves                     |                          |
+| 3        | tbsp | ginger         | fresh ginger, grated              |                          |
+| 1        |      | red-chili      | fresh red chili                   | or 0–2 tbsp sambal oelek |
+| 3        | tbsp | sauerkraut     | sauerkraut                        |                          |
+| 2.5      | tbsp | chili-oil      | chili oil                         |                          |
+| 3        | tbsp | vinegar        | Chinese vinegar                   |                          |
+| 1        | tbsp | agave-syrup    | agave syrup                       |                          |
+| 2        | tbsp | tahini         | tahini                            |                          |
 
 ## Instructions
 

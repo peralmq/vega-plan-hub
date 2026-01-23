@@ -11,17 +11,17 @@ tags: ["Swedish", "Quick", "Vegan", "Tofu", "Hash"]
 
 ## Ingredients
 
-| quantity | unit | key           | ingredient                        | notes                       |
-|----------|------|---------------|-----------------------------------|-----------------------------|
-| 1        | bag  | vegan-hash    | vegan hash (pyttipanna)           | Felix or similar            |
-| 400      | g    | tofu          | firm tofu                         |                            |
-| 1        | tbsp | margarine     | margarine or vegan butter         |                            |
-| 1        | tsp  | kala-namak    | kala namak (black salt)           |                            |
-| 2        | tbsp | nutritional-yeast | nutritional yeast (nooch)      |                            |
-| 0.5      | tsp  | salt          | salt                              |                            |
-| 1        | jar  | pickled-beetroot | pickled beetroot                |                            |
-| 1        | bottle | ketchup      | ketchup                           |                            |
-| 1        | bottle | hp-sauce     | HP sauce                          |                            |
+| quantity | unit   | key               | ingredient                | notes            |
+| -------- | ------ | ----------------- | ------------------------- | ---------------- |
+| 1        | bag    | vegan-hash        | vegan hash (pyttipanna)   | Felix or similar |
+| 400      | g      | tofu              | firm tofu                 |                  |
+| 1        | tbsp   | margarine         | margarine or vegan butter |                  |
+| 1        | tsp    | kala-namak        | kala namak (black salt)   |                  |
+| 2        | tbsp   | nutritional-yeast | nutritional yeast (nooch) |                  |
+| 0.5      | tsp    | salt              | salt                      |                  |
+| 1        | jar    | pickled-beetroot  | pickled beetroot          |                  |
+| 1        | bottle | ketchup           | ketchup                   |                  |
+| 1        | bottle | hp-sauce          | HP sauce                  |                  |
 
 ## Instructions
 

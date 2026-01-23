@@ -9,7 +9,6 @@ tags: ["Pasta", "Vegan", "Snabbt", "Budget", "Svenskt"]
 
 ## Ingredients
 
-
 ## Instructions
 
 1. Börja koka upp vattnet till pastan.
@@ -20,5 +19,3 @@ tags: ["Pasta", "Vegan", "Snabbt", "Budget", "Svenskt"]
 6. Smaka av med salt, rejält med svartpeppar och servera gärna lite smakrik ost till (välj vegansk alternativ för helt vegansk måltid). 🍝🌱
 
 ## Notes
-
-
