@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Users, Lightbulb } from "lucide-react";
 import { Recipe } from "@/hooks/useMealPlans";
+import type { ParsedIngredient } from "@/services/recipeLoader";
 
 interface SimilarRecipesProps {
   recipe: Recipe;
@@ -15,9 +16,9 @@ export const SimilarRecipes = ({ recipe, similarRecipes, onRecipeSelect }: Simil
     return null;
   }
 
-  const getCommonIngredients = (recipe1: Recipe, recipe2: Recipe) => {
-    const ingredients1 = new Set(recipe1.ingredients.map(ing => ing.toLowerCase()));
-    return recipe2.ingredients.filter(ing => ingredients1.has(ing.toLowerCase()));
+  const getCommonIngredients = (recipe1: Recipe, recipe2: Recipe): ParsedIngredient[] => {
+    const ingredients1Keys = new Set(recipe1.ingredients.map(ing => (ing.key || ing.ingredient).toLowerCase()));
+    return recipe2.ingredients.filter(ing => ingredients1Keys.has((ing.key || ing.ingredient).toLowerCase()));
   };
 
   return (
@@ -75,7 +76,7 @@ export const SimilarRecipes = ({ recipe, similarRecipes, onRecipeSelect }: Simil
                         variant="secondary" 
                         className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 border-0"
                       >
-                        {ingredient}
+                        {ingredient.ingredient}
                       </Badge>
                     ))}
                     {commonIngredients.length > 3 && (

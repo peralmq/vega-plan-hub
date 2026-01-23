@@ -2,21 +2,35 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, Users, CheckCircle2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Clock, Users, CheckCircle2, ExternalLink, Minus, Plus } from "lucide-react";
 import { useState, useMemo } from "react";
 import { getRecipeById } from "@/services/recipeLoader";
-import type { ParsedRecipe } from "@/services/recipeLoader";
+import { scaleIngredients, formatIngredient } from "@/lib/ingredientScaling";
 
 export const CookingView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [targetServings, setTargetServings] = useState<number | null>(null);
   
   // Load recipe from markdown files
   const recipe = useMemo(() => {
     if (!id) return undefined;
     return getRecipeById(id);
   }, [id]);
+
+  // Initialize target servings when recipe loads
+  useMemo(() => {
+    if (recipe && targetServings === null) {
+      setTargetServings(recipe.servings);
+    }
+  }, [recipe, targetServings]);
+
+  // Scale ingredients based on target servings
+  const scaledIngredients = useMemo(() => {
+    if (!recipe || !targetServings) return recipe?.ingredients || [];
+    return scaleIngredients(recipe.ingredients, recipe.servings, targetServings);
+  }, [recipe, targetServings]);
   
   if (!recipe) {
     return (
@@ -40,6 +54,12 @@ export const CookingView = () => {
     );
   };
 
+  const adjustServings = (delta: number) => {
+    if (!targetServings) return;
+    const newServings = Math.max(1, Math.min(20, targetServings + delta));
+    setTargetServings(newServings);
+  };
+
   const difficultyColors = {
     Easy: "bg-gradient-fresh text-primary-foreground",
     Medium: "bg-gradient-warm text-primary-foreground", 
@@ -47,7 +67,7 @@ export const CookingView = () => {
   };
 
   const instructions = recipe.instructions || [];
-  const ingredients = recipe.ingredients || [];
+  const currentServings = targetServings || recipe.servings;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -105,7 +125,7 @@ export const CookingView = () => {
                   </Badge>
                   <Badge className="bg-black/20 text-white border-0 rounded-xl text-base px-4 py-2">
                     <Users className="w-4 h-4 mr-2" />
-                    {recipe.servings} servings
+                    {currentServings} servings
                   </Badge>
                 </div>
               </div>
@@ -116,11 +136,48 @@ export const CookingView = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Ingredients */}
             <Card className="p-6 h-fit sticky top-24">
-              <h2 className="text-2xl font-bold mb-6 text-center">
+              <h2 className="text-2xl font-bold mb-4 text-center">
                 Ingredients 🛒
               </h2>
+              
+              {/* Servings Adjuster */}
+              <div className="flex items-center justify-center gap-4 mb-6 p-4 bg-muted/50 rounded-xl">
+                <span className="text-sm font-medium text-muted-foreground">Servings:</span>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => adjustServings(-1)}
+                    disabled={currentServings <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-xl font-bold w-8 text-center">{currentServings}</span>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => adjustServings(1)}
+                    disabled={currentServings >= 20}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {currentServings !== recipe.servings && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setTargetServings(recipe.servings)}
+                    className="text-xs text-muted-foreground"
+                  >
+                    Reset
+                  </Button>
+                )}
+              </div>
+
               <div className="space-y-4">
-                {ingredients.map((ingredient, index) => (
+                {scaledIngredients.map((ingredient, index) => (
                   <div 
                     key={index}
                     className="flex items-center p-4 bg-muted/50 rounded-xl text-lg"
@@ -128,7 +185,7 @@ export const CookingView = () => {
                     <div className="w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center mr-4 text-sm">
                       {index + 1}
                     </div>
-                    <span className="font-medium">{ingredient}</span>
+                    <span className="font-medium">{formatIngredient(ingredient)}</span>
                   </div>
                 ))}
               </div>
