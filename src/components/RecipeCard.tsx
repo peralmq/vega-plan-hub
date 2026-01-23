@@ -5,6 +5,8 @@ import { Clock, Users, ShoppingCart, ChefHat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { MathemPriceService } from "@/services/mathemPriceService";
 import { Link } from "react-router-dom";
+import type { ParsedIngredient } from "@/services/recipeLoader";
+import { formatIngredient } from "@/lib/ingredientScaling";
 
 interface RecipeCardProps {
   id?: string;
@@ -15,7 +17,7 @@ interface RecipeCardProps {
   difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
   theme?: string;
-  ingredients: string[];
+  ingredients: ParsedIngredient[];
 }
 
 export const RecipeCard = ({ id, title, image, cookTime, servings, difficulty, tags, ingredients }: RecipeCardProps) => {
@@ -37,7 +39,9 @@ export const RecipeCard = ({ id, title, image, cookTime, servings, difficulty, t
       
       setLoadingCost(true);
       try {
-        const costData = await MathemPriceService.calculateTotalCost(ingredients);
+        // Format ingredients to strings for the price service
+        const ingredientStrings = ingredients.map(ing => formatIngredient(ing));
+        const costData = await MathemPriceService.calculateTotalCost(ingredientStrings);
         setCost({ 
           total: costData.totalCost, 
           currency: costData.currency 
