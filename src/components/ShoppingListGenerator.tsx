@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { MathemPriceService } from "@/services/mathemPriceService";
+import { formatIngredient, getIngredientKey } from "@/lib/ingredientScaling";
 
 export const ShoppingListGenerator = () => {
   const { mealPlans } = useMealPlans();
@@ -24,18 +25,20 @@ export const ShoppingListGenerator = () => {
     const plan = mealPlans.find(p => p.id === planId);
     if (!plan) return [];
 
-    const allIngredients = new Set<string>();
+    const allIngredients = new Map<string, string>(); // key -> formatted string
     Object.values(plan.meals).forEach(recipe => {
       if (recipe && recipe.ingredients) {
         recipe.ingredients.forEach(ingredient => {
-          // Clean ingredient string - remove quantities for better grouping
-          // For now, just add the full ingredient string
-          allIngredients.add(ingredient);
+          const key = getIngredientKey(ingredient);
+          // Keep the first occurrence (could later aggregate quantities)
+          if (!allIngredients.has(key)) {
+            allIngredients.set(key, formatIngredient(ingredient));
+          }
         });
       }
     });
 
-    return Array.from(allIngredients).sort();
+    return Array.from(allIngredients.values()).sort();
   };
 
   // Load shopping list cost when ingredients change

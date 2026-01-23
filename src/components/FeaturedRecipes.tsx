@@ -33,7 +33,7 @@ export const FeaturedRecipes = () => {
     const matchesSearch = !searchQuery || 
       recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      recipe.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()));
+      recipe.ingredients.some(ing => ing.ingredient.toLowerCase().includes(searchQuery.toLowerCase()));
     
     return matchesTheme && matchesCookTime && matchesSearch;
   });

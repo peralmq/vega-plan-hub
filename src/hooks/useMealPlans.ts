@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { ParsedIngredient } from '@/services/recipeLoader';
 
 export interface Recipe {
   id: string;
@@ -10,7 +11,7 @@ export interface Recipe {
   difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
   theme: string;
-  ingredients: string[];
+  ingredients: ParsedIngredient[];
   instructions?: string[];
   nutritionInfo?: {
     calories?: number;
@@ -117,8 +118,9 @@ export const useMealPlans = () => {
   const calculateIngredientOverlap = (recipe1: Recipe, recipe2: Recipe): number => {
     if (!recipe1.ingredients?.length || !recipe2.ingredients?.length) return 0;
     
-    const ingredients1 = new Set(recipe1.ingredients.map(i => i.toLowerCase().trim()));
-    const ingredients2 = new Set(recipe2.ingredients.map(i => i.toLowerCase().trim()));
+    // Use ingredient key for matching
+    const ingredients1 = new Set(recipe1.ingredients.map(i => (i.key || i.ingredient).toLowerCase().trim()));
+    const ingredients2 = new Set(recipe2.ingredients.map(i => (i.key || i.ingredient).toLowerCase().trim()));
     
     let overlap = 0;
     ingredients1.forEach(ing => {
@@ -270,13 +272,13 @@ export const useMealPlans = () => {
   const findSimilarRecipes = (recipe: Recipe, allRecipes: Recipe[]): Recipe[] => {
     if (!recipe.ingredients || recipe.ingredients.length === 0) return [];
     
-    const recipeIngredients = new Set(recipe.ingredients.map(ing => ing.toLowerCase()));
+    const recipeIngredients = new Set(recipe.ingredients.map(ing => (ing.key || ing.ingredient).toLowerCase()));
     
     return allRecipes
       .filter(r => r.id !== recipe.id && r.ingredients && r.ingredients.length > 0)
       .map(r => {
         const commonIngredients = r.ingredients!.filter(ing => 
-          recipeIngredients.has(ing.toLowerCase())
+          recipeIngredients.has((ing.key || ing.ingredient).toLowerCase())
         ).length;
         const similarity = commonIngredients / Math.max(recipe.ingredients!.length, r.ingredients!.length);
         return { recipe: r, similarity };
