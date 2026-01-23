@@ -1,4 +1,3 @@
----
 id: "vegansk-belugabolognese"
 title: "Vegansk belugabolognese"
 imageUrl: "https://undertian.com/wp-content/uploads/2018/05/IMG_4878-654x654.jpg"
@@ -7,24 +6,9 @@ cookTime: 40
 servings: 4
 difficulty: "Easy"
 tags: ["Pasta", "Vegan", "Budget", "Matlåda", "Svenskt"]
----
 
 ## Ingredients
 
-- 1 st gul lök
-- 2 st vitlöksklyftor
-- 1 msk paprikapulver
-- 2 dl belugalinser, torkade
-- 1 msk tomatpuré
-- 4 dl krossade tomater
-- 1 st grönsaksbuljongtärning
-- 2 dl vatten
-- 1 st palsternacka
-- 2 msk frysta örter (t.ex. basilika, persilja)
-- 1 krm sambal oelek eller chiliflakes
-- 2 dl havregrädde
-- Salt & svartpeppar
-- 4 port pasta
 
 ## Instructions
 
@@ -37,8 +21,4 @@ tags: ["Pasta", "Vegan", "Budget", "Matlåda", "Svenskt"]
 
 ## Notes
 
-- Perfekt som matlåda! 🥗
-- Såsen funkar även till gratäng, paj eller lasagne.
-- Går att variera med andra rotfrukter eller linser.
-- Tillsätt mer vatten om det kokar torrt.
-- Toppa gärna med färska örter eller vegansk ost vid servering.
+

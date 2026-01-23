@@ -1,4 +1,3 @@
----
 id: "vegansk-carbonara-med-grona-artor"
 title: "Vegansk carbonara med gröna ärtor"
 imageUrl: "https://undertian.com/wp-content/uploads/2018/05/20190607_124420-654x654.jpg"
@@ -7,19 +6,9 @@ cookTime: 15
 servings: 4
 difficulty: "Easy"
 tags: ["Pasta", "Vegan", "Snabbt", "Budget", "Svenskt"]
----
 
 ## Ingredients
 
-- 2 st gul lök
-- 1 tsk rökt paprikapulver
-- 4 dl havregrädde
-- 1 st grönsaksbuljongtärning
-- 600 g gröna ärtor, frysta
-- 4 port pasta
-- Salt & svartpeppar
-- Olja att steka i
-- Ev. riven ost att strö över (välj vegansk för helt vegansk rätt)
 
 ## Instructions
 
@@ -32,7 +21,4 @@ tags: ["Pasta", "Vegan", "Snabbt", "Budget", "Svenskt"]
 
 ## Notes
 
-- Snabb, krämig och god vardagspasta! ✨
-- Rökt paprikapulver ger en härlig smak.
-- Toppa gärna med extra ärtor eller örter.
-- Passar bra som matlåda.
+

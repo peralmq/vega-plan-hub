@@ -1,4 +1,3 @@
----
 id: "chili-sin-carne-med-chipotle"
 title: "Chili Sin Carne med Chipotle"
 imageUrl: "https://javligtgott.se/wp-content/uploads/2024/01/2I2A3478.jpg"
@@ -7,40 +6,12 @@ cookTime: 60
 servings: 8
 difficulty: "Medium"
 tags: ["Mexikanskt", "BBQ", "Gryta", "Festmat", "Lyxigt", "Vegan"]
----
 
 ## Ingredients
 
-- 1 red onion
-- 425 g Anammas Formbara färs (vegan mince)
-- 1 carrot
-- 2 dried chipotle chilies
-- 3 garlic cloves
-- 50 g dark chocolate
-- 2 tbsp dried oregano
-- 2 tbsp smoked paprika powder
-- 2 tbsp ground cumin
-- 1 dl sweet and smoky BBQ sauce
-- 400 g crushed tomatoes
-- 1.5 dl red wine
-- 2 tbsp vegetable stock concentrate (fond)
-- 1.5 tbsp Japanese soy sauce
-- 1 tsp Chinese soy sauce
-- 4 dl water
-- 210 g kidney beans
-- 210 g black beans
-- 120 g cooked corn
-- Juice of 0.5 lime
-- Salt and pepper, to taste
-- Rapeseed or olive oil, for frying
 
 ### For serving
 
-- Cooked jasmine rice 🍚
-- Guacamole 🥑
-- Vegan sour cream 🥛
-- Nachos
-- Green salad 🥗
 
 ## Instructions
 
@@ -55,7 +26,4 @@ tags: ["Mexikanskt", "BBQ", "Gryta", "Festmat", "Lyxigt", "Vegan"]
 
 ## Notes
 
-- Roasting the vegan mince gives a much better texture!
-- Adjust the amount of chipotle to your heat preference.
-- This chili is perfect for meal prep and gets even better the next day.
-- Great for parties and can be made in advance.
+
