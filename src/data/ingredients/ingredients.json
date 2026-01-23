@@ -1,0 +1,92 @@
+[
+  {
+    "key": "chana-dal",
+    "synonyms": ["split chickpeas", "chana dal"],
+    "display": "Chana dal (split chickpeas)"
+  },
+  {
+    "key": "toor-dal",
+    "synonyms": ["split pigeon peas", "toor dal"],
+    "display": "Toor dal (split pigeon peas)"
+  },
+  {
+    "key": "moong-dal",
+    "synonyms": ["split mung beans", "moong dal"],
+    "display": "Moong dal (split mung beans)"
+  },
+  {
+    "key": "water",
+    "synonyms": ["water"],
+    "display": "Water"
+  },
+  {
+    "key": "turmeric",
+    "synonyms": ["turmeric", "gurkmeja"],
+    "display": "Turmeric"
+  },
+  {
+    "key": "neutral-oil",
+    "synonyms": ["neutral oil", "vegetable oil", "rapeseed oil", "canola oil"],
+    "display": "Neutral oil"
+  },
+  {
+    "key": "cumin-seed",
+    "synonyms": ["whole cumin seeds", "cumin seed", "spiskummin"],
+    "display": "Cumin seed"
+  },
+  {
+    "key": "onion",
+    "synonyms": ["onion", "gul lök", "yellow onion"],
+    "display": "Onion"
+  },
+  {
+    "key": "garlic",
+    "synonyms": ["garlic", "garlic clove", "vitlök"],
+    "display": "Garlic"
+  },
+  {
+    "key": "ginger",
+    "synonyms": ["ginger", "fresh ginger", "ingefära"],
+    "display": "Ginger"
+  },
+  {
+    "key": "green-chili",
+    "synonyms": ["green chili", "grön chili"],
+    "display": "Green chili"
+  },
+  {
+    "key": "tomato",
+    "synonyms": ["tomato", "tomatoes", "crushed tomatoes", "krossade tomater"],
+    "display": "Tomato"
+  },
+  {
+    "key": "ground-coriander",
+    "synonyms": ["ground coriander", "coriander powder", "koriander"],
+    "display": "Ground coriander"
+  },
+  {
+    "key": "chili-powder",
+    "synonyms": ["chili powder", "chilipulver"],
+    "display": "Chili powder"
+  },
+  {
+    "key": "garam-masala",
+    "synonyms": ["garam masala"],
+    "display": "Garam masala"
+  },
+  {
+    "key": "salt",
+    "synonyms": ["salt"],
+    "display": "Salt"
+  },
+  {
+    "key": "dried-red-chili",
+    "synonyms": ["dried red chili", "dried red chilies"],
+    "display": "Dried red chili"
+  },
+  {
+    "key": "coriander-leaf",
+    "synonyms": ["coriander", "cilantro", "fresh coriander", "koriander"],
+    "display": "Coriander (cilantro)"
+  }
+]
