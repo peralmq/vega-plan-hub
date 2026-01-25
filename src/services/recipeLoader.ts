@@ -1,5 +1,3 @@
-import { Recipe } from '@/hooks/useMealPlans';
-
 // Ingredient interface for structured parsing
 export interface ParsedIngredient {
   quantity: string;
@@ -9,17 +7,34 @@ export interface ParsedIngredient {
   notes: string;
 }
 
+export interface ParsedRecipe {
+  id: string;
+  title: string;
+  description?: string;
+  image: string;
+  url?: string;
+  cookTime: number;
+  servings: number;
+  difficulty: "Easy" | "Medium" | "Hard";
+  tags: string[];
+  theme: string;
+  ingredients: ParsedIngredient[];
+  instructions: string[];
+  notes?: string[];
+  nutritionInfo?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
+}
+
 // Import all recipe markdown files using Vite's glob import
 const recipeModules = import.meta.glob('/src/data/recipes/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
 });
-
-export interface ParsedRecipe extends Recipe {
-  url?: string;
-  notes?: string[];
-}
 
 interface RecipeFrontmatter {
   id: string;
@@ -106,10 +121,7 @@ function parseFrontmatter(content: string): {
 
 /**
  * Parse ingredients from markdown body
- * Handles formats like:
- * - [base] 1 tbsp olive oil
- * - 1 onion, chopped
- * - [esoteric] 1 tsp garam masala
+ * Handles markdown table format
  */
 function parseIngredients(body: string): ParsedIngredient[] {
   const ingredientsMatch = body.match(
@@ -118,8 +130,6 @@ function parseIngredients(body: string): ParsedIngredient[] {
   if (!ingredientsMatch) return [];
 
   const section = ingredientsMatch[1];
-  // Find markdown table
-  const tableMatch = section.match(/\|(.|\n)*?\|\s*\n/);
   const lines = section
     .split('\n')
     .map((l) => l.trim())
@@ -127,12 +137,8 @@ function parseIngredients(body: string): ParsedIngredient[] {
   // Find table header
   const headerIdx = lines.findIndex((l) => l.startsWith('|'));
   if (headerIdx === -1 || lines.length < headerIdx + 2) return [];
-  // Parse header and rows
-  const header = lines[headerIdx]
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const rows = [];
+  // Parse rows
+  const rows: ParsedIngredient[] = [];
   for (let i = headerIdx + 2; i < lines.length; i++) {
     const row = lines[i];
     if (!row.startsWith('|')) break;
@@ -255,7 +261,7 @@ function parseRecipeMarkdown(
     difficulty: frontmatter.difficulty,
     tags: frontmatter.tags || [],
     theme,
-    ingredients, // Now an array of ParsedIngredient
+    ingredients,
     instructions,
     notes,
   };
