@@ -15,69 +15,43 @@ import {
 } from "lucide-react";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
 import { ParsedRecipe } from "@/services/recipeLoader";
-import { getIngredientKey, formatIngredient } from "@/lib/ingredientScaling";
+import { aggregateIngredients, formatAggregatedIngredient, AggregatedIngredient } from "@/lib/ingredientNormalization";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { format, addWeeks, startOfWeek } from "date-fns";
-
-interface AggregatedIngredient {
-  key: string;
-  displayName: string;
-  quantity: string;
-  unit: string;
-  recipes: string[];
-}
+import { format } from "date-fns";
 
 export default function ShoppingSummary() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { nextWeekPlan, loading } = useMealPlanDB();
+  const { nextWeekPlan, currentWeekPlan, loading, getCurrentMonday, getNextMonday } = useMealPlanDB();
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
 
-  // Next week Monday
-  const nextWeekMonday = addWeeks(startOfWeek(new Date(), { weekStartsOn: 1 }), 1);
-  const weekLabel = `Week of ${format(nextWeekMonday, 'MMM d')}`;
+  // Check if we came from current week planning
+  const isCurrentWeek = location.state?.isCurrentWeek === true;
+  const targetPlan = isCurrentWeek ? currentWeekPlan : nextWeekPlan;
+  const targetMonday = isCurrentWeek ? getCurrentMonday() : getNextMonday();
+  const weekLabel = `Week of ${format(targetMonday, 'MMM d')}`;
 
   // Get recipes from the saved plan
   const recipes = useMemo(() => {
-    if (!nextWeekPlan) return [];
-    return nextWeekPlan.meals
+    if (!targetPlan) return [];
+    return targetPlan.meals
       .filter(m => m.recipe)
       .map(m => m.recipe as ParsedRecipe);
-  }, [nextWeekPlan]);
+  }, [targetPlan]);
 
-  // Aggregate ingredients across all recipes
+  // Aggregate ingredients across all recipes with improved compaction
   const aggregatedIngredients = useMemo(() => {
-    const ingredientMap = new Map<string, AggregatedIngredient>();
-
+    const allIngredients: Array<{ ingredient: any; recipeName: string }> = [];
+    
     recipes.forEach(recipe => {
       if (!recipe.ingredients) return;
-
       recipe.ingredients.forEach(ing => {
-        const key = getIngredientKey(ing);
-        const existing = ingredientMap.get(key);
-
-        if (existing) {
-          // Add to existing - just note the recipe, don't try to add quantities
-          if (!existing.recipes.includes(recipe.title)) {
-            existing.recipes.push(recipe.title);
-          }
-        } else {
-          ingredientMap.set(key, {
-            key,
-            displayName: ing.ingredient,
-            quantity: ing.quantity,
-            unit: ing.unit,
-            recipes: [recipe.title],
-          });
-        }
+        allIngredients.push({ ingredient: ing, recipeName: recipe.title });
       });
     });
-
-    // Sort by ingredient name
-    return Array.from(ingredientMap.values()).sort((a, b) => 
-      a.displayName.localeCompare(b.displayName)
-    );
+    
+    return aggregateIngredients(allIngredients);
   }, [recipes]);
 
   const toggleItem = (key: string) => {
@@ -120,7 +94,7 @@ export default function ShoppingSummary() {
     );
   }
 
-  if (!nextWeekPlan || recipes.length === 0) {
+  if (!targetPlan || recipes.length === 0) {
     return (
       <div className="min-h-screen bg-muted/30">
         <Header />
@@ -203,9 +177,7 @@ export default function ShoppingSummary() {
                       }`}
                     >
                       <span className="font-medium">
-                        {ing.quantity && `${ing.quantity} `}
-                        {ing.unit && `${ing.unit} `}
-                        {ing.displayName}
+                        {formatAggregatedIngredient(ing)}
                       </span>
                       {ing.recipes.length > 1 && (
                         <span className="text-xs text-muted-foreground ml-2">

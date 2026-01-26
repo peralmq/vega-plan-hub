@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import {
   ArrowRight,
   Clock,
   Users,
-  GripVertical
+  AlertCircle
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
@@ -27,36 +27,59 @@ const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
 
 export default function PlanMode() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signOut } = useAuth();
-  const { hasNextWeekPlan, saveNextWeekPlan, loading, nextWeekPlan } = useMealPlanDB();
+  const { 
+    hasNextWeekPlan, 
+    saveNextWeekPlan, 
+    saveCurrentWeekPlan,
+    loading, 
+    nextWeekPlan,
+    currentWeekPlan,
+    getTodayIndex,
+    getCurrentMonday,
+    getNextMonday,
+  } = useMealPlanDB();
   
   const allRecipes = useMemo(() => loadAllRecipes(), []);
   
-  // Local state for planning (not saved until user confirms)
-  const [plannedMeals, setPlannedMeals] = useState<Map<number, ParsedRecipe>>(
-    () => {
-      // Initialize from existing next week plan if available
-      const initial = new Map<number, ParsedRecipe>();
-      if (nextWeekPlan) {
-        nextWeekPlan.meals.forEach(meal => {
-          if (meal.recipe) {
-            initial.set(meal.dayOfWeek, meal.recipe);
-          }
-        });
-      }
-      return initial;
-    }
-  );
+  // Check if we're planning for current week (from navigation state)
+  const planCurrentWeek = location.state?.planCurrentWeek === true;
+  const todayIndex = getTodayIndex();
+  
+  // Which week are we planning for?
+  const targetMonday = planCurrentWeek ? getCurrentMonday() : getNextMonday();
+  const weekLabel = `Week of ${format(targetMonday, 'MMM d')}`;
+  const isCurrentWeek = planCurrentWeek;
+  
+  // For current week, only allow planning from today onwards
+  const minDayIndex = isCurrentWeek ? todayIndex : 0;
+  
+  // Initialize planned meals from existing plan
+  const [plannedMeals, setPlannedMeals] = useState<Map<number, ParsedRecipe>>(() => new Map());
   const [selectingForDay, setSelectingForDay] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  
+  // Update planned meals when plan data loads
+  useEffect(() => {
+    const sourcePlan = isCurrentWeek ? currentWeekPlan : nextWeekPlan;
+    if (sourcePlan) {
+      const initial = new Map<number, ParsedRecipe>();
+      sourcePlan.meals.forEach(meal => {
+        if (meal.recipe) {
+          initial.set(meal.dayOfWeek, meal.recipe);
+        }
+      });
+      setPlannedMeals(initial);
+    }
+  }, [isCurrentWeek, currentWeekPlan, nextWeekPlan]);
 
-  // Next week Monday
-  const nextWeekMonday = addWeeks(startOfWeek(new Date(), { weekStartsOn: 1 }), 1);
-  const weekLabel = `Week of ${format(nextWeekMonday, 'MMM d')}`;
-
-  // Stats
-  const totalMeals = plannedMeals.size;
-  const totalCookTime = Array.from(plannedMeals.values()).reduce((sum, r) => sum + r.cookTime, 0);
+  // Stats - only count days from minDayIndex onwards for current week
+  const planableDays = 7 - minDayIndex;
+  const totalMeals = Array.from(plannedMeals.entries()).filter(([day]) => day >= minDayIndex).length;
+  const totalCookTime = Array.from(plannedMeals.entries())
+    .filter(([day]) => day >= minDayIndex)
+    .reduce((sum, [, r]) => sum + r.cookTime, 0);
 
   // Get used recipe IDs
   const usedRecipeIds = new Set(Array.from(plannedMeals.values()).map(r => r.id));
@@ -67,7 +90,7 @@ export default function PlanMode() {
     const newMeals = new Map(plannedMeals);
     
     let filled = 0;
-    for (let day = 0; day < 7; day++) {
+    for (let day = minDayIndex; day < 7; day++) {
       if (!newMeals.has(day) && available.length > 0) {
         // Pick a random recipe
         const randomIndex = Math.floor(Math.random() * available.length);
@@ -87,14 +110,18 @@ export default function PlanMode() {
     } else {
       toast({
         title: "Already full! 🎉",
-        description: "All 7 days are planned.",
+        description: `All ${planableDays} days are planned.`,
       });
     }
   };
 
-  // Clear all
+  // Clear all (only clearable days)
   const handleClear = () => {
-    setPlannedMeals(new Map());
+    const newMeals = new Map(plannedMeals);
+    for (let day = minDayIndex; day < 7; day++) {
+      newMeals.delete(day);
+    }
+    setPlannedMeals(newMeals);
     toast({
       title: "Plan cleared! 🧹",
       description: "Ready to start fresh.",
@@ -164,12 +191,24 @@ export default function PlanMode() {
     try {
       const mealsMap = new Map<number, string>();
       plannedMeals.forEach((recipe, day) => {
-        mealsMap.set(day, recipe.id);
+        // Only include days from minDayIndex onwards for current week
+        if (day >= minDayIndex) {
+          mealsMap.set(day, recipe.id);
+        }
       });
       
-      await saveNextWeekPlan(mealsMap);
+      if (isCurrentWeek) {
+        await saveCurrentWeekPlan(mealsMap);
+      } else {
+        await saveNextWeekPlan(mealsMap);
+      }
       
-      navigate('/summary', { state: { meals: Array.from(plannedMeals.entries()) } });
+      navigate('/summary', { 
+        state: { 
+          meals: Array.from(plannedMeals.entries()).filter(([day]) => day >= minDayIndex),
+          isCurrentWeek 
+        } 
+      });
     } catch (error) {
       console.error('Error saving plan:', error);
       toast({
@@ -222,11 +261,26 @@ export default function PlanMode() {
       </header>
 
       <div className="container py-6">
+        {/* Current week notice */}
+        {isCurrentWeek && (
+          <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium">Planning for the rest of this week</p>
+                <p className="text-sm text-muted-foreground">
+                  Days before today ({DAY_NAMES.slice(0, todayIndex).join(', ') || 'none'}) are locked.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+        
         {/* Stats */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-4">
             <Badge variant="secondary" className="bg-gradient-warm text-foreground">
-              {totalMeals}/7 dinners planned
+              {totalMeals}/{planableDays} dinners planned
             </Badge>
             <Badge variant="outline">
               ⏱️ {totalCookTime} min total
@@ -248,15 +302,27 @@ export default function PlanMode() {
         <div className="grid md:grid-cols-7 gap-4 mb-8">
           {DAY_NAMES.map((day, index) => {
             const recipe = plannedMeals.get(index);
+            const isPastDay = isCurrentWeek && index < minDayIndex;
             
             return (
               <Card 
                 key={day} 
-                className="p-4 border-2 border-dashed hover:border-primary/30 transition-all"
+                className={`p-4 border-2 border-dashed transition-all ${
+                  isPastDay ? 'opacity-50 bg-muted/50' : 'hover:border-primary/30'
+                }`}
               >
-                <h3 className="font-bold text-sm text-primary mb-3 text-center">{day}</h3>
+                <h3 className="font-bold text-sm text-primary mb-3 text-center">
+                  {day}
+                  {isCurrentWeek && index === todayIndex && (
+                    <Badge variant="outline" className="ml-1 text-xs">Today</Badge>
+                  )}
+                </h3>
                 
-                {recipe ? (
+                {isPastDay ? (
+                  <div className="h-32 flex items-center justify-center text-muted-foreground text-xs">
+                    Past
+                  </div>
+                ) : recipe ? (
                   <div className="relative group">
                     <div className="bg-gradient-fun text-white rounded-xl overflow-hidden">
                       <img 
