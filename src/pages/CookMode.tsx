@@ -13,12 +13,14 @@ import {
   Calendar,
   ChefHat,
   LogOut,
-  CalendarPlus
+  CalendarPlus,
+  ArrowRight
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
-import { scaleIngredients, formatIngredient } from "@/lib/ingredientScaling";
+import { convertIngredientToMetric, formatQuantityMetric } from "@/lib/ingredientNormalization";
 import { ParsedRecipe } from "@/services/recipeLoader";
+import { format } from "date-fns";
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -32,11 +34,12 @@ export default function CookMode() {
     hasNextWeekPlan,
     getRemainingMeals,
     getRecipeForDay,
+    getTodayIndex,
+    getCurrentMonday,
   } = useMealPlanDB();
 
   // Get today's day of week (0=Monday, 6=Sunday)
-  const today = new Date().getDay();
-  const todayIndex = today === 0 ? 6 : today - 1;
+  const todayIndex = getTodayIndex();
   
   const [selectedDay, setSelectedDay] = useState<number>(todayIndex);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
@@ -58,10 +61,22 @@ export default function CookMode() {
     setTargetServings(selectedRecipe?.servings || null);
   }, [selectedDay]);
 
-  // Scale ingredients
+  // Scale ingredients and convert to metric
   const scaledIngredients = useMemo(() => {
-    if (!selectedRecipe || !targetServings) return selectedRecipe?.ingredients || [];
-    return scaleIngredients(selectedRecipe.ingredients, selectedRecipe.servings, targetServings);
+    if (!selectedRecipe || !targetServings) return [];
+    const scaleFactor = targetServings / selectedRecipe.servings;
+    
+    return selectedRecipe.ingredients.map(ing => {
+      // Scale the quantity
+      const originalQty = parseFloat(ing.quantity) || 0;
+      const scaledQty = originalQty * scaleFactor;
+      const scaledIng = {
+        ...ing,
+        quantity: scaledQty > 0 ? scaledQty.toString() : ing.quantity,
+      };
+      // Convert to metric
+      return convertIngredientToMetric(scaledIng);
+    });
   }, [selectedRecipe, targetServings]);
 
   const toggleStep = (stepIndex: number) => {
@@ -94,8 +109,11 @@ export default function CookMode() {
     );
   }
 
-  // No current week plan
+  // No current week plan - offer to plan remaining days
   if (!hasCurrentWeekPlan()) {
+    const remainingDays = 7 - todayIndex;
+    const currentWeekLabel = format(getCurrentMonday(), 'MMM d');
+    
     return (
       <div className="min-h-screen bg-muted/30">
         <Header user={user} onSignOut={handleSignOut} />
@@ -106,18 +124,28 @@ export default function CookMode() {
               <ChefHat className="h-16 w-16 mx-auto text-muted-foreground mb-6" />
               <h2 className="text-2xl font-bold mb-4">No meals planned for this week</h2>
               <p className="text-muted-foreground mb-6">
-                {hasNextWeekPlan() 
-                  ? "You have next week planned! Come back Monday to start cooking."
-                  : "Start by planning your meals for next week."}
+                You have {remainingDays} day{remainingDays !== 1 ? 's' : ''} left this week (including today).
+                Plan your meals now or prepare for next week!
               </p>
-              <Button 
-                size="lg"
-                onClick={() => navigate('/plan')}
-                className="bg-gradient-fun text-white rounded-xl"
-              >
-                <CalendarPlus className="h-5 w-5 mr-2" />
-                Plan Next Week
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button 
+                  size="lg"
+                  onClick={() => navigate('/plan', { state: { planCurrentWeek: true } })}
+                  className="bg-gradient-fun text-white rounded-xl"
+                >
+                  <CalendarPlus className="h-5 w-5 mr-2" />
+                  Plan This Week
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/plan')}
+                  className="rounded-xl"
+                >
+                  Plan Next Week
+                </Button>
+              </div>
             </Card>
           </div>
         </div>
@@ -265,7 +293,12 @@ export default function CookMode() {
                       <div className="w-7 h-7 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center mr-3 text-sm">
                         {index + 1}
                       </div>
-                      <span className="font-medium">{formatIngredient(ingredient)}</span>
+                      <span className="font-medium">
+                        {ingredient.quantity && `${ingredient.quantity} `}
+                        {ingredient.unit && `${ingredient.unit} `}
+                        {ingredient.ingredient}
+                        {ingredient.notes && ` (${ingredient.notes})`}
+                      </span>
                     </div>
                   ))}
                 </div>
