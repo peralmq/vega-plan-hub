@@ -104,18 +104,18 @@ export function useMealPlanDB() {
     fetchMealPlans();
   }, [fetchMealPlans]);
 
-  // Save a complete meal plan for next week
-  const saveNextWeekPlan = async (meals: Map<number, string>) => {
+  // Save a meal plan for a specific week
+  const saveMealPlan = async (meals: Map<number, string>, weekMonday: Date) => {
     if (!user) throw new Error('Must be logged in');
 
-    const nextMonday = format(getNextWeekMonday(), 'yyyy-MM-dd');
+    const mondayStr = format(weekMonday, 'yyyy-MM-dd');
 
     // First, check if plan exists
     const { data: existing } = await supabase
       .from('meal_plans')
       .select('id')
       .eq('user_id', user.id)
-      .eq('week_start', nextMonday)
+      .eq('week_start', mondayStr)
       .maybeSingle();
 
     let planId: string;
@@ -133,7 +133,7 @@ export function useMealPlanDB() {
         .from('meal_plans')
         .insert({
           user_id: user.id,
-          week_start: nextMonday,
+          week_start: mondayStr,
         })
         .select('id')
         .single();
@@ -161,6 +161,16 @@ export function useMealPlanDB() {
     await fetchMealPlans();
 
     return planId;
+  };
+
+  // Save a complete meal plan for next week (wrapper for backwards compat)
+  const saveNextWeekPlan = async (meals: Map<number, string>) => {
+    return saveMealPlan(meals, getNextWeekMonday());
+  };
+
+  // Save a meal plan for current week
+  const saveCurrentWeekPlan = async (meals: Map<number, string>) => {
+    return saveMealPlan(meals, getCurrentWeekMonday());
   };
 
   // Get recipe for a specific day in current week
@@ -197,12 +207,25 @@ export function useMealPlanDB() {
     return currentWeekPlan !== null && currentWeekPlan.meals.length > 0;
   };
 
+  // Get today's day index (0=Monday, 6=Sunday)
+  const getTodayIndex = (): number => {
+    const today = new Date().getDay();
+    return today === 0 ? 6 : today - 1;
+  };
+
+  // Get current week's Monday for external use
+  const getCurrentMonday = (): Date => getCurrentWeekMonday();
+
+  // Get next week's Monday for external use
+  const getNextMonday = (): Date => getNextWeekMonday();
+
   return {
     currentWeekPlan,
     nextWeekPlan,
     loading,
     allRecipes,
     saveNextWeekPlan,
+    saveCurrentWeekPlan,
     getRecipeForDay,
     getTodaysRecipe,
     getRemainingMeals,
@@ -210,5 +233,8 @@ export function useMealPlanDB() {
     hasCurrentWeekPlan,
     refreshPlans: fetchMealPlans,
     dayNames: DAY_NAMES,
+    getTodayIndex,
+    getCurrentMonday,
+    getNextMonday,
   };
 }
