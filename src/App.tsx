@@ -8,6 +8,7 @@ import Landing from "./pages/Landing";
 import CookMode from "./pages/CookMode";
 import PlanMode from "./pages/PlanMode";
 import ShoppingSummary from "./pages/ShoppingSummary";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,13 @@ function AppRoutes() {
       <Route path="/summary" element={
         <ProtectedRoute>
           <ShoppingSummary />
+        </ProtectedRoute>
+      } />
+
+      {/* Account */}
+      <Route path="/account" element={
+        <ProtectedRoute>
+          <Account />
         </ProtectedRoute>
       } />
 
