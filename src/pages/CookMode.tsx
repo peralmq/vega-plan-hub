@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Clock, 
   Users, 
@@ -14,13 +15,18 @@ import {
   ChefHat,
   LogOut,
   CalendarPlus,
-  ArrowRight
+  ArrowRight,
+  User,
+  Edit2
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
-import { convertIngredientToMetric, formatQuantityMetric } from "@/lib/ingredientNormalization";
-import { ParsedRecipe } from "@/services/recipeLoader";
+import { convertIngredientToMetric } from "@/lib/ingredientNormalization";
+import { ParsedRecipe, loadAllRecipes } from "@/services/recipeLoader";
+import { RecipeRatings } from "@/components/recipe/RecipeRatings";
+import { RecipeComments } from "@/components/recipe/RecipeComments";
 import { format } from "date-fns";
+import { toast } from "@/hooks/use-toast";
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -29,6 +35,7 @@ export default function CookMode() {
   const { user, signOut } = useAuth();
   const { 
     currentWeekPlan, 
+    nextWeekPlan,
     loading, 
     hasCurrentWeekPlan, 
     hasNextWeekPlan,
@@ -36,45 +43,49 @@ export default function CookMode() {
     getRecipeForDay,
     getTodayIndex,
     getCurrentMonday,
+    saveCurrentWeekPlan,
+    saveNextWeekPlan,
   } = useMealPlanDB();
 
-  // Get today's day of week (0=Monday, 6=Sunday)
+  const allRecipes = useMemo(() => loadAllRecipes(), []);
   const todayIndex = getTodayIndex();
   
   const [selectedDay, setSelectedDay] = useState<number>(todayIndex);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [targetServings, setTargetServings] = useState<number | null>(null);
+  const [editingDay, setEditingDay] = useState<number | null>(null);
+  const [viewingWeek, setViewingWeek] = useState<'current' | 'next'>('current');
 
-  const selectedRecipe = getRecipeForDay(selectedDay);
-  const remainingMeals = getRemainingMeals();
+  const activePlan = viewingWeek === 'current' ? currentWeekPlan : nextWeekPlan;
 
-  // Initialize servings when recipe changes
+  const selectedRecipe = viewingWeek === 'current' 
+    ? getRecipeForDay(selectedDay) 
+    : activePlan?.meals.find(m => m.dayOfWeek === selectedDay)?.recipe;
+
+  const usedRecipeIds = new Set(activePlan?.meals.map(m => m.recipeId) || []);
+
   useMemo(() => {
     if (selectedRecipe && targetServings === null) {
       setTargetServings(selectedRecipe.servings);
     }
   }, [selectedRecipe, targetServings]);
 
-  // Reset completed steps when changing recipes
   useMemo(() => {
     setCompletedSteps([]);
     setTargetServings(selectedRecipe?.servings || null);
   }, [selectedDay]);
 
-  // Scale ingredients and convert to metric
   const scaledIngredients = useMemo(() => {
     if (!selectedRecipe || !targetServings) return [];
     const scaleFactor = targetServings / selectedRecipe.servings;
     
     return selectedRecipe.ingredients.map(ing => {
-      // Scale the quantity
       const originalQty = parseFloat(ing.quantity) || 0;
       const scaledQty = originalQty * scaleFactor;
       const scaledIng = {
         ...ing,
         quantity: scaledQty > 0 ? scaledQty.toString() : ing.quantity,
       };
-      // Convert to metric
       return convertIngredientToMetric(scaledIng);
     });
   }, [selectedRecipe, targetServings]);
@@ -93,6 +104,37 @@ export default function CookMode() {
     setTargetServings(newServings);
   };
 
+  const handleChangeMeal = async (recipe: ParsedRecipe) => {
+    if (editingDay === null || !activePlan) return;
+    
+    try {
+      const mealsMap = new Map<number, string>();
+      activePlan.meals.forEach(meal => {
+        if (meal.dayOfWeek !== editingDay) {
+          mealsMap.set(meal.dayOfWeek, meal.recipeId);
+        }
+      });
+      mealsMap.set(editingDay, recipe.id);
+
+      if (viewingWeek === 'current') {
+        await saveCurrentWeekPlan(mealsMap);
+      } else {
+        await saveNextWeekPlan(mealsMap);
+      }
+
+      toast({
+        title: "Meal updated! 🍽️",
+        description: `${DAY_NAMES[editingDay]}: ${recipe.title}`,
+      });
+      setEditingDay(null);
+    } catch (error) {
+      toast({
+        title: "Error updating meal",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -109,10 +151,8 @@ export default function CookMode() {
     );
   }
 
-  // No current week plan - offer to plan remaining days
   if (!hasCurrentWeekPlan()) {
     const remainingDays = 7 - todayIndex;
-    const currentWeekLabel = format(getCurrentMonday(), 'MMM d');
     
     return (
       <div className="min-h-screen bg-muted/30">
@@ -156,7 +196,7 @@ export default function CookMode() {
   const currentServings = targetServings || selectedRecipe?.servings || 4;
   const instructions = selectedRecipe?.instructions || [];
 
-  const difficultyColors = {
+  const difficultyColors: Record<string, string> = {
     Easy: "bg-gradient-fresh text-primary-foreground",
     Medium: "bg-gradient-warm text-primary-foreground", 
     Hard: "bg-gradient-fun text-primary-foreground"
@@ -167,40 +207,73 @@ export default function CookMode() {
       <Header user={user} onSignOut={handleSignOut} />
 
       <div className="container py-6">
+        {/* Week Toggle */}
+        {hasNextWeekPlan() && (
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={viewingWeek === 'current' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => { setViewingWeek('current'); setSelectedDay(todayIndex); }}
+            >
+              This Week
+            </Button>
+            <Button
+              variant={viewingWeek === 'next' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => { setViewingWeek('next'); setSelectedDay(0); }}
+            >
+              Next Week
+            </Button>
+          </div>
+        )}
+
         {/* Day Selector */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">This Week's Meals</h2>
+            <h2 className="text-lg font-semibold">
+              {viewingWeek === 'current' ? "This Week's Meals" : "Next Week's Meals"}
+            </h2>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {DAY_NAMES.map((day, index) => {
-              const meal = currentWeekPlan?.meals.find(m => m.dayOfWeek === index);
-              const isToday = index === todayIndex;
+              const meal = activePlan?.meals.find(m => m.dayOfWeek === index);
+              const isToday = viewingWeek === 'current' && index === todayIndex;
               const isSelected = index === selectedDay;
               const hasMeal = !!meal;
 
               return (
-                <Button
-                  key={day}
-                  variant={isSelected ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => hasMeal && setSelectedDay(index)}
-                  disabled={!hasMeal}
-                  className={`flex-shrink-0 min-w-[80px] ${
-                    isSelected 
-                      ? 'bg-gradient-fun text-white border-0' 
-                      : isToday 
-                        ? 'border-primary border-2' 
-                        : ''
-                  } ${!hasMeal ? 'opacity-50' : ''}`}
-                >
-                  <div className="text-center">
-                    <div className="text-xs">{day.slice(0, 3)}</div>
-                    {hasMeal && <div className="text-lg">🍲</div>}
-                    {!hasMeal && <div className="text-lg opacity-50">-</div>}
-                  </div>
-                </Button>
+                <div key={day} className="flex-shrink-0 relative group">
+                  <Button
+                    variant={isSelected ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => hasMeal && setSelectedDay(index)}
+                    disabled={!hasMeal}
+                    className={`min-w-[80px] ${
+                      isSelected 
+                        ? 'bg-gradient-fun text-white border-0' 
+                        : isToday 
+                          ? 'border-primary border-2' 
+                          : ''
+                    } ${!hasMeal ? 'opacity-50' : ''}`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xs">{day.slice(0, 3)}</div>
+                      {hasMeal && <div className="text-lg">🍲</div>}
+                      {!hasMeal && <div className="text-lg opacity-50">-</div>}
+                    </div>
+                  </Button>
+                  {hasMeal && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute -top-1 -right-1 h-5 w-5 bg-background border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setEditingDay(index)}
+                    >
+                      <Edit2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -226,7 +299,7 @@ export default function CookMode() {
                     {selectedRecipe.title}
                   </h1>
                   <div className="flex gap-3 flex-wrap">
-                    <Badge className={`${difficultyColors[selectedRecipe.difficulty]} border-0 rounded-lg px-3 py-1`}>
+                    <Badge className={`${difficultyColors[selectedRecipe.difficulty] || ''} border-0 rounded-lg px-3 py-1`}>
                       {selectedRecipe.difficulty}
                     </Badge>
                     <Badge className="bg-black/20 text-white border-0 rounded-lg px-3 py-1">
@@ -344,7 +417,6 @@ export default function CookMode() {
                       </Card>
                     ))}
                     
-                    {/* Completion Message */}
                     {completedSteps.length === instructions.length && instructions.length > 0 && (
                       <Card className="p-6 bg-gradient-fun text-white text-center">
                         <h3 className="text-xl font-bold mb-2">🎉 Bon Appétit!</h3>
@@ -364,6 +436,12 @@ export default function CookMode() {
                     )}
                   </Card>
                 )}
+
+                {/* Ratings & Comments */}
+                <div className="space-y-4 mt-6">
+                  <RecipeRatings recipeId={selectedRecipe.id} />
+                  <RecipeComments recipeId={selectedRecipe.id} />
+                </div>
               </div>
             </div>
           </div>
@@ -376,8 +454,46 @@ export default function CookMode() {
         )}
       </div>
 
+      {/* Edit Meal Modal */}
+      <Dialog open={editingDay !== null} onOpenChange={() => setEditingDay(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Change meal for {editingDay !== null ? DAY_NAMES[editingDay] : ''}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            {allRecipes
+              .filter(r => !usedRecipeIds.has(r.id) || (editingDay !== null && activePlan?.meals.find(m => m.dayOfWeek === editingDay)?.recipeId === r.id))
+              .map(recipe => (
+                <Card 
+                  key={recipe.id}
+                  className="p-3 cursor-pointer hover:shadow-playful transition-all hover:scale-[1.02] border-2 border-dashed hover:border-primary/50"
+                  onClick={() => handleChangeMeal(recipe)}
+                >
+                  <img 
+                    src={recipe.image} 
+                    alt={recipe.title}
+                    className="w-full h-24 object-cover rounded-lg mb-2"
+                  />
+                  <h4 className="font-bold text-sm truncate">{recipe.title}</h4>
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {recipe.cookTime}min
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" /> {recipe.servings}
+                    </span>
+                  </div>
+                </Card>
+              ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Plan Next Week Nudge */}
-      {!hasNextWeekPlan() && (
+      {!hasNextWeekPlan() && viewingWeek === 'current' && (
         <div className="fixed bottom-4 right-4">
           <Button
             onClick={() => navigate('/plan')}
@@ -408,13 +524,17 @@ function Header({ user, onSignOut }: { user: any; onSignOut: () => void }) {
               <Calendar className="h-4 w-4 mr-2" />
               Plan
             </Button>
-            {user?.user_metadata?.avatar_url && (
-              <img 
-                src={user.user_metadata.avatar_url} 
-                alt="Profile"
-                className="h-8 w-8 rounded-full"
-              />
-            )}
+            <Button variant="ghost" size="sm" onClick={() => navigate('/account')}>
+              {user?.user_metadata?.avatar_url ? (
+                <img 
+                  src={user.user_metadata.avatar_url} 
+                  alt="Profile"
+                  className="h-6 w-6 rounded-full"
+                />
+              ) : (
+                <User className="h-4 w-4" />
+              )}
+            </Button>
             <Button variant="ghost" size="sm" onClick={onSignOut}>
               <LogOut className="h-4 w-4" />
             </Button>
