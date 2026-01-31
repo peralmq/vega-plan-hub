@@ -8,6 +8,7 @@ export interface DayMeal {
   dayOfWeek: number; // 0-6 (Monday-Sunday)
   recipeId: string;
   recipe?: ParsedRecipe;
+  servingsMultiplier: number; // 1.0 = normal, 2.0 = double portions for leftovers
 }
 
 export interface WeeklyMealPlan {
@@ -76,6 +77,7 @@ export function useMealPlanDB() {
           dayOfWeek: dm.day_of_week,
           recipeId: dm.recipe_id,
           recipe: allRecipes.find(r => r.id === dm.recipe_id),
+          servingsMultiplier: dm.servings_multiplier ?? 1.0,
         }));
 
         return {
@@ -104,8 +106,14 @@ export function useMealPlanDB() {
     fetchMealPlans();
   }, [fetchMealPlans]);
 
+  // Meal data with multiplier
+  interface MealData {
+    recipeId: string;
+    servingsMultiplier: number;
+  }
+
   // Save a meal plan for a specific week
-  const saveMealPlan = async (meals: Map<number, string>, weekMonday: Date) => {
+  const saveMealPlan = async (meals: Map<number, MealData>, weekMonday: Date) => {
     if (!user) throw new Error('Must be logged in');
 
     const mondayStr = format(weekMonday, 'yyyy-MM-dd');
@@ -142,11 +150,12 @@ export function useMealPlanDB() {
       planId = newPlan.id;
     }
 
-    // Insert new daily meals
-    const dailyMeals = Array.from(meals.entries()).map(([dayOfWeek, recipeId]) => ({
+    // Insert new daily meals with multipliers
+    const dailyMeals = Array.from(meals.entries()).map(([dayOfWeek, data]) => ({
       meal_plan_id: planId,
       day_of_week: dayOfWeek,
-      recipe_id: recipeId,
+      recipe_id: data.recipeId,
+      servings_multiplier: data.servingsMultiplier,
     }));
 
     if (dailyMeals.length > 0) {
@@ -163,13 +172,13 @@ export function useMealPlanDB() {
     return planId;
   };
 
-  // Save a complete meal plan for next week (wrapper for backwards compat)
-  const saveNextWeekPlan = async (meals: Map<number, string>) => {
+  // Save a complete meal plan for next week
+  const saveNextWeekPlan = async (meals: Map<number, MealData>) => {
     return saveMealPlan(meals, getNextWeekMonday());
   };
 
   // Save a meal plan for current week
-  const saveCurrentWeekPlan = async (meals: Map<number, string>) => {
+  const saveCurrentWeekPlan = async (meals: Map<number, MealData>) => {
     return saveMealPlan(meals, getCurrentWeekMonday());
   };
 
