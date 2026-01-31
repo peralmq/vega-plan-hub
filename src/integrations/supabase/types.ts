@@ -21,6 +21,7 @@ export type Database = {
           id: string
           meal_plan_id: string
           recipe_id: string
+          servings_multiplier: number
         }
         Insert: {
           created_at?: string
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           meal_plan_id: string
           recipe_id: string
+          servings_multiplier?: number
         }
         Update: {
           created_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           id?: string
           meal_plan_id?: string
           recipe_id?: string
+          servings_multiplier?: number
         }
         Relationships: [
           {

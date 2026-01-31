@@ -108,13 +108,16 @@ export default function CookMode() {
     if (editingDay === null || !activePlan) return;
     
     try {
-      const mealsMap = new Map<number, string>();
+      const mealsMap = new Map<number, { recipeId: string; servingsMultiplier: number }>();
       activePlan.meals.forEach(meal => {
         if (meal.dayOfWeek !== editingDay) {
-          mealsMap.set(meal.dayOfWeek, meal.recipeId);
+          mealsMap.set(meal.dayOfWeek, { 
+            recipeId: meal.recipeId, 
+            servingsMultiplier: meal.servingsMultiplier 
+          });
         }
       });
-      mealsMap.set(editingDay, recipe.id);
+      mealsMap.set(editingDay, { recipeId: recipe.id, servingsMultiplier: 1.0 });
 
       if (viewingWeek === 'current') {
         await saveCurrentWeekPlan(mealsMap);

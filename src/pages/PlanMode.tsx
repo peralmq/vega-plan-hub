@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
 import { 
   Calendar, 
   ChefHat, 
@@ -15,7 +16,9 @@ import {
   ArrowRight,
   Clock,
   Users,
-  AlertCircle
+  AlertCircle,
+  Minus,
+  User
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
@@ -24,6 +27,11 @@ import { toast } from "@/hooks/use-toast";
 import { addWeeks, startOfWeek, format } from "date-fns";
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+interface PlannedMeal {
+  recipe: ParsedRecipe;
+  servingsMultiplier: number;
+}
 
 export default function PlanMode() {
   const navigate = useNavigate();
@@ -55,8 +63,8 @@ export default function PlanMode() {
   // For current week, only allow planning from today onwards
   const minDayIndex = isCurrentWeek ? todayIndex : 0;
   
-  // Initialize planned meals from existing plan
-  const [plannedMeals, setPlannedMeals] = useState<Map<number, ParsedRecipe>>(() => new Map());
+  // Initialize planned meals from existing plan (with multipliers)
+  const [plannedMeals, setPlannedMeals] = useState<Map<number, PlannedMeal>>(() => new Map());
   const [selectingForDay, setSelectingForDay] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   
@@ -64,10 +72,13 @@ export default function PlanMode() {
   useEffect(() => {
     const sourcePlan = isCurrentWeek ? currentWeekPlan : nextWeekPlan;
     if (sourcePlan) {
-      const initial = new Map<number, ParsedRecipe>();
+      const initial = new Map<number, PlannedMeal>();
       sourcePlan.meals.forEach(meal => {
         if (meal.recipe) {
-          initial.set(meal.dayOfWeek, meal.recipe);
+          initial.set(meal.dayOfWeek, {
+            recipe: meal.recipe,
+            servingsMultiplier: meal.servingsMultiplier ?? 1.0,
+          });
         }
       });
       setPlannedMeals(initial);
@@ -79,10 +90,10 @@ export default function PlanMode() {
   const totalMeals = Array.from(plannedMeals.entries()).filter(([day]) => day >= minDayIndex).length;
   const totalCookTime = Array.from(plannedMeals.entries())
     .filter(([day]) => day >= minDayIndex)
-    .reduce((sum, [, r]) => sum + r.cookTime, 0);
+    .reduce((sum, [, m]) => sum + m.recipe.cookTime, 0);
 
   // Get used recipe IDs
-  const usedRecipeIds = new Set(Array.from(plannedMeals.values()).map(r => r.id));
+  const usedRecipeIds = new Set(Array.from(plannedMeals.values()).map(m => m.recipe.id));
 
   // Auto-fill remaining days
   const handleAutoFill = () => {
@@ -95,7 +106,7 @@ export default function PlanMode() {
         // Pick a random recipe
         const randomIndex = Math.floor(Math.random() * available.length);
         const recipe = available.splice(randomIndex, 1)[0];
-        newMeals.set(day, recipe);
+        newMeals.set(day, { recipe, servingsMultiplier: 1.0 });
         filled++;
       }
     }
@@ -134,7 +145,7 @@ export default function PlanMode() {
     
     setPlannedMeals(prev => {
       const newMeals = new Map(prev);
-      newMeals.set(selectingForDay, recipe);
+      newMeals.set(selectingForDay, { recipe, servingsMultiplier: 1.0 });
       return newMeals;
     });
     
@@ -142,6 +153,18 @@ export default function PlanMode() {
     toast({
       title: "Added! ✨",
       description: `${recipe.title} on ${DAY_NAMES[selectingForDay]}.`,
+    });
+  };
+
+  // Adjust servings multiplier for a day
+  const handleAdjustMultiplier = (day: number, delta: number) => {
+    setPlannedMeals(prev => {
+      const meal = prev.get(day);
+      if (!meal) return prev;
+      const newMultiplier = Math.max(0.5, Math.min(4, meal.servingsMultiplier + delta));
+      const newMeals = new Map(prev);
+      newMeals.set(day, { ...meal, servingsMultiplier: newMultiplier });
+      return newMeals;
     });
   };
 
@@ -158,17 +181,17 @@ export default function PlanMode() {
   const handleSwap = (day1: number, day2: number) => {
     setPlannedMeals(prev => {
       const newMeals = new Map(prev);
-      const recipe1 = prev.get(day1);
-      const recipe2 = prev.get(day2);
+      const meal1 = prev.get(day1);
+      const meal2 = prev.get(day2);
       
-      if (recipe1 && recipe2) {
-        newMeals.set(day1, recipe2);
-        newMeals.set(day2, recipe1);
-      } else if (recipe1) {
+      if (meal1 && meal2) {
+        newMeals.set(day1, meal2);
+        newMeals.set(day2, meal1);
+      } else if (meal1) {
         newMeals.delete(day1);
-        newMeals.set(day2, recipe1);
-      } else if (recipe2) {
-        newMeals.set(day1, recipe2);
+        newMeals.set(day2, meal1);
+      } else if (meal2) {
+        newMeals.set(day1, meal2);
         newMeals.delete(day2);
       }
       
@@ -189,11 +212,11 @@ export default function PlanMode() {
 
     setSaving(true);
     try {
-      const mealsMap = new Map<number, string>();
-      plannedMeals.forEach((recipe, day) => {
+      const mealsMap = new Map<number, { recipeId: string; servingsMultiplier: number }>();
+      plannedMeals.forEach((meal, day) => {
         // Only include days from minDayIndex onwards for current week
         if (day >= minDayIndex) {
-          mealsMap.set(day, recipe.id);
+          mealsMap.set(day, { recipeId: meal.recipe.id, servingsMultiplier: meal.servingsMultiplier });
         }
       });
       
@@ -301,7 +324,7 @@ export default function PlanMode() {
         {/* Week Grid */}
         <div className="grid md:grid-cols-7 gap-4 mb-8">
           {DAY_NAMES.map((day, index) => {
-            const recipe = plannedMeals.get(index);
+            const meal = plannedMeals.get(index);
             const isPastDay = isCurrentWeek && index < minDayIndex;
             
             return (
@@ -322,18 +345,48 @@ export default function PlanMode() {
                   <div className="h-32 flex items-center justify-center text-muted-foreground text-xs">
                     Past
                   </div>
-                ) : recipe ? (
+                ) : meal ? (
                   <div className="relative group">
                     <div className="bg-gradient-fun text-white rounded-xl overflow-hidden">
                       <img 
-                        src={recipe.image} 
-                        alt={recipe.title}
+                        src={meal.recipe.image} 
+                        alt={meal.recipe.title}
                         className="w-full h-20 object-cover opacity-80"
                       />
                       <div className="p-3">
-                        <div className="font-bold text-sm truncate">{recipe.title}</div>
+                        <div className="font-bold text-sm truncate">{meal.recipe.title}</div>
                         <div className="text-xs text-white/70 mt-1">
-                          ⏱️ {recipe.cookTime}min
+                          ⏱️ {meal.recipe.cookTime}min
+                        </div>
+                        {/* Portion controls */}
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/20">
+                          <span className="text-xs text-white/80">
+                            <Users className="h-3 w-3 inline mr-1" />
+                            {Math.round(meal.recipe.servings * meal.servingsMultiplier)}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5 text-white hover:bg-white/20"
+                              onClick={(e) => { e.stopPropagation(); handleAdjustMultiplier(index, -0.5); }}
+                              disabled={meal.servingsMultiplier <= 0.5}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="text-xs font-medium w-6 text-center">
+                              {meal.servingsMultiplier === 1 ? '1×' : `${meal.servingsMultiplier}×`}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5 text-white hover:bg-white/20"
+                              onClick={(e) => { e.stopPropagation(); handleAdjustMultiplier(index, 0.5); }}
+                              disabled={meal.servingsMultiplier >= 4}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -377,13 +430,13 @@ export default function PlanMode() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-primary">
-                  {new Set(Array.from(plannedMeals.values()).flatMap(r => r.tags)).size}
+                  {new Set(Array.from(plannedMeals.values()).flatMap(m => m.recipe.tags)).size}
                 </div>
                 <div className="text-sm text-muted-foreground">Cuisines</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-primary">
-                  {Array.from(plannedMeals.values()).reduce((sum, r) => sum + r.ingredients.length, 0)}
+                  {Array.from(plannedMeals.values()).reduce((sum, m) => sum + m.recipe.ingredients.length, 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">Ingredients</div>
               </div>

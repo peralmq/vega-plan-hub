@@ -16,6 +16,7 @@ import {
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
 import { ParsedRecipe } from "@/services/recipeLoader";
 import { aggregateIngredients, formatAggregatedIngredient, AggregatedIngredient } from "@/lib/ingredientNormalization";
+import { scaleIngredients } from "@/lib/ingredientScaling";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -32,27 +33,38 @@ export default function ShoppingSummary() {
   const targetMonday = isCurrentWeek ? getCurrentMonday() : getNextMonday();
   const weekLabel = `Week of ${format(targetMonday, 'MMM d')}`;
 
-  // Get recipes from the saved plan
-  const recipes = useMemo(() => {
+  // Get recipes from the saved plan with their multipliers
+  const mealsWithMultipliers = useMemo(() => {
     if (!targetPlan) return [];
     return targetPlan.meals
       .filter(m => m.recipe)
-      .map(m => m.recipe as ParsedRecipe);
+      .map(m => ({
+        recipe: m.recipe as ParsedRecipe,
+        servingsMultiplier: m.servingsMultiplier ?? 1.0,
+      }));
   }, [targetPlan]);
 
-  // Aggregate ingredients across all recipes with improved compaction
+  // For display: unique recipes
+  const recipes = mealsWithMultipliers.map(m => m.recipe);
+
+  // Aggregate ingredients across all recipes with scaling for multipliers
   const aggregatedIngredients = useMemo(() => {
     const allIngredients: Array<{ ingredient: any; recipeName: string }> = [];
     
-    recipes.forEach(recipe => {
+    mealsWithMultipliers.forEach(({ recipe, servingsMultiplier }) => {
       if (!recipe.ingredients) return;
-      recipe.ingredients.forEach(ing => {
+      
+      // Scale ingredients based on multiplier
+      const targetServings = Math.round(recipe.servings * servingsMultiplier);
+      const scaledIngredients = scaleIngredients(recipe.ingredients, recipe.servings, targetServings);
+      
+      scaledIngredients.forEach(ing => {
         allIngredients.push({ ingredient: ing, recipeName: recipe.title });
       });
     });
     
     return aggregateIngredients(allIngredients);
-  }, [recipes]);
+  }, [mealsWithMultipliers]);
 
   const toggleItem = (key: string) => {
     setCheckedItems(prev => {
@@ -199,8 +211,8 @@ export default function ShoppingSummary() {
                 <h3 className="font-bold">Planned Meals</h3>
               </div>
               <div className="space-y-3">
-                {recipes.map((recipe, index) => (
-                  <div key={recipe.id} className="flex items-center gap-3">
+                {mealsWithMultipliers.map(({ recipe, servingsMultiplier }, index) => (
+                  <div key={`${recipe.id}-${index}`} className="flex items-center gap-3">
                     <img 
                       src={recipe.image} 
                       alt={recipe.title}
@@ -209,7 +221,12 @@ export default function ShoppingSummary() {
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{recipe.title}</div>
                       <div className="text-xs text-muted-foreground">
-                        {recipe.cookTime}min • {recipe.ingredients.length} ingredients
+                        {recipe.cookTime}min • {Math.round(recipe.servings * servingsMultiplier)} servings
+                        {servingsMultiplier !== 1 && (
+                          <Badge variant="outline" className="ml-2 text-xs">
+                            {servingsMultiplier}×
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>
