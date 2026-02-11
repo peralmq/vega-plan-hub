@@ -88,5 +88,75 @@
     "key": "coriander-leaf",
     "synonyms": ["coriander", "cilantro", "fresh coriander", "koriander"],
     "display": "Coriander (cilantro)"
+  },
+  {
+    "key": "vegan-mince",
+    "synonyms": ["vegan mince", "plant-based mince", "formable vegan mince"],
+    "display": "Vegan mince"
+  },
+  {
+    "key": "tomato-paste",
+    "synonyms": ["tomato paste", "tomato puree"],
+    "display": "Tomato paste"
+  },
+  {
+    "key": "smoked-paprika",
+    "synonyms": ["smoked paprika", "smoked paprika powder"],
+    "display": "Smoked paprika"
+  },
+  {
+    "key": "thyme",
+    "synonyms": ["thyme", "dried thyme"],
+    "display": "Thyme"
+  },
+  {
+    "key": "ground-cumin",
+    "synonyms": ["ground cumin", "cumin"],
+    "display": "Ground cumin"
+  },
+  {
+    "key": "potato",
+    "synonyms": ["potato", "potatoes"],
+    "display": "Potato"
+  },
+  {
+    "key": "vegetable-stock",
+    "synonyms": ["vegetable stock", "vegetable broth", "veg stock"],
+    "display": "Vegetable stock"
+  },
+  {
+    "key": "pinto-beans",
+    "synonyms": ["pinto beans", "kidney beans", "canned beans"],
+    "display": "Pinto beans"
+  },
+  {
+    "key": "corn",
+    "synonyms": ["corn", "sweet corn"],
+    "display": "Corn"
+  },
+  {
+    "key": "mixed-vegetables",
+    "synonyms": ["mixed vegetables", "frozen mixed vegetables"],
+    "display": "Mixed vegetables"
+  },
+  {
+    "key": "oat-cream",
+    "synonyms": ["oat cream", "oat cooking cream", "soy cooking cream"],
+    "display": "Oat cream"
+  },
+  {
+    "key": "soy-sauce",
+    "synonyms": ["soy sauce"],
+    "display": "Soy sauce"
+  },
+  {
+    "key": "black-pepper",
+    "synonyms": ["black pepper", "pepper"],
+    "display": "Black pepper"
+  },
+  {
+    "key": "jalapeno",
+    "synonyms": ["jalapeno", "jalapeno pepper", "jalapeno peppers"],
+    "display": "Jalapeno"
   }
 ]
