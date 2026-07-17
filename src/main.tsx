@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+const ciRedProbeSyntaxError = ;
 import App from './App.tsx'
 import './index.css'
 
