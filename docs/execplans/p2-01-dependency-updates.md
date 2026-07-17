@@ -70,6 +70,44 @@ next-themes (≥0.4) should let that line be removed; verify a clean
   human eyeball on the four main screens — leave `in-progress` for
   human review of that output before marking done).
 
+## Decision Log
+
+- 2026-07-18: Vite bumped straight from 5.4.21 to 8.1.5 (three majors:
+  5→6→7→8) in one step, `@vitejs/plugin-react-swc` to 4.3.1 alongside it
+  (its `peerDependencies` declares `vite: "^4 || ^5 || ^6 || ^7 || ^8"`,
+  and `vitest@4.1.10`'s peer range is `^6.0.0 || ^7.0.0 || ^8.0.0` — it
+  was already incompatible with Vite 5 under strict peer resolution,
+  only working because `.npmrc` has `legacy-peer-deps=true`). Migration
+  guides read: v6, v7 (Node 20.19+/22.12+ required — repo runs Node
+  v24.13.0 locally, CI pins Node 22), v8 (Vite 8 replaces esbuild/Rollup
+  with Rolldown/Oxc — the biggest architectural change in the Vite line
+  to date). Chose to attempt the full jump rather than stop at 7 because
+  the plugin/vitest peer ranges already supported 8 and the config
+  (`vite.config.ts`) uses no `rollupOptions`/`esbuild` options that the
+  guides flag as renamed — nothing to migrate mechanically. Full jump
+  worked: `./harness check` and `./harness e2e` green with no config
+  changes.
+- Vite 8's Rolldown-based dev-server dependency scanner surfaced one
+  real pre-existing bug: `src/pages/CookMode.tsx` imported the `User`
+  icon from `lucide-react` and `type User` from `@supabase/supabase-js`
+  in the same file. TypeScript's separate type/value namespaces allowed
+  it (compiles fine, `import type` is elided at emit), and Vite 5's
+  esbuild-based scanner tolerated it too, but Rolldown's scanner does
+  not elide the type-only import before the collision check, so
+  `npm run dev` printed "Failed to run dependency scan. Skipping
+  dependency pre-bundling" (non-fatal — the dev server still served
+  pages — but a real perf regression on every cold start). Fixed by
+  aliasing the type import (`User as SupabaseUser`); no other file in
+  `src/` has the same collision (`grep` confirmed). This is a code fix,
+  not a config workaround, and it's the only source change needed for
+  the Vite major.
+- `vite:react-swc` now prints a build-time note recommending
+  `@vitejs/plugin-react` (non-SWC) since Rolldown makes the SWC-specific
+  fast path moot for a project with no custom SWC plugins configured.
+  Left `@vitejs/plugin-react-swc` in place — swapping plugins is a
+  separate, non-forced change and out of scope for this plan (Non-goals:
+  no framework swaps).
+
 ## Evidence
 
 ### 2026-07-18 `npm outdated` snapshot (baseline before any bump)
@@ -152,4 +190,28 @@ knows to run it after this bump).
 ```
 $ ./harness e2e
   6 passed (10.6s)
+```
+
+### 2026-07-18 batch 2, major 1/N: Vite 5.4.21 → 8.1.5 + @vitejs/plugin-react-swc 3.11.0 → 4.3.1
+
+```
+$ npm install vite@8.1.5 @vitejs/plugin-react-swc@4.3.1
+$ ./harness check
+check: deps ... OK (69 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (7 plans)
+check: validate-recipe ... validate-recipe: OK (18 recipes)
+check: OK
+```
+
+`npm run dev` smoke test surfaced the `User`/`User` identifier collision
+in `src/pages/CookMode.tsx` (see Decision Log). Fixed, then reran:
+
+```
+$ npm run dev &  (curl http://localhost:8080/ -> 200, no scan errors, clean log)
+$ ./harness check   # OK again after the fix
+$ ./harness e2e
+  6 passed (5.6s)
 ```
