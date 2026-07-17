@@ -172,6 +172,20 @@ next-themes (≥0.4) should let that line be removed; verify a clean
   session to reach and are the human's verification step per this
   plan's Verification section (see handoff).
 
+- 2026-07-18: `react-day-picker` pinned at 8.10.2 (not bumped to the
+  9/10 major). Its only consumer, `src/components/ui/calendar.tsx`, is
+  unused dead code (`grep` confirmed zero imports in `src/`), and v9/10
+  rewrote the whole classNames/component-slot API, so bumping it would
+  mean rewriting unused code for no functional benefit — out of scope.
+  This is also why `.npmrc`'s `legacy-peer-deps=true` stays: v8 hard-
+  peers `date-fns@"^2.28.0 || ^3.0.0"` and this repo is on date-fns@4
+  (a real, used dependency, bumped in batch 1). `next-themes` (the
+  line's original stated reason) is fixed as of 0.4.6, which declares
+  React 19 support — confirmed by removing the line and reinstalling:
+  the *only* remaining ERESOLVE conflict was react-day-picker/date-fns.
+  Comment in `.npmrc` updated to name the current cause instead of the
+  now-fixed one.
+
 ## Evidence
 
 ### 2026-07-18 `npm outdated` snapshot (baseline before any bump)
@@ -314,6 +328,44 @@ $ ./harness e2e
 $ rm bun.lockb
 $ rm -rf node_modules && npm ci
 added 391 packages, and audited 392 packages in 5s
+found 0 vulnerabilities
+$ ./harness check
+check: OK
+```
+
+### 2026-07-18 next-themes peer-dep fix + legacy-peer-deps re-evaluation
+
+```
+$ npm view next-themes@0.4.6 peerDependencies
+{ react: '^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc', 'react-dom': '^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc' }
+$ npm install next-themes@0.4.6
+```
+
+Tried removing `legacy-peer-deps=true` from `.npmrc` entirely (clean
+`rm -rf node_modules package-lock.json && npm install`). Failed —
+a *different*, previously-masked conflict surfaced:
+
+```
+npm error ERESOLVE unable to resolve dependency tree
+npm error Found: date-fns@4.4.0
+npm error Could not resolve dependency:
+npm error peer date-fns@"^2.28.0 || ^3.0.0" from react-day-picker@8.10.2
+```
+
+Checked whether `react-day-picker` (via `src/components/ui/calendar.tsx`)
+is used anywhere: `grep -rn "@/components/ui/calendar" src` — no hits.
+It's unused shadcn boilerplate. `react-day-picker@9`/`10` dropped the
+date-fns peer entirely but rewrote the whole classNames/component-slot
+API (`caption`/`nav_button`/`day_range_end`/`IconLeft`/`IconRight` all
+renamed), which would mean rewriting an unused component for zero
+functional benefit — out of scope (no framework/component rewrites
+beyond what an update forces on *used* code). Pinned `react-day-picker`
+at 8.10.2 (already the batch-1 minor target) and restored
+`legacy-peer-deps=true` with an updated comment naming the actual
+current cause. Verified clean afterwards:
+
+```
+$ npm install   # (with legacy-peer-deps=true restored)
 found 0 vulnerabilities
 $ ./harness check
 check: OK
