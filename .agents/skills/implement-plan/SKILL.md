@@ -12,8 +12,11 @@ drive-by edits, no scope growth.
 ## Workflow (the `AGENTS.md` default workflow, applied)
 
 1. Read the spec files the plan references in `docs/specs/`, then the
-   plan itself: Goal, Non-goals, Steps, Verification.
-2. Set the plan's frontmatter `status` to `in-progress`.
+   plan itself: Goal, Non-goals, Context, Progress, Steps, Verification
+   (required sections; `./harness plans --validate` enforces them).
+2. Set the plan's frontmatter `status` to `in-progress`. On resume,
+   read the Progress checkboxes first — they are the ground truth of
+   how far the plan got.
 3. Work test-first: red → green → refactor. Record the actual commands
    and their output in the plan's Evidence section as you go — evidence
    is commands and output, not prose claims.

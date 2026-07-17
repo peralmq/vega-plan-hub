@@ -13,6 +13,19 @@ const STATUSES = ["todo", "in-progress", "done", "deferred"];
 const PHASE_RE = /^P\d+$/;
 const ID_RE = /^p\d+-\d{2}-[a-z0-9-]+$/;
 
+// Required body sections, in this order (docs/specs/harness.spec.md,
+// ExecPlans). Optional sections (Decision Log, Surprises & Discoveries,
+// Idempotence & Recovery) may appear anywhere after Goal.
+const REQUIRED_SECTIONS = [
+  "Goal",
+  "Non-goals",
+  "Context",
+  "Progress",
+  "Steps",
+  "Verification",
+  "Evidence",
+];
+
 const fail = (msg) => {
   console.error(`FAIL: ${msg}`);
   process.exit(1);
@@ -20,7 +33,7 @@ const fail = (msg) => {
 
 // --- frontmatter -----------------------------------------------------------
 
-function parseFrontmatter(file) {
+function parsePlanFile(file) {
   const text = readFileSync(file, "utf8");
   const m = text.match(/^---\n([\s\S]*?)\n---/);
   if (!m) fail(`${file}: missing frontmatter block`);
@@ -43,7 +56,8 @@ function parseFrontmatter(file) {
     }
     fm[key] = value;
   }
-  return fm;
+  const sections = [...text.matchAll(/^## +(.+?) *$/gm)].map((s) => s[1]);
+  return { fm, sections };
 }
 
 function loadPlans() {
@@ -55,7 +69,7 @@ function loadPlans() {
   }
   return files.sort().map((f) => {
     const path = join(PLANS_DIR, f);
-    return { file: path, name: basename(f, ".md"), fm: parseFrontmatter(path) };
+    return { file: path, name: basename(f, ".md"), ...parsePlanFile(path) };
   });
 }
 
@@ -75,6 +89,12 @@ function validate(plans) {
     for (const dep of depends_on) {
       if (!ids.has(dep)) fail(`${p.file}: depends_on references unknown plan "${dep}"`);
     }
+    const required = p.sections.filter((s) => REQUIRED_SECTIONS.includes(s));
+    for (const s of REQUIRED_SECTIONS) {
+      if (!required.includes(s)) fail(`${p.file}: missing required section "## ${s}"`);
+    }
+    if (required.join("|") !== REQUIRED_SECTIONS.join("|"))
+      fail(`${p.file}: required sections out of order (want: ${REQUIRED_SECTIONS.join(", ")})`);
   }
   // cycle detection
   const byId = new Map(plans.map((p) => [p.fm.id, p]));
@@ -117,7 +137,29 @@ function phasePlans(plans, phase) {
 
 // --- check -----------------------------------------------------------------
 
+// Catches a node_modules stale relative to package.json (e.g. after a
+// pull) before the build fails with an opaque rollup resolve error.
+function checkDeps() {
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  const wanted = { ...pkg.dependencies, ...pkg.devDependencies };
+  const missing = Object.keys(wanted).filter((name) => {
+    try {
+      readFileSync(join(ROOT, "node_modules", name, "package.json"));
+      return false;
+    } catch {
+      return true;
+    }
+  });
+  if (missing.length)
+    fail(
+      `node_modules is missing ${missing.join(", ")} — run: npm install --legacy-peer-deps`
+    );
+  console.log(`OK (${Object.keys(wanted).length} deps present)`);
+}
+
 function check() {
+  process.stdout.write("check: deps ... ");
+  checkDeps();
   const steps = [
     ["npm run lint", "npm run lint --silent"],
     ["npm run build", "npm run build --silent"],
