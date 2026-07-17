@@ -49,8 +49,10 @@ next-themes (≥0.4) should let that line be removed; verify a clean
 - [x] 2026-07-18 batch 1: patch/minor bumps, gate green
 - [ ] batch 2: majors one at a time (Vite, then Tailwind, then rest),
       gate + e2e green after each
-- [ ] bun.lockb removed
-- [ ] visual spot-check of design tokens after the Tailwind major
+- [x] 2026-07-18 bun.lockb removed
+- [x] 2026-07-18 visual spot-check of design tokens after the Tailwind
+      major (Landing page only, by agent — remaining 3 screens are the
+      human's Verification step)
 
 ## Steps
 
@@ -304,4 +306,15 @@ check: OK
 
 $ ./harness e2e
   6 passed (5.8s)
+```
+
+### 2026-07-18 bun.lockb removal + clean `npm ci`
+
+```
+$ rm bun.lockb
+$ rm -rf node_modules && npm ci
+added 391 packages, and audited 392 packages in 5s
+found 0 vulnerabilities
+$ ./harness check
+check: OK
 ```
