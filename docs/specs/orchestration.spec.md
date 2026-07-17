@@ -1,7 +1,6 @@
 # Loop Engineering — Vega Plan Hub
 
-Status: binding. Adopted 2026-07-17 from the portable kit in
-`idiolect/docs/portable/`. Companion to
+Status: binding. Adopted 2026-07-17. Companion to
 [harness.spec.md](harness.spec.md), which defines the deterministic
 substrate these loops run on.
 

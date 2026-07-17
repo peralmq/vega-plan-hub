@@ -1,6 +1,6 @@
 ---
 id: p0-00-harness-bootstrap
-title: Adopt the portable agentic harness kit (brownfield bootstrap)
+title: Bootstrap the agentic harness (brownfield adoption)
 phase: P0
 status: done
 depends_on: []
@@ -12,8 +12,8 @@ Bring vega-plan-hub from maturity Level 0 to Level 1 per
 [harness.spec.md](../specs/harness.spec.md): specs in `docs/specs/`, a
 green `./harness check` wrapping the real lint and build gates,
 schema-validated execplans, thin skills, and a short canonical
-`AGENTS.md`. Motivated by the portable kit extracted in
-`idiolect/docs/portable/` (README, Adoption → Brownfield).
+`AGENTS.md`. The adopted contracts are self-contained in
+`docs/specs/harness.spec.md` and `orchestration.spec.md`.
 
 ## Non-goals
 
@@ -28,8 +28,8 @@ schema-validated execplans, thin skills, and a short canonical
 
 Before this plan the repo was a Lovable-generated Vite + React 19 + TS
 app with no docs/, no tests, no CI, a 650-line style-guide `AGENTS.md`,
-and a failing `npm run lint` (6 errors). The portable kit being adopted
-lives in `idiolect/docs/portable/` (two specs + two skill templates).
+and a failing `npm run lint` (6 errors). This plan introduced the
+harness contracts (two specs) and the two skills now in this repo.
 
 ## Progress
 

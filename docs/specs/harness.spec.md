@@ -1,7 +1,7 @@
 # Self-Improving Agentic Harness — Vega Plan Hub
 
-Status: binding. Adopted 2026-07-17 from the portable kit in
-`idiolect/docs/portable/` (brownfield path). Companion spec:
+Status: binding. Adopted 2026-07-17 (brownfield path: wrap what exists,
+ratchet from there). Companion spec:
 [orchestration.spec.md](orchestration.spec.md) (the loops that run on top
 of this harness). Code conventions live in
 [conventions.spec.md](conventions.spec.md).
