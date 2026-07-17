@@ -39,9 +39,9 @@ tokens must survive), ESLint config already flat. The gate
 grandfathered-lint list must not grow to absorb new violations.
 
 Known conflict to resolve here: `next-themes@0.3` does not declare React
-19 as a peer, so installs currently require `--legacy-peer-deps`
-(documented in tech.spec.md Commands). Bumping next-themes (≥0.4) should
-remove that flag; verify `npm install` works clean afterwards.
+19 as a peer, so `.npmrc` sets `legacy-peer-deps=true`. Bumping
+next-themes (≥0.4) should let that line be removed; verify a clean
+`npm install` without it afterwards.
 
 ## Progress
 

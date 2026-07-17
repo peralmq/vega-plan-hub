@@ -9,8 +9,8 @@ code style in [conventions.spec.md](conventions.spec.md), gates in
 ## Commands
 
 ```
-npm install --legacy-peer-deps   # required until next-themes declares React 19
-                                 # (peer conflict; fix owned by p2-01-dependency-updates)
+npm install        # .npmrc pins the public registry and legacy-peer-deps
+                   # (next-themes lacks a React 19 peer; p2-01 owns the fix)
 npm run dev        # Vite dev server
 npm run build      # production build — also the de-facto type gate
 npm run lint       # eslint (strict; grandfathered exceptions in eslint.config.js)

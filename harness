@@ -152,7 +152,7 @@ function checkDeps() {
   });
   if (missing.length)
     fail(
-      `node_modules is missing ${missing.join(", ")} — run: npm install --legacy-peer-deps`
+      `node_modules is missing ${missing.join(", ")} — run: npm install`
     );
   console.log(`OK (${Object.keys(wanted).length} deps present)`);
 }
