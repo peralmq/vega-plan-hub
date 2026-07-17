@@ -2,7 +2,7 @@
 id: p1-05-validate-recipe
 title: recipe-format.spec.md + ./harness validate-recipe + README fix
 phase: P1
-status: todo
+status: in-progress
 depends_on: [p1-01-spec-extraction]
 ---
 
@@ -48,16 +48,61 @@ the 19 files in `src/data/recipes/` (the corpus).
 
 ## Progress
 
-- [ ] docs/specs/recipe-format.spec.md written from loader + corpus
-      (frontmatter: id/kebab-case + unique, title, imageUrl, cookTime
-      int, servings int, difficulty enum, tags list; body: Ingredients
-      table with the 5 columns, Instructions ordered list, optional
-      Notes; field semantics and units conventions)
-- [ ] validate-recipe implemented against the spec
-- [ ] all 19 recipes pass (or violations fixed in the same change set)
-- [ ] command joins ./harness check
+- [x] 2026-07-17 docs/specs/recipe-format.spec.md written from loader +
+      corpus (frontmatter: id/kebab-case + unique, title, imageUrl,
+      cookTime int, servings int, difficulty enum, tags list; body:
+      Ingredients table with the 5 columns, Instructions ordered list,
+      optional Notes; field semantics and units conventions).
+- [x] 2026-07-17 validate-recipe implemented against the spec
+      (`./harness validate-recipe [file]`); reused the loader's
+      hand-rolled frontmatter-parsing approach, added table/list
+      parsing. Verified correct on both a well-formed single file and a
+      deliberately malformed fixture (see Evidence).
+- [ ] **BLOCKED** — all 19 recipes pass: running validate-recipe over
+      the full corpus found a real loader/corpus disagreement in
+      `vegan-dan-dan-noodles.md` (multi-line `tags:` array silently
+      dropped to `[]` by the loader). Per this plan's stop condition
+      this is reported, not fixed, in this change set — see Surprises &
+      Discoveries and Evidence below.
+- [ ] command joins ./harness check — deferred until the blocking
+      disagreement above is resolved by a human call (joining now would
+      turn `./harness check` red for everyone on an unrelated,
+      unresolved decision).
 - [ ] src/data/recipes/README.md reduced to a pointer at the spec;
-      tech.spec.md Data model trimmed to reference it
+      tech.spec.md Data model trimmed to reference it — deferred; doing
+      this now would still leave tech.spec.md's "Known drift" note
+      partially inaccurate once the tags bug is resolved one way or the
+      other, so it is left until the blocking decision lands in the
+      same change set per this plan's Steps.
+
+## Surprises & Discoveries
+
+- 2026-07-17: `src/data/recipes/vegan-dan-dan-noodles.md` frontmatter
+  wraps `tags` onto a continuation line:
+  ```
+  tags:
+    ["Chinese", "Asian", "Noodles", "Vegan", "Lunch", "Dinner", "Climate Smart"]
+  ```
+  `recipeLoader.ts`'s `parseFrontmatter` only reads a value from the same
+  line as `key:`; a line with no `:` is skipped
+  (`if (colonIndex === -1) continue;`). So in the running app,
+  `frontmatter.tags` for this recipe is the empty string `""` (parsed
+  from the bare `tags:` line), which `frontmatter.tags || []` then
+  coerces to an **empty array** — all 7 intended tags are silently
+  dropped, and `deriveTheme([])` falls back to `"Vegan Favorites"`
+  instead of the `"Asian Fusion"` a `Chinese` tag would have produced.
+  This is the same bug class documented in tech.spec.md's "Known drift"
+  note for `pasta-aglio-e-olio-delux.md`/`tofustroganoff.md` (silently
+  wrong parse, not a crash), except those were fixed ad hoc before this
+  plan existed and this one wasn't caught until `validate-recipe` ran.
+  Two resolutions are both plausible and are a human call, not this
+  plan's: (a) collapse the recipe's `tags` onto one line to match every
+  other recipe and the parser's actual capability, or (b) teach
+  `parseFrontmatter` (and therefore this spec) to support a
+  continuation-line array value. Reported per the plan's explicit stop
+  condition ("If loader behavior and recipe files disagree on the
+  format, record the discrepancy in the plan and STOP") rather than
+  decided here.
 
 ## Steps
 
@@ -83,4 +128,65 @@ the 19 files in `src/data/recipes/` (the corpus).
 
 ## Evidence
 
-(appended during implementation)
+`./harness validate-recipe` (no args) over the full 18-file corpus —
+fails on the discrepancy above, naming the exact file and reason:
+
+```
+$ ./harness validate-recipe
+FAIL: /Users/pellefrank/Projects/peralmq/vega-plan-hub/src/data/recipes/vegan-dan-dan-noodles.md: unparseable frontmatter line: "  [\"Chinese\", \"Asian\", \"Noodles\", \"Vegan\", \"Lunch\", \"Dinner\", \"Climate Smart\"]"
+$ echo $?
+1
+```
+
+Confirmed the actual runtime parse result for that file with a standalone
+reimplementation of `parseFrontmatter` (identical logic, run outside the
+browser/Vite build):
+
+```
+$ node -e '<parseFrontmatter reimplementation>; console.log(JSON.stringify(parseFrontmatter(fs.readFileSync("src/data/recipes/vegan-dan-dan-noodles.md","utf8")).frontmatter))'
+{"id":"vegan-dan-dan-noodles","title":"Vegan Dan Dan Noodles","imageUrl":"https://javligtgott.se/wp-content/uploads/2020/09/IMG_2020-1024x682-2.jpg","url":"https://javligtgott.se/recept/veganska-dan-dan-nudlar/","cookTime":35,"servings":4,"difficulty":"Medium","tags":""}
+```
+
+`tags` is the empty string, not the intended 7-item array — confirms the
+silent-drop.
+
+`validate-recipe` works correctly on the other 17 files individually
+(spot check on one):
+
+```
+$ ./harness validate-recipe src/data/recipes/chana-dal.md
+validate-recipe: OK (src/data/recipes/chana-dal.md)
+```
+
+Deliberately malformed fixture (`fixtures/recipes/malformed-bad-difficulty.md`,
+`difficulty: "Extreme"` — not in the `Easy|Medium|Hard` enum) fails
+naming file + field, as Verification requires:
+
+```
+$ ./harness validate-recipe fixtures/recipes/malformed-bad-difficulty.md
+FAIL: /Users/pellefrank/Projects/peralmq/vega-plan-hub/fixtures/recipes/malformed-bad-difficulty.md: frontmatter.difficulty must be one of Easy|Medium|Hard, got "Extreme"
+$ echo $?
+1
+```
+
+`./harness check` remains green — `validate-recipe` was intentionally
+*not* wired into the `check` chain yet, so the corpus-blocking
+discrepancy above does not turn the gate red for unrelated work:
+
+```
+$ ./harness check
+check: deps ... OK (69 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (7 plans)
+check: OK
+```
+
+Remaining work once the human call above lands: fix (or accept) the
+`vegan-dan-dan-noodles.md` tags, wire `validate-recipe` into
+`check`, rewrite `src/data/recipes/README.md` as a pointer, trim
+tech.spec.md's Data model section, and move the `validate-recipe` row in
+harness.spec.md from Planned Commands into the command set (update the
+Level 2 maturity row too) — all deferred, not done, pending that
+decision.
