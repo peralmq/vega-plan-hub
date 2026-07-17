@@ -61,6 +61,11 @@ file); fast enough to run before every handoff.
                            # docs/specs/recipe-format.spec.md; validates
                            # the whole corpus when no file is given
                            # (also runs as part of check)
+./harness e2e [args]        # on-demand Playwright suite (playwright.config.ts);
+                           # builds + previews the app and runs e2e/*.spec.ts.
+                           # Hermetic (Supabase stubbed, auth session seeded);
+                           # NOT part of check (too slow for the always-on gate).
+                           # Extra args pass through to `playwright test`.
 ./harness plans            # list plan id, phase, status, dependencies
 ./harness plans --validate # frontmatter schema, dependency existence, cycles
 ./harness plans --ready    # dispatchable plans: status todo, all deps done
@@ -75,9 +80,8 @@ new code. Never weaken an existing gate to make a later phase pass.
 
 Do not add a command before its phase needs it.
 
-| Command | What it does | Trigger |
-| --- | --- | --- |
-| `./harness e2e` | Runs the Playwright suite (`playwright.config.ts` is already wired) on demand; too slow for `check` | the first e2e test lands |
+_(none pending — `./harness e2e` landed in `p1-03-e2e-suite` and is now part of
+the command set above.)_
 
 ## ExecPlans
 
@@ -153,7 +157,7 @@ every retrospective.
 | 0 | Prompt-only work, no checks | superseded |
 | 1 | `AGENTS.md`, specs, green `./harness check` (lint, build, plan validation) | done |
 | 2 | Machine-checkable contracts: schema-validated execplans (done), recipe schema validation (done — `./harness validate-recipe`, `p1-05-validate-recipe`), first unit tests with a TDD-evidence convention (done — `p1-02-unit-test-suite`) | done |
-| 3 | Deterministic end-to-end smoke: Playwright suite runs against the built app; `./harness e2e` | first e2e test |
+| 3 | Deterministic end-to-end smoke: Playwright suite runs against the built app; `./harness e2e` | done — hermetic `e2e/` suite (welcome/redirects, plan-a-week, shopping summary, cook mode), `p1-03-e2e-suite` |
 | 4 | CI gates (`./harness check` in GitHub Actions), regression tracking | done — `.github/workflows/check.yml` (`p1-04-ci-gate`) |
 | 5 | Agent-ready phase gates: every execplan names the harness evidence required before handoff | mature orchestration |
 

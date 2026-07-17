@@ -362,9 +362,23 @@ switch (cmd) {
   case "validate-recipe":
     validateRecipeCommand(args[0]);
     break;
+  case "e2e":
+    // On-demand Playwright suite (docs/execplans/p1-03-e2e-suite.md). Not part
+    // of `check` — too slow for the always-on gate. The config's webServer
+    // builds and previews the app; the suite is hermetic (Supabase stubbed,
+    // session seeded). Exit code passes through; a failure names the spec.
+    try {
+      execSync(`npx playwright test ${args.join(" ")}`.trim(), {
+        cwd: ROOT,
+        stdio: "inherit",
+      });
+    } catch {
+      fail("e2e: playwright test failed (see the named spec above)");
+    }
+    break;
   default:
     console.error(
-      "usage: ./harness <check | test | plans [--validate | --ready | --phase P] | validate-recipe [file]>",
+      "usage: ./harness <check | test | e2e | plans [--validate | --ready | --phase P] | validate-recipe [file]>",
     );
     process.exit(cmd ? 1 : 0);
 }
