@@ -24,7 +24,9 @@ npx playwright test  # e2e (config present, no tests yet — see execplans)
 Vite 5 · React 19 · TypeScript 5.8 (relaxed strictness: `noImplicitAny`
 off) · React Router DOM 7 · TanStack Query 5 · shadcn-ui/Radix ·
 Tailwind CSS 3 · Zod 4 · date-fns 4 · **Supabase JS 2** (auth +
-Postgres) · Playwright via `lovable-agent-playwright-config`. Package
+Postgres) · Playwright (`@playwright/test` directly; the original
+`lovable-agent-playwright-config` wrapper is unresolvable on the public
+registry — see p1-03's Decision Log). Package
 manager: npm (a stale `bun.lockb` exists; `package-lock.json` is the
 one npm uses).
 
