@@ -154,7 +154,7 @@ every retrospective.
 | 1 | `AGENTS.md`, specs, green `./harness check` (lint, build, plan validation) | done |
 | 2 | Machine-checkable contracts: schema-validated execplans (done), recipe schema validation (done — `./harness validate-recipe`, `p1-05-validate-recipe`), first unit tests with a TDD-evidence convention (done — `p1-02-unit-test-suite`) | done |
 | 3 | Deterministic end-to-end smoke: Playwright suite runs against the built app; `./harness e2e` | first e2e test |
-| 4 | CI gates (`./harness check` in GitHub Actions), regression tracking | first release discipline |
+| 4 | CI gates (`./harness check` in GitHub Actions), regression tracking | done — `.github/workflows/check.yml` (`p1-04-ci-gate`) |
 | 5 | Agent-ready phase gates: every execplan names the harness evidence required before handoff | mature orchestration |
 
 Adding a level is a spec change and therefore a human decision.

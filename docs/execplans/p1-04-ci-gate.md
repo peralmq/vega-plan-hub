@@ -2,7 +2,7 @@
 id: p1-04-ci-gate
 title: GitHub Actions runs ./harness check on every push and PR
 phase: P1
-status: todo
+status: in-progress
 depends_on: [p1-02-unit-test-suite]
 ---
 
@@ -30,8 +30,8 @@ never grow its own check logic that could drift from the local gate.
 
 ## Progress
 
-- [ ] workflow file added (checkout, setup-node with npm cache,
-      npm ci, ./harness check)
+- [x] 2026-07-17 workflow file added (checkout, setup-node with npm
+      cache, npm ci, ./harness check) — `.github/workflows/check.yml`
 - [ ] green run observed on GitHub
 - [ ] harness.spec.md maturity table updated (Level 4)
 
@@ -51,4 +51,22 @@ never grow its own check logic that could drift from the local gate.
 
 ## Evidence
 
-(appended during implementation)
+Local gate before touching CI:
+
+```
+$ ./harness check
+check: deps ... OK (69 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (7 plans)
+check: validate-recipe ... validate-recipe: OK (18 recipes)
+check: OK
+```
+
+Node LTS in CI: 22 (matches local `node -v` → v24.13.0, both satisfy
+`actions/setup-node` `node-version: 22`).
+
+Workflow added: `.github/workflows/check.yml` — triggers on `push` to
+`main` and on `pull_request`; steps: checkout → setup-node (node 22,
+cache: npm) → `npm ci` → `./harness check`.
