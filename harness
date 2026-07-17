@@ -362,6 +362,28 @@ switch (cmd) {
   case "validate-recipe":
     validateRecipeCommand(args[0]);
     break;
+  case "dev-mock":
+    // Mock-auth mode (docs/execplans/p2-02-mock-auth-mode.md): a Vite dev
+    // server with VITE_MOCK_AUTH=true, so the client at
+    // src/integrations/supabase/client.ts swaps in src/mocks/mockClient.ts
+    // — a seeded, in-memory, signed-in session with no Google OAuth, no
+    // Supabase network call, no secrets. Never set this flag in a real
+    // build; the flag's dead branch is what keeps the mock out of
+    // production bundles (see that plan's elimination proof).
+    console.log("=".repeat(70));
+    console.log("MOCK AUTH MODE — not production. Seeded fake data, fake session.");
+    console.log("=".repeat(70));
+    try {
+      execSync("npx vite", {
+        cwd: ROOT,
+        stdio: "inherit",
+        env: { ...process.env, VITE_MOCK_AUTH: "true" },
+      });
+    } catch {
+      // A dev server exits non-zero on Ctrl-C / SIGINT — that's a normal
+      // stop, not a harness failure.
+    }
+    break;
   case "e2e":
     // On-demand Playwright suite (docs/execplans/p1-03-e2e-suite.md). Not part
     // of `check` — too slow for the always-on gate. The config's webServer
@@ -378,7 +400,7 @@ switch (cmd) {
     break;
   default:
     console.error(
-      "usage: ./harness <check | test | e2e | plans [--validate | --ready | --phase P] | validate-recipe [file]>",
+      "usage: ./harness <check | test | e2e | dev-mock | plans [--validate | --ready | --phase P] | validate-recipe [file]>",
     );
     process.exit(cmd ? 1 : 0);
 }

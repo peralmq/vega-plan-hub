@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { MockModeBadge } from "@/mocks/MockModeBadge";
 import Landing from "./pages/Landing";
 import CookMode from "./pages/CookMode";
 import PlanMode from "./pages/PlanMode";
@@ -104,6 +105,7 @@ const App = () => (
           <AppRoutes />
         </AuthProvider>
       </BrowserRouter>
+      {import.meta.env.VITE_MOCK_AUTH === 'true' && <MockModeBadge />}
     </TooltipProvider>
   </QueryClientProvider>
 );

@@ -16,6 +16,9 @@ npm run build      # production build — also the de-facto type gate
 npm run lint       # eslint (strict; grandfathered exceptions in eslint.config.js)
 ./harness check    # THE gate: lint + build + execplan validation
 ./harness plans    # backlog queries (--validate / --ready / --phase P)
+./harness dev-mock # Vite dev server with VITE_MOCK_AUTH=true — browse the
+                   # auth-gated views with no Google OAuth / Supabase network
+                   # (docs/execplans/p2-02-mock-auth-mode.md)
 npx playwright test  # e2e (config present, no tests yet — see execplans)
 ```
 
@@ -88,6 +91,14 @@ The join between DB and content happens client-side: `recipe_id` in
 - **E2E (Playwright)**: config already wired; tests go in `e2e/`. Core
   flows: welcome → (auth) → plan a week → shopping summary → cook mode.
   On-demand `./harness e2e`, not part of `check`.
+- **Mock-auth mode** (`./harness dev-mock`): a dev-only, build-time-flagged
+  (`VITE_MOCK_AUTH`) Supabase client double (`src/mocks/`) that gives a
+  human browser access to the auth-gated views — Cook Mode, Plan Mode,
+  Shopping Summary, Account — without a real account or network call. It is
+  a manual-verification aid, not a test suite: the e2e suite's network-level
+  mock (`e2e/support/mockDb.ts`) is the hermetic, automated check; this mode
+  exists because that suite can't be eyeballed. Statically eliminated from
+  production builds when the flag is unset (docs/execplans/p2-02-mock-auth-mode.md).
 - Coverage grows with the maturity ladder in
   [harness.spec.md](harness.spec.md); backfilling 100% coverage is a
   non-goal.
