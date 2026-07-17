@@ -162,6 +162,7 @@ function check() {
   checkDeps();
   const steps = [
     ["npm run lint", "npm run lint --silent"],
+    ["npm test", "npm test --silent"],
     ["npm run build", "npm run build --silent"],
   ];
   for (const [name, cmd] of steps) {
@@ -188,6 +189,13 @@ switch (cmd) {
   case "check":
     check();
     break;
+  case "test":
+    try {
+      execSync("npm test", { cwd: ROOT, stdio: "inherit" });
+    } catch {
+      fail("npm test");
+    }
+    break;
   case "plans": {
     const plans = loadPlans();
     if (args.includes("--validate")) validate(plans);
@@ -198,6 +206,6 @@ switch (cmd) {
     break;
   }
   default:
-    console.error("usage: ./harness <check | plans [--validate | --ready | --phase P]>");
+    console.error("usage: ./harness <check | test | plans [--validate | --ready | --phase P]>");
     process.exit(cmd ? 1 : 0);
 }

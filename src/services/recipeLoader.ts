@@ -50,7 +50,7 @@ interface RecipeFrontmatter {
 /**
  * Parse YAML frontmatter from markdown content
  */
-function parseFrontmatter(content: string): {
+export function parseFrontmatter(content: string): {
   frontmatter: RecipeFrontmatter | null;
   body: string;
 } {
@@ -123,7 +123,7 @@ function parseFrontmatter(content: string): {
  * Parse ingredients from markdown body
  * Handles markdown table format
  */
-function parseIngredients(body: string): ParsedIngredient[] {
+export function parseIngredients(body: string): ParsedIngredient[] {
   const ingredientsMatch = body.match(
     /## Ingredients\n\n([\s\S]*?)(?=\n## |$)/,
   );
@@ -158,7 +158,7 @@ function parseIngredients(body: string): ParsedIngredient[] {
 /**
  * Parse instructions from markdown body
  */
-function parseInstructions(body: string): string[] {
+export function parseInstructions(body: string): string[] {
   const instructionsMatch = body.match(
     /## Instructions\n\n([\s\S]*?)(?=\n## |$)/,
   );
@@ -235,7 +235,7 @@ function deriveTheme(tags: string[]): string {
 /**
  * Parse a single recipe markdown file
  */
-function parseRecipeMarkdown(
+export function parseRecipeMarkdown(
   content: string,
   filename: string,
 ): ParsedRecipe | null {

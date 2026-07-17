@@ -6,20 +6,21 @@ url: "https://javligtgott.se/recept/pasta-aglio-e-olio-delux/"
 cookTime: 25
 servings: 4
 difficulty: "Easy"
-tags:
-  ["Italienskt", "Pasta", "Lunch", "Middag", "Snabblagad", "Vegan", "Lyxigt"]
+tags: ["Italienskt", "Pasta", "Lunch", "Middag", "Snabblagad", "Vegan", "Lyxigt"]
 ---
 
 ## Ingredients
 
-- 12 garlic cloves
-- 1 dl Eleplant (plant-based butter) or vegan butter
-- Zest and juice of 1 lemon
-- 1.5 tbsp chili oil
-- 1 dl fresh parsley, chopped
-- 1 dl cashew parmesan (or other vegan parmesan)
-- 500 g spaghetti
-- Salt, to taste
+| quantity | unit | key            | ingredient                        | notes    |
+|----------|------|----------------|------------------------------------|----------|
+| 12       |      | garlic         | garlic cloves                     |          |
+| 1        | dl   | vegan-butter   | Eleplant (plant-based butter) or vegan butter |          |
+| 1        |      | lemon          | zest and juice of 1 lemon         |          |
+| 1.5      | tbsp | chili-oil      | chili oil                         |          |
+| 1        | dl   | parsley        | fresh parsley, chopped            |          |
+| 1        | dl   | vegan-parmesan | cashew parmesan (or other vegan parmesan) |          |
+| 500      | g    | spaghetti      | spaghetti                         |          |
+|          |      | salt           | salt                              | to taste |
 
 ## Instructions
 

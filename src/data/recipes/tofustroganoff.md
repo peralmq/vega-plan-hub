@@ -11,26 +11,25 @@ tags: ["Svenskt", "Vegan", "Stroganoff", "Middag", "Snabblagad"]
 
 ## Ingredients
 
-- 1 large yellow onion
-- 2 garlic cloves
-- Neutral oil, for frying
-- 230 g smoked tofu
-- 4 tbsp tomato paste
-- 4 dl plant-based cream
-- 4 tbsp sun-dried tomatoes, sliced (preferably in oil)
-- 1 dl vegetable broth
-- 1.5 tsp paprika powder
-- 1 tsp chili flakes (or sambal oelek)
-- 1 tbsp Dijon mustard
-- 2 tsp granulated sugar
-- 15 g dairy-free margarine
-- Salt, to taste
-- Black pepper, to taste
-
-### For serving
-
-- 4 portions jasmine rice 🍚
-- Fresh parsley, chopped 🌱
+| quantity | unit | key                | ingredient                | notes             |
+|----------|------|--------------------|----------------------------|-------------------|
+| 1        |      | onion              | yellow onion, large       |                   |
+| 2        |      | garlic             | garlic cloves              |                   |
+|          |      | oil                | neutral oil                 | for frying        |
+| 230      | g    | smoked-tofu        | smoked tofu                 |                   |
+| 4        | tbsp | tomato-paste       | tomato paste                 |                   |
+| 4        | dl   | plant-cream        | plant-based cream           |                   |
+| 4        | tbsp | sun-dried-tomatoes | sun-dried tomatoes, sliced  | preferably in oil |
+| 1        | dl   | vegetable-broth    | vegetable broth              |                   |
+| 1.5      | tsp  | paprika            | paprika powder                |                   |
+| 1        | tsp  | chili-flakes       | chili flakes                  | or sambal oelek   |
+| 1        | tbsp | dijon-mustard      | Dijon mustard                  |                   |
+| 2        | tsp  | sugar              | granulated sugar                |                   |
+| 15       | g    | margarine          | dairy-free margarine             |                   |
+|          |      | salt               | salt                              | to taste          |
+|          |      | black-pepper       | black pepper                       | to taste          |
+| 4        |      | rice               | jasmine rice                        | to serve, 🍚      |
+|          |      | parsley            | fresh parsley, chopped               | to serve, 🌱      |
 
 ## Instructions
 

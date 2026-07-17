@@ -51,9 +51,11 @@ file); fast enough to run before every handoff.
 
 ```
 ./harness check            # THE gate: deps present in node_modules,
-                           # npm run lint (strict), npm run build (the type
-                           # gate), plans --validate. Must pass before
-                           # every handoff.
+                           # npm run lint (strict), npm test (vitest),
+                           # npm run build (the type gate), plans
+                           # --validate. Must pass before every handoff.
+./harness test              # Vitest unit suite standalone (also runs as
+                           # part of check, after lint and before build)
 ./harness plans            # list plan id, phase, status, dependencies
 ./harness plans --validate # frontmatter schema, dependency existence, cycles
 ./harness plans --ready    # dispatchable plans: status todo, all deps done
@@ -72,7 +74,6 @@ Do not add a command before its phase needs it.
 | --- | --- | --- |
 | `./harness e2e` | Runs the Playwright suite (`playwright.config.ts` is already wired) on demand; too slow for `check` | the first e2e test lands |
 | `./harness validate-recipe <file>` | Schema check for recipe markdown (required sections, ingredients, metadata) | the next recipe-content work |
-| `./harness test` | Vitest unit tests, joins `check` | the first unit test lands |
 
 ## ExecPlans
 
@@ -146,8 +147,8 @@ every retrospective.
 | Level | Interpretation for this repo | Status |
 | --- | --- | --- |
 | 0 | Prompt-only work, no checks | superseded |
-| 1 | `AGENTS.md`, specs, green `./harness check` (lint, build, plan validation) | **current** |
-| 2 | Machine-checkable contracts: schema-validated execplans (done), recipe schema validation, first unit tests with a TDD-evidence convention | next |
+| 1 | `AGENTS.md`, specs, green `./harness check` (lint, build, plan validation) | done |
+| 2 | Machine-checkable contracts: schema-validated execplans (done), recipe schema validation, first unit tests with a TDD-evidence convention | **in progress** — unit tests land in `p1-02-unit-test-suite` (done); recipe schema validation (`./harness validate-recipe`) still pending |
 | 3 | Deterministic end-to-end smoke: Playwright suite runs against the built app; `./harness e2e` | first e2e test |
 | 4 | CI gates (`./harness check` in GitHub Actions), regression tracking | first release discipline |
 | 5 | Agent-ready phase gates: every execplan names the harness evidence required before handoff | mature orchestration |
