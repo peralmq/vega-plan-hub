@@ -10,28 +10,32 @@ code style in [conventions.spec.md](conventions.spec.md), gates in
 
 ```
 npm install        # .npmrc pins the public registry and legacy-peer-deps
-                   # (next-themes lacks a React 19 peer; p2-01 owns the fix)
+                   # (react-day-picker@8 hard-peers date-fns 2/3 — see
+                   # p2-01's Decision Log)
 npm run dev        # Vite dev server
 npm run build      # production build — also the de-facto type gate
 npm run lint       # eslint (strict; grandfathered exceptions in eslint.config.js)
-./harness check    # THE gate: lint + build + execplan validation
+./harness check    # THE gate: deps, lint, unit tests, build, plan
+                   # validation, recipe validation
+./harness test     # Vitest unit suite standalone
+./harness e2e      # hermetic Playwright suite (on-demand, not in check)
 ./harness plans    # backlog queries (--validate / --ready / --phase P)
 ./harness dev-mock # Vite dev server with VITE_MOCK_AUTH=true — browse the
                    # auth-gated views with no Google OAuth / Supabase network
                    # (docs/execplans/p2-02-mock-auth-mode.md)
-npx playwright test  # e2e (config present, no tests yet — see execplans)
 ```
 
 ## Stack
 
-Vite 5 · React 19 · TypeScript 5.8 (relaxed strictness: `noImplicitAny`
-off) · React Router DOM 7 · TanStack Query 5 · shadcn-ui/Radix ·
-Tailwind CSS 3 · Zod 4 · date-fns 4 · **Supabase JS 2** (auth +
+Vite 8 (Rolldown) · React 19 · TypeScript 5.9 (relaxed strictness:
+`noImplicitAny` off; TS pinned <6 by typescript-eslint — see p2-01's
+Decision Log) · React Router DOM 7 · TanStack Query 5 · shadcn-ui/Radix ·
+Tailwind CSS 4 (CSS-first `@theme` in `src/index.css`; no
+`tailwind.config.ts`) · Zod 4 · date-fns 4 · **Supabase JS 2** (auth +
 Postgres) · Playwright (`@playwright/test` directly; the original
 `lovable-agent-playwright-config` wrapper is unresolvable on the public
-registry — see p1-03's Decision Log). Package
-manager: npm (a stale `bun.lockb` exists; `package-lock.json` is the
-one npm uses).
+registry — see p1-03's Decision Log). Package manager: npm
+(`package-lock.json`).
 
 ## Project structure
 
