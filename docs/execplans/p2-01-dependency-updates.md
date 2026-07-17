@@ -370,3 +370,20 @@ found 0 vulnerabilities
 $ ./harness check
 check: OK
 ```
+
+### 2026-07-18 batch 2, majors 3-8: globals, lucide-react, tailwind-merge, vaul, @hookform/resolvers, react-resizable-panels
+
+Checked peer ranges first (`npm view <pkg> peerDependencies`) — no
+conflicts with the current React 19 / eslint 9 stack. Landed together
+since each is an isolated, independently-used dependency (icons,
+class-merge util, drawer primitive, form resolver, resizable-panel
+primitive) with no cross-dependencies:
+
+```
+$ npm install globals@17.7.0 lucide-react@1.25.0 tailwind-merge@3.6.0 \
+    vaul@1.1.2 @hookform/resolvers@5.4.0 react-resizable-panels@4.12.2
+$ ./harness check
+check: OK
+$ ./harness e2e
+  6 passed (4.7s)
+```
