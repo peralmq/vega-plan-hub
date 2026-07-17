@@ -47,21 +47,12 @@ one npm uses).
 
 **Client-side content** — recipes are markdown files bundled at build
 time via `import.meta.glob('/src/data/recipes/*.md', { query: '?raw',
-eager: true })`. Frontmatter: `id` (unique, kebab-case, used in DB
-references), `title`, `imageUrl`, `url`, `cookTime` (min), `servings`,
-`difficulty` (`Easy|Medium|Hard`), `tags`. Body: `## Ingredients` as a
-**markdown table** with columns `quantity | unit | key | ingredient |
-notes`, then `## Instructions` (ordered list), optional `## Notes`.
-
-> Known drift: `src/data/recipes/README.md` still documents an older
-> list-based ingredient format with `[base]`/`[esoteric]` markers; the
-> loader and all 18 recipe files use the table format (two files —
-> `pasta-aglio-e-olio-delux.md` and `tofustroganoff.md` — were still on
-> the list format and silently parsed to zero ingredients until
-> `p1-02-unit-test-suite`'s loader tests caught it and they were
-> converted). The planned `./harness validate-recipe` command should
-> encode the table format and the README should be corrected when it
-> lands.
+eager: true })`. The file format (frontmatter schema, ingredient-table
+shape, required sections, field semantics) is defined in
+[recipe-format.spec.md](recipe-format.spec.md) and enforced by
+`./harness validate-recipe` (part of `./harness check` since
+`p1-05-validate-recipe`, which also resolved the earlier README format
+drift).
 
 **Supabase (Postgres)** — per-user data, keyed by auth user:
 

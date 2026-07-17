@@ -2,7 +2,7 @@
 id: p1-05-validate-recipe
 title: recipe-format.spec.md + ./harness validate-recipe + README fix
 phase: P1
-status: in-progress
+status: done
 depends_on: [p1-01-spec-extraction]
 ---
 
@@ -58,22 +58,23 @@ the 19 files in `src/data/recipes/` (the corpus).
       hand-rolled frontmatter-parsing approach, added table/list
       parsing. Verified correct on both a well-formed single file and a
       deliberately malformed fixture (see Evidence).
-- [ ] **BLOCKED** — all 19 recipes pass: running validate-recipe over
-      the full corpus found a real loader/corpus disagreement in
+- [x] 2026-07-17 all 18 recipes pass. Running validate-recipe over the
+      full corpus first found a real loader/corpus disagreement in
       `vegan-dan-dan-noodles.md` (multi-line `tags:` array silently
-      dropped to `[]` by the loader). Per this plan's stop condition
-      this is reported, not fixed, in this change set — see Surprises &
-      Discoveries and Evidence below.
-- [ ] command joins ./harness check — deferred until the blocking
-      disagreement above is resolved by a human call (joining now would
-      turn `./harness check` red for everyone on an unrelated,
-      unresolved decision).
-- [ ] src/data/recipes/README.md reduced to a pointer at the spec;
-      tech.spec.md Data model trimmed to reference it — deferred; doing
-      this now would still leave tech.spec.md's "Known drift" note
-      partially inaccurate once the tags bug is resolved one way or the
-      other, so it is left until the blocking decision lands in the
-      same change set per this plan's Steps.
+      dropped to `[]` by the loader) — reported per the stop condition,
+      then resolved by orchestrator ruling: the recipe file was fixed
+      (tags collapsed onto one line, content preserved); the parser was
+      not changed. See Surprises & Discoveries and Evidence. (The
+      plan's "19 recipes" figure was already stale — the committed
+      corpus is 18 recipe files + README; see p1-02's Evidence.)
+- [x] 2026-07-17 command joins ./harness check (after plans
+      --validate; pure file parsing, fast). Demonstrated red in both
+      directions — see Evidence.
+- [x] 2026-07-17 src/data/recipes/README.md reduced to a pointer at
+      the spec; tech.spec.md Data model format prose + resolved "Known
+      drift" note trimmed to a reference; harness.spec.md
+      validate-recipe row moved from Planned Commands into the command
+      set and the Level 2 maturity row marked done.
 
 ## Surprises & Discoveries
 
@@ -103,6 +104,13 @@ the 19 files in `src/data/recipes/` (the corpus).
   condition ("If loader behavior and recipe files disagree on the
   format, record the discrepancy in the plan and STOP") rather than
   decided here.
+- 2026-07-17 (resolution): orchestrator ruled for (a) — the recorded
+  contract already decided it: recipe-format.spec.md declares
+  single-line `key: [...]` arrays normative (the other 17 recipes' and
+  the parser's actual shape), and Step 3 explicitly authorizes fixing
+  violating recipe files. The tags array was collapsed onto one line,
+  content preserved; the parser was left untouched (resolution (b)
+  would have been a contract change).
 
 ## Steps
 
@@ -190,3 +198,60 @@ tech.spec.md's Data model section, and move the `validate-recipe` row in
 harness.spec.md from Planned Commands into the command set (update the
 Level 2 maturity row too) — all deferred, not done, pending that
 decision.
+
+---
+
+After the orchestrator ruling (resolution (a), 2026-07-17) the tags
+line was collapsed and the remaining steps completed. Full corpus
+green:
+
+```
+$ ./harness validate-recipe
+validate-recipe: OK (18 recipes)
+$ echo $?
+0
+```
+
+`./harness check` green with validate-recipe wired in as the final
+step:
+
+```
+$ ./harness check
+check: deps ... OK (69 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (7 plans)
+check: validate-recipe ... validate-recipe: OK (18 recipes)
+check: OK
+$ echo $?
+0
+```
+
+Red demo — the exact bug class re-introduced (tags wrapped back onto a
+continuation line in `vegan-dan-dan-noodles.md`), `./harness check`
+fails at the validate-recipe step naming file + line; note `npm test`
+stayed green, proving the validator is the only gate that catches this
+silent-drop class:
+
+```
+$ ./harness check
+check: deps ... OK (69 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (7 plans)
+check: validate-recipe ... FAIL: /Users/pellefrank/Projects/peralmq/vega-plan-hub/src/data/recipes/vegan-dan-dan-noodles.md: unparseable frontmatter line: "  [\"Chinese\", \"Asian\", \"Noodles\", \"Vegan\", \"Lunch\", \"Dinner\", \"Climate Smart\"]"
+$ echo $?
+1
+```
+
+(File restored afterwards; `./harness validate-recipe` re-verified
+green — `OK (18 recipes)`.)
+
+One document defines the format: `src/data/recipes/README.md` is now a
+short pointer at `docs/specs/recipe-format.spec.md`, tech.spec.md's
+Data model section references it instead of restating it (and the
+now-resolved "Known drift" note is gone), and harness.spec.md lists
+`validate-recipe [file]` in the command set (removed from Planned
+Commands; Level 2 maturity row marked done).
