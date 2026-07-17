@@ -185,6 +185,39 @@ next-themes (≥0.4) should let that line be removed; verify a clean
   the *only* remaining ERESOLVE conflict was react-day-picker/date-fns.
   Comment in `.npmrc` updated to name the current cause instead of the
   now-fixed one.
+- 2026-07-18: `eslint` pinned at 9.39.5 and `eslint-plugin-react-hooks`
+  pinned at 5.2.0 (both stay at their batch-1 minor-line versions; the
+  9→10 and 5→7 majors are **not** taken). Attempted both together
+  (`eslint-plugin-react-hooks@7.1.1`'s peer range covers eslint 10, so
+  they move as a pair). `eslint-plugin-react-hooks@7`'s `recommended`
+  config is no longer the old two-rule set (`rules-of-hooks`,
+  `exhaustive-deps`) — inspected the plugin's exported configs
+  directly (`node -e "require('eslint-plugin-react-hooks').configs"`):
+  both `recommended` and `recommended-latest` now bundle the full React
+  Compiler rule preset (`set-state-in-effect`, `set-state-in-render`,
+  `purity`, `immutability`, `refs`, `error-boundaries`, `gating`,
+  etc.), and there is no legacy/basic config export to opt back into
+  the old rule set. Running `./harness check` with it enabled surfaced
+  12 real errors across `src/hooks/{useFamilyMembers,useMealPlanDB,
+  useRecipeComments,useRecipeRatings}.ts`, `src/hooks/use-mobile.tsx`,
+  and `src/pages/{CookMode,PlanMode}.tsx` — all instances of the
+  ordinary `useEffect(() => { fetchX() }, [fetchX])` data-fetching
+  pattern used throughout the hooks layer, plus two `useMemo`-for-
+  side-effect patterns in CookMode and a `Math.random()` call during
+  PlanMode's render body. Fixing these properly means restructuring how
+  every Supabase-backed hook fetches data and how CookMode derives
+  state — a lint-policy shift toward React Compiler-compatible patterns,
+  not a mechanical rename. That is an architecture decision (do we
+  adopt Compiler-oriented patterns app-wide?), not something a
+  dependency-bump pass should decide unilaterally, so it's out of scope
+  here per this plan's Non-goals framing ("no framework swaps" extends
+  to no unplanned lint-policy-driven refactor of the hooks layer).
+  Reverted `eslint`/`@eslint/js`/`eslint-plugin-react-hooks` to their
+  batch-1 versions; kept `eslint-plugin-react-refresh@0.5.3` (its own
+  independent bump, no new errors from it). Follow-up: a future execplan
+  should decide, as a product/architecture call, whether to adopt
+  `eslint-plugin-react-hooks@7`'s React Compiler rule set and do the
+  associated hooks-layer refactor.
 
 ## Evidence
 
@@ -387,3 +420,30 @@ check: OK
 $ ./harness e2e
   6 passed (4.7s)
 ```
+
+### 2026-07-18 eslint 9→10 / eslint-plugin-react-hooks 5→7: attempted, reverted (see Decision Log)
+
+```
+$ npm install eslint@10.7.0 @eslint/js@10.0.1 eslint-plugin-react-hooks@7.1.1 eslint-plugin-react-refresh@0.5.3
+$ ./harness check
+...
+✖ 21 problems (12 errors, 9 warnings)
+FAIL: failing command: npm run lint
+```
+
+12 errors, all `react-hooks/set-state-in-effect`, `react-hooks/
+set-state-in-render`, and `react-hooks/purity` — the new React Compiler
+rule preset in v7's `recommended` config (see Decision Log for why this
+isn't a mechanical fix). Reverted:
+
+```
+$ npm install eslint@9.39.5 @eslint/js@9.39.5 eslint-plugin-react-hooks@5.2.0
+$ ./harness check
+check: OK
+$ ./harness e2e
+  6 passed (5.6s)
+```
+
+Net change from this step: only `eslint-plugin-react-refresh` moved
+(0.4.26 → 0.5.3); `eslint`, `@eslint/js`, `eslint-plugin-react-hooks`
+stay pinned at their batch-1 versions.
