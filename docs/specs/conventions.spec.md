@@ -11,13 +11,17 @@ preserves that spirit.
 
 ## Architecture
 
-- Client-side only: Vite + React 19 + TypeScript, React Router DOM,
-  TanStack Query, shadcn-ui (Radix), Tailwind. **No backend, no auth** —
-  persistence is localStorage (see `useMealPlans`).
+- Vite + React 19 + TypeScript SPA with **Supabase** for auth and
+  per-user persistence (meal plans, ratings, comments, family members);
+  recipe content is markdown bundled at build time. Full architecture:
+  [tech.spec.md](tech.spec.md).
 - Pages in `src/pages/` (default export), components in
   `src/components/` (named export), business logic in `src/services/`
-  (static-method classes), shared state hooks in `src/hooks/`, recipe
-  content in `src/data/`.
+  (static-method classes) and pure logic in `src/lib/`, Supabase-backed
+  state in `src/hooks/`, recipe content in `src/data/`.
+- Supabase access goes through hooks (`useMealPlanDB`,
+  `useFamilyMembers`, `useRecipeRatings`, `useRecipeComments`) — never
+  raw `supabase.from()` calls in components.
 - Routes are added in `src/App.tsx` **before** the catch-all `*` route.
 - New UI primitives come from shadcn (`npx shadcn@latest add …`); never
   hand-roll what shadcn provides, never edit `src/components/ui/*`
@@ -31,8 +35,8 @@ preserves that spirit.
 - Business logic lives in services, not components.
 - Stable keys in list renders (never array indices).
 - Async effects clean up (cancelled flag / AbortController).
-- localStorage access is always wrapped in try-catch; state and storage
-  are written together.
+- Any localStorage access is wrapped in try-catch; primary persistence
+  is Supabase via the hooks above.
 - Expensive derived values and callbacks passed to children are memoized
   (`useMemo` / `useCallback`).
 

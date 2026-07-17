@@ -50,9 +50,10 @@ file); fast enough to run before every handoff.
 ### Command set
 
 ```
-./harness check            # THE gate: npm run lint (strict), npm run build
-                           # (the type gate), plans --validate. Must pass
-                           # before every handoff.
+./harness check            # THE gate: deps present in node_modules,
+                           # npm run lint (strict), npm run build (the type
+                           # gate), plans --validate. Must pass before
+                           # every handoff.
 ./harness plans            # list plan id, phase, status, dependencies
 ./harness plans --validate # frontmatter schema, dependency existence, cycles
 ./harness plans --ready    # dispatchable plans: status todo, all deps done
@@ -88,10 +89,30 @@ depends_on: []                # other plan ids
 ---
 ```
 
-Body sections: **Goal** (with links to motivating evidence),
-**Non-goals**, **Steps**, **Verification** (concrete commands that prove
-it done), **Evidence** (appended during implementation: actual commands
-and output, not prose claims).
+Required body sections, in this order — `plans --validate` enforces both
+presence and order (format informed by OpenAI's Codex ExecPlans article,
+2026-07-17):
+
+1. **Goal** — the user-visible outcome, with links to motivating
+   evidence.
+2. **Non-goals** — explicit scope fence.
+3. **Context** — current state written for a reader with *zero prior
+   knowledge* of this conversation: the plan must be self-contained
+   enough that a fresh session can implement it end-to-end from the file
+   alone.
+4. **Progress** — timestamped checkboxes (`- [x] 2026-07-17 …`), updated
+   as work happens. This is the living-document surface; a resumed
+   session reads it before touching anything.
+5. **Steps** — prose plan of work, in sequence.
+6. **Verification** — observable behavior and concrete commands that
+   prove it done; behavior a human can verify beats implementation
+   detail.
+7. **Evidence** — appended during implementation: actual commands and
+   output, not prose claims.
+
+Optional sections (place after Goal, anywhere): **Decision Log**
+(decisions, rationale, dates), **Surprises & Discoveries**,
+**Idempotence & Recovery** (safe retry/rollback notes for risky plans).
 
 - `--ready` makes dispatchability a harness query — no agent computes
   readiness, ordering, or status itself.

@@ -24,6 +24,20 @@ schema-validated execplans, thin skills, and a short canonical
 - Fixing the grandfathered lint violations (list in `eslint.config.js`
   may only shrink, on its own time).
 
+## Context
+
+Before this plan the repo was a Lovable-generated Vite + React 19 + TS
+app with no docs/, no tests, no CI, a 650-line style-guide `AGENTS.md`,
+and a failing `npm run lint` (6 errors). The portable kit being adopted
+lives in `idiolect/docs/portable/` (two specs + two skill templates).
+
+## Progress
+
+- [x] 2026-07-17 specs written (harness, orchestration, conventions)
+- [x] 2026-07-17 `./harness` built; lint errors grandfathered per-file
+- [x] 2026-07-17 skills copied; `.claude/skills` symlink; AGENTS.md rewritten
+- [x] 2026-07-17 verification run; evidence recorded; committed as fe922eb
+
 ## Steps
 
 1. Fill and commit `docs/specs/harness.spec.md`,

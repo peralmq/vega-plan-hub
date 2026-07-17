@@ -2,9 +2,14 @@
 
 Durable repo memory for AI agents. Canonical: every other runner file
 (`CLAUDE.md`, `.github/copilot-instructions.md`) defers to this one.
-Vega Plan Hub is a playful, emoji-filled, client-side vegan meal-planning
-app (Vite + React 19 + TypeScript); code and design conventions are the
-contract in [docs/specs/conventions.spec.md](docs/specs/conventions.spec.md).
+Vega Plan Hub is a playful, emoji-filled vegan meal-planning app
+(Vite + React 19 + TypeScript SPA, Supabase auth + persistence). The
+spec corpus: [product.spec.md](docs/specs/product.spec.md) (problem),
+[tech.spec.md](docs/specs/tech.spec.md) (solution),
+[design.spec.md](docs/specs/design.spec.md) (UX),
+[conventions.spec.md](docs/specs/conventions.spec.md) (code style),
+[harness.spec.md](docs/specs/harness.spec.md) +
+[orchestration.spec.md](docs/specs/orchestration.spec.md) (workflow).
 
 ## Source-of-truth order
 
@@ -44,8 +49,8 @@ loop is restartable from repository state.
 
 ## Non-goals
 
-- No backend, no auth, no server-side persistence — this is a
-  client-side localStorage app.
+- No new backend surface beyond Supabase; schema changes are ask-first
+  (boundaries in [tech.spec.md](docs/specs/tech.spec.md)).
 - No backfilling git history into execplans; plans cover new work only.
 - No weakening any harness gate; grandfathered lint exceptions in
   `eslint.config.js` may only shrink.
