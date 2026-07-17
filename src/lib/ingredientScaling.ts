@@ -117,14 +117,19 @@ export function formatQuantity(value: number): string {
   const whole = Math.floor(value);
   const decimal = value - whole;
   
-  // Check if the decimal part is close to a common fraction
+  // Check if the decimal part is close to a common fraction. Two
+  // candidates can both fall inside the tolerance band (e.g. 0.667 is
+  // within 0.05 of both 5/8 and 2/3) — pick the closest one, not the
+  // first one encountered in table order.
+  let closest: { frac: number; fracStr: string } | null = null;
   for (const [frac, fracStr] of fractions) {
-    if (Math.abs(decimal - frac) < 0.05) {
-      if (whole === 0) {
-        return fracStr;
-      }
-      return `${whole} ${fracStr}`;
+    const diff = Math.abs(decimal - frac);
+    if (diff < 0.05 && (!closest || diff < Math.abs(decimal - closest.frac))) {
+      closest = { frac, fracStr };
     }
+  }
+  if (closest) {
+    return whole === 0 ? closest.fracStr : `${whole} ${closest.fracStr}`;
   }
   
   // If close to a whole number, round it

@@ -39,7 +39,7 @@ one npm uses).
 | `src/hooks/` | Data hooks, all Supabase-backed except UI helpers: `useMealPlanDB` (weekly plans), `useFamilyMembers`, `useRecipeRatings`, `useRecipeComments`, plus `use-toast`, `use-mobile`. |
 | `src/services/` | Static-method service classes: `recipeLoader` (markdown → `ParsedRecipe`), `mathemPriceService` (**mock** SEK price lookup with a 30-min in-memory cache — not a real integration). |
 | `src/lib/` | Pure logic: `ingredientNormalization` (alias table → canonical names, aggregation), `ingredientScaling` (unit-group conversion, servings multiplier), `utils` (`cn()`). |
-| `src/data/recipes/*.md` | The curated recipe library (19 recipes). Format below. |
+| `src/data/recipes/*.md` | The curated recipe library (18 recipes as of `p1-02-unit-test-suite`). Format below. |
 | `src/data/ingredients/ingredients.json` | Ingredient reference data. |
 | `src/integrations/supabase/` | Generated client + DB types. |
 
@@ -55,9 +55,13 @@ notes`, then `## Instructions` (ordered list), optional `## Notes`.
 
 > Known drift: `src/data/recipes/README.md` still documents an older
 > list-based ingredient format with `[base]`/`[esoteric]` markers; the
-> loader and all 19 recipe files use the table format. The planned
-> `./harness validate-recipe` command should encode the table format
-> and the README should be corrected when it lands.
+> loader and all 18 recipe files use the table format (two files —
+> `pasta-aglio-e-olio-delux.md` and `tofustroganoff.md` — were still on
+> the list format and silently parsed to zero ingredients until
+> `p1-02-unit-test-suite`'s loader tests caught it and they were
+> converted). The planned `./harness validate-recipe` command should
+> encode the table format and the README should be corrected when it
+> lands.
 
 **Supabase (Postgres)** — per-user data, keyed by auth user:
 
@@ -85,9 +89,9 @@ The join between DB and content happens client-side: `recipe_id` in
 
 ## Testing strategy (target — see execplans)
 
-- **Unit (Vitest)**: `src/lib/` first — normalization, scaling, and the
-  recipe loader parser are pure and high-value. Joins `./harness check`
-  once it exists (`./harness test`).
+- **Unit (Vitest)**: `src/lib/` and the recipe loader parser — pure and
+  high-value. Landed in `p1-02-unit-test-suite`; joins `./harness check`
+  via `./harness test`.
 - **E2E (Playwright)**: config already wired; tests go in `e2e/`. Core
   flows: welcome → (auth) → plan a week → shopping summary → cook mode.
   On-demand `./harness e2e`, not part of `check`.
