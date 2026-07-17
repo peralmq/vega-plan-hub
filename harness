@@ -331,6 +331,8 @@ function check() {
   }
   process.stdout.write("check: plans --validate ... ");
   validate(loadPlans());
+  process.stdout.write("check: validate-recipe ... ");
+  validateRecipeCommand(undefined);
   console.log("check: OK");
 }
 

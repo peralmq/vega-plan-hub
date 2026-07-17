@@ -176,8 +176,10 @@ all 18 files:
   but it is not a disagreement about what the format *should be*: the
   single-line-array shape documented above is what every one of the
   other 17 recipes uses and what the hand-rolled parser is built for.
-  Per this execplan's stop condition, this was reported rather than
-  fixed unilaterally (fixing the file vs. teaching the parser
-  multi-line arrays are both plausible resolutions and are a human
-  call). The format documented above is normative regardless of which
-  resolution is chosen.
+
+  **Resolved 2026-07-17** (orchestrator ruling in
+  `p1-05-validate-recipe`): by fixing the file — the `tags` array was
+  collapsed onto one line, content preserved. The parser was not
+  changed; single-line `key: [...]` arrays remain the only supported
+  array shape, and `./harness validate-recipe` (now part of
+  `./harness check`) rejects continuation-line values.
