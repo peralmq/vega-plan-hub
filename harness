@@ -9,9 +9,12 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const PLANS_DIR = join(ROOT, "docs", "execplans");
+const RECIPES_DIR = join(ROOT, "src", "data", "recipes");
 const STATUSES = ["todo", "in-progress", "done", "deferred"];
 const PHASE_RE = /^P\d+$/;
 const ID_RE = /^p\d+-\d{2}-[a-z0-9-]+$/;
+const RECIPE_ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
 // Required body sections, in this order (docs/specs/harness.spec.md,
 // ExecPlans). Optional sections (Decision Log, Surprises & Discoveries,
@@ -135,6 +138,155 @@ function phasePlans(plans, phase) {
   console.log(`phase ${phase}: ${verdict} (${done}/${inPhase.length} done)`);
 }
 
+// --- validate-recipe ---------------------------------------------------------
+// Contract: docs/specs/recipe-format.spec.md. Mirrors the hand-rolled
+// frontmatter/table/list parsing in src/services/recipeLoader.ts (same
+// approach, reimplemented here since the harness can't import the app's
+// TypeScript module) but fails fast and specific instead of silently
+// dropping malformed data.
+
+function parseRecipeFrontmatter(text, file) {
+  const m = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!m) fail(`${file}: missing frontmatter block (--- ... --- delimited)`);
+  const [, fmText, body] = m;
+  const fm = {};
+  for (const line of fmText.split("\n")) {
+    if (!line.trim()) continue;
+    const idx = line.indexOf(":");
+    if (idx === -1) fail(`${file}: unparseable frontmatter line: ${JSON.stringify(line)}`);
+    const key = line.slice(0, idx).trim();
+    let value = line.slice(idx + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (value.startsWith("[") && value.endsWith("]")) {
+      fm[key] = value
+        .slice(1, -1)
+        .split(",")
+        .map((s) => s.trim().replace(/^["']|["']$/g, ""))
+        .filter(Boolean);
+    } else if (value !== "" && !isNaN(Number(value))) {
+      fm[key] = Number(value);
+    } else {
+      fm[key] = value;
+    }
+  }
+  return { fm, body };
+}
+
+function parseRecipeIngredients(body, file) {
+  const section = body.match(/## Ingredients\n\n([\s\S]*?)(?=\n## |$)/);
+  if (!section) fail(`${file}: missing "## Ingredients" section`);
+  const lines = section[1]
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const headerIdx = lines.findIndex((l) => l.startsWith("|"));
+  if (headerIdx === -1) fail(`${file}: Ingredients section has no table`);
+  const rows = [];
+  for (let i = headerIdx + 2; i < lines.length; i++) {
+    const row = lines[i];
+    if (!row.startsWith("|")) break;
+    const cols = row.split("|").map((s) => s.trim());
+    if (cols.length < 6)
+      fail(`${file}: ingredients table row has fewer than 5 columns: ${JSON.stringify(row)}`);
+    const [, quantity, unit, key, ingredient, notes] = cols;
+    if (!key) fail(`${file}: ingredients table row is missing "key": ${JSON.stringify(row)}`);
+    if (!ingredient)
+      fail(`${file}: ingredients table row is missing "ingredient": ${JSON.stringify(row)}`);
+    rows.push({ quantity, unit, key, ingredient, notes });
+  }
+  if (rows.length === 0) fail(`${file}: Ingredients table has no data rows`);
+  return rows;
+}
+
+function parseRecipeInstructions(body, file) {
+  const section = body.match(/## Instructions\n\n([\s\S]*?)(?=\n## |$)/);
+  if (!section) fail(`${file}: missing "## Instructions" section`);
+  const steps = [];
+  for (const line of section[1].split("\n")) {
+    const m = line.trim().match(/^(\d+)\.\s*(.+)$/);
+    if (m) steps.push(Number(m[1]));
+  }
+  if (steps.length === 0) fail(`${file}: Instructions section has no numbered steps`);
+  steps.forEach((n, i) => {
+    if (n !== i + 1)
+      fail(`${file}: Instructions steps are not sequential from 1 (got ${steps.join(",")})`);
+  });
+  return steps;
+}
+
+function validateRecipeFrontmatter(fm, file, filename) {
+  const id = fm.id;
+  if (!id) fail(`${file}: frontmatter.id is required`);
+  if (!RECIPE_ID_RE.test(id))
+    fail(`${file}: frontmatter.id ${JSON.stringify(id)} must be kebab-case (${RECIPE_ID_RE})`);
+  const stem = filename.replace(/\.md$/, "");
+  if (id !== stem)
+    fail(`${file}: frontmatter.id ${JSON.stringify(id)} must equal the filename "${stem}"`);
+
+  if (!fm.title) fail(`${file}: frontmatter.title is required`);
+
+  if (fm.imageUrl === undefined) fail(`${file}: frontmatter.imageUrl is required (may be "")`);
+  if (typeof fm.imageUrl !== "string")
+    fail(`${file}: frontmatter.imageUrl must be a string, got ${JSON.stringify(fm.imageUrl)}`);
+
+  if (!Number.isInteger(fm.cookTime) || fm.cookTime <= 0)
+    fail(`${file}: frontmatter.cookTime must be a positive integer, got ${JSON.stringify(fm.cookTime)}`);
+
+  if (!Number.isInteger(fm.servings) || fm.servings <= 0)
+    fail(`${file}: frontmatter.servings must be a positive integer, got ${JSON.stringify(fm.servings)}`);
+
+  if (!DIFFICULTIES.includes(fm.difficulty))
+    fail(
+      `${file}: frontmatter.difficulty must be one of ${DIFFICULTIES.join("|")}, got ${JSON.stringify(fm.difficulty)}`,
+    );
+
+  if (!Array.isArray(fm.tags) || fm.tags.length === 0)
+    fail(`${file}: frontmatter.tags must be a non-empty array, got ${JSON.stringify(fm.tags)}`);
+  for (const tag of fm.tags) {
+    if (!tag || typeof tag !== "string")
+      fail(`${file}: frontmatter.tags contains an empty/non-string tag: ${JSON.stringify(fm.tags)}`);
+  }
+
+  return id;
+}
+
+function validateRecipeFile(path, seenIds) {
+  const filename = basename(path);
+  const text = readFileSync(path, "utf8");
+  const { fm, body } = parseRecipeFrontmatter(text, path);
+  const id = validateRecipeFrontmatter(fm, path, filename);
+  if (seenIds) {
+    if (seenIds.has(id)) fail(`${path}: frontmatter.id "${id}" is not unique across the corpus`);
+    seenIds.add(id);
+  }
+  parseRecipeIngredients(body, path);
+  parseRecipeInstructions(body, path);
+}
+
+function validateRecipeCommand(fileArg) {
+  if (fileArg) {
+    validateRecipeFile(join(ROOT, fileArg), null);
+    console.log(`validate-recipe: OK (${fileArg})`);
+    return;
+  }
+  let files;
+  try {
+    files = readdirSync(RECIPES_DIR).filter((f) => f.endsWith(".md") && f !== "README.md");
+  } catch {
+    fail(`${RECIPES_DIR} does not exist`);
+  }
+  const seenIds = new Set();
+  for (const f of files.sort()) {
+    validateRecipeFile(join(RECIPES_DIR, f), seenIds);
+  }
+  console.log(`validate-recipe: OK (${files.length} recipe${files.length === 1 ? "" : "s"})`);
+}
+
 // --- check -----------------------------------------------------------------
 
 // Catches a node_modules stale relative to package.json (e.g. after a
@@ -205,7 +357,12 @@ switch (cmd) {
     else listPlans(plans);
     break;
   }
+  case "validate-recipe":
+    validateRecipeCommand(args[0]);
+    break;
   default:
-    console.error("usage: ./harness <check | test | plans [--validate | --ready | --phase P]>");
+    console.error(
+      "usage: ./harness <check | test | plans [--validate | --ready | --phase P] | validate-recipe [file]>",
+    );
     process.exit(cmd ? 1 : 0);
 }
