@@ -47,8 +47,16 @@ next-themes (≥0.4) should let that line be removed; verify a clean
 
 - [x] 2026-07-18 `npm outdated` snapshot recorded in Evidence
 - [x] 2026-07-18 batch 1: patch/minor bumps, gate green
-- [ ] batch 2: majors one at a time (Vite, then Tailwind, then rest),
-      gate + e2e green after each
+- [x] 2026-07-18 batch 2: majors one at a time (Vite, then Tailwind,
+      then rest), gate + e2e green after each. Vite 5→8 and Tailwind
+      3→4 landed clean; next-themes 0.3→0.4 landed (fixed the peer-dep
+      reason for legacy-peer-deps, but a different conflict —
+      react-day-picker/date-fns — keeps the flag); globals/lucide-react/
+      tailwind-merge/vaul/@hookform/resolvers/react-resizable-panels
+      landed clean; eslint 9→10 + eslint-plugin-react-hooks 5→7,
+      typescript 5→7, react-day-picker 8→10, @types/react(-dom) 18→19,
+      and @types/node 22→26 are pinned with reasons in the Decision Log
+      (not silently skipped)
 - [x] 2026-07-18 bun.lockb removed
 - [x] 2026-07-18 visual spot-check of design tokens after the Tailwind
       major (Landing page only, by agent — remaining 3 screens are the
@@ -218,6 +226,35 @@ next-themes (≥0.4) should let that line be removed; verify a clean
   should decide, as a product/architecture call, whether to adopt
   `eslint-plugin-react-hooks@7`'s React Compiler rule set and do the
   associated hooks-layer refactor.
+- 2026-07-18: `typescript` pinned at 5.9.3 (its own batch-1 minor
+  target); the 5→7 major (TypeScript's "Corsa" native-compiler rewrite)
+  is not taken. Checked `typescript-eslint@8.64.0`'s peer range —
+  `typescript: ">=4.8.4 <6.1.0"` — which hard-excludes TypeScript 7, and
+  confirmed no newer `typescript-eslint` (checked prereleases too)
+  supports it yet. Since `typescript-eslint` is load-bearing for
+  `./harness check`'s lint gate, TypeScript 7 is genuinely unupgradeable
+  right now without breaking the lint toolchain, independent of any app
+  code concerns. Pin, not a skip-and-revisit-later choice within this
+  plan's timeframe — revisit once `typescript-eslint` ships TS 7
+  support.
+- 2026-07-18: `@types/node` intentionally stays on the 22.x line
+  (22.20.1, its batch-1 minor target) rather than jumping to the
+  "latest" major (26.x). `@types/node`'s major tracks Node.js's own
+  major-version numbering, and this repo runs Node 22 in CI
+  (`actions/setup-node` pins `node-version: 22`; local dev measured
+  v24.13.0, still `>=22`) — installing `@types/node@26` would type
+  against Node 26 APIs that may not exist in the Node 22 runtime CI
+  actually uses. Not a gap; matching the type package to the runtime
+  major is the correct choice.
+- 2026-07-18: `@types/react` / `@types/react-dom` stay on the 18.x line
+  per this plan's explicit Non-goal ("no React 18-type-vs-19 cleanup
+  beyond what updates force... resolve if the update path demands it,
+  otherwise note as follow-up"). Nothing in this plan's batches forced
+  it — `./harness check`'s build step (the de-facto type gate) passed
+  at every step with React 19 runtime + `@types/react@18` types, which
+  is the pre-existing mismatch tech.spec.md already documents. Noted
+  here again as the standing follow-up per the Non-goal's own wording;
+  not resolved in this plan.
 
 ## Evidence
 
@@ -447,3 +484,36 @@ $ ./harness e2e
 Net change from this step: only `eslint-plugin-react-refresh` moved
 (0.4.26 → 0.5.3); `eslint`, `@eslint/js`, `eslint-plugin-react-hooks`
 stay pinned at their batch-1 versions.
+
+### 2026-07-18 final clean-clone verification
+
+```
+$ npm outdated
+Package                    Current   Wanted   Latest
+@eslint/js                  9.39.5   9.39.5   10.0.1   pinned, see Decision Log
+@types/node                22.20.1  22.20.1   26.1.1   pinned, see Decision Log
+@types/react               18.3.31  18.3.31  19.2.17   pinned, see Decision Log (Non-goal)
+@types/react-dom            18.3.7   18.3.7   19.2.3   pinned, see Decision Log (Non-goal)
+eslint                      9.39.5   9.39.5   10.7.0   pinned, see Decision Log
+eslint-plugin-react-hooks    5.2.0    5.2.0    7.1.1   pinned, see Decision Log
+react-day-picker            8.10.2   8.10.2   10.0.1   pinned, see Decision Log
+typescript                   5.9.3    5.9.3    7.0.2   pinned, see Decision Log
+# (all remaining "outdated" entries are intentional, documented pins —
+# not gaps)
+
+$ rm -rf node_modules && npm ci
+added 398 packages, and audited 399 packages in 6s
+found 0 vulnerabilities
+
+$ ./harness check
+check: deps ... OK (69 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (7 plans)
+check: validate-recipe ... validate-recipe: OK (18 recipes)
+check: OK
+
+$ ./harness e2e
+  6 passed (4.8s)
+```
