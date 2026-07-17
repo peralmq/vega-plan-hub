@@ -14,7 +14,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
-import { ParsedRecipe } from "@/services/recipeLoader";
+import { ParsedRecipe, ParsedIngredient } from "@/services/recipeLoader";
 import { aggregateIngredients, formatAggregatedIngredient, AggregatedIngredient } from "@/lib/ingredientNormalization";
 import { scaleIngredients } from "@/lib/ingredientScaling";
 import { toast } from "@/hooks/use-toast";
@@ -49,7 +49,7 @@ export default function ShoppingSummary() {
 
   // Aggregate ingredients across all recipes with scaling for multipliers
   const aggregatedIngredients = useMemo(() => {
-    const allIngredients: Array<{ ingredient: any; recipeName: string }> = [];
+    const allIngredients: Array<{ ingredient: ParsedIngredient; recipeName: string }> = [];
     
     mealsWithMultipliers.forEach(({ recipe, servingsMultiplier }) => {
       if (!recipe.ingredients) return;

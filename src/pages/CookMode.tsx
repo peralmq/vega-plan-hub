@@ -20,6 +20,7 @@ import {
   Edit2
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import type { User } from "@supabase/supabase-js";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
 import { convertIngredientToMetric } from "@/lib/ingredientNormalization";
 import { ParsedRecipe, loadAllRecipes } from "@/services/recipeLoader";
@@ -511,7 +512,7 @@ export default function CookMode() {
   );
 }
 
-function Header({ user, onSignOut }: { user: any; onSignOut: () => void }) {
+function Header({ user, onSignOut }: { user: User; onSignOut: () => void }) {
   const navigate = useNavigate();
   
   return (

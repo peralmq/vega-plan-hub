@@ -64,7 +64,8 @@ export function useMealPlanDB() {
           daily_meals (
             id,
             day_of_week,
-            recipe_id
+            recipe_id,
+            servings_multiplier
           )
         `)
         .in('week_start', [currentMonday, nextMonday]);
@@ -73,7 +74,7 @@ export function useMealPlanDB() {
 
       // Process plans
       const processedPlans = (plans || []).map(plan => {
-        const meals: DayMeal[] = (plan.daily_meals || []).map((dm: any) => ({
+        const meals: DayMeal[] = (plan.daily_meals || []).map((dm: { day_of_week: number; recipe_id: string; servings_multiplier: number | null }) => ({
           dayOfWeek: dm.day_of_week,
           recipeId: dm.recipe_id,
           recipe: allRecipes.find(r => r.id === dm.recipe_id),
