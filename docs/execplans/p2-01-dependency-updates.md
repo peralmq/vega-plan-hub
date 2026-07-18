@@ -2,7 +2,7 @@
 id: p2-01-dependency-updates
 title: Update lagging dependencies behind the matured gate
 phase: P2
-status: in-progress
+status: done
 depends_on: [p1-02-unit-test-suite, p1-03-e2e-suite, p1-04-ci-gate]
 ---
 
@@ -517,3 +517,14 @@ check: OK
 $ ./harness e2e
   6 passed (4.8s)
 ```
+
+### Human sign-off (closes the plan)
+
+2026-07-18: The remaining Verification step — visual review of the
+design tokens on the auth-gated screens after the Tailwind 3→4 major —
+was completed by the human. Cook Mode (`/`), Plan Mode (`/plan`), and
+Shopping Summary (`/summary`) were browsed via the mock-auth mode
+delivered by `p2-02-mock-auth-mode` (screenshots reviewed in-session:
+purple `primary` tokens, `gradient-warm` meal cards and difficulty
+badges, `gradient-fun` hero banner, radius/shadow tokens all intact).
+Human verdict: "Looks good." Status flipped to done on that sign-off.
