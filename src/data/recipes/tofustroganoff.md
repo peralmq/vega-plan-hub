@@ -6,7 +6,7 @@ url: "https://www.koket.se/tofustroganoff"
 cookTime: 30
 servings: 4
 difficulty: "Easy"
-tags: ["Svenskt", "Vegan", "Stroganoff", "Middag", "Snabblagad"]
+tags: ["Swedish", "Vegan", "Stroganoff", "Dinner", "Quick"]
 ---
 
 ## Ingredients

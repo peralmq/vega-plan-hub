@@ -6,7 +6,7 @@ url: "https://www.ica.se/recept/saffransdoftande-linsgryta-med-potatis-721613/"
 cookTime: 45
 servings: 4
 difficulty: "Medium"
-tags: ["Baskien", "Stew", "Saffron", "Vegan"]
+tags: ["Basque", "Stew", "Saffron", "Vegan"]
 ---
 
 ## Ingredients

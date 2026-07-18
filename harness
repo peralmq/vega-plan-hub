@@ -15,6 +15,20 @@ const PHASE_RE = /^P\d+$/;
 const ID_RE = /^p\d+-\d{2}-[a-z0-9-]+$/;
 const RECIPE_ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const DIFFICULTIES = ["Easy", "Medium", "Hard"];
+// Controlled English tag vocabulary (docs/specs/recipe-format.spec.md,
+// tags). Adding a tag = add it to the spec's list and here in the same
+// change set. Keeps the corpus English and filterable.
+const ALLOWED_TAGS = [
+  "Asian", "Basque", "Batch", "BBQ", "Budget", "Casserole", "Chickpea",
+  "Chinese", "Climate Smart", "Comfort Food", "Dal", "Dinner", "Family",
+  "Fresh", "Garlic", "Greek", "Hash", "Indian", "Italian", "Japanese",
+  "Lebanese", "Lentil", "Lunch", "Luxury", "Meal Prep", "Mexican",
+  "Middle Eastern", "Mixed Lentils", "Noodles", "One-Pot", "Paneer",
+  "Party", "Pasta", "Quick", "Red Lentil", "Saffron", "Sichuan", "Soup",
+  "Spicy", "Spinach", "Stew", "Stroganoff", "Summer", "Sushi", "Swedish",
+  "Tacos", "Tofu", "Vegan", "Vegan-Option", "Vegetarian", "Vietnamese",
+  "Weekend Project", "Weeknight",
+];
 
 // Required body sections, in this order (docs/specs/harness.spec.md,
 // ExecPlans). Optional sections (Decision Log, Surprises & Discoveries,
@@ -250,6 +264,10 @@ function validateRecipeFrontmatter(fm, file, filename) {
   for (const tag of fm.tags) {
     if (!tag || typeof tag !== "string")
       fail(`${file}: frontmatter.tags contains an empty/non-string tag: ${JSON.stringify(fm.tags)}`);
+    if (!ALLOWED_TAGS.includes(tag))
+      fail(
+        `${file}: tag ${JSON.stringify(tag)} is not in the controlled vocabulary (recipe-format.spec.md) — English tags only; add new tags to the spec + ALLOWED_TAGS first`,
+      );
   }
 
   return id;

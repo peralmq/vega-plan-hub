@@ -71,7 +71,20 @@ Required fields:
 | `cookTime` | integer | Present, parses as an integer, `> 0`. Minutes. |
 | `servings` | integer | Present, parses as an integer, `> 0`. |
 | `difficulty` | enum | One of `Easy`, `Medium`, `Hard` (case-sensitive). Only `Easy` and `Medium` appear in the corpus today; `Hard` is a valid value the loader's type allows and no shipped recipe currently exercises. |
-| `tags` | string array | Present, a bare `[...]` array, at least one tag, no empty-string tags. Free-form values (cuisine, meal type, dietary notes); the app derives a `theme` from a fixed tag→theme map at load time (`deriveTheme` in `recipeLoader.ts`) — tags are not otherwise validated against a fixed vocabulary. |
+| `tags` | string array | Present, a bare `[...]` array, at least one tag, no empty-string tags. Every tag must come from the controlled English vocabulary below (human decision, 2026-07-18: recipe content is English; Swedish tags had drifted into the corpus twice before this rule). The app derives a `theme` from a fixed tag→theme map at load time (`deriveTheme` in `recipeLoader.ts`). |
+
+Controlled tag vocabulary (mirrored in `harness` `ALLOWED_TAGS`; adding
+a tag means adding it in both places in the same change set):
+
+> Asian · Basque · Batch · BBQ · Budget · Casserole · Chickpea ·
+> Chinese · Climate Smart · Comfort Food · Dal · Dinner · Family ·
+> Fresh · Garlic · Greek · Hash · Indian · Italian · Japanese ·
+> Lebanese · Lentil · Lunch · Luxury · Meal Prep · Mexican ·
+> Middle Eastern · Mixed Lentils · Noodles · One-Pot · Paneer · Party ·
+> Pasta · Quick · Red Lentil · Saffron · Sichuan · Soup · Spicy ·
+> Spinach · Stew · Stroganoff · Summer · Sushi · Swedish · Tacos ·
+> Tofu · Vegan · Vegan-Option · Vegetarian · Vietnamese ·
+> Weekend Project · Weeknight
 
 Optional fields:
 
