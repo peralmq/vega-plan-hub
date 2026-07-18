@@ -100,7 +100,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      {/* basename follows Vite's base: "/" on Lovable/dev, "/vega-plan-hub/" on GitHub Pages */}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthProvider>
           <AppRoutes />
         </AuthProvider>
