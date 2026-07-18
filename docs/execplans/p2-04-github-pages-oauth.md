@@ -38,6 +38,17 @@ the Google Cloud Console changes.
 - [x] Google Cloud Console authorized redirect URI includes `https://fbssmpypnakawxxvvgvo.supabase.co/auth/v1/callback`
 - [x] App uses dynamic `redirect_uri: window.location.origin` so sign-in returns to the same origin
 
+## Steps
+
+1. Add `https://peralmq.github.io/vega-plan-hub/**` to the Supabase redirect
+   allow-list.
+2. In the Google Cloud Console OAuth web client, add
+   `https://peralmq.github.io` as an authorized JavaScript origin.
+3. In the same client, add the Supabase callback
+   `https://fbssmpypnakawxxvvgvo.supabase.co/auth/v1/callback` as an
+   authorized redirect URI.
+4. Confirm the app sign-in code passes `redirect_uri: window.location.origin`.
+
 ## Verification
 
 - User confirmed all Google Cloud Console fields are set.
