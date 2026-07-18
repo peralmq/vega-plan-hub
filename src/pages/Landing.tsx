@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Leaf, Calendar, ChefHat, ShoppingCart, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-vegan-meal-planning.jpg";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Landing() {
   const { signInWithGoogle } = useAuth();
@@ -32,6 +33,9 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div 
@@ -53,7 +57,7 @@ export default function Landing() {
             
             <h2 className="text-4xl md:text-6xl font-bold leading-tight">
               Plan your perfect{" "}
-              <span className="bg-gradient-fun bg-clip-text text-transparent">
+              <span className="text-primary">
                 vegan week
               </span>
               {" "}🌱
@@ -67,7 +71,7 @@ export default function Landing() {
             <Button 
               size="lg" 
               onClick={signInWithGoogle}
-              className="bg-gradient-fun text-white text-lg px-8 py-6 rounded-2xl shadow-playful hover:shadow-glow transition-all duration-300 hover:scale-105"
+              className="bg-primary text-primary-foreground text-lg px-8 py-6 rounded-full transition-transform duration-300 hover:scale-[1.02]"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -92,9 +96,9 @@ export default function Landing() {
           {features.map((feature, index) => (
             <Card 
               key={feature.title}
-              className="p-6 text-center hover:shadow-playful transition-all duration-300 hover:scale-105 border-2 border-dashed border-border/50 hover:border-primary/30"
+              className="p-6 text-center transition-colors duration-300 border border-border hover:border-primary/50"
             >
-              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-fun flex items-center justify-center text-white">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-accent flex items-center justify-center text-accent-foreground">
                 <feature.icon className="h-7 w-7" />
               </div>
               <h4 className="font-bold text-lg mb-2">{feature.title}</h4>
@@ -108,7 +112,7 @@ export default function Landing() {
       <div className="container py-20 border-t">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-3xl font-bold mb-8">
-            Your week, <span className="bg-gradient-fun bg-clip-text text-transparent">planned</span> 📅
+            Your week, <span className="text-primary">planned</span> 📅
           </h3>
           
           <Card className="p-6 border-2 border-dashed border-primary/20 bg-muted/30">
@@ -119,7 +123,7 @@ export default function Landing() {
                   <div 
                     className={`h-20 rounded-xl flex items-center justify-center text-2xl ${
                       i < 5 
-                        ? 'bg-gradient-fun text-white' 
+                        ? 'bg-foreground text-background'
                         : 'border-2 border-dashed border-border/50'
                     }`}
                   >
@@ -136,7 +140,7 @@ export default function Landing() {
           <Button 
             size="lg" 
             onClick={signInWithGoogle}
-            className="mt-8 bg-gradient-fun text-white rounded-2xl shadow-playful hover:shadow-glow transition-all"
+            className="mt-8 bg-primary text-primary-foreground rounded-full transition-colors"
           >
             Get Started Free
           </Button>

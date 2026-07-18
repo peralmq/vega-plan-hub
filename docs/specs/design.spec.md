@@ -7,11 +7,19 @@ visual identity; implementation tokens and code rules live in
 
 ## Voice and feel
 
-Playful, warm, food-forward. Vibrant gradients, rounded corners, bouncy
-hover animations, and **emojis in all user-facing copy** (🥗👨‍🍳⏰✨ —
-palette in conventions.spec.md). Serious utility underneath: the fun
-never gets in the way of planning or shopping. Copy is in English;
-prices and units are Swedish (SEK, metric).
+**"Kreuzberg minimal"** (adopted 2026-07-18 by human pick from three
+mockups, replacing the gradient-heavy look): simple, quirky, clean —
+Berlin vegan. Warm off-white + ink + **one green**; flat 1px borders
+carry the structure; **no gradients, no decorative shadows**. Emojis are
+the only iconography in content (🥗👨‍🍳⏰ — lucide icons remain only as
+functional UI glyphs in headers/controls). Compassion is part of the
+voice: animal-love and respect accents in copy ("🐮💚 zero animals
+harmed"; the footer motto "cooked with compassion · for the animals,
+the planet & each other 🐾🌍💚" on every main screen). Serious utility
+underneath: the quirk never gets in the way of planning or shopping.
+Copy is in English; prices and units are Swedish (SEK, metric).
+**Dark and light mode are both first-class** — every screen must work
+in each, toggled via the ☀️/🌙 pill present in every header.
 
 ## Information architecture
 
@@ -55,10 +63,24 @@ flowchart LR
 
 ## Visual identity
 
-Semantic tokens only (definitions in `src/index.css`, rules in
-conventions.spec.md): purple `primary`, food-named accent colors
-(`forest`, `citrus`, `carrot`, `berry`, `avocado`), gradient utilities
-(`bg-gradient-primary/-fresh/-warm/-fun`), playful shadows
-(`shadow-fresh/-glow/-playful`). Recipe imagery is full-bleed photos
+Semantic tokens only (definitions in `src/index.css` `:root` + `.dark`,
+rules in conventions.spec.md). The palette:
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| background | `#FAF7F0` warm off-white | `#171714` warm near-black |
+| foreground | `#1A1A17` ink | `#F1EEE6` bone |
+| card | `#FFFEF9` | `#1D1D19` |
+| border/input | `#E4DFD2` | `#2C2C27` |
+| muted-foreground | `#6B675C` | `#9B978A` |
+| primary (the one green) | `#3D7A4E` | `#7CB08A` |
+
+Rules: no gradients, ever; no glow/bounce shadows — flat surfaces with
+1px borders; primary CTAs are green pills (`rounded-full`), secondary
+emphasis is the inverted ink pill (`bg-foreground text-background`);
+hover states are color shifts or ≤2% scale, never bounces. Functional
+photo scrims (`bg-gradient-to-*` over images for text legibility) are
+the only permitted gradient use. Recipe imagery is full-bleed photos
 from the source sites. Accessibility floor: shadcn defaults, semantic
-HTML, labeled icon buttons, visible focus, sufficient contrast.
+HTML, labeled icon buttons, visible focus, sufficient contrast — in
+both modes.

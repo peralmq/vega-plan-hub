@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { FamilyMembersManager } from "@/components/account/FamilyMembersManager";
 import { ChefHat, LogOut, ArrowLeft, User } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { CompassionFooter } from "@/components/CompassionFooter";
 
 export default function Account() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ export default function Account() {
                 <ChefHat className="h-4 w-4 mr-2" />
                 Cook
               </Button>
+              <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -75,6 +78,7 @@ export default function Account() {
           </Button>
         </div>
       </div>
+      <CompassionFooter />
     </div>
   );
 }

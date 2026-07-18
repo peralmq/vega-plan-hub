@@ -25,6 +25,8 @@ import { useMealPlanDB } from "@/hooks/useMealPlanDB";
 import { ParsedRecipe, loadAllRecipes } from "@/services/recipeLoader";
 import { toast } from "@/hooks/use-toast";
 import { addWeeks, startOfWeek, format } from "date-fns";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { CompassionFooter } from "@/components/CompassionFooter";
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -275,6 +277,7 @@ export default function PlanMode() {
                 <ChefHat className="h-4 w-4 mr-2" />
                 Cook
               </Button>
+              <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -302,7 +305,7 @@ export default function PlanMode() {
         {/* Stats */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-4">
-            <Badge variant="secondary" className="bg-gradient-warm text-foreground">
+            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
               {totalMeals}/{planableDays} dinners planned
             </Badge>
             <Badge variant="outline">
@@ -347,7 +350,7 @@ export default function PlanMode() {
                   </div>
                 ) : meal ? (
                   <div className="relative group">
-                    <div className="bg-gradient-fun text-white rounded-xl overflow-hidden">
+                    <div className="bg-foreground text-background rounded-xl overflow-hidden">
                       <img 
                         src={meal.recipe.image} 
                         alt={meal.recipe.title}
@@ -417,7 +420,7 @@ export default function PlanMode() {
 
         {/* Aggregated Info */}
         {totalMeals > 0 && (
-          <Card className="p-6 mb-8 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+          <Card className="p-6 mb-8 bg-muted border-border">
             <h3 className="font-bold mb-4">Week Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
@@ -450,7 +453,7 @@ export default function PlanMode() {
             size="lg" 
             onClick={handleSave}
             disabled={saving || totalMeals === 0}
-            className="bg-gradient-fun text-white rounded-xl shadow-playful hover:shadow-glow transition-all px-8"
+            className="bg-primary text-primary-foreground rounded-full transition-colors px-8"
           >
             {saving ? (
               <>Saving...</>
@@ -479,7 +482,7 @@ export default function PlanMode() {
               .map(recipe => (
                 <Card 
                   key={recipe.id}
-                  className="p-3 cursor-pointer hover:shadow-playful transition-all hover:scale-[1.02] border-2 border-dashed hover:border-primary/50"
+                  className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
                   onClick={() => handleSelectRecipe(recipe)}
                 >
                   <img 
@@ -514,6 +517,7 @@ export default function PlanMode() {
           )}
         </DialogContent>
       </Dialog>
+      <CompassionFooter />
     </div>
   );
 }

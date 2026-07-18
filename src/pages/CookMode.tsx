@@ -28,6 +28,8 @@ import { RecipeRatings } from "@/components/recipe/RecipeRatings";
 import { RecipeComments } from "@/components/recipe/RecipeComments";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { CompassionFooter } from "@/components/CompassionFooter";
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -175,7 +177,7 @@ export default function CookMode() {
                 <Button 
                   size="lg"
                   onClick={() => navigate('/plan', { state: { planCurrentWeek: true } })}
-                  className="bg-gradient-fun text-white rounded-xl"
+                  className="bg-primary text-primary-foreground rounded-full"
                 >
                   <CalendarPlus className="h-5 w-5 mr-2" />
                   Plan This Week
@@ -201,9 +203,9 @@ export default function CookMode() {
   const instructions = selectedRecipe?.instructions || [];
 
   const difficultyColors: Record<string, string> = {
-    Easy: "bg-gradient-fresh text-primary-foreground",
-    Medium: "bg-gradient-warm text-primary-foreground", 
-    Hard: "bg-gradient-fun text-primary-foreground"
+    Easy: "bg-accent text-accent-foreground",
+    Medium: "bg-secondary text-secondary-foreground",
+    Hard: "bg-foreground text-background"
   };
 
   return (
@@ -255,7 +257,7 @@ export default function CookMode() {
                     disabled={!hasMeal}
                     className={`min-w-[80px] ${
                       isSelected 
-                        ? 'bg-gradient-fun text-white border-0' 
+                        ? 'bg-foreground text-background border-foreground'
                         : isToday 
                           ? 'border-primary border-2' 
                           : ''
@@ -313,6 +315,9 @@ export default function CookMode() {
                     <Badge className="bg-black/20 text-white border-0 rounded-lg px-3 py-1">
                       <Users className="w-3 h-3 mr-1" />
                       {currentServings} servings
+                    </Badge>
+                    <Badge className="bg-black/20 text-white border-0 rounded-lg px-3 py-1">
+                      🐮💚 zero animals harmed
                     </Badge>
                   </div>
                 </div>
@@ -422,7 +427,7 @@ export default function CookMode() {
                     ))}
                     
                     {completedSteps.length === instructions.length && instructions.length > 0 && (
-                      <Card className="p-6 bg-gradient-fun text-white text-center">
+                      <Card className="p-6 bg-primary text-primary-foreground text-center">
                         <h3 className="text-xl font-bold mb-2">🎉 Bon Appétit!</h3>
                         <p>Your {selectedRecipe.title} is ready to enjoy!</p>
                       </Card>
@@ -473,7 +478,7 @@ export default function CookMode() {
               .map(recipe => (
                 <Card 
                   key={recipe.id}
-                  className="p-3 cursor-pointer hover:shadow-playful transition-all hover:scale-[1.02] border-2 border-dashed hover:border-primary/50"
+                  className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
                   onClick={() => handleChangeMeal(recipe)}
                 >
                   <img 
@@ -501,13 +506,14 @@ export default function CookMode() {
         <div className="fixed bottom-4 right-4">
           <Button
             onClick={() => navigate('/plan')}
-            className="bg-gradient-fun text-white rounded-xl shadow-playful"
+            className="bg-primary text-primary-foreground rounded-full"
           >
             <CalendarPlus className="h-4 w-4 mr-2" />
             Plan Next Week
           </Button>
         </div>
       )}
+      <CompassionFooter />
     </div>
   );
 }
@@ -539,6 +545,7 @@ function Header({ user, onSignOut }: { user: SupabaseUser; onSignOut: () => void
                 <User className="h-4 w-4" />
               )}
             </Button>
+            <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={onSignOut}>
               <LogOut className="h-4 w-4" />
             </Button>

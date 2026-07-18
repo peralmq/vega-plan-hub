@@ -18,6 +18,8 @@ import { ParsedRecipe, ParsedIngredient } from "@/services/recipeLoader";
 import { aggregateIngredients, formatAggregatedIngredient, AggregatedIngredient } from "@/lib/ingredientNormalization";
 import { scaleIngredients } from "@/lib/ingredientScaling";
 import { toast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { CompassionFooter } from "@/components/CompassionFooter";
 import { useState } from "react";
 import { format } from "date-fns";
 
@@ -117,7 +119,7 @@ export default function ShoppingSummary() {
             <p className="text-muted-foreground mb-6">
               Plan your meals first to generate a shopping list.
             </p>
-            <Button onClick={() => navigate('/plan')} className="bg-gradient-fun text-white">
+            <Button onClick={() => navigate('/plan')} className="bg-primary text-primary-foreground rounded-full">
               Plan Next Week
             </Button>
           </Card>
@@ -134,7 +136,7 @@ export default function ShoppingSummary() {
 
       <div className="container py-6 print:py-2">
         {/* Success Message */}
-        <Card className="p-6 mb-6 bg-gradient-fun text-white text-center print:hidden">
+        <Card className="p-6 mb-6 bg-primary text-primary-foreground text-center print:hidden">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Check className="h-6 w-6" />
             <h2 className="text-xl font-bold">Meal Plan Saved!</h2>
@@ -244,7 +246,7 @@ export default function ShoppingSummary() {
           </Button>
           <Button 
             onClick={() => navigate('/')} 
-            className="bg-gradient-fun text-white"
+            className="bg-primary text-primary-foreground rounded-full"
           >
             <ChefHat className="h-4 w-4 mr-2" />
             Start Cooking
@@ -261,6 +263,7 @@ export default function ShoppingSummary() {
           .print\\:mb-4 { margin-bottom: 1rem; }
         }
       `}</style>
+      <CompassionFooter />
     </div>
   );
 }
@@ -285,6 +288,7 @@ function Header() {
               <Calendar className="h-4 w-4 mr-2" />
               Plan
             </Button>
+            <ThemeToggle />
           </div>
         </div>
       </div>

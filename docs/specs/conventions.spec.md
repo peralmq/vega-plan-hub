@@ -42,17 +42,27 @@ preserves that spirit.
 
 ## Design system
 
-Use semantic tokens from `src/index.css` / `tailwind.config.ts` — never
-arbitrary values like `bg-[#hex]`.
+"Kreuzberg minimal" (design.spec.md). Use semantic tokens from
+`src/index.css` (`:root` + `.dark` blocks) — never arbitrary values
+like `bg-[#hex]`.
 
-- **Colors**: `primary` (purple), `secondary` (soft yellow), `accent`
-  (orange), `destructive`, plus `forest`, `citrus`, `carrot`, `berry`,
-  `avocado`.
-- **Gradients**: `bg-gradient-primary`, `bg-gradient-fresh`,
-  `bg-gradient-warm`, `bg-gradient-fun`.
-- **Shadows**: `shadow-fresh`, `shadow-glow`, `shadow-playful`.
-- Hover states animate: `hover:scale-105`, `hover:-translate-y-2`,
-  `transition-all`.
+- **Colors**: `background`/`foreground` (warm off-white/ink),
+  `primary` (the one green), `secondary`/`muted`/`accent` (tints of
+  bg/ink — no new hues), `destructive` (calm red). Every color must
+  work in both modes; the `.dark` block is the counterpart of every
+  `:root` token.
+- **No gradients, no decorative shadows** — the old
+  `bg-gradient-*`/`shadow-fresh/glow/playful` utilities are gone;
+  structure comes from `border border-border` and surface tokens.
+  Photo scrims (`bg-gradient-to-*` over an image) are the only
+  exception.
+- **Buttons**: primary CTA = `bg-primary text-primary-foreground
+  rounded-full`; inverted emphasis = `bg-foreground text-background`.
+- Hover states are subtle: color shifts (`hover:bg-muted`,
+  `hover:border-primary`) or at most `hover:scale-[1.02]` — no bounces.
+- **Dark/light**: `next-themes` ThemeProvider (`attribute="class"`) in
+  `App.tsx`; the `ThemeToggle` (☀️/🌙 pill) belongs in every page
+  header.
 
 **Emojis are required in user-facing text.** House palette by category:
 food 🥗🥕🥑🍅🥦, cooking 👨‍🍳🍳🥘🍽️, time ⏰⏱️, quality ✨⭐, actions
