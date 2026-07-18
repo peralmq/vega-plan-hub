@@ -39,6 +39,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    // Lovable's OAuth broker (/~oauth/*) only exists on Lovable hosting.
+    // The GitHub Pages build is the only one with a non-"/" Vite base, so
+    // that build signs in directly against Supabase, with a redirect that
+    // includes the /vega-plan-hub/ path (the bare origin 404s on Pages).
+    if (import.meta.env.BASE_URL !== '/') {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + import.meta.env.BASE_URL,
+        },
+      });
+      if (error) throw error;
+      return;
+    }
     const result = await lovable.auth.signInWithOAuth('google', {
       redirect_uri: window.location.origin,
     });
