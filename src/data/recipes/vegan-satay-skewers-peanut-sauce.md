@@ -30,7 +30,7 @@ tags: ["Asian", "BBQ", "Family", "Vegan", "Dinner"]
 | 1        | tbsp | brown-sugar     | brown sugar                         |                                   |
 | 1        | tbsp | ginger          | fresh ginger, minced                |                                   |
 | 4        | dl   | jasmine-rice    | jasmine rice                        |                                   |
-|          |      | sriracha        | sriracha or sambal oelek            | optional, served on the side      |
+| 1        | tbsp | sriracha        | sriracha or sambal oelek            | optional — in the sauce or on the side |
 |          |      | peanuts         | roasted salted peanuts, chopped     | optional garnish                  |
 |          |      | cilantro        | fresh cilantro                      | optional garnish                  |
 | 12       |      | skewers         | bamboo skewers                      | soaked 30 min in water            |
@@ -39,7 +39,7 @@ tags: ["Asian", "BBQ", "Family", "Vegan", "Dinner"]
 
 1. Whisk the marinade in a large bowl or zip bag: coconut milk, oil, curry powder, sugar, 2 tbsp soy sauce, 3 minced garlic cloves, and the zest of 1 lime. Add the tofu cubes and all the vegetables except the cherry tomatoes; marinate at least 30 minutes (overnight is even better), turning occasionally.
 2. Meanwhile, soak the bamboo skewers in water and cook the jasmine rice according to the package.
-3. Make the peanut sauce: whisk the peanut butter with the warm water, 1 tbsp soy sauce, brown sugar, ginger, 1 minced garlic clove, and the juice of 1 lime until smooth and pourable. Taste — it should be mild, sweet and nutty; the sriracha stays on the table so everyone picks their own heat. 🥜
+3. Make the peanut sauce: whisk the peanut butter with the warm water, 1 tbsp soy sauce, brown sugar, ginger, 1 minced garlic clove, and the juice of 1 lime until smooth and pourable. Optionally whisk in the sriracha — or leave the sauce mild and put the bottle on the table so everyone picks their own heat. 🥜
 4. Thread the marinated tofu and vegetables onto the skewers, alternating colors and adding the cherry tomatoes as you go — kids love building their own.
 5. Heat a lightly oiled grill pan (or the outdoor grill) over medium-high. Grill the skewers a few minutes per side, turning, until charred at the edges and cooked through, brushing with leftover marinade as they cook.
 6. Serve the skewers over jasmine rice with the peanut sauce for dipping or drizzling, lime wedges, and the optional peanuts, cilantro, and sriracha on the side. 🍢✨
@@ -47,6 +47,6 @@ tags: ["Asian", "BBQ", "Family", "Vegan", "Dinner"]
 ## Notes
 
 - Merged from two recipes: the mixed-vegetable satay from cilantroandcitronella.com (marinade + veggie mix) and the soy-curl satay from itdoesnttastelikechicken.com (peanut-sauce ratios, protein technique). Soy curls are hard to find in Sweden, so tofu or vegan chicken bits stand in.
-- Kid-friendly by design: mild curry powder, no chili in the marinade or sauce — all heat is opt-in at the table.
+- Kid-friendly by design: mild curry powder and the chili is optional — whisk it into the sauce for a grown-up batch, or keep the sauce mild and let everyone add heat at the table.
 - Batch tip: marinated skewers keep refrigerated up to 3 days before grilling, and the peanut sauce keeps a week — make a double batch of both.
 - No skewers? Pan-fry the drained tofu and veg until charred and serve straight over the rice.
