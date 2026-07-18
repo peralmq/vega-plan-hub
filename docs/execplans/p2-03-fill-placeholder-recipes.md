@@ -1,6 +1,6 @@
 ---
 id: p2-03-fill-placeholder-recipes
-title: Fill in the five placeholder recipes with complete content
+title: Fill in the six placeholder recipes with complete content
 phase: P2
 status: todo
 depends_on: []
@@ -22,6 +22,8 @@ Replace the placeholder skeletons with complete, cookable recipes:
   https://wondervegan.se/sv/vegansk-graddsas-brunsas/ and the
   pressgurka from the PRESSGURKA section of
   https://javligtgott.se/recept/kottbullar-med-graddsas-och-hasselbackspotatis/
+- `peanut-noodles-tofu.md` — jordnötsnudlar: noodles in creamy peanut
+  sauce with crispy tofu or vegan chicken
 
 Each ends up indistinguishable in quality from the imported recipes:
 full ingredient table with real quantities, numbered instructions a
@@ -30,7 +32,7 @@ with batch/leftover guidance where relevant.
 
 ## Non-goals
 
-- No new recipes beyond these five; no edits to other recipe files.
+- No new recipes beyond these six; no edits to other recipe files.
 - No format or vocabulary changes — the recipe contract
   ([recipe-format.spec.md](../specs/recipe-format.spec.md)) and the
   controlled tag list are fixed; if a draft genuinely needs a new tag,
@@ -75,6 +77,8 @@ or approving as-is) and that feedback is recorded in Evidence.
 - [ ] vegan-meatballs-brown-sauce drafted (meatballs + boiled potatoes;
       brunsås imported from the wondervegan source; pressgurka imported
       from the javligtgott source; lingonberry jam as accompaniment)
+- [ ] peanut-noodles-tofu drafted (peanut sauce ratios, crispy tofu or
+      vegan chicken option, kid-mild with optional heat)
 - [ ] mechanical checks green; drafts handed to the human
 - [ ] human review recorded per recipe; status flipped to done
 
@@ -93,12 +97,12 @@ or approving as-is) and that feedback is recorded in Evidence.
 
 ## Verification
 
-- `./harness check` green (includes validate-recipe over all 23).
+- `./harness check` green (includes validate-recipe over all 24).
 - No `PLACEHOLDER` string remains in `src/data/recipes/`
   (`grep -r PLACEHOLDER src/data/recipes/` is empty).
 - Each recipe is cookable as written: complete quantities, no
   dangling references, instructions sequential and self-contained.
-- **Human review of all five drafts recorded in Evidence** — required
+- **Human review of all six drafts recorded in Evidence** — required
   before `done`; the mechanical checks alone cannot complete this plan.
 
 ## Evidence
