@@ -2,7 +2,7 @@
 id: p3-01-kreuzberg-redesign
 title: Kreuzberg minimal redesign + dark/light mode
 phase: P3
-status: in-progress
+status: done
 depends_on: [p2-02-mock-auth-mode]
 ---
 
@@ -48,7 +48,7 @@ dark): bg `#FAF7F0`/`#171714`, ink `#1A1A17`/`#F1EEE6`, card
 - [x] 2026-07-18 design.spec.md + conventions.spec.md updated
 - [x] 2026-07-18 gate + e2e green; screenshots (Cook dark+light, Plan
       light, Summary light+dark) shown to the human in-session
-- [ ] human sign-off recorded; status → done
+- [x] 2026-07-18 human sign-off recorded ("Lgtm"); status → done
 
 ## Steps
 
@@ -107,3 +107,9 @@ presented to the human in-session. The e2e suite passed unmodified
 Functional-scrim exception exercised: the two `bg-gradient-to-*`
 photo overlays (Landing hero fade, CookMode image scrim) were kept
 per design.spec.md's scrim rule.
+
+### Human sign-off (closes the plan)
+
+2026-07-18: The human reviewed the live screenshots (Cook Mode dark +
+light, Plan Mode light, Shopping Summary light + dark, rendered via
+mock-auth mode) in-session. Verdict: "Lgtm". Status flipped to done.
