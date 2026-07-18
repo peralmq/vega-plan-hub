@@ -1,6 +1,6 @@
 ---
 id: p2-03-fill-placeholder-recipes
-title: Fill in the four placeholder recipes with complete content
+title: Fill in the five placeholder recipes with complete content
 phase: P2
 status: todo
 depends_on: []
@@ -15,6 +15,13 @@ Replace the placeholder skeletons with complete, cookable recipes:
 - `vegan-sushi-rolls.md` — assorted roll variations
 - `vegan-meatballs-creamed-macaroni.md` — meatballs, stuvade makaroner,
   citrus-dressed spinach
+- `vegan-meatballs-brown-sauce.md` — meatballs, boiled potatoes,
+  brunsås, lingonberry jam, pressgurka. Unlike the other four, two
+  components have sources to import (translate to English, convert to
+  the table format): the brunsås from
+  https://wondervegan.se/sv/vegansk-graddsas-brunsas/ and the
+  pressgurka from the PRESSGURKA section of
+  https://javligtgott.se/recept/kottbullar-med-graddsas-och-hasselbackspotatis/
 
 Each ends up indistinguishable in quality from the imported recipes:
 full ingredient table with real quantities, numbered instructions a
@@ -23,7 +30,7 @@ with batch/leftover guidance where relevant.
 
 ## Non-goals
 
-- No new recipes beyond these four; no edits to other recipe files.
+- No new recipes beyond these five; no edits to other recipe files.
 - No format or vocabulary changes — the recipe contract
   ([recipe-format.spec.md](../specs/recipe-format.spec.md)) and the
   controlled tag list are fixed; if a draft genuinely needs a new tag,
@@ -33,12 +40,15 @@ with batch/leftover guidance where relevant.
 
 ## Context
 
-The four files were committed 2026-07-18 (commit `7df4ef0`) as
-spec-valid skeletons: 3–4 core ingredient rows and a single
+The first four files were committed 2026-07-18 (commit `7df4ef0`), the
+fifth (`vegan-meatballs-brown-sauce.md`) later the same day — all
+spec-valid skeletons: a few core ingredient rows and a single
 `PLACEHOLDER` instruction each, so they render in the app but cannot be
-cooked from. They are family dishes without source URLs (the `url`
-frontmatter field is intentionally absent), so content comes from
-drafting a canonical version of each dish — Swedish-household style
+cooked from. They are family dishes without a single source URL (the
+`url` frontmatter field is intentionally absent; the fifth has two
+*component* sources listed in its Notes and in the Goal above), so
+content comes from drafting a canonical version of each dish —
+Swedish-household style
 (metric units, SEK-market ingredients, kid-friendly heat levels per
 [product.spec.md](../specs/product.spec.md)) — rather than importing.
 English throughout, per the 2026-07-18 language decision;
@@ -62,6 +72,9 @@ or approving as-is) and that feedback is recorded in Evidence.
 - [ ] vegan-meatballs-creamed-macaroni drafted (meatball choice or
       from-scratch, stuvade makaroner bechamel-in-pot method, citrus
       spinach)
+- [ ] vegan-meatballs-brown-sauce drafted (meatballs + boiled potatoes;
+      brunsås imported from the wondervegan source; pressgurka imported
+      from the javligtgott source; lingonberry jam as accompaniment)
 - [ ] mechanical checks green; drafts handed to the human
 - [ ] human review recorded per recipe; status flipped to done
 
@@ -80,12 +93,12 @@ or approving as-is) and that feedback is recorded in Evidence.
 
 ## Verification
 
-- `./harness check` green (includes validate-recipe over all 22).
+- `./harness check` green (includes validate-recipe over all 23).
 - No `PLACEHOLDER` string remains in `src/data/recipes/`
   (`grep -r PLACEHOLDER src/data/recipes/` is empty).
 - Each recipe is cookable as written: complete quantities, no
   dangling references, instructions sequential and self-contained.
-- **Human review of all four drafts recorded in Evidence** — required
+- **Human review of all five drafts recorded in Evidence** — required
   before `done`; the mechanical checks alone cannot complete this plan.
 
 ## Evidence
