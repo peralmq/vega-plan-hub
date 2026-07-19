@@ -78,7 +78,7 @@ a tag means adding it in both places in the same change set):
 
 > Asian · Basque · Batch · BBQ · Budget · Casserole · Chickpea ·
 > Chinese · Climate Smart · Comfort Food · Dal · Dinner · Family ·
-> Fresh · Garlic · Greek · Hash · Indian · Italian · Japanese ·
+> French · Fresh · Garlic · Greek · Hash · Indian · Italian · Japanese ·
 > Lebanese · Lentil · Lunch · Luxury · Meal Prep · Mexican ·
 > Middle Eastern · Mixed Lentils · Noodles · One-Pot · Paneer · Party ·
 > Pasta · Quick · Red Lentil · Saffron · Sichuan · Soup · Spicy ·

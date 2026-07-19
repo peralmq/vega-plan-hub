@@ -1,6 +1,6 @@
 ---
 id: p2-03-fill-placeholder-recipes
-title: Fill in the six placeholder recipes with complete content
+title: Fill in the nine placeholder recipes with complete content
 phase: P2
 status: todo
 depends_on: []
@@ -24,6 +24,12 @@ Replace the placeholder skeletons with complete, cookable recipes:
   https://javligtgott.se/recept/kottbullar-med-graddsas-och-hasselbackspotatis/
 - `peanut-noodles-tofu.md` — jordnötsnudlar: noodles in creamy peanut
   sauce with crispy tofu or vegan chicken
+- `vegan-dillkott-potatoes.md` — dillkött med potatis: chunks in
+  tangy-sweet dill sauce, boiled potatoes
+- `oumph-bourguignon.md` — red-wine stew with oumph, mushrooms, pearl
+  onions
+- `vegan-kalpudding.md` — kålpudding: caramelized cabbage + vegan
+  mince bake, lingon to serve
 
 Each ends up indistinguishable in quality from the imported recipes:
 full ingredient table with real quantities, numbered instructions a
@@ -32,7 +38,7 @@ with batch/leftover guidance where relevant.
 
 ## Non-goals
 
-- No new recipes beyond these six; no edits to other recipe files.
+- No new recipes beyond these nine; no edits to other recipe files.
 - No format or vocabulary changes — the recipe contract
   ([recipe-format.spec.md](../specs/recipe-format.spec.md)) and the
   controlled tag list are fixed; if a draft genuinely needs a new tag,
@@ -79,6 +85,12 @@ or approving as-is) and that feedback is recorded in Evidence.
       from the javligtgott source; lingonberry jam as accompaniment)
 - [ ] peanut-noodles-tofu drafted (peanut sauce ratios, crispy tofu or
       vegan chicken option, kid-mild with optional heat)
+- [ ] vegan-dillkott-potatoes drafted (dill sauce: oat cream +
+      vinegar/sugar balance; soy chunks or oumph)
+- [ ] oumph-bourguignon drafted (wine reduction, mushroom/pearl-onion
+      technique, batch/freezer notes)
+- [ ] vegan-kalpudding drafted (caramelized cabbage with syrup, mince
+      layer, bake times, lingon + gravy to serve)
 - [ ] mechanical checks green; drafts handed to the human
 - [ ] human review recorded per recipe; status flipped to done
 
@@ -97,12 +109,13 @@ or approving as-is) and that feedback is recorded in Evidence.
 
 ## Verification
 
-- `./harness check` green (includes validate-recipe over all 24).
+- `./harness check` green (includes validate-recipe over the full
+  corpus).
 - No `PLACEHOLDER` string remains in `src/data/recipes/`
   (`grep -r PLACEHOLDER src/data/recipes/` is empty).
 - Each recipe is cookable as written: complete quantities, no
   dangling references, instructions sequential and self-contained.
-- **Human review of all six drafts recorded in Evidence** — required
+- **Human review of all nine drafts recorded in Evidence** — required
   before `done`; the mechanical checks alone cannot complete this plan.
 
 ## Evidence
