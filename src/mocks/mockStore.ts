@@ -16,15 +16,10 @@
 
 export const MOCK_USER_ID = "00000000-0000-4000-8000-0000000000f1";
 
-export interface MealPlanRow {
+export interface PlannedMealRow {
   id: string;
   user_id: string;
-  week_start: string;
-}
-export interface DailyMealRow {
-  id: string;
-  meal_plan_id: string;
-  day_of_week: number;
+  meal_date: string; // yyyy-MM-dd
   recipe_id: string;
   servings_multiplier: number;
 }
@@ -57,12 +52,12 @@ export type Row = Record<string, unknown>;
 
 export interface QueryFilter {
   col: string;
-  op: "eq" | "in";
+  op: "eq" | "in" | "gte" | "lte" | "is";
   val: unknown;
 }
 
 export interface QueryOpts {
-  type: "select" | "insert" | "update" | "delete";
+  type: "select" | "insert" | "update" | "delete" | "upsert";
   selectCols: string;
   payload?: Row | Row[];
   filters: QueryFilter[];
@@ -94,8 +89,7 @@ function mondayOf(base: Date): Date {
 }
 
 export class MockStore {
-  private mealPlans: MealPlanRow[] = [];
-  private dailyMeals: DailyMealRow[] = [];
+  private plannedMeals: PlannedMealRow[] = [];
   private familyMembers: FamilyMemberRow[] = [];
   private ratings: RatingRow[] = [];
   private comments: CommentRow[] = [];
@@ -120,13 +114,15 @@ export class MockStore {
   // --- seeding -------------------------------------------------------------
 
   seedWeek(weekStart: string, meals: SeedMeal[]): void {
-    const id = this.nid("plan");
-    this.mealPlans.push({ id, user_id: MOCK_USER_ID, week_start: weekStart });
+    // weekStart is a Monday (yyyy-MM-dd); dayOfWeek 0..6 offsets from it —
+    // parsed as local time (T00:00:00) to match the app's local-date logic.
     for (const m of meals) {
-      this.dailyMeals.push({
-        id: this.nid("dm"),
-        meal_plan_id: id,
-        day_of_week: m.dayOfWeek,
+      const d = new Date(`${weekStart}T00:00:00`);
+      d.setDate(d.getDate() + m.dayOfWeek);
+      this.plannedMeals.push({
+        id: this.nid("pm"),
+        user_id: MOCK_USER_ID,
+        meal_date: fmt(d),
         recipe_id: m.recipeId,
         servings_multiplier: m.servingsMultiplier ?? 1,
       });
@@ -169,10 +165,8 @@ export class MockStore {
 
   execute(table: string, opts: QueryOpts): QueryResult {
     switch (table) {
-      case "meal_plans":
-        return this.execMealPlans(opts);
-      case "daily_meals":
-        return this.execDailyMeals(opts);
+      case "planned_meals":
+        return this.execPlannedMeals(opts);
       case "family_members":
         return this.execFamilyMembers(opts);
       case "recipe_ratings":
@@ -193,60 +187,56 @@ export class MockStore {
     return p ?? {};
   }
 
-  private execMealPlans(opts: QueryOpts): QueryResult {
-    if (opts.type === "select") {
-      if (opts.selectCols.includes("daily_meals")) {
-        const weeks = (this.filterVal(opts, "week_start") as string[] | undefined) ?? [];
-        const rows = this.mealPlans
-          .filter((p) => weeks.length === 0 || weeks.includes(p.week_start))
-          .map((p) => ({
-            id: p.id,
-            week_start: p.week_start,
-            daily_meals: this.dailyMeals
-              .filter((d) => d.meal_plan_id === p.id)
-              .map((d) => ({
-                id: d.id,
-                day_of_week: d.day_of_week,
-                recipe_id: d.recipe_id,
-                servings_multiplier: d.servings_multiplier,
-              })),
-          }));
-        return { data: rows, error: null };
+  private matchesFilters(row: Row, filters: QueryFilter[]): boolean {
+    return filters.every((f) => {
+      const v = row[f.col];
+      switch (f.op) {
+        case "eq":
+          return v === f.val;
+        case "in":
+          return Array.isArray(f.val) && (f.val as unknown[]).includes(v);
+        case "gte":
+          return String(v) >= String(f.val);
+        case "lte":
+          return String(v) <= String(f.val);
+        case "is":
+          return v === f.val;
       }
-      // Existence check (.maybeSingle): select('id').eq('user_id',...).eq('week_start',...)
-      const ws = this.filterVal(opts, "week_start") as string | undefined;
-      const plan = this.mealPlans.find((p) => !ws || p.week_start === ws) ?? null;
-      if (opts.single === "maybeSingle") {
-        return { data: plan ? { id: plan.id } : null, error: null };
-      }
-      return { data: plan ? [{ id: plan.id }] : [], error: null };
-    }
-    if (opts.type === "insert") {
-      const b = this.payloadObj(opts);
-      const row: MealPlanRow = {
-        id: this.nid("plan"),
-        user_id: (b.user_id as string) ?? MOCK_USER_ID,
-        week_start: (b.week_start as string) ?? this.nextMonday(),
-      };
-      this.mealPlans.push(row);
-      return { data: opts.single === "single" ? { id: row.id } : [{ id: row.id }], error: null };
-    }
-    return { data: null, error: null };
+    });
   }
 
-  private execDailyMeals(opts: QueryOpts): QueryResult {
+  private execPlannedMeals(opts: QueryOpts): QueryResult {
+    if (opts.type === "select") {
+      const rows = this.plannedMeals
+        .filter((r) => this.matchesFilters(r as unknown as Row, opts.filters))
+        .map((r) => ({
+          id: r.id,
+          meal_date: r.meal_date,
+          recipe_id: r.recipe_id,
+          servings_multiplier: r.servings_multiplier,
+        }))
+        .sort((a, b) => a.meal_date.localeCompare(b.meal_date));
+      return { data: rows, error: null };
+    }
     if (opts.type === "delete") {
-      const mp = this.filterVal(opts, "meal_plan_id") as string | undefined;
-      this.dailyMeals = this.dailyMeals.filter((d) => d.meal_plan_id !== mp);
+      this.plannedMeals = this.plannedMeals.filter(
+        (r) => !this.matchesFilters(r as unknown as Row, opts.filters),
+      );
       return { data: null, error: null };
     }
-    if (opts.type === "insert") {
+    if (opts.type === "insert" || opts.type === "upsert") {
       const rows = (Array.isArray(opts.payload) ? opts.payload : [opts.payload ?? {}]) as Row[];
       for (const r of rows) {
-        this.dailyMeals.push({
-          id: this.nid("dm"),
-          meal_plan_id: (r.meal_plan_id as string) ?? "",
-          day_of_week: (r.day_of_week as number) ?? 0,
+        const userId = (r.user_id as string) ?? MOCK_USER_ID;
+        const mealDate = (r.meal_date as string) ?? "";
+        // Upsert semantics on the (user_id, meal_date) unique key.
+        this.plannedMeals = this.plannedMeals.filter(
+          (existing) => !(existing.user_id === userId && existing.meal_date === mealDate),
+        );
+        this.plannedMeals.push({
+          id: this.nid("pm"),
+          user_id: userId,
+          meal_date: mealDate,
           recipe_id: (r.recipe_id as string) ?? "",
           servings_multiplier: (r.servings_multiplier as number) ?? 1,
         });
@@ -405,12 +395,29 @@ export class MockQueryBuilder<T = unknown> implements PromiseLike<{ data: T; err
     this._type = "delete";
     return this;
   }
+  upsert(payload: Row | Row[], _opts?: { onConflict?: string }): this {
+    this._type = "upsert";
+    this._payload = payload;
+    return this;
+  }
   eq(col: string, val: unknown): this {
     this._filters.push({ col, op: "eq", val });
     return this;
   }
   in(col: string, val: unknown[]): this {
     this._filters.push({ col, op: "in", val });
+    return this;
+  }
+  gte(col: string, val: unknown): this {
+    this._filters.push({ col, op: "gte", val });
+    return this;
+  }
+  lte(col: string, val: unknown): this {
+    this._filters.push({ col, op: "lte", val });
+    return this;
+  }
+  is(col: string, val: unknown): this {
+    this._filters.push({ col, op: "is", val });
     return this;
   }
   order(col: string, opts: { ascending: boolean }): this {

@@ -14,8 +14,10 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { useMealPlanDB } from "@/hooks/useMealPlanDB";
+import { useProductPreferences } from "@/hooks/useProductPreferences";
 import { ParsedRecipe, ParsedIngredient } from "@/services/recipeLoader";
 import { aggregateIngredients, formatAggregatedIngredient, AggregatedIngredient } from "@/lib/ingredientNormalization";
+import { applyPreferredNames } from "@/lib/productPreferences";
 import { scaleIngredients } from "@/lib/ingredientScaling";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -27,6 +29,7 @@ export default function ShoppingSummary() {
   const navigate = useNavigate();
   const location = useLocation();
   const { nextWeekPlan, currentWeekPlan, loading, getCurrentMonday, getNextMonday } = useMealPlanDB();
+  const { preferences } = useProductPreferences();
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
 
   // Check if we came from current week planning
@@ -64,9 +67,11 @@ export default function ShoppingSummary() {
         allIngredients.push({ ingredient: ing, recipeName: recipe.title });
       });
     });
-    
-    return aggregateIngredients(allIngredients);
-  }, [mealsWithMultipliers]);
+
+    // "mjölk" shows as the household's currently preferred product when a
+    // preference row exists (p4-01 read path; the table ships empty).
+    return applyPreferredNames(aggregateIngredients(allIngredients), preferences);
+  }, [mealsWithMultipliers, preferences]);
 
   const toggleItem = (key: string) => {
     setCheckedItems(prev => {

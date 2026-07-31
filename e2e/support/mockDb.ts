@@ -38,15 +38,10 @@ export interface SeedMeal {
   servingsMultiplier?: number;
 }
 
-interface MealPlanRow {
+interface PlannedMealRow {
   id: string;
   user_id: string;
-  week_start: string;
-}
-interface DailyMealRow {
-  id: string;
-  meal_plan_id: string;
-  day_of_week: number;
+  meal_date: string; // yyyy-MM-dd
   recipe_id: string;
   servings_multiplier: number;
 }
@@ -65,8 +60,7 @@ function mondayOf(base: Date): Date {
 }
 
 export class MockDb {
-  private mealPlans: MealPlanRow[] = [];
-  private dailyMeals: DailyMealRow[] = [];
+  private plannedMeals: PlannedMealRow[] = [];
   private familyMembers: unknown[] = [];
   private ratings: unknown[] = [];
   private comments: unknown[] = [];
@@ -142,13 +136,15 @@ export class MockDb {
     return this;
   }
   private addPlan(weekStart: string, meals: SeedMeal[]) {
-    const id = this.nid("plan");
-    this.mealPlans.push({ id, user_id: TEST_USER.id, week_start: weekStart });
+    // weekStart is a Monday; dayOfWeek 0..6 offsets to the calendar date
+    // (planned_meals is date-keyed since p4-01).
     for (const m of meals) {
-      this.dailyMeals.push({
-        id: this.nid("dm"),
-        meal_plan_id: id,
-        day_of_week: m.dayOfWeek,
+      const d = new Date(`${weekStart}T00:00:00`);
+      d.setDate(d.getDate() + m.dayOfWeek);
+      this.plannedMeals.push({
+        id: this.nid("pm"),
+        user_id: TEST_USER.id,
+        meal_date: fmt(d),
         recipe_id: m.recipeId,
         servings_multiplier: m.servingsMultiplier ?? 1,
       });
@@ -183,60 +179,46 @@ export class MockDb {
       }
     }
 
-    if (table === "meal_plans") {
-      if (method === "GET") {
-        const select = params.get("select") ?? "";
-        if (select.includes("daily_meals")) {
-          // Weekly fetch: filter by week_start=in.(...), embed daily_meals.
-          const weeks = this.parseInList(params.get("week_start"));
-          const rows = this.mealPlans
-            .filter((p) => weeks.length === 0 || weeks.includes(p.week_start))
-            .map((p) => ({
-              id: p.id,
-              week_start: p.week_start,
-              daily_meals: this.dailyMeals
-                .filter((d) => d.meal_plan_id === p.id)
-                .map((d) => ({
-                  id: d.id,
-                  day_of_week: d.day_of_week,
-                  recipe_id: d.recipe_id,
-                  servings_multiplier: d.servings_multiplier,
-                })),
-            }));
-          return this.json(route, rows);
-        }
-        // Existence check (.maybeSingle): select=id&user_id=eq&week_start=eq.
-        const ws = this.eqVal(params.get("week_start"));
-        const rows = this.mealPlans
-          .filter((p) => !ws || p.week_start === ws)
-          .map((p) => ({ id: p.id }));
-        return this.json(route, rows); // postgrest-js reduces for maybeSingle
-      }
-      if (method === "POST") {
-        const b = (body ?? {}) as Partial<MealPlanRow>;
-        const row: MealPlanRow = {
-          id: this.nid("plan"),
-          user_id: b.user_id ?? TEST_USER.id,
-          week_start: b.week_start ?? this.nextMonday(),
-        };
-        this.mealPlans.push(row);
-        return this.json(route, single ? { id: row.id } : [{ id: row.id }], 201);
-      }
-    }
+    if (table === "planned_meals") {
+      // Date-window filters arrive as repeated meal_date params:
+      // meal_date=gte.YYYY-MM-DD & meal_date=lte.YYYY-MM-DD.
+      const { gte, lte } = this.dateRange(params.getAll("meal_date"));
+      const inRange = (r: PlannedMealRow) =>
+        (!gte || r.meal_date >= gte) && (!lte || r.meal_date <= lte);
 
-    if (table === "daily_meals") {
+      if (method === "GET") {
+        const rows = this.plannedMeals
+          .filter(inRange)
+          .map((r) => ({
+            id: r.id,
+            meal_date: r.meal_date,
+            recipe_id: r.recipe_id,
+            servings_multiplier: r.servings_multiplier,
+          }))
+          .sort((a, b) => a.meal_date.localeCompare(b.meal_date));
+        return this.json(route, rows);
+      }
       if (method === "DELETE") {
-        const mp = this.eqVal(params.get("meal_plan_id"));
-        this.dailyMeals = this.dailyMeals.filter((d) => d.meal_plan_id !== mp);
+        const uid = this.eqVal(params.get("user_id"));
+        this.plannedMeals = this.plannedMeals.filter(
+          (r) => !(inRange(r) && (!uid || r.user_id === uid)),
+        );
         return route.fulfill({ status: 204, body: "" });
       }
       if (method === "POST") {
+        // Upsert on (user_id, meal_date) — postgrest sends on_conflict param.
         const rows = Array.isArray(body) ? body : [body];
-        for (const r of rows as Array<Partial<DailyMealRow>>) {
-          this.dailyMeals.push({
-            id: this.nid("dm"),
-            meal_plan_id: r.meal_plan_id ?? "",
-            day_of_week: r.day_of_week ?? 0,
+        for (const r of rows as Array<Partial<PlannedMealRow>>) {
+          const userId = r.user_id ?? TEST_USER.id;
+          const mealDate = r.meal_date ?? "";
+          this.plannedMeals = this.plannedMeals.filter(
+            (existing) =>
+              !(existing.user_id === userId && existing.meal_date === mealDate),
+          );
+          this.plannedMeals.push({
+            id: this.nid("pm"),
+            user_id: userId,
+            meal_date: mealDate,
             recipe_id: r.recipe_id ?? "",
             servings_multiplier: r.servings_multiplier ?? 1,
           });
@@ -261,14 +243,13 @@ export class MockDb {
     });
   }
 
-  private parseInList(value: string | null): string[] {
-    if (!value) return [];
-    const m = value.match(/^in\.\((.*)\)$/s);
-    const inner = m ? m[1] : value;
-    return inner
-      .split(",")
-      .map((s) => s.trim().replace(/^"|"$/g, ""))
-      .filter(Boolean);
+  private dateRange(values: string[]): { gte?: string; lte?: string } {
+    const range: { gte?: string; lte?: string } = {};
+    for (const v of values) {
+      const m = v.match(/^(gte|lte)\.(.*)$/s);
+      if (m) range[m[1] as "gte" | "lte"] = m[2];
+    }
+    return range;
   }
   private eqVal(value: string | null): string | null {
     if (!value) return null;

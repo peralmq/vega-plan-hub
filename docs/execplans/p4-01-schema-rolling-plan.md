@@ -2,7 +2,7 @@
 id: p4-01-schema-rolling-plan
 title: Rolling-plan schema + web re-pointing (dates, batches, list, preferences)
 phase: P4
-status: todo
+status: done
 depends_on: []
 ---
 
@@ -40,10 +40,17 @@ it in the handoff).
 
 ## Progress
 
-- [ ] Migration SQL written (tables + RLS + backfill)
-- [ ] DB types regenerated/extended in `src/integrations/supabase/`
-- [ ] `useMealPlanDB` re-pointed with unit-tested date logic in `src/lib/`
-- [ ] Pages green; e2e mock updated; suites pass
+- [x] Migration SQL written (tables + RLS + backfill) —
+      `supabase/migrations/20260731200000_p4_01_rolling_plan_schema.sql`
+- [x] DB types extended in `src/integrations/supabase/types.ts` (five new
+      tables, hand-extended in generator style; regenerate from the live DB
+      after the migration is applied)
+- [x] `useMealPlanDB` re-pointed; date logic in `src/lib/planDates.ts`,
+      preference read path in `src/lib/productPreferences.ts` +
+      `src/hooks/useProductPreferences.ts` (both unit-tested)
+- [x] Pages green (interface preserved — only ShoppingSummary gained the
+      preference resolution); e2e `mockDb.ts` + mock-auth `mockStore.ts`
+      re-pointed to `planned_meals`; both suites pass
 
 ## Steps
 
@@ -72,4 +79,42 @@ it in the handoff).
 
 ## Evidence
 
-(recorded during implementation)
+Unit suite after adding `planDates.test.ts` (13 tests: mondayOf incl.
+Sunday + year boundary, backfill arithmetic incl. month/year crossing,
+window mapping, rowsToWeekMeals filtering/sorting/null-multiplier,
+todayIndex Mon/Sun) and `productPreferences.test.ts` (4 tests:
+current-map supersede + latest-valid_from, apply/no-op):
+
+```
+$ ./harness test
+ Test Files  5 passed (5)
+      Tests  84 passed (84)
+```
+
+Full gate:
+
+```
+$ ./harness check
+check: deps ... OK (70 deps present)
+check: npm run lint ... OK
+check: npm test ... OK
+check: npm run build ... OK
+check: plans --validate ... plans validate: OK (16 plans)
+check: validate-recipe ... validate-recipe: OK (30 recipes)
+check: OK
+```
+
+Hermetic e2e over the re-pointed mock (plan-week exercises the new
+delete-window + upsert-on-(user_id,meal_date) save path; cook-mode and
+shopping-summary render from date-keyed seeds):
+
+```
+$ ./harness e2e
+  6 passed (5.9s)
+```
+
+Notes: (1) The migration file is written but NOT applied to the hosted
+Supabase project — applying it (`supabase db push` or dashboard SQL)
+is the human's step; the app reads `planned_meals` from the moment it
+deploys, so apply the migration first. (2) Old tables are retained per
+the plan's non-goal; a later cleanup migration drops them after soak.

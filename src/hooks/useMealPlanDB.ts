@@ -2,7 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { loadAllRecipes, ParsedRecipe } from '@/services/recipeLoader';
-import { startOfWeek, addWeeks, format, isSameWeek, isThisWeek } from 'date-fns';
+import { addWeeks, format } from 'date-fns';
+import {
+  mondayOf,
+  weekWindow,
+  dateForDayOfWeek,
+  rowsToWeekMeals,
+  todayIndex,
+  PlannedMealRowLike,
+} from '@/lib/planDates';
 
 export interface DayMeal {
   dayOfWeek: number; // 0-6 (Monday-Sunday)
@@ -19,21 +27,19 @@ export interface WeeklyMealPlan {
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-// Get the Monday of a given week
-function getWeekMonday(date: Date): Date {
-  return startOfWeek(date, { weekStartsOn: 1 });
+// Get current week's Monday
+function getCurrentWeekMonday(): Date {
+  return mondayOf(new Date());
 }
 
 // Get next week's Monday
 function getNextWeekMonday(): Date {
-  return addWeeks(getWeekMonday(new Date()), 1);
+  return addWeeks(getCurrentWeekMonday(), 1);
 }
 
-// Get current week's Monday
-function getCurrentWeekMonday(): Date {
-  return getWeekMonday(new Date());
-}
-
+// p4-01: plans are date-keyed rows in planned_meals (rolling horizon); this
+// hook renders the current + next calendar-week windows over them so the
+// existing pages keep their WeeklyMealPlan-shaped interface.
 export function useMealPlanDB() {
   const { user } = useAuth();
   const [currentWeekPlan, setCurrentWeekPlan] = useState<WeeklyMealPlan | null>(null);
@@ -41,7 +47,7 @@ export function useMealPlanDB() {
   const [loading, setLoading] = useState(true);
   const [allRecipes] = useState<ParsedRecipe[]>(() => loadAllRecipes());
 
-  // Fetch meal plans for current and next week
+  // Fetch planned meals covering the current + next week windows
   const fetchMealPlans = useCallback(async () => {
     if (!user) {
       setCurrentWeekPlan(null);
@@ -52,50 +58,30 @@ export function useMealPlanDB() {
 
     setLoading(true);
     try {
-      const currentMonday = format(getCurrentWeekMonday(), 'yyyy-MM-dd');
-      const nextMonday = format(getNextWeekMonday(), 'yyyy-MM-dd');
+      const currentMonday = getCurrentWeekMonday();
+      const nextMonday = getNextWeekMonday();
+      const { start } = weekWindow(currentMonday);
+      const { end } = weekWindow(nextMonday);
 
-      // Fetch both weeks' plans
-      const { data: plans, error } = await supabase
-        .from('meal_plans')
-        .select(`
-          id,
-          week_start,
-          daily_meals (
-            id,
-            day_of_week,
-            recipe_id,
-            servings_multiplier
-          )
-        `)
-        .in('week_start', [currentMonday, nextMonday]);
+      const { data: rows, error } = await supabase
+        .from('planned_meals')
+        .select('id, meal_date, recipe_id, servings_multiplier')
+        .gte('meal_date', start)
+        .lte('meal_date', end);
 
       if (error) throw error;
 
-      // Process plans
-      const processedPlans = (plans || []).map(plan => {
-        const meals: DayMeal[] = (plan.daily_meals || []).map((dm: { day_of_week: number; recipe_id: string; servings_multiplier: number | null }) => ({
-          dayOfWeek: dm.day_of_week,
-          recipeId: dm.recipe_id,
-          recipe: allRecipes.find(r => r.id === dm.recipe_id),
-          servingsMultiplier: dm.servings_multiplier ?? 1.0,
+      const toWeekPlan = (monday: Date): WeeklyMealPlan | null => {
+        const meals = rowsToWeekMeals((rows ?? []) as PlannedMealRowLike[], monday).map(m => ({
+          ...m,
+          recipe: allRecipes.find(r => r.id === m.recipeId),
         }));
+        if (meals.length === 0) return null;
+        return { id: `week-${format(monday, 'yyyy-MM-dd')}`, weekStart: monday, meals };
+      };
 
-        return {
-          id: plan.id,
-          weekStart: new Date(plan.week_start),
-          meals,
-        };
-      });
-
-      // Set current and next week plans
-      setCurrentWeekPlan(processedPlans.find(p => 
-        format(p.weekStart, 'yyyy-MM-dd') === currentMonday
-      ) || null);
-      
-      setNextWeekPlan(processedPlans.find(p => 
-        format(p.weekStart, 'yyyy-MM-dd') === nextMonday
-      ) || null);
+      setCurrentWeekPlan(toWeekPlan(currentMonday));
+      setNextWeekPlan(toWeekPlan(nextMonday));
     } catch (error) {
       console.error('Error fetching meal plans:', error);
     } finally {
@@ -113,64 +99,38 @@ export function useMealPlanDB() {
     servingsMultiplier: number;
   }
 
-  // Save a meal plan for a specific week
+  // Save a week's meals: clear the week window, then upsert date rows
   const saveMealPlan = async (meals: Map<number, MealData>, weekMonday: Date) => {
     if (!user) throw new Error('Must be logged in');
 
-    const mondayStr = format(weekMonday, 'yyyy-MM-dd');
+    const { start, end } = weekWindow(weekMonday);
 
-    // First, check if plan exists
-    const { data: existing } = await supabase
-      .from('meal_plans')
-      .select('id')
+    const { error: deleteError } = await supabase
+      .from('planned_meals')
+      .delete()
       .eq('user_id', user.id)
-      .eq('week_start', mondayStr)
-      .maybeSingle();
+      .gte('meal_date', start)
+      .lte('meal_date', end);
+    if (deleteError) throw deleteError;
 
-    let planId: string;
-
-    if (existing) {
-      planId = existing.id;
-      // Delete existing daily meals
-      await supabase
-        .from('daily_meals')
-        .delete()
-        .eq('meal_plan_id', planId);
-    } else {
-      // Create new plan
-      const { data: newPlan, error } = await supabase
-        .from('meal_plans')
-        .insert({
-          user_id: user.id,
-          week_start: mondayStr,
-        })
-        .select('id')
-        .single();
-
-      if (error) throw error;
-      planId = newPlan.id;
-    }
-
-    // Insert new daily meals with multipliers
-    const dailyMeals = Array.from(meals.entries()).map(([dayOfWeek, data]) => ({
-      meal_plan_id: planId,
-      day_of_week: dayOfWeek,
+    const rows = Array.from(meals.entries()).map(([dayOfWeek, data]) => ({
+      user_id: user.id,
+      meal_date: dateForDayOfWeek(weekMonday, dayOfWeek),
       recipe_id: data.recipeId,
       servings_multiplier: data.servingsMultiplier,
     }));
 
-    if (dailyMeals.length > 0) {
+    if (rows.length > 0) {
       const { error } = await supabase
-        .from('daily_meals')
-        .insert(dailyMeals);
-
+        .from('planned_meals')
+        .upsert(rows, { onConflict: 'user_id,meal_date' });
       if (error) throw error;
     }
 
     // Refresh data
     await fetchMealPlans();
 
-    return planId;
+    return start;
   };
 
   // Save a complete meal plan for next week
@@ -191,17 +151,13 @@ export function useMealPlanDB() {
 
   // Get today's recipe
   const getTodaysRecipe = (): ParsedRecipe | undefined => {
-    const today = new Date().getDay();
-    // Convert Sunday=0 to 6, Monday=1 to 0, etc.
-    const dayOfWeek = today === 0 ? 6 : today - 1;
-    return getRecipeForDay(dayOfWeek);
+    return getRecipeForDay(todayIndex());
   };
 
   // Get remaining meals for current week (today and forward)
   const getRemainingMeals = (): DayMeal[] => {
     if (!currentWeekPlan) return [];
-    const today = new Date().getDay();
-    const dayOfWeek = today === 0 ? 6 : today - 1;
+    const dayOfWeek = todayIndex();
     return currentWeekPlan.meals
       .filter(m => m.dayOfWeek >= dayOfWeek)
       .sort((a, b) => a.dayOfWeek - b.dayOfWeek);
@@ -218,10 +174,7 @@ export function useMealPlanDB() {
   };
 
   // Get today's day index (0=Monday, 6=Sunday)
-  const getTodayIndex = (): number => {
-    const today = new Date().getDay();
-    return today === 0 ? 6 : today - 1;
-  };
+  const getTodayIndex = (): number => todayIndex();
 
   // Get current week's Monday for external use
   const getCurrentMonday = (): Date => getCurrentWeekMonday();
