@@ -157,16 +157,31 @@ Cross-cutting research questions for Track B:
 
 1. **Local-model competence.** Can a non-frontier model reliably do
    tool-calling / constrained-JSON intent extraction in *Swedish*
-   ("köp havremjölk", "byt torsdag till tacos")? Which is the smallest
-   adequate model, and what does it need in RAM/VRAM on hardware we
-   actually own? (OpenClaw docs suggest ≥64k context for local models —
-   sizing matters.)
-2. **Memory architecture.** Whatever the runtime, learned facts that
+   ("köp havremjölk", "byt torsdag till tacos")? **Hardware is decided
+   (2026-07-31): a MacBook Pro M1, 16 GB unified memory.** That budget
+   (≈10–11 GB realistically usable for the model + KV cache alongside
+   macOS and the runtime) means: 7–9B models at Q4 quantization are the
+   sweet spot (Qwen3-8B, Llama 3.1-8B, Gemma-class); ~14B Q4 is the
+   ceiling and tight; and large context windows are the hidden cost —
+   the ≥64k context that heavyweight agent frameworks want inflates KV
+   cache beyond comfort at this RAM, which **favors short-prompt,
+   narrow-tool designs (custom thin agent / lightweight runtime) over
+   context-hungry frameworks**. R3 verifies on this exact machine:
+   intent accuracy on the fixture set, tokens/sec, time-to-first-token,
+   and memory pressure with the runtime resident.
+2. **Laptop-as-server ops.** A MacBook sleeps, updates, and can leave
+   the house. R6 must test the always-on story: `caffeinate`/pmset
+   lid-closed operation, auto-restart of the runtime (launchd), and
+   what the household experience is when the machine is asleep or away
+   — this directly feeds the hybrid option (6): the capture path
+   ("buy milk") may need to live on Track A precisely because the
+   laptop cannot promise 24/7.
+3. **Memory architecture.** Whatever the runtime, learned facts that
    affect shopping (A.8) must land as structured rows in Supabase;
    conversational/episodic memory (what we discussed, running jokes,
    soft context) can live in the runtime's memory layer or pgvector.
    Research where that line sits per candidate.
-3. **Sandboxing & exposure** (hard requirement). Baseline regardless of
+4. **Sandboxing & exposure** (hard requirement). Baseline regardless of
    candidate: runs in a container/VM with no inbound exposure — the
    *only* ingress is the runtime's outbound connection to Telegram
    (long-polling preferred: zero open ports); dashboard/admin never on
@@ -176,12 +191,12 @@ Cross-cutting research questions for Track B:
    [OpenClaw sandbox guidance](https://www.docker.com/blog/run-openclaw-securely-in-docker-sandboxes/)
    and the [hardening guides](https://insiderllm.com/guides/openclaw-security-guide/)
    define the checklist to adapt.
-4. **Prompt injection.** The bot reads free text from a chat and holds
+5. **Prompt injection.** The bot reads free text from a chat and holds
    DB-write tools. Scope tools narrowly (add/remove list item, set
    plan day, record preference — no shell, no browser, no arbitrary
    SQL), confirm destructive actions in chat, treat recipe/comment text
    as untrusted.
-5. **Operational reality.** Home server = the bot is down when the box
+6. **Operational reality.** Home server = the bot is down when the box
    is down; who patches it; backup story. Weigh honestly against
    Track A's ~zero ops. A hybrid is explicitly on the table: Track A
    for the always-on capture path ("buy milk" must never fail) +
@@ -189,21 +204,21 @@ Cross-cutting research questions for Track B:
 
 Shared questions (both tracks):
 
-6. **State & sessions.** Multi-turn planning conversation state:
+7. **State & sessions.** Multi-turn planning conversation state:
    runtime sessions vs. stateless re-derivation from DB.
    Restartability bias says stateless-leaning for anything that
    matters.
-7. **Recipe access at runtime.** Options: (a) build step publishes
+8. **Recipe access at runtime.** Options: (a) build step publishes
    `recipes.json` to GitHub Pages, bot fetches + caches; (b) mirror
    recipes into a Supabase table on CI; (c) share `recipeLoader` logic
    across interfaces (user directive: either materializing or shared
    logic is acceptable). Markdown-in-repo stays the source of truth.
-8. **Identity & authorization.** Bot runs with service-role key ⇒ RLS
+9. **Identity & authorization.** Bot runs with service-role key ⇒ RLS
    bypassed ⇒ the bot process is the auth boundary. Shared account
    simplifies this to: strict allow-list of the two household Telegram
    ids, each mapped to a `family_members` row for attribution; validate
    Telegram's webhook secret (Track A) / rely on polling auth (Track B).
-9. **Harness extension.** What `./harness check` gains: bot code
+10. **Harness extension.** What `./harness check` gains: bot code
    typecheck/lint, unit tests for intent parsing (fixture utterances →
    expected intents, LLM calls cached content-addressed per
    orchestration.spec.md lore), a replayable conversation e2e against a
@@ -279,8 +294,8 @@ deployment checklist before any Track B runtime touches real data:
 - Patch cadence and CVE watch for whichever runtime wins; prefer the
   smallest auditable surface that meets the memory requirement.
 
-Ops & cost: home-server uptime vs. Track A's ~zero ops (hybrid option
-noted in C.5); cost model at household scale (expected: ~0 SEK infra on
+Ops & cost: home-server (laptop) uptime vs. Track A's ~zero ops
+(hybrid option noted in C.6); cost model at household scale (expected: ~0 SEK infra on
 Track A, electricity + hardware on Track B, low single-digit SEK/month
 if any hosted LLM is used); what happens when Telegram is down (web
 still works — an argument for extension over full pivot);
