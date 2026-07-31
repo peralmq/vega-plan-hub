@@ -28,29 +28,30 @@ Appendix doubles as the starter fixture set for spike R3.
 *The whole pivot in four lines. Must feel instant and need zero
 follow-up in the common case.*
 
+*Directive 2026-07-31: emoji confirmations — the bot reacts on the
+human's message instead of replying, whenever nothing needs saying.*
+
 > **W:** köp mjölk
 >
-> **Vega:** 🥛 Oatly Havredryck Deluxe → shopping list (that's your
-> usual). 12 items now.
->
-> *(nothing else. No buttons, no questions — the preference table
-> already knows which "mjölk".)*
+> **Vega:** *(reacts 🥛 on W's message — no reply. The preference table
+> already knows which "mjölk"; it resolved silently to ICA Havredryck.)*
 
 Variants to rehearse in the same sitting:
 
 > **P:** buy toilet paper and coffee
 >
-> **Vega:** 🧻☕ Added toilet paper + coffee. 14 items.
+> **Vega:** *(reacts 👍)*
 
 > **W:** vi behöver citroner till på lördag
 >
-> **Vega:** 🍋 Lemons added. 15 items. (Tagged for Saturday 👀)
+> **Vega:** *(reacts 🍋, then one short reply because there's info to
+> add:)* Tagged for Saturday 👀
 
-**Watch for:** does the confirmation feel right, or is even one reply
-per item too chatty in a group? Would a 👍 emoji *reaction* on the
-human's message be better than a reply message? (Telegram bots can
-react — zero noise.) Does "that's your usual" build trust or feel
-presumptuous?
+**Watch for:** the reaction carries zero information — is silent
+resolution ("which milk?") fine as long as `🛒 show list` reveals the
+truth on demand and mistakes are one-line correctable (Script 2)? When
+*does* a reply earn its place — new/unknown items, notes, warnings
+only? Which reaction emoji set reads clearly on both phones?
 
 ## Script 2 — Ambiguity repair: unknown item, one-tap clarify
 
@@ -130,49 +131,55 @@ they expect steps *in chat*? Does the ×2/leftovers context earn its
 lines? Would they want this pushed proactively at ~16:00 (see
 Script 8) rather than asked for?
 
-## Script 5 — The weekly planning ritual (the long one)
+## Script 5 — The rolling planning ritual (the long one)
 
-*The hardest conversation to get right: locking next week (A.3).
-Tests bot-proposes-first vs. humans-build-from-scratch.*
+*The hardest conversation to get right: locking the next batch of days
+(A.3 — directive 2026-07-31: "plan the next X days", not week-by-week).
+Tests bot-proposes-first vs. humans-build-from-scratch, and the
+runs-low trigger.*
 
-> **Vega:** *(Sunday 17:00, proactive)* 📅 Time to plan next week?
-> Here's a draft from your favourites + what you haven't had in a
-> while:
-> Mon 🍛 Dal · Tue 🌮 Tacos · Wed 🍝 Pasta alla Norma · Thu 🥘 Chana
-> masala · Fri 🍕 Fredagspizza · Sat 🍲 Ramen · Sun 🥗 Buddha bowls
-> `[✅ Looks good]` `[✏️ Change days]` `[🎲 New draft]` `[😴 Not now]`
+> **Vega:** *(Wednesday 17:00, proactive — plan runs out tomorrow)*
+> 📅 You're planned through tomorrow. Plan the next few days?
+> `[Next 3 days]` `[Next 5 days]` `[Through Sunday]` `[😴 Not now]`
 >
-> **W:** *(taps `[✏️ Change days]`)*
+> **W:** *(taps `[Next 5 days]`)*
 >
-> **Vega:** Which day?
-> `[Mon]` `[Tue]` `[Wed]` `[Thu]` `[Fri]` `[Sat]` `[Sun]`
+> **Vega:** 🌱 Draft for Fri–Tue, from your favourites + what you
+> haven't had in a while:
+> Fri 🍕 Fredagspizza · Sat 🍲 Ramen · Sun 🍛 Dal · Mon 🥘 Chana
+> masala · Tue 🍝 Pasta alla Norma
+> `[✅ Looks good]` `[✏️ Change a day]` `[🎲 New draft]`
 >
-> **W:** *(taps `[Thu]`)* — **Vega:** Thursday, pick a swap:
+> **W:** *(taps `[✏️ Change a day]`)* — **Vega:** Which day?
+> `[Fri]` `[Sat]` `[Sun]` `[Mon]` `[Tue]`
+>
+> **W:** *(taps `[Mon]`)* — **Vega:** Monday, pick a swap:
 > `[🍜 Pad see ew]` `[🥔 Raggmunk]` `[🍔 Svampburgare]` `[Type something…]`
 >
 > **W:** *(taps `[🥔 Raggmunk]`)*
 >
-> **Vega:** ✏️ *draft edited in place:* Thu → 🥔 Raggmunk. Anything
-> else? `[✅ Lock the week]` `[✏️ Change days]`
+> **Vega:** ✏️ *draft edited in place:* Mon → 🥔 Raggmunk. Anything
+> else? `[✅ Lock these 5 days]` `[✏️ Change a day]`
 >
-> **P:** kan vi köra dubbla portioner på måndagen?
+> **P:** kan vi köra dubbla portioner på söndagen?
 >
-> **Vega:** 💪 Mon Dal ×2 (lunch boxes incoming). Lock it?
-> `[✅ Lock the week]` `[✏️ Keep editing]`
+> **Vega:** 💪 Sun Dal ×2 (lunch boxes incoming). Lock it?
+> `[✅ Lock these 5 days]` `[✏️ Keep editing]`
 >
-> **W:** *(taps `[✅ Lock the week]`)*
+> **W:** *(taps `[✅ Lock these 5 days]`)*
 >
-> **Vega:** 🔒 Week 33 locked! 7 dinners, 2 doubled.
-> 🛒 Shopping list is ready: **23 items, ~612 kr**.
+> **Vega:** 🔒 Fri–Tue locked! 5 dinners, 1 doubled.
+> 🛒 Shopping list for the batch: **19 items, ~487 kr**.
 > `[🛒 Show list]` `[🖨 Open on web]`
 > cooked with compassion · for the animals, the planet & each other 🐾🌍💚
 
 **Watch for:** mixing taps (W) and free text (P) in one flow — does the
 state hold up? Is the draft-first approach welcome or does it feel like
-the bot railroads the week? Does *lock* as an explicit, celebrated
-moment match your mental model ("this is what we cook AND shop for")?
-Is Sunday 17:00 the right ritual trigger, and should the bot wait for
-both partners' sign-off before locking, or is one enough?
+the bot railroads the days? Is **runs-low** the right trigger, and how
+low — one planned day left? zero? Does a *batch* map 1:1 to a shopping
+trip in practice? Which horizon do you actually pick (does X converge
+to a default the bot should learn)? Should locking need both partners'
+sign-off, or is one enough?
 
 ## Script 6 — Mid-week swap: plan and list stay consistent
 
@@ -180,7 +187,7 @@ both partners' sign-off before locking, or is one enough?
 >
 > **Vega:** 🌮 Thu: Raggmunk → Tacos. Shopping impact: −potatis −äggersättning,
 > +tortillas +svarta bönor (already have salsa ✅).
-> You already shopped this week — want the diff as a mini-list?
+> That batch is already shopped — want the diff as a mini-list?
 > `[🛒 Yes, diff list]` `[Nah, we have it]`
 
 **Watch for:** the shopping *diff* is the hard promise (list stays
@@ -271,8 +278,8 @@ plan draft?)?
 | Q | Question | Verdict | Notes |
 | --- | --- | --- | --- |
 | A.1 | Group chat, DMs, or both? | ☐ | |
-| A.2 | Free text vs. buttons — where does each win? | ☐ | |
-| A.3 | Draft-first weekly ritual? Sunday 17:00? Both must approve lock? | ☐ | |
+| A.2 | Free text vs. buttons — where does each win? | ◐ directive: emoji-reaction confirmations preferred (2026-07-31) | verify silent-resolution comfort in dry-run |
+| A.3 | Rolling batches confirmed (2026-07-31 directive). Runs-low trigger? Default X? Both must approve lock? | ◐ | week-by-week ruled out; open sub-questions remain |
 | A.4 | One-tap clarify acceptable? Silent-guess threshold? | ☐ | |
 | A.5 | In-store check-off: chat, Mini App, or web? | ☐ | |
 | A.6 | Which proactive pings survive week one? | ☐ | |
@@ -299,7 +306,9 @@ Working intent set (v0): `add_item`, `remove_item`, `show_list`,
 | `what's for dinner tomorrow` | `query_tonight {day: +1}` |
 | `byt torsdag till tacos istället` | `plan_set_day {day: "thu", recipe_query: "tacos"}` |
 | `kan vi köra dubbla portioner på måndagen?` | `plan_set_multiplier {day: "mon", multiplier: 2}` |
-| `lås veckan` | `plan_lock {}` |
+| `kan vi planera de närmsta dagarna?` | `plan_draft {horizon: default}` |
+| `planera fram till söndag` | `plan_draft {horizon: through_sunday}` |
+| `lås dagarna` | `plan_lock {}` — locks the open draft batch |
 | `mindre stark nästa gång bara` | `note_recipe {note: "less heat", target: last_cooked}` |
 | `köp också diskmedel` | `add_item {item: "diskmedel"}` — mid-conversation, other context active |
 | `har vi vitlök hemma?` | `show_list {query: "vitlök"}` — nearest v0 behavior; pantry state is out of scope |

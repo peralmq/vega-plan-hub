@@ -39,6 +39,7 @@ Ground truth from the specs and code (verified 2026-07-31):
 | The shopping list is **derived, never persisted** — aggregated client-side from the week's recipes | "buy milk" (an ad-hoc item) has nowhere to live. Needs a persisted `shopping_list_items` table with both recipe-derived and ad-hoc rows, plus check-off state. |
 | "milk" is one canonical ingredient in the alias table | **Directive 2026-07-31:** "milk" must resolve to the *currently preferred product* (a particular oat milk, say), and preferences drift over time. Needs a **preference-learning layer** on top of normalization — see dimension A.8 and the data-model sketch. |
 | Recipes are **markdown bundled into the SPA at build time** (`import.meta.glob`) | **Directive 2026-07-31:** either materialize recipes at build time (published JSON artifact / DB mirror) or share the loader logic across interfaces — both keep markdown-in-repo as source of truth; research picks the least machinery. |
+| Plans are **calendar-week shaped** — `meal_plans` per Monday-start `week_start`, `daily_meals` by day-of-week, only current + next week fetched | **Directive 2026-07-31:** planning is a **rolling horizon** — "plan the next X days", locked in batches, not week-by-week. Collides with the schema *and* product.spec.md's per-calendar-week model *and* the web Plan Mode's week grid. Date-based `planned_meals` + lock batches sketched in D; the web view becomes a rendering over dates. |
 | Auth is Supabase Google OAuth; identity = Google account | Simplified by the shared account: a strict **allow-list of the two household Telegram ids**, each mapped to a `family_members` row, all acting as the one Supabase user. No general linking flow needed. |
 | Non-goal in AGENTS.md: "No new backend surface beyond Supabase" | A bot webhook **is** a new backend surface — and the self-hosted OpenClaw track (C, Track B) is a home server, further outside the boundary still. Both are spec changes a human must sign off. |
 | Product spec non-goal: "No native mobile app; responsive web only" | Chat-first reframes this non-goal; product.spec.md needs a human-approved revision. |
@@ -61,11 +62,15 @@ design discipline from a SPA. Questions to research:
    inline keyboards / reply buttons beat typing (picking one of 18
    recipes, confirming a plan)? Hypothesis: **free text to capture,
    buttons to choose, one tap to confirm.**
-3. **The weekly planning ritual.** Design the conversation that locks a
-   week: does the bot propose a draft plan (from ratings, recency,
-   season) that the humans edit, or do humans build from scratch?
-   Proactive Sunday-evening prompt ("time to plan next week?") — 
-   welcome ritual or nag?
+3. **The rolling planning ritual** (directive 2026-07-31: "plan the
+   next X days", not week-by-week). Design the conversation that locks
+   a *batch*: humans say the horizon ("nästa 4 dagar"), the bot
+   proposes a draft (from ratings, recency, season) that they edit,
+   then lock = plan + shopping list for that batch. Research questions:
+   what's the natural trigger — proactive nudge *when the plan runs
+   low* ("you're planned through Thursday…") rather than a fixed
+   Sunday ritual? Do batches overlap shopping trips 1:1? Is a default
+   X learned over time?
 4. **Ambiguity & repair.** "buy milk" → oat or soy? Merge with existing
    list line or duplicate? When should the bot silently do the sensible
    thing vs. ask a one-tap clarifying question? (Error-repair cost is
@@ -265,9 +270,14 @@ decision — no household re-keying, no migration of existing rows):
   pgvector table in Supabase; research which, and what its retention
   policy is. Structured facts always get promoted out of it into real
   tables.
-- Plan **lock** state: `meal_plans.locked_at` — locking is the event
-  that (re)generates the recipe-derived list rows and announces the
-  shopping list in chat.
+- **Rolling plan** (replaces the week shape, per 2026-07-31 directive):
+  `planned_meals` keyed by actual **date** (one row per day: date,
+  recipe_id, servings_multiplier, batch ref) + `plan_batches` (a lock
+  event: date range, locked_at, locked_by) — locking a batch is the
+  event that (re)generates that batch's recipe-derived list rows and
+  announces the shopping list in chat. The web Plan Mode becomes a
+  week-window *rendering* over date rows; migration maps existing
+  `meal_plans`/`daily_meals` (week_start + day_of_week) → dates.
 
 Research question: how much of the pure logic in `src/lib/`
 (normalization, scaling) can be shared verbatim with the Deno edge
