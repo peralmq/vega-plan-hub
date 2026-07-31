@@ -343,7 +343,13 @@ already uses it — but write the reasoning down.
 
 Sequenced spikes; each produces a short findings doc in
 `docs/research/` and the batch feeds a human decision gate, after which
-winners become P4 execplans.
+winners become P4 execplans. **Progress tracker + decision list:
+[gate-brief.md](gate-brief.md).** Note (2026-07-31): the repo's dev
+machine turned out to be an M3 Pro / 18 GB — R3/R6 numbers must come
+from the target M1 itself; the R3 kit
+([spikes/r3-nlu-bakeoff/](../../spikes/r3-nlu-bakeoff/README.md)) and
+R2 kit ([spikes/r2-track-a/](../../spikes/r2-track-a/README.md)) are
+staged and self-tested here.
 
 | # | Spike | Deliverable | Depends on |
 | --- | --- | --- | --- |
