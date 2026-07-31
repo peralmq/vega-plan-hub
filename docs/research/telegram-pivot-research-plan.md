@@ -169,6 +169,26 @@ Cross-cutting research questions for Track B:
    context-hungry frameworks**. R3 verifies on this exact machine:
    intent accuracy on the fixture set, tokens/sec, time-to-first-token,
    and memory pressure with the runtime resident.
+
+   **Preferred model candidate (user, 2026-07-31):**
+   [TurboFieldfare](https://github.com/drumih/turbo-fieldfare) — a
+   Swift/Metal runtime for **Gemma 4 26B-A4B** (MoE, ~3.9B active
+   params, 4-bit MLX quant) that streams experts from SSD, needing only
+   ~2 GB of weights in RAM plus KV cache. That neatly sidesteps the
+   16 GB ceiling and leaves room for the agent runtime. It exposes an
+   OpenAI-compatible server (experimental), which would be the
+   integration seam. R3 must verify three risks before it's the pick:
+   (a) **Swedish** — the project describes itself as English-only, and
+   our utterances are Swedish; (b) **structured output** — it's built
+   for chat/completion, *not* tool calling, so intent extraction rides
+   on prompt-and-parse JSON with no grammar-constrained decoding:
+   measure the malformed-output rate; (c) **compatibility** — it
+   targets macOS 26 / Metal 4, validated on M2; confirm it runs on the
+   M1 at usable speed (M2 measured ~5–6 tok/s decode — acceptable for
+   short bot replies if M1 lands nearby). Fallbacks if any risk fails:
+   Qwen3-8B / Llama 3.1-8B class dense models at Q4 via Ollama, which
+   fit the RAM budget with native tool-calling and grammar-constrained
+   JSON, at the cost of using most of the machine's memory.
 2. **Laptop-as-server ops.** A MacBook sleeps, updates, and can leave
    the house. R6 must test the always-on story: `caffeinate`/pmset
    lid-closed operation, auto-restart of the runtime (launchd), and
@@ -319,7 +339,7 @@ winners become P4 execplans.
 | --- | --- | --- | --- |
 | R1 | Conversation design: script the 6–8 core dialogues **including preference-teaching moments** ("we switched milk"); competitive teardown; dry-run with both users in a real Telegram group (humans role-playing the bot) | `r1-conversation-scripts.md` + verdicts on A.1–A.8 | — |
 | R2 | Track A spike: **throwaway** echo-bot on Supabase Edge Functions + grammY; empirically test webhook loop, inline-keyboard editing, group privacy mode, local dev loop | `r2-track-a-spike.md` | — |
-| R3 | Runtime + model bake-off (Track B): shortlist runtimes (OpenClaw vs Letta vs lightweight vs custom) on the memory + sandbox criteria; run 30–50 fixture utterances (Swedish + English) through 2–3 local models (and one hosted baseline) for intent accuracy/latency on our hardware | `r3-runtime-model-bakeoff.md` | R1 (intents come from scripts) |
+| R3 | Runtime + model bake-off (Track B): shortlist runtimes (OpenClaw vs Letta vs lightweight vs custom) on the memory + sandbox criteria; run 30–50 fixture utterances (Swedish + English) through **TurboFieldfare/Gemma 4 first** (Swedish, JSON reliability, M1 compatibility — see C.1) plus 1–2 Ollama fallbacks and one hosted baseline, on the M1 itself | `r3-runtime-model-bakeoff.md` | R1 (intents come from scripts) |
 | R4 | Data model & security design: shopping-list/preferences/attribution schema; threat model + sandbox deployment checklist; RLS/service-role note | `r4-data-model-security.md` | R1 |
 | R5 | Surface-split decision: web's remaining role, Mini App yes/no, cook-mode plan | `r5-surface-split.md` | R1, R2 |
 | R6 | Track B spike: winning runtime from R3 deployed **sandboxed** (no inbound ports, egress allow-list, LAN-only admin) with a local model and exactly one tool — "add item to shopping list" writing to Supabase; live with both users for a week | `r6-track-b-spike.md` | R3, R4 |
@@ -360,3 +380,4 @@ preference *learning* (vs. manually seeded preferences) third.
 - [OpenClaw](https://openclaw.ai/) · [sandboxing docs](https://docs.openclaw.ai/gateway/sandboxing) · [Ollama integration](https://docs.ollama.com/integrations/openclaw) · [Docker's hardening guide](https://www.docker.com/blog/run-openclaw-securely-in-docker-sandboxes/) · [InsiderLLM security guide](https://insiderllm.com/guides/openclaw-security-guide/)
 - OpenClaw risk record & alternatives: [Vellum comparison (CVE/exposure stats)](https://www.vellum.ai/blog/best-openclaw-alternatives) · [Composio survey](https://composio.dev/content/openclaw-alternatives) · [DEV — security lessons running a local agent](https://dev.to/andremmfaria/when-chat-turns-into-control-security-lessons-from-running-a-local-ai-agent-21l0)
 - [Letta (MemGPT) self-host template — Postgres + pgvector](https://railway.com/deploy/letta-ai-agent) · [memory-tier walkthrough](https://sureprompts.com/blog/letta-memgpt-walkthrough)
+- [TurboFieldfare — Gemma 4 26B-A4B on Apple Silicon via SSD expert streaming](https://github.com/drumih/turbo-fieldfare) (user-preferred local model candidate)
