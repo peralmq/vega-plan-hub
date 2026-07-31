@@ -49,8 +49,10 @@ loop is restartable from repository state.
 
 ## Non-goals
 
-- No new backend surface beyond Supabase; schema changes are ask-first
-  (boundaries in [tech.spec.md](docs/specs/tech.spec.md)).
+- Backend surface is Supabase (DB, auth, edge functions) plus the
+  sandboxed household bot host adopted 2026-07-31 for P4 — anything
+  beyond those, and schema changes outside the approved P4 set, are
+  ask-first (boundaries in [tech.spec.md](docs/specs/tech.spec.md)).
 - No backfilling git history into execplans; plans cover new work only.
 - No weakening any harness gate; grandfathered lint exceptions in
   `eslint.config.js` may only shrink.

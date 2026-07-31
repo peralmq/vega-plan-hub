@@ -76,13 +76,42 @@ drift).
 The join between DB and content happens client-side: `recipe_id` in
 `daily_meals` is looked up against the loaded markdown recipes.
 
+## Chat assistant (adopted 2026-07-31, gate-brief; ships in P4)
+
+The product grows a Telegram assistant as the primary capture/planning
+surface (docs/research/telegram-pivot-research-plan.md). Contract
+points, binding for P4 work:
+
+- **Schema**: the five tables in docs/research/r4-data-model-security.md
+  §1 are approved (`telegram_accounts`, `planned_meals`, `plan_batches`,
+  `shopping_list_items`, `product_preferences`); `planned_meals` +
+  `plan_batches` replace `meal_plans` + `daily_meals` via the §2
+  migration. Gate calls adopted: preference resolution at **add-time**;
+  ad-hoc items batchless until shopping mode gathers them; per-person
+  preference column kept but written null in v0.
+- **Auth**: the bot authenticates as the (single, shared) household
+  user with RLS active — the service-role key is not used. Senders are
+  gated by the `telegram_accounts` allow-list; attribution stamps
+  family members.
+- **Transports**: Track A = Supabase Edge Function webhook (grammY,
+  secret-token validated); Track B = sandboxed agent runtime on
+  household hardware, long-polling, per the r6 runbook and the r4 §5
+  checklist. Track choice (or hybrid) is decided on R2/R6 evidence.
+- **Language understanding**: rules first, LLM fallback; intents and
+  fixtures in spikes/r3-nlu-bakeoff (graduates into `./harness` when
+  the capture bot lands). Bot tools are narrow and enumerable — no
+  shell, no browser, no arbitrary SQL.
+- **Recipes**: markdown-in-repo stays the source of truth; the bot
+  consumes them via shared loader logic or a build-time mirror.
+
 ## Boundaries
 
 - ✅ Always: `./harness check` before handoff; recipes as markdown files;
   pure logic in `src/lib/` (it is the unit-testable core); Supabase
   access only through hooks.
-- ⚠️ Ask first: schema changes in Supabase; new tables; replacing the
-  mock price service with a real integration; touching auth flows.
+- ⚠️ Ask first: schema changes in Supabase beyond the approved P4 set
+  above; new tables; replacing the mock price service with a real
+  integration; touching auth flows.
 - 🚫 Never: secrets in the repo (the Supabase publishable key in
   `client.ts` is public by design — anon key + RLS); editing
   `src/components/ui/*` in place; weakening a harness gate.

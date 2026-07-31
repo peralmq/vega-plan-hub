@@ -32,12 +32,21 @@ minutes, get one shoppable list, cook from a focused view.
 
 ## Jobs to be done / core behavior
 
-| Job | Behavior the app must provide |
+*(Revised 2026-07-31 at the chat-first gate — see
+docs/research/gate-brief.md. The product extends to a conversational
+Telegram assistant; planning moves from calendar weeks to rolling
+batches. Implementation lands in phase P4; until then the shipped app
+still behaves per the previous week-based rows, recorded in git
+history.)*
+
+| Job | Behavior the product must provide |
 | --- | --- |
-| Plan next week | Pick a recipe per weekday from the curated recipe library; adjust servings multiplier per day (e.g. double for leftovers); plans persist per calendar week (Monday-start, current + next week). |
-| Cook tonight | Default view is today's planned meal: ingredients scaled to the day's multiplier, instructions step-by-step, link to the original recipe. |
-| Shop for the week | One aggregated shopping list across the week's recipes: ingredients normalized (aliases merged), units converted and summed, printable and copyable, with SEK price estimates. |
-| Keep the library good | Recipes are curated markdown files in the repo (not user-generated); family members can rate and comment on recipes to inform future planning. |
+| Plan the next X days | In chat: the household asks to plan a horizon ("next 5 days"); the assistant proposes a draft from the library (ratings, recency), the humans edit by tap or text, then **lock the batch** — the unit of both cooking and shopping. Plans persist per date; the web shows a week-window view. |
+| Capture as you live | "köp mjölk" in chat, from either partner, adds to one shared persisted shopping list — instantly, with an emoji-reaction confirmation and no follow-up questions in the common case. |
+| Cook tonight | Today's planned meal: ingredients scaled to the day's multiplier, step-by-step instructions, link to the original recipe. Chat answers "what's for dinner?" with a summary card deep-linking the web cook mode (the big-screen surface). |
+| Shop the batch | One aggregated list per locked batch plus ad-hoc items: ingredients normalized (aliases merged), units converted and summed, **preference-resolved** ("mjölk" → the currently preferred product), check-off shared live between partners, printable, with SEK estimates. |
+| Learn the household | The assistant learns product preferences over time (explicit "we switched", corrections, observation) into inspectable, editable facts — never opaque memory. Family members rate and comment to inform future drafts. |
+| Keep the library good | Recipes are curated markdown files in the repo (not user-generated). |
 
 ## Success criteria
 
@@ -57,7 +66,11 @@ minutes, get one shoppable list, cook from a focused view.
   checkout integration (the Mathem price service is a mock — see
   tech.spec.md).
 - No meat/dairy: the library is vegan by definition.
-- No native mobile app; responsive web only.
+- No native mobile app. (Revised 2026-07-31: the primary interaction
+  surface becomes the Telegram assistant; the web app remains
+  first-class for cook mode, recipe library, admin, and print — see
+  docs/research/r5-surface-split.md. "Responsive web only" is
+  retired.)
 
 ## Open questions
 

@@ -1,9 +1,10 @@
 # Human Gate Brief — Telegram Pivot
 
-Status: awaiting the two of you, drafted 2026-07-31. Everything
-paper-side of the research phase is done; this page is the one thing to
-read before deciding. Per orchestration.spec.md this is an escalation
-brief: decisions get recorded here, then specs change, then P4 plans.
+Status: **gate passed 2026-07-31** — user approved execution in chat
+("Do it"), same day as drafting. Decisions recorded below; specs
+revised and P4 execplans created in the same change set per
+AGENTS.md. Remaining open items are evidence-gated, not
+decision-gated, and are marked ⏳.
 
 ## Where every spike stands
 
@@ -26,31 +27,39 @@ brief: decisions get recorded here, then specs change, then P4 plans.
    TurboFieldfare/Gemma 4 (pending R3's three risk checks).
 6. Security: sandboxed, no inbound ports, no third-party skills.
 
-## Decisions this gate must produce
+## Gate outcomes (recorded 2026-07-31, user approval via chat)
 
-1. **Pivot vs. extension** — recommendation: *extension* (web keeps
-   cook mode/library/admin per R5; chat owns capture + planning).
-2. **Track A vs. Track B vs. hybrid** — wait for R2 + R6 evidence;
-   the runbook's live-trial log is the tiebreaker. Hybrid (edge
-   function for capture, laptop for smarts) is a legitimate outcome.
-3. **Spec revisions** (human-authored per AGENTS.md):
-   product.spec.md — drop "responsive web only", add chat-first jobs +
-   rolling batches; tech.spec.md — new tables (R4 §1), bot surface;
-   AGENTS.md — reword the "no new backend surface" non-goal;
-   design.spec.md — chat voice (A.7 verdict: English or Swedish).
-4. **R4 §6's four schema calls** (preference resolution timing, adhoc
-   batch attachment, per-person preferences, session-vs-service-role).
-5. **Name the bot** (scripts say "Vega" 🌱 — rename at BotFather
-   anytime).
+1. **Pivot vs. extension** — ✅ **Extension**: web keeps cook
+   mode/library/admin/print per R5; chat owns capture + planning.
+2. **Track A vs. Track B vs. hybrid** — ⏳ evidence-gated: decided
+   from the R2 + R6 spike results; the runbook's live-trial log is the
+   tiebreaker. Hybrid (edge function for capture, laptop for smarts)
+   is a legitimate outcome. p4-02 reads this decision at dispatch.
+3. **Spec revisions** — ✅ done in the gate change set:
+   product.spec.md (chat-first jobs, rolling batches, "responsive web
+   only" retired), tech.spec.md ("Chat assistant" contract section),
+   AGENTS.md (backend-surface non-goal reworded), design.spec.md
+   ("Chat voice" section; English default pending the A.7 dry-run
+   verdict).
+4. **R4 §6 schema calls** — ✅ adopted as proposed: add-time
+   preference resolution; ad-hoc items batchless (gathered by
+   shopping mode); per-person preference column kept, written null;
+   session-auth over service-role ⏳ pending the R6 refresh-token
+   longevity check (fallback documented in r4 §3).
+5. **Bot name** — "Vega" 🌱 as working default; rename at BotFather
+   anytime.
 
-## Proposed P4 backlog (post-gate, in order)
+Dry-run verdicts (A.1–A.8) remain valuable but no longer block the
+backlog: p4-02..05 read the filled verdict table at dispatch and fall
+back to the scripts' defaults where a row is empty.
 
-1. `p4-01-schema-rolling-plan` — R4 tables + migration + web Plan Mode
-   re-pointing (biggest, most reversible-averse — goes first).
-2. `p4-02-capture-bot` — "buy milk" end-to-end on the chosen track,
-   harness gains intent-fixture tests (the R3 kit graduates from
-   spike to `./harness` check).
+## P4 backlog (created at the gate — see docs/execplans/)
+
+1. `p4-01-schema-rolling-plan` — R4 tables + migration + web
+   re-pointing (dispatchable now, no dependencies).
+2. `p4-02-capture-bot` — "buy milk" end-to-end on the chosen track;
+   the R3 kit graduates into `./harness`.
 3. `p4-03-planning-conversation` — the Script 5 batch ritual.
-4. `p4-04-preference-learning` — Script 3 flows writing
-   `product_preferences`; admin "what the bot believes" page.
+4. `p4-04-preference-learning` — Script 3 flows + admin "what the bot
+   believes" page.
 5. `p4-05-proactive-pulse` — runs-low nudge, tonight ping, ratings.

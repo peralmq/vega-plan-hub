@@ -84,3 +84,19 @@ the only permitted gradient use. Recipe imagery is full-bleed photos
 from the source sites. Accessibility floor: shadcn defaults, semantic
 HTML, labeled icon buttons, visible focus, sufficient contrast — in
 both modes.
+
+## Chat voice (adopted 2026-07-31, gate-brief; ships in P4)
+
+The Telegram assistant ("Vega" 🌱, working name) extends this design
+language into conversation:
+
+- Same voice as the app: playful, emoji-as-iconography, compassion
+  accents; replies in English (app voice) while understanding
+  Swedish/English input — revisit after the R1 dry-run's A.7 verdict.
+- **Confirmations are emoji reactions** on the human's message, not
+  reply messages. The bot sends a message only when it adds
+  information (clarification, warning, requested detail).
+- Multi-step flows edit one message in place (draft → locked) instead
+  of stacking messages; every step is tap-able.
+- The lock moment is celebrated (🔒 + list summary + the footer motto);
+  proactive messages are rationed per the A.6 proactivity budget.
