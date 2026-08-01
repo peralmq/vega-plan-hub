@@ -1,4 +1,9 @@
-# R2 Track A spike — throwaway echo-bot on Supabase Edge Functions
+# R2 Track A spike — dev capture bot on Supabase Edge Functions
+
+> **Want to test end-to-end with real data right now?** Follow
+> [LIVE-TEST.md](LIVE-TEST.md) — the full household walkthrough
+> (migration, BotFather, deploy, allow-list, test script). This README
+> is the shorter probe-focused version of the same setup.
 
 Spike R2 of
 [../../docs/research/telegram-pivot-research-plan.md](../../docs/research/telegram-pivot-research-plan.md).
