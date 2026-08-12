@@ -1,1 +1,3 @@
 project_id = "fbssmpypnakawxxvvgvo"
+[functions.telegram-spike]
+verify_jwt = false
