@@ -10,7 +10,7 @@ import {
   webhookCallback,
   InlineKeyboard,
   Context,
-} from "https://deno.land/x/grammy@v1.30.0/mod.ts";
+} from "npm:grammy@1.30.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 declare const Deno: {
