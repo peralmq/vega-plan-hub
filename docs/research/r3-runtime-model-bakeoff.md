@@ -1,6 +1,7 @@
 # R3 — Runtime + model bake-off: Findings
 
-Status: model bake-off complete, 2026-08-14. Spike R3 of
+Status: model bake-off complete incl. harness-layer experiment,
+2026-08-14 — **a passing configuration exists** (round 2 below). Spike R3 of
 [telegram-pivot-research-plan.md](telegram-pivot-research-plan.md);
 kit in [spikes/r3-nlu-bakeoff/](../../spikes/r3-nlu-bakeoff/README.md).
 Run on the target machine itself: **M1 Pro, 16 GB, macOS 26.6.1**
@@ -12,7 +13,7 @@ Scope note: this records the **model/NLU bake-off** (C.1). The runtime
 shortlist strand (OpenClaw vs Letta vs lightweight vs custom on the
 memory + sandbox criteria) is not covered here and remains open.
 
-## Headline
+## Round 1 — bare zero-shot prompt (kit as staged)
 
 **No candidate passes the decision rule as-is** (pass ≥ ~90 %,
 malformed ≤ ~5 %, p95 ≲ 3–4 s) — but the failures split cleanly:
@@ -82,18 +83,68 @@ examples of exactly these traps; grammar-constrained JSON + native
 tool calling (Ollama structured outputs — also de-risks malformed
 output permanently); intent descriptions in Swedish.
 
+## Round 2 — extended matrix + harness-layer experiment
+
+Round 1's systematic-failure observation predicted the accuracy gap
+was prompt/scaffolding-bound, not capacity-bound. Round 2 tested that
+with a **domain harness** (`run-harnessed.mjs`, Ollama native API):
+
+1. **Schema-constrained decoding** — Ollama `format` with a JSON
+   schema: malformed output becomes structurally impossible and `day`
+   is forced to an English-weekday enum at the decoder;
+2. **Few-shot examples** — 9 user/assistant pairs covering exactly
+   the round-1 trap categories, paraphrased (no fixture sentence
+   appears verbatim);
+3. **`think: false`** — the native-API switch that actually disables
+   qwen3's thinking (the OpenAI-compat endpoint can't);
+4. **Deterministic post-processing** — Swedish→English weekday map,
+   empty-optional-key stripping, numeric coercion.
+
+Plus three new M1-friendly candidates (dense Q4 / QAT variants that
+fit 16 GB alongside an agent runtime). Same fixtures, same scorer:
+
+| Model | baseline pass | harnessed pass | harnessed p50 / p95 |
+| --- | --- | --- | --- |
+| **qwen3:8b (think:false)** | 16/24 † | **22/24 (92 %)** | **0.93 s / 1.38 s** |
+| gemma3:12b-it-qat | 13/24 | 22/24 (92 %) | 4.3 s / 5.4 s |
+| qwen2.5:7b | 14/24 | 20/24 (+2 intent-only) | 0.84 s / 1.2 s |
+| llama3.1:8b | 19/24 | 19/24 (+1) | 0.99 s / 1.7 s |
+| llama3.2:3b | 10/24 | 13/24 | 0.50 s / 0.90 s |
+
+† round-1 baseline, thinking hidden but active (p50 19 s).
+Malformed: 0 everywhere (constrained decoding guarantees it in the
+harnessed runs). Raw transcripts: `results-h-*.json`.
+
+**qwen3:8b + harness passes the decision rule**: 92 % ≥ ~90 %,
+malformed 0 ≤ ~5 %, p95 1.38 s ≪ 3–4 s. `think:false` collapsed its
+latency from p50 19 s to 0.93 s at top-of-field accuracy. Notable:
+
+- The harness lift is model-dependent: large where multilingual
+  instruction-following is strong (gemma3 +9, qwen2.5 +6/+8), ~zero
+  for llama3.1 (fixed the old traps, invented new day-related ones).
+- Both 92 %-models miss the **same last fixture**: "vi behöver
+  citroner till på lördag" → `plan_set_day` instead of
+  `add_item`+note — genuinely ambiguous phrasing; a candidate for a
+  clarify-in-chat flow rather than more prompt surgery. The remaining
+  intent-only is a `note` vs `context` key choice with correct
+  content (scorer strictness, not model error).
+- Honesty caveat: the few-shot examples target trap *categories*
+  discovered on this same fixture set (paraphrased, never verbatim).
+  Real-household utterances (R6) are the uncontaminated test.
+
 ## Gate input
 
-- **Most promising Track B path:** llama3.1:8b-class via Ollama —
-  latency already passes with headroom, memory fits, and the accuracy
-  gap looks prompt-fixable (few-shot + constrained decoding). Worth
-  one focused prompt-iteration round before the gate call if accuracy
-  ≥ 90 % is a hard precondition.
-- **TurboFieldfare** is viable only if ~13 s replies are acceptable
-  household UX. Its RAM frugality (~1 GB vs 5 GB) matters if the
-  household machine must run the agent runtime + model concurrently —
-  but no prompt caching + 2 tok/s decode on the M1 is the killer for
-  a chat surface today.
+- **Track B has a working local recipe: qwen3:8b via Ollama +
+  the domain harness** — 92 % pass, structurally-guaranteed JSON,
+  ~1 s replies, 5.6 GB resident (10 GB headroom on the 16 GB M1).
+  The harness pattern (schema-constrained decode + few-shot + post-
+  process) is exactly the P4 assistant's parser seam; qwen2.5:7b is a
+  same-shape fallback. R6 (sandboxed live week) is unblocked.
+- **TurboFieldfare** is out for the chat path despite best zero-shot
+  accuracy and a superb memory story (~1 GB): no prompt caching +
+  ~2 tok/s decode on the M1 ⇒ ~13 s replies, and no constrained
+  decoding to harden JSON. Reconsider only if RAM pressure forces
+  model + runtime co-residency trade-offs.
 - **Hosted baseline not run** (no API key handled in this session).
   One command, any OpenAI-compatible endpoint:
 
@@ -101,10 +152,12 @@ output permanently); intent descriptions in Swedish.
   cd spikes/r3-nlu-bakeoff && BAKEOFF_URL=<endpoint>/v1 BAKEOFF_KEY=<key> BAKEOFF_MODEL=<model> node run.mjs --out results-hosted.json
   ```
 
-## Kit changes in this run
+## Kit changes across both rounds
 
 - `run.mjs`: opt-in `BAKEOFF_NOTHINK=1` appends qwen3's `/no_think`
-  soft switch to the system prompt (variant runs stay separate:
-  `results-qwen3-8b-nothink.json`). Mock self-test re-verified 24/24
-  after the change.
-- Committed result reports for all four live runs.
+  soft switch (round 1; ineffective — kept for the record). Mock
+  self-test re-verified 24/24 after the change.
+- `run-harnessed.mjs` (round 2): the domain-harness runner described
+  above, Ollama native API only.
+- Committed result reports for all eleven live runs
+  (`results-*.json`).
