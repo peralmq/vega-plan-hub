@@ -50,7 +50,10 @@ Schema — exactly one of these intents, with only the listed keys:
 Rules: normalize items to lowercase singular-ish Swedish where the user
 wrote Swedish (fix missing diacritics: "mjolk" -> "mjölk"); "köp inte
 mer X" means remove_item, not add_item; when unsure, prefer chitchat
-over guessing a destructive action.`;
+over guessing a destructive action.`
+  // BAKEOFF_NOTHINK=1: soft-switch off Qwen3's thinking mode for a
+  // latency-fair variant run (recorded separately in the findings).
+  + (process.env.BAKEOFF_NOTHINK ? "\n/no_think" : "");
 
 async function askLLM(utterance) {
   const t0 = performance.now();

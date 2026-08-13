@@ -1,0 +1,407 @@
+{
+  "summary": {
+    "model": "gemma-4-26b-a4b-it",
+    "url": "http://127.0.0.1:8080/v1",
+    "total": 24,
+    "pass": 17,
+    "intentOnly": 4,
+    "fail": 3,
+    "malformed": 0,
+    "error": 0,
+    "latencyMs": {
+      "p50": 12958,
+      "p95": 14268
+    }
+  },
+  "results": [
+    {
+      "utterance": "köp mjölk",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "mjölk"
+        ]
+      },
+      "ms": 12661,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"mjölk\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "mjölk"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "buy toilet paper and coffee",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "toilet paper",
+          "coffee"
+        ]
+      },
+      "ms": 13439,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"toalettpapper\",\"kaffe\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "toalettpapper",
+          "kaffe"
+        ]
+      },
+      "outcome": "intent-only"
+    },
+    {
+      "utterance": "vi behöver citroner till på lördag",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "citroner"
+        ],
+        "note": "lördag"
+      },
+      "ms": 14268,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"citron\"],\"quantity\":\"...\",\"context\":\"på lördag\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "citron"
+        ],
+        "quantity": "...",
+        "context": "på lördag"
+      },
+      "outcome": "intent-only"
+    },
+    {
+      "utterance": "köp mjölk till pannkakorna",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "mjölk"
+        ],
+        "context": "pannkak"
+      },
+      "ms": 13584,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"mjölk\"],\"note\":\"till pannkakorna\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "mjölk"
+        ],
+        "note": "till pannkakorna"
+      },
+      "outcome": "intent-only"
+    },
+    {
+      "utterance": "köp också diskmedel",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "diskmedel"
+        ]
+      },
+      "ms": 12687,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"diskmedel\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "diskmedel"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "3 burkar krossade tomater",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "krossade tomater"
+        ],
+        "quantity": "3"
+      },
+      "ms": 13669,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"krossade tomater\"],\"quantity\":\"3 burkar\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "krossade tomater"
+        ],
+        "quantity": "3 burkar"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "nej, penne",
+      "expect": {
+        "intent": "correct_last",
+        "replacement": "penne"
+      },
+      "ms": 12625,
+      "raw": "{\"intent\":\"correct_last\",\"replacement\":\"penne\"}",
+      "parsed": {
+        "intent": "correct_last",
+        "replacement": "penne"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "ta bort kaffe från listan",
+      "expect": {
+        "intent": "remove_item",
+        "items": [
+          "kaffe"
+        ]
+      },
+      "ms": 12652,
+      "raw": "{\"intent\":\"remove_item\",\"items\":[\"kaffe\"]}",
+      "parsed": {
+        "intent": "remove_item",
+        "items": [
+          "kaffe"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "köp inte mer kaffe",
+      "expect": {
+        "intent": "remove_item",
+        "items": [
+          "kaffe"
+        ]
+      },
+      "ms": 12705,
+      "raw": "{\"intent\":\"remove_item\",\"items\":[\"kaffe\"]}",
+      "parsed": {
+        "intent": "remove_item",
+        "items": [
+          "kaffe"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vi har bytt från oatly deluxe till ica havredryck",
+      "expect": {
+        "intent": "set_preference",
+        "ingredient": "mjölk",
+        "product": "ica havredryck"
+      },
+      "ms": 14466,
+      "raw": "{\"intent\":\"set_preference\",\"ingredient\":\"havredryck\",\"product\":\"ica havredryck\"}",
+      "parsed": {
+        "intent": "set_preference",
+        "ingredient": "havredryck",
+        "product": "ica havredryck"
+      },
+      "outcome": "intent-only"
+    },
+    {
+      "utterance": "mindre stark nästa gång bara",
+      "expect": {
+        "intent": "note_recipe",
+        "note": "mindre stark"
+      },
+      "ms": 12272,
+      "raw": "{\"intent\":\"chitchat\"}",
+      "parsed": {
+        "intent": "chitchat"
+      },
+      "outcome": "fail"
+    },
+    {
+      "utterance": "vad blir det för mat ikväll?",
+      "expect": {
+        "intent": "query_tonight"
+      },
+      "ms": 12958,
+      "raw": "{\"intent\":\"query_tonight\",\"day_offset\":0}",
+      "parsed": {
+        "intent": "query_tonight",
+        "day_offset": 0
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "what's for dinner tomorrow",
+      "expect": {
+        "intent": "query_tonight",
+        "day_offset": 1
+      },
+      "ms": 12976,
+      "raw": "{\"intent\":\"query_tonight\",\"day_offset\":1}",
+      "parsed": {
+        "intent": "query_tonight",
+        "day_offset": 1
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "byt torsdag till tacos istället",
+      "expect": {
+        "intent": "plan_set_day",
+        "day": "thursday",
+        "recipe_query": "tacos"
+      },
+      "ms": 13809,
+      "raw": "{\"intent\":\"plan_set_day\",\"day\":\"thursday\",\"recipe_query\":\"tacos\"}",
+      "parsed": {
+        "intent": "plan_set_day",
+        "day": "thursday",
+        "recipe_query": "tacos"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kan vi köra dubbla portioner på söndagen?",
+      "expect": {
+        "intent": "plan_set_multiplier",
+        "day": "sunday",
+        "multiplier": 2
+      },
+      "ms": 13790,
+      "raw": "{\"intent\":\"plan_set_multiplier\",\"day\":\"sunday\",\"multiplier\":2}",
+      "parsed": {
+        "intent": "plan_set_multiplier",
+        "day": "sunday",
+        "multiplier": 2
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kan vi planera de närmsta dagarna?",
+      "expect": {
+        "intent": "plan_draft"
+      },
+      "ms": 12209,
+      "raw": "{\"intent\":\"plan_draft\"}",
+      "parsed": {
+        "intent": "plan_draft"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "planera fram till söndag",
+      "expect": {
+        "intent": "plan_draft",
+        "horizon": "sunday"
+      },
+      "ms": 12628,
+      "raw": "{\"intent\":\"plan_draft\",\"horizon\":\"sunday\"}",
+      "parsed": {
+        "intent": "plan_draft",
+        "horizon": "sunday"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "lås dagarna",
+      "expect": {
+        "intent": "plan_lock"
+      },
+      "ms": 11755,
+      "raw": "{\"intent\":\"plan_lock\"}",
+      "parsed": {
+        "intent": "plan_lock"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "visa listan",
+      "expect": {
+        "intent": "show_list"
+      },
+      "ms": 11817,
+      "raw": "{\"intent\":\"show_list\"}",
+      "parsed": {
+        "intent": "show_list"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "har vi vitlök hemma?",
+      "expect": {
+        "intent": "show_list",
+        "query": "vitlök"
+      },
+      "ms": 13003,
+      "raw": "{\"intent\":\"check_item\",\"items\":[\"vitlök\"]}",
+      "parsed": {
+        "intent": "check_item",
+        "items": [
+          "vitlök"
+        ]
+      },
+      "outcome": "fail"
+    },
+    {
+      "utterance": "bocka av spenaten",
+      "expect": {
+        "intent": "check_item",
+        "items": [
+          "spenat"
+        ]
+      },
+      "ms": 12751,
+      "raw": "{\"intent\":\"remove_item\",\"items\":[\"spenat\"]}",
+      "parsed": {
+        "intent": "remove_item",
+        "items": [
+          "spenat"
+        ]
+      },
+      "outcome": "fail"
+    },
+    {
+      "utterance": "tack snälla vega!",
+      "expect": {
+        "intent": "chitchat"
+      },
+      "ms": 12293,
+      "raw": "{\"intent\":\"chitchat\"}",
+      "parsed": {
+        "intent": "chitchat"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "köp taco-grejer",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "taco"
+        ]
+      },
+      "ms": 13119,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"taco-grejer\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "taco-grejer"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kop mjolk o brod",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "mjölk",
+          "bröd"
+        ]
+      },
+      "ms": 13031,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"mjölk\",\"bröd\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "mjölk",
+          "bröd"
+        ]
+      },
+      "outcome": "pass"
+    }
+  ]
+}
