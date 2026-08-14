@@ -155,6 +155,18 @@ const INGREDIENT_ALIASES: Record<string, string> = {
   'veggie broth': 'vegetable broth',
   'veggie stock': 'vegetable broth',
   'water': 'water',
+
+  // Swedish grocery-speak (p4-02 live feedback 2026-08-14): in this vegan
+  // household "mjölk" means plant milk, and the chat bot hears the variants —
+  // collapsing them to one canonical lets product_preferences apply to all
+  // of them ("köp havremjölk" resolves like "köp mjölk"). Grow as the
+  // household's real utterances surface new ones (p4-06 will automate this).
+  'mjölk': 'mjölk',
+  'havremjölk': 'mjölk',
+  'havredryck': 'mjölk',
+  'växtmjölk': 'mjölk',
+  'sojamjölk': 'mjölk',
+  'oatly': 'mjölk',
 };
 
 // Normalize ingredient name to a canonical form

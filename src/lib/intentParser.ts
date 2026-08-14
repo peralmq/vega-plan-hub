@@ -281,8 +281,13 @@ export function parseWithRules(utterance: string): ParsedUtterance | null {
   if ((m = text.match(/^tog\s+(.+?)\s+nyss$/i)))
     return { intent: "check_item", items: splitItems(m[1]) };
 
-  // show_list: the plain forms and the "do we have X?" lookups.
-  if (/^(visa listan|listan|show (?:me )?(?:the )?list|what'?s on the list\??|vad står på listan\??)$/i.test(low))
+  // show_list: the plain forms and the "do we have X?" lookups. Broadened
+  // from live use 2026-08-14: "Visa lista", "visa mig vad som ska köpas"
+  // all landed as show_list via the LLM — right answer, square latency.
+  if (
+    /^visa( mig)? (listan?|inköpslistan?|shoppinglistan?|vad som ska köpas)\s*\??$/i.test(low) ||
+    /^(listan|vad står på listan|vad ska köpas|vad ska vi köpa|show (?:me )?(?:the )?(?:shopping )?list|what'?s on the list)\s*\??$/i.test(low)
+  )
     return { intent: "show_list" };
   if ((m = text.match(/^har vi\s+(?:kvar\s+)?(.+?)(?:\s+(?:hemma|kvar))?\s*\??$/i)))
     return { intent: "show_list", query: repairDiacritics(m[1]) };
@@ -348,6 +353,16 @@ export async function parseWithLlm(
     required: spec.required,
   });
   return postProcess({ intent, ...JSON.parse(stage2) }, utterance);
+}
+
+// Reply-language pick (design.spec "Chat voice", A.7 live verdict
+// 2026-08-14): mirror the sender's language, Swedish when ambiguous.
+export function detectLanguage(text: string): "sv" | "en" {
+  const low = text.toLowerCase();
+  if (/[åäö]/.test(low)) return "sv";
+  if (/\b(köp|kop|visa|listan?|bocka|behöver|ta bort|skippa|hej|tack|inte|vad|ska|köpas)\b/.test(low)) return "sv";
+  if (/\b(buy|get|show|check|list|need|what'?s|the|thanks|please)\b/.test(low)) return "en";
+  return "sv";
 }
 
 export async function parseUtterance(

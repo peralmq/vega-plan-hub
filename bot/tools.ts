@@ -4,7 +4,7 @@
 // saying; speak only to add information). The pure planning behind this
 // lives in src/lib/botActions; this file is the Supabase/Telegram side.
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ParsedUtterance } from "../src/lib/intentParser";
+import { detectLanguage, type ParsedUtterance } from "../src/lib/intentParser";
 import {
   type BotAction,
   type InsertItemAction,
@@ -37,14 +37,61 @@ export interface ChatState {
 }
 export type StateMap = Map<number, ChatState>;
 
-const HELP_TEXT =
-  "🌱 I know these:\n" +
-  "• köp/buy <thing>[, <thing>…] — onto the list\n" +
-  "• visa listan / show list\n" +
-  "• bocka av/check <thing>\n" +
-  "• ta bort <thing>\n" +
-  "• nej, <thing> — fix my last add\n" +
-  "Planning chat comes in the next update 🚧";
+// All user-facing strings, mirrored per design.spec "Chat voice": reply in
+// the sender's language, Swedish when ambiguous (A.7 live verdict).
+type Lang = "sv" | "en";
+const T = {
+  sv: {
+    help:
+      "🌱 Jag kan det här:\n" +
+      "• köp <grej>[, <grej>…] — in på listan\n" +
+      "• visa listan\n" +
+      "• bocka av <grej>\n" +
+      "• ta bort <grej>\n" +
+      "• nej, <grej> — rättar mitt senaste tillägg\n" +
+      "Planeringssnack kommer i nästa uppdatering 🚧",
+    emptyList: "🛒 Listan är tom — snyggt! ✨",
+    listHeader: (n: number) => `🛒 Inköpslista (${n}):`,
+    nothingMatching: (term: string) => `🤷 Inget på listan som matchar "${term}".`,
+    onList: (names: string) => `✅ På listan: ${names}`,
+    notOnList: (q: string) => `🤷 "${q}" står inte på listan.`,
+    newOne: (item: string) =>
+      `✨ Ny för mig! La till "${item}" som du skrev det. Ska jag komma ihåg den som stapelvara?`,
+    btnRemember: "Ja, kom ihåg",
+    btnOnce: "Bara denna gång",
+    corrected: (item: string) => `✏️ ${item} ska det va — utbytt på listan.`,
+    nothingToCorrect: "🤔 Inget färskt av dig att rätta — köp den rätta?",
+    unsupported:
+      "🚧 Jag kan bara list-grejer än så länge (köp / visa listan / bocka av). Planeringssnack kommer snart 🌱",
+    cbRemember: "🌱 Att komma ihåg stapelvaror lär jag mig i nästa uppdatering — noterat i själen!",
+    cbOnce: "👍 Bara denna gång, då.",
+  },
+  en: {
+    help:
+      "🌱 I know these:\n" +
+      "• köp/buy <thing>[, <thing>…] — onto the list\n" +
+      "• visa listan / show list\n" +
+      "• bocka av/check <thing>\n" +
+      "• ta bort <thing>\n" +
+      "• nej, <thing> — fix my last add\n" +
+      "Planning chat comes in the next update 🚧",
+    emptyList: "🛒 List is empty — nice! ✨",
+    listHeader: (n: number) => `🛒 Shopping list (${n}):`,
+    nothingMatching: (term: string) => `🤷 Nothing on the list matching "${term}".`,
+    onList: (names: string) => `✅ On the list: ${names}`,
+    notOnList: (q: string) => `🤷 "${q}" is not on the list.`,
+    newOne: (item: string) =>
+      `✨ New one for me! Added "${item}" as written. Want me to remember it as a pantry staple?`,
+    btnRemember: "Yes, remember",
+    btnOnce: "Just this once",
+    corrected: (item: string) => `✏️ ${item} it is — swapped on the list.`,
+    nothingToCorrect: "🤔 Nothing recent of yours to correct — köp the right one?",
+    unsupported:
+      "🚧 I only do list stuff so far (köp / visa listan / bocka av). Planning chat is the next update 🌱",
+    cbRemember: "🌱 I'll learn to remember staples in the next update — noted in spirit!",
+    cbOnce: "👍 Just this once then.",
+  },
+} satisfies Record<Lang, unknown>;
 
 async function loadPreferences(
   supa: SupabaseClient,
@@ -81,6 +128,7 @@ async function executeInserts(
   row: InboxRow,
   inserts: InsertItemAction[],
   state: ChatState,
+  lang: Lang,
 ): Promise<void> {
   // "New one for me" (Script 2) is decided BEFORE inserting, per item:
   // unknown = no preference matched and never seen on the list before.
@@ -118,15 +166,10 @@ async function executeInserts(
 
   if (row.message_id != null) await tg.react(row.chat_id, row.message_id, REACTIONS.added);
   if (firstUnknown) {
-    await tg.sendMessage(
-      row.chat_id,
-      `✨ New one for me! Added "${firstUnknown.asWritten}" as written. ` +
-        "Want me to remember it as a pantry staple?",
-      [[
-        { text: "Yes, remember", callback_data: "remember" },
-        { text: "Just this once", callback_data: "once" },
-      ]],
-    );
+    await tg.sendMessage(row.chat_id, T[lang].newOne(firstUnknown.asWritten), [[
+      { text: T[lang].btnRemember, callback_data: "remember" },
+      { text: T[lang].btnOnce, callback_data: "once" },
+    ]]);
   }
 }
 
@@ -140,13 +183,14 @@ export async function handleMessage(
   const state = states.get(row.chat_id) ?? {};
   states.set(row.chat_id, state);
 
+  const lang = detectLanguage(row.text ?? "");
   const preferences = await loadPreferences(supa, row.user_id);
   const actions = planActions(parse, preferences);
   const inserts = actions.filter((a): a is InsertItemAction => a.type === "insert_item");
-  if (inserts.length > 0) await executeInserts(supa, tg, row, inserts, state);
+  if (inserts.length > 0) await executeInserts(supa, tg, row, inserts, state, lang);
 
   for (const action of actions) {
-    await executeOne(supa, tg, row, action, state, preferences);
+    await executeOne(supa, tg, row, action, state, preferences, lang);
   }
 }
 
@@ -157,6 +201,7 @@ async function executeOne(
   action: BotAction,
   state: ChatState,
   preferences: Map<string, string>,
+  lang: Lang,
 ): Promise<void> {
   switch (action.type) {
     case "insert_item":
@@ -166,7 +211,7 @@ async function executeOne(
       for (const term of action.terms) {
         const matches = await findUnchecked(supa, row.user_id, term);
         if (matches.length === 0) {
-          await tg.sendMessage(row.chat_id, `🤷 Nothing on the list matching "${term}".`);
+          await tg.sendMessage(row.chat_id, T[lang].nothingMatching(term));
           continue;
         }
         const { error } = await supa
@@ -183,7 +228,7 @@ async function executeOne(
       for (const term of action.terms) {
         const matches = await findUnchecked(supa, row.user_id, term);
         if (matches.length === 0) {
-          await tg.sendMessage(row.chat_id, `🤷 Nothing on the list matching "${term}".`);
+          await tg.sendMessage(row.chat_id, T[lang].nothingMatching(term));
           continue;
         }
         const { error } = await supa
@@ -199,7 +244,7 @@ async function executeOne(
     case "correct_last": {
       const last = state.lastInsert;
       if (!last || last.rowIds.length === 0) {
-        await tg.sendMessage(row.chat_id, "🤔 Nothing recent of yours to correct — köp the right one?");
+        await tg.sendMessage(row.chat_id, T[lang].nothingToCorrect);
         return;
       }
       const targetId = last.rowIds[last.rowIds.length - 1];
@@ -211,7 +256,7 @@ async function executeOne(
         .eq("id", targetId);
       if (error) throw new Error(`correct failed: ${error.message}`);
       last.displayNames[last.displayNames.length - 1] = displayName;
-      await tg.sendMessage(row.chat_id, `✏️ ${displayName} it is — swapped on the list.`);
+      await tg.sendMessage(row.chat_id, T[lang].corrected(displayName));
       return;
     }
 
@@ -221,8 +266,8 @@ async function executeOne(
         await tg.sendMessage(
           row.chat_id,
           matches.length > 0
-            ? `✅ On the list: ${matches.map((m) => m.display_name).join(", ")}`
-            : `🤷 "${action.query}" is not on the list.`,
+            ? T[lang].onList(matches.map((m) => m.display_name).join(", "))
+            : T[lang].notOnList(action.query),
         );
         return;
       }
@@ -239,7 +284,7 @@ async function executeOne(
         family_members: { name: string } | null;
       }>;
       if (rows.length === 0) {
-        await tg.sendMessage(row.chat_id, "🛒 List is empty — nice! ✨");
+        await tg.sendMessage(row.chat_id, T[lang].emptyList);
         return;
       }
       const lines = rows.map((r) => {
@@ -247,15 +292,12 @@ async function executeOne(
         const note = r.note ? ` — ${r.note}` : "";
         return `• ${r.display_name}${note}${by}`;
       });
-      await tg.sendMessage(row.chat_id, `🛒 Shopping list (${rows.length}):\n${lines.join("\n")}`);
+      await tg.sendMessage(row.chat_id, `${T[lang].listHeader(rows.length)}\n${lines.join("\n")}`);
       return;
     }
 
     case "unsupported": {
-      await tg.sendMessage(
-        row.chat_id,
-        "🚧 I only do list stuff so far (köp / visa listan / bocka av). Planning chat is the next update 🌱",
-      );
+      await tg.sendMessage(row.chat_id, T[lang].unsupported);
       return;
     }
 
@@ -280,16 +322,14 @@ export async function handleCallback(
   const callbackId = row.payload.callback_query?.id;
   if (callbackId) await tg.answerCallbackQuery(callbackId);
   // v1 stub (p4-02 scope): [Yes, remember] is acknowledged but writes
-  // nothing — preference LEARNING lands in p4-04.
+  // nothing — preference LEARNING lands in p4-04. Callback data carries no
+  // language, so these follow the household default (Swedish).
   if (row.message_id != null) {
-    const text =
-      row.text === "remember"
-        ? "🌱 I'll learn to remember staples in the next update — noted in spirit!"
-        : "👍 Just this once then.";
+    const text = row.text === "remember" ? T.sv.cbRemember : T.sv.cbOnce;
     await tg.editMessageText(row.chat_id, row.message_id, text);
   }
 }
 
-export function helpText(): string {
-  return HELP_TEXT;
+export function helpText(sourceText: string): string {
+  return T[detectLanguage(sourceText)].help;
 }

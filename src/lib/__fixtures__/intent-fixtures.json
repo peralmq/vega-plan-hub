@@ -608,5 +608,36 @@
       "intent": "chitchat"
     },
     "set": "heldout"
+  },
+  {
+    "utterance": "Visa lista",
+    "expect": {
+      "intent": "show_list"
+    },
+    "set": "live-20260814"
+  },
+  {
+    "utterance": "Visa mig vad som ska köpas",
+    "expect": {
+      "intent": "show_list"
+    },
+    "set": "live-20260814"
+  },
+  {
+    "utterance": "vad ska köpas?",
+    "expect": {
+      "intent": "show_list"
+    },
+    "set": "live-20260814"
+  },
+  {
+    "utterance": "Köp havremjölk",
+    "expect": {
+      "intent": "add_item",
+      "items": [
+        "havremjölk"
+      ]
+    },
+    "set": "live-20260814"
   }
 ]

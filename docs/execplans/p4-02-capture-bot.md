@@ -125,4 +125,20 @@ contract: r1-conversation-scripts.md Scripts 1–2 + design.spec.md
   traps are fixtures; a capture bot that can't take items off the
   list fails the household in week one.
 
-(live-smoke evidence pending deploy — see Steps 5)
+**2026-08-14 (live round 1):** deployed end-to-end (webhook →
+telegram-capture → telegram_inbox → M1 consumer). Setup findings:
+project auth needed the email provider enabled (Google-OAuth-born
+household user got a password identity via admin API — the r4 §3
+"dedicated password-grant identity" made real); capture-fn secrets
+must exist *and* the function redeployed to see them. First real
+usage (log): `[row 1] intent=add_item source=rules 531ms "Köp
+havremjölk"`, four show_list phrasings via LLM 1.6–6.7 s all correct
+intent, `TOKEN_REFRESHED` observed (r4 §3 evidence accruing).
+Feedback applied same day: Swedish milk-variant aliases in
+`ingredientNormalization` (havremjölk → mjölk so preferences span
+variants), show_list rules broadened with the real phrasings (now
+fixtures, set `live-20260814`, 72 total), and replies mirror the
+sender's language with Swedish default (design.spec Chat voice A.7
+verdict recorded from live use — spec updated in this change set).
+
+(live smoke with both partners still pending — see Steps 5)

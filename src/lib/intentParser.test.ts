@@ -12,6 +12,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  detectLanguage,
   parseUtterance,
   parseWithRules,
   type LlmChat,
@@ -94,6 +95,12 @@ const MUST_BE_RULED = [
   "ta bort kaffe från listan",
   "köp inte mer kaffe",
   "tack snälla vega!",
+  // live-20260814: real household phrasings that took the LLM detour (right
+  // intent, square latency) until the rules learned them.
+  "Visa lista",
+  "Visa mig vad som ska köpas",
+  "vad ska köpas?",
+  "Köp havremjölk",
 ];
 
 describe("rules layer", () => {
@@ -184,6 +191,28 @@ describe("action planning (add-time preference resolution, gate call §6.1)", ()
         preferenceResolved: false,
       }),
     ]);
+  });
+
+  it("collapses Swedish milk variants so one preference covers them (live-20260814)", () => {
+    const prefs = new Map([["mjölk", "ICA Havredryck"]]);
+    const parse = parseWithRules("Köp havremjölk")!;
+    const actions = planActions(parse, prefs);
+    expect(actions).toEqual([
+      expect.objectContaining({
+        type: "insert_item",
+        displayName: "ICA Havredryck",
+        canonicalIngredient: "mjölk",
+        preferenceResolved: true,
+      }),
+    ]);
+  });
+
+  it("mirrors the sender's language, Swedish when ambiguous (A.7)", () => {
+    expect(detectLanguage("köp mjölk")).toBe("sv");
+    expect(detectLanguage("Visa lista")).toBe("sv");
+    expect(detectLanguage("buy oat milk and bananas")).toBe("en");
+    expect(detectLanguage("what's on the list")).toBe("en");
+    expect(detectLanguage("🌱")).toBe("sv");
   });
 
   it("strips Swedish definite forms for check-off matching", () => {

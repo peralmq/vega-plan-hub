@@ -49,7 +49,7 @@ async function processRow(row: InboxRow): Promise<void> {
   if (text.startsWith("/")) {
     const isPrivate =
       (row.payload as { message?: { chat?: { type?: string } } }).message?.chat?.type === "private";
-    if (isPrivate) await tg.sendMessage(row.chat_id, helpText());
+    if (isPrivate) await tg.sendMessage(row.chat_id, helpText(text));
     console.log(`[row ${row.id}] command "${text}" (${isPrivate ? "helped" : "group, silent"})`);
     return;
   }

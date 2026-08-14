@@ -91,8 +91,10 @@ The Telegram assistant ("Vega" 🌱, working name) extends this design
 language into conversation:
 
 - Same voice as the app: playful, emoji-as-iconography, compassion
-  accents; replies in English (app voice) while understanding
-  Swedish/English input — revisit after the R1 dry-run's A.7 verdict.
+  accents. **Replies mirror the sender's language** (Swedish/English),
+  defaulting to Swedish when ambiguous — A.7 decided from live
+  household use 2026-08-14: English replies in a Swedish family chat
+  read as square, and the household speaks Swedish to the bot.
 - **Confirmations are emoji reactions** on the human's message, not
   reply messages. The bot sends a message only when it adds
   information (clarification, warning, requested detail).
