@@ -51,10 +51,11 @@ function slotMatch(expected: unknown, actual: unknown): boolean {
 function assertParseMatches(fixture: Fixture, parse: ParsedUtterance) {
   expect(parse.intent, `intent for "${fixture.utterance}"`).toBe(fixture.expect.intent);
   const slotKeys = Object.keys(fixture.expect).filter((k) => k !== "intent");
+  const got = parse as unknown as Record<string, unknown>;
   for (const key of slotKeys) {
     expect(
-      slotMatch(fixture.expect[key], (parse as Record<string, unknown>)[key]),
-      `slot "${key}" for "${fixture.utterance}" — expected ${JSON.stringify(fixture.expect[key])}, got ${JSON.stringify((parse as Record<string, unknown>)[key])}`,
+      slotMatch(fixture.expect[key], got[key]),
+      `slot "${key}" for "${fixture.utterance}" — expected ${JSON.stringify(fixture.expect[key])}, got ${JSON.stringify(got[key])}`,
     ).toBe(true);
   }
 }

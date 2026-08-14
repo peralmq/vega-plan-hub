@@ -398,6 +398,69 @@ export type Database = {
           },
         ]
       }
+      telegram_inbox: {
+        Row: {
+          chat_id: number
+          family_member_id: string | null
+          id: number
+          kind: string
+          message_id: number | null
+          payload: Json
+          processed_at: string | null
+          processing_error: string | null
+          received_at: string
+          telegram_user_id: number
+          text: string | null
+          update_id: number
+          user_id: string
+        }
+        Insert: {
+          chat_id: number
+          family_member_id?: string | null
+          id?: never
+          kind: string
+          message_id?: number | null
+          payload: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+          telegram_user_id: number
+          text?: string | null
+          update_id: number
+          user_id: string
+        }
+        Update: {
+          chat_id?: number
+          family_member_id?: string | null
+          id?: never
+          kind?: string
+          message_id?: number | null
+          payload?: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+          telegram_user_id?: number
+          text?: string | null
+          update_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_inbox_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "telegram_inbox_telegram_user_id_fkey"
+            columns: ["telegram_user_id"]
+            isOneToOne: false
+            referencedRelation: "telegram_accounts"
+            referencedColumns: ["telegram_user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
