@@ -2,7 +2,7 @@
 id: p2-03-fill-placeholder-recipes
 title: Fill in the nine placeholder recipes with complete content
 phase: P2
-status: todo
+status: in-progress
 depends_on: []
 ---
 
@@ -71,27 +71,27 @@ or approving as-is) and that feedback is recorded in Evidence.
 
 ## Progress
 
-- [ ] fredagsmys-tacos drafted (mince + spice from scratch, topping
+- [x] fredagsmys-tacos drafted (mince + spice from scratch, topping
       bar as ingredient rows, tortilla warming)
-- [ ] summer-rolls-peanut-sauce drafted (roll technique steps, sauce
+- [x] summer-rolls-peanut-sauce drafted (roll technique steps, sauce
       ratios, make-ahead notes)
-- [ ] vegan-sushi-rolls drafted (rice seasoning ratios, 2-3 filling
+- [x] vegan-sushi-rolls drafted (rice seasoning ratios, 2-3 filling
       variations, rolling steps)
-- [ ] vegan-meatballs-creamed-macaroni drafted (meatball choice or
+- [x] vegan-meatballs-creamed-macaroni drafted (meatball choice or
       from-scratch, stuvade makaroner bechamel-in-pot method, citrus
       spinach)
-- [ ] vegan-meatballs-brown-sauce drafted (meatballs + boiled potatoes;
+- [x] vegan-meatballs-brown-sauce drafted (meatballs + boiled potatoes;
       brunsås imported from the wondervegan source; pressgurka imported
       from the javligtgott source; lingonberry jam as accompaniment)
-- [ ] peanut-noodles-tofu drafted (peanut sauce ratios, crispy tofu or
+- [x] peanut-noodles-tofu drafted (peanut sauce ratios, crispy tofu or
       vegan chicken option, kid-mild with optional heat)
-- [ ] vegan-dillkott-potatoes drafted (dill sauce: oat cream +
+- [x] vegan-dillkott-potatoes drafted (dill sauce: oat cream +
       vinegar/sugar balance; soy chunks or oumph)
-- [ ] oumph-bourguignon drafted (wine reduction, mushroom/pearl-onion
+- [x] oumph-bourguignon drafted (wine reduction, mushroom/pearl-onion
       technique, batch/freezer notes)
-- [ ] vegan-kalpudding drafted (caramelized cabbage with syrup, mince
+- [x] vegan-kalpudding drafted (caramelized cabbage with syrup, mince
       layer, bake times, lingon + gravy to serve)
-- [ ] mechanical checks green; drafts handed to the human
+- [x] mechanical checks green; drafts handed to the human
 - [ ] human review recorded per recipe; status flipped to done
 
 ## Steps
@@ -120,4 +120,30 @@ or approving as-is) and that feedback is recorded in Evidence.
 
 ## Evidence
 
-(appended during implementation)
+**2026-08-15 (drafts, mechanical checks):**
+
+- All nine recipes drafted in place; ids/titles/tags unchanged; no new
+  tags needed (controlled vocabulary sufficed for every draft).
+  cookTime adjusted where the drafted content demanded it:
+  `vegan-meatballs-brown-sauce` 45 → 60 (pressgurka press + brine
+  time), `vegan-kalpudding` 75 → 90 (caramelizing + bake + rest);
+  the other seven kept their skeleton values.
+- Imported components, translated + converted to the table format per
+  the plan: brunsås from wondervegan.se (2 msk plant butter / 1 msk
+  flour / 3,5 dl plant cream / 1,5 tsk lingon / 1,5 tsk Chinese soy /
+  0,5 bouillon cube, quantities kept as published) and pressgurka from
+  the PRESSGURKA section of javligtgott.se (1 cucumber / 3 krm salt →
+  0.5 tsp / 2 msk ättika 12 % / 1 dl water / 3 msk sugar / white
+  pepper / parsley). Source attribution recorded in that recipe's
+  Notes.
+- Swedish-household style throughout: metric units, SEK-market brands
+  (Anamma, Hälsans Kök, oumph, ljus sirap, ättika), kid-friendly heat
+  (chili always optional/on the side — tacos, peanut noodles, summer
+  rolls), batch/leftover notes on the batch-tagged dishes
+  (bourguignon, kålpudding) and make-ahead notes elsewhere.
+- Verification run: `grep -r PLACEHOLDER src/data/recipes/` → empty
+  (exit 1). `./harness check` → deps OK (73), lint OK, test OK,
+  build OK, tsc bot OK, plans validate OK (18), validate-recipe
+  OK (30 recipes). All green 2026-08-15.
+
+(human review of the nine drafts pending — required before `done`)
