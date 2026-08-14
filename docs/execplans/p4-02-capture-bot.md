@@ -26,10 +26,15 @@ the minimal loop.
 
 ## Context
 
-**Blocked-on-evidence at dispatch time:** the transport (Track A edge
-function vs. Track B sandboxed runtime vs. hybrid) is decided from the
-R2/R6 spike results per gate-brief.md decision 2 — this plan's first
-step is reading that recorded decision, not making it. Intent contract
+**Transport (recorded, gate-brief decision 2, 2026-08-14): hybrid
+via queue.** Edge function keeps the webhook as always-on capture
+(secret-token check → `telegram_accounts` allow-list → enqueue raw
+update into `telegram_inbox`); the M1 runtime consumes the queue over
+an outbound Realtime subscription, parses with the R3 winner
+(qwen3:8b + two-stage harness, `spikes/r3-nlu-bakeoff/run-twostage.mjs`),
+writes domain rows, and reacts/replies via outbound HTTPS. No inbound
+path to the house; the r6 live week is this plan's live-smoke
+verification. Intent contract
 and 24 fixtures: `spikes/r3-nlu-bakeoff/` (fixtures.json + the system
 prompt in run.mjs). Auth design (RLS-active shared-user session, no
 service role): docs/research/r4-data-model-security.md §3. UX
@@ -38,7 +43,8 @@ contract: r1-conversation-scripts.md Scripts 1–2 + design.spec.md
 
 ## Progress
 
-- [ ] Transport decision read from gate-brief; recorded here
+- [x] Transport decision read from gate-brief; recorded here
+      (hybrid via queue — see Context)
 - [ ] Intent parser (rules + fallback) with fixture tests in harness
 - [ ] Allow-list gate + attribution + add/show/check tools
 - [ ] Reaction confirmations; clarify flow for unknown items
@@ -46,8 +52,10 @@ contract: r1-conversation-scripts.md Scripts 1–2 + design.spec.md
 
 ## Steps
 
-1. Record the decided transport in this plan's Context; scaffold from
-   `spikes/r2-track-a/` (Track A) or the r6 runbook (Track B).
+1. ~~Record the decided transport~~ (done at dispatch: hybrid via
+   queue). Scaffold the capture layer from `spikes/r2-track-a/` and
+   the M1 consumer from the r6 runbook; `telegram_inbox` migration
+   (household-scoped RLS) shown to the human before it runs.
 2. Port the r3 fixture set into the harness as a deterministic unit
    suite (rules-layer must pass without any LLM; LLM-fallback cases
    replay from cached responses per orchestration.spec.md lore).

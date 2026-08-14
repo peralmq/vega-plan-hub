@@ -86,17 +86,25 @@ points, binding for P4 work:
   §1 are approved (`telegram_accounts`, `planned_meals`, `plan_batches`,
   `shopping_list_items`, `product_preferences`); `planned_meals` +
   `plan_batches` replace `meal_plans` + `daily_meals` via the §2
-  migration. Gate calls adopted: preference resolution at **add-time**;
+  migration. `telegram_inbox` (raw-update queue for the hybrid
+  transport, household-scoped RLS, allow-list-gated before enqueue)
+  joined the approved set with the transport decision (gate-brief
+  decision 2, 2026-08-14). Gate calls adopted: preference resolution at **add-time**;
   ad-hoc items batchless until shopping mode gathers them; per-person
   preference column kept but written null in v0.
 - **Auth**: the bot authenticates as the (single, shared) household
   user with RLS active — the service-role key is not used. Senders are
   gated by the `telegram_accounts` allow-list; attribution stamps
   family members.
-- **Transports**: Track A = Supabase Edge Function webhook (grammY,
-  secret-token validated); Track B = sandboxed agent runtime on
-  household hardware, long-polling, per the r6 runbook and the r4 §5
-  checklist. Track choice (or hybrid) is decided on R2/R6 evidence.
+- **Transports**: **hybrid via queue** (decided 2026-08-14,
+  gate-brief decision 2). The Supabase Edge Function webhook (grammY,
+  secret-token validated) is the always-on capture layer: allow-list
+  gate, then enqueue raw updates into `telegram_inbox`. The sandboxed
+  agent runtime on household hardware (r6 runbook topology, r4 §5
+  checklist) consumes the queue over an *outbound* Realtime
+  subscription, runs the local NLU, and replies via outbound HTTPS.
+  No inbound network path to the household machine — admin access is
+  Tailscale-only (p4-07).
 - **Language understanding**: rules first, LLM fallback; intents and
   fixtures in spikes/r3-nlu-bakeoff (graduates into `./harness` when
   the capture bot lands). Bot tools are narrow and enumerable — no

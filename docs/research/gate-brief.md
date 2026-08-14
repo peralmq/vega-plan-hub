@@ -31,10 +31,25 @@ decision-gated, and are marked ⏳.
 
 1. **Pivot vs. extension** — ✅ **Extension**: web keeps cook
    mode/library/admin/print per R5; chat owns capture + planning.
-2. **Track A vs. Track B vs. hybrid** — ⏳ evidence-gated: decided
-   from the R2 + R6 spike results; the runbook's live-trial log is the
-   tiebreaker. Hybrid (edge function for capture, laptop for smarts)
-   is a legitimate outcome. p4-02 reads this decision at dispatch.
+2. **Track A vs. Track B vs. hybrid** — ✅ **Hybrid via queue**
+   (recorded 2026-08-14, user approval via chat). The Track A edge
+   function keeps the Telegram webhook as always-on capture: it
+   validates the secret token, applies the `telegram_accounts`
+   allow-list, and enqueues accepted raw updates into a new
+   `telegram_inbox` table (joins the approved schema set —
+   tech.spec.md updated in this change set). The M1 runtime (Track B
+   topology per the r6 runbook) holds an *outbound* Supabase Realtime
+   subscription, parses with the R3 winning recipe (qwen3:8b +
+   two-stage harness), writes domain rows, and replies/reacts via
+   outbound HTTPS to the Telegram API. No inbound path to the house —
+   a Tailscale-fronted edge→M1 call was considered and rejected (edge
+   functions cannot join a tailnet; Funnel would be public inbound);
+   Tailscale remains admin-access-only per p4-07. Evidence: R2
+   (Track A viable as capture; webhook cannot reach a home LLM), R3
+   (local recipe proven on the M1), household preference for local
+   inference. The r6 one-tool live week folds into p4-02's
+   verification; the r6 sandbox/egress checklist still binds the M1
+   runtime.
 3. **Spec revisions** — ✅ done in the gate change set:
    product.spec.md (chat-first jobs, rolling batches, "responsive web
    only" retired), tech.spec.md ("Chat assistant" contract section),
