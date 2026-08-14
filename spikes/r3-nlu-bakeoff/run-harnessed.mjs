@@ -23,7 +23,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixtures = JSON.parse(readFileSync(join(here, "fixtures.json"), "utf8"));
+const fixIdx = process.argv.indexOf("--fixtures");
+const FIXFILE = fixIdx > -1 ? process.argv[fixIdx + 1] : "fixtures.json";
+const fixtures = JSON.parse(readFileSync(join(here, FIXFILE), "utf8"));
 
 const outIdx = process.argv.indexOf("--out");
 const OUT = outIdx > -1 ? process.argv[outIdx + 1] : null;
@@ -78,7 +80,15 @@ Rules: items lowercase singular-ish Swedish when the user wrote Swedish; fix
 missing diacritics ("mjolk" -> "mjölk"); "köp inte mer X" / "sluta köp X" =
 remove_item; days and horizon ALWAYS as English weekday names; asking whether
 something is at home is show_list with query, never check_item; when unsure,
-prefer chitchat over guessing a destructive action.`;
+prefer chitchat over guessing a destructive action.`
+  // BAKEOFF_FEWSHOT=v2: disambiguation rules for the day-mention trap.
+  + (process.env.BAKEOFF_FEWSHOT === "v2" ? `
+Disambiguation: needing/buying an ITEM for a day ("vi behöver X till på
+lördag") is add_item with note = the day — never a plan intent.
+plan_set_day only changes which DISH is cooked on a day (byt/kör/change
+DAY to DISH). plan_draft is about planning days ahead (planera), even
+without an explicit horizon. "har vi X (kvar/hemma)?" and "står X på
+listan?" are always show_list with query=X.` : "");
 
 // Few-shot pairs covering the baseline-run trap categories, paraphrased so no
 // fixture utterance appears verbatim.
@@ -92,6 +102,11 @@ const FEW_SHOT = [
   ["byt onsdag till soppa", { intent: "plan_set_day", day: "wednesday", recipe_query: "soppa" }],
   ["planera fram till fredag", { intent: "plan_draft", horizon: "friday" }],
   ["kop agg", { intent: "add_item", items: ["ägg"] }],
+  // v2 additions: the day-mention trap and a bare planning ask.
+  ...(process.env.BAKEOFF_FEWSHOT === "v2" ? [
+    ["vi behöver persilja till på torsdag", { intent: "add_item", items: ["persilja"], note: "torsdag" }],
+    ["ska vi planera lite dagar framåt?", { intent: "plan_draft" }],
+  ] : []),
 ];
 
 const DAY_MAP = {
@@ -197,6 +212,7 @@ const lat = results.filter((r) => r.ms != null).map((r) => r.ms).sort((a, b) => 
 const pct = (p) => lat[Math.min(lat.length - 1, Math.floor((p / 100) * lat.length))] ?? "-";
 const summary = {
   harness: "few-shot + schema-constrained decoding + post-processing",
+  fewshot: process.env.BAKEOFF_FEWSHOT ?? "v1", fixtures: FIXFILE,
   model: MODEL, url: URL_BASE, think: process.env.BAKEOFF_THINK ?? "default",
   total: results.length,
   pass: count("pass"), intentOnly: count("intent-only"), fail: count("fail"),

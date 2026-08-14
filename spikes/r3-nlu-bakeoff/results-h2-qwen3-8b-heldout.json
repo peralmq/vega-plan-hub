@@ -1,0 +1,712 @@
+{
+  "summary": {
+    "harness": "few-shot + schema-constrained decoding + post-processing",
+    "fewshot": "v2",
+    "fixtures": "fixtures-heldout.json",
+    "model": "qwen3:8b",
+    "url": "http://localhost:11434",
+    "think": "false",
+    "total": 44,
+    "pass": 41,
+    "intentOnly": 2,
+    "fail": 1,
+    "malformed": 0,
+    "error": 0,
+    "latencyMs": {
+      "p50": 1001,
+      "p95": 1267
+    }
+  },
+  "results": [
+    {
+      "utterance": "köp havregryn",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "havregryn"
+        ]
+      },
+      "ms": 1114,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"havregryn\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "havregryn"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vi behöver tahini och kikärtor",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "tahini",
+          "kikärtor"
+        ]
+      },
+      "ms": 1267,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"tahini\",\"kikärtor\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "tahini",
+          "kikärtor"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "get oat milk and bananas",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "oat milk",
+          "bananas"
+        ]
+      },
+      "ms": 1165,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"oat milk\",\"bananas\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "oat milk",
+          "bananas"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "2 paket tofu",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "tofu"
+        ],
+        "quantity": "2"
+      },
+      "ms": 1169,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"tofu\"],\"quantity\":\"2 paket\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "tofu"
+        ],
+        "quantity": "2 paket"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kop rodbetor o fetaost",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "rödbetor",
+          "fetaost"
+        ]
+      },
+      "ms": 1116,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"rodbetor\",\"fetaost\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "rodbetor",
+          "fetaost"
+        ]
+      },
+      "outcome": "intent-only"
+    },
+    {
+      "utterance": "vi behöver jäst till på fredag",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "jäst"
+        ],
+        "note": "fredag"
+      },
+      "ms": 1117,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"jäst\"],\"note\":\"fredag\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "jäst"
+        ],
+        "note": "fredag"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "köp ingefära till currygrytan",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "ingefära"
+        ],
+        "context": "curry"
+      },
+      "ms": 1307,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"ingefära\"],\"note\":\"currygrytan\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "ingefära"
+        ],
+        "note": "currygrytan"
+      },
+      "outcome": "intent-only"
+    },
+    {
+      "utterance": "lägg till sojasås på listan",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "sojasås"
+        ]
+      },
+      "ms": 919,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"sojasås\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "sojasås"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vi behöver mer olivolja",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "olivolja"
+        ]
+      },
+      "ms": 1072,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"olivolja\"],\"quantity\":\"mer\"}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "olivolja"
+        ],
+        "quantity": "mer"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kan du lägga till frysta ärtor också",
+      "expect": {
+        "intent": "add_item",
+        "items": [
+          "ärtor"
+        ]
+      },
+      "ms": 1111,
+      "raw": "{\"intent\":\"add_item\",\"items\":[\"frysta ärtor\"]}",
+      "parsed": {
+        "intent": "add_item",
+        "items": [
+          "frysta ärtor"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "ta bort tofun",
+      "expect": {
+        "intent": "remove_item",
+        "items": [
+          "tofu"
+        ]
+      },
+      "ms": 980,
+      "raw": "{\"intent\":\"remove_item\",\"items\":[\"tofu\"]}",
+      "parsed": {
+        "intent": "remove_item",
+        "items": [
+          "tofu"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "skippa bananerna",
+      "expect": {
+        "intent": "remove_item",
+        "items": [
+          "banan"
+        ]
+      },
+      "ms": 954,
+      "raw": "{\"intent\":\"remove_item\",\"items\":[\"bananer\"]}",
+      "parsed": {
+        "intent": "remove_item",
+        "items": [
+          "bananer"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vi behöver inte mer ris",
+      "expect": {
+        "intent": "remove_item",
+        "items": [
+          "ris"
+        ]
+      },
+      "ms": 821,
+      "raw": "{\"intent\":\"remove_item\",\"items\":[\"ris\"]}",
+      "parsed": {
+        "intent": "remove_item",
+        "items": [
+          "ris"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "bocka av havregrynen",
+      "expect": {
+        "intent": "check_item",
+        "items": [
+          "havregryn"
+        ]
+      },
+      "ms": 940,
+      "raw": "{\"intent\":\"check_item\",\"items\":[\"havregryn\"]}",
+      "parsed": {
+        "intent": "check_item",
+        "items": [
+          "havregryn"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "tog linserna nyss",
+      "expect": {
+        "intent": "check_item",
+        "items": [
+          "linser"
+        ]
+      },
+      "ms": 920,
+      "raw": "{\"intent\":\"check_item\",\"items\":[\"linser\"]}",
+      "parsed": {
+        "intent": "check_item",
+        "items": [
+          "linser"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "check off the hummus",
+      "expect": {
+        "intent": "check_item",
+        "items": [
+          "hummus"
+        ]
+      },
+      "ms": 996,
+      "raw": "{\"intent\":\"check_item\",\"items\":[\"hummus\"]}",
+      "parsed": {
+        "intent": "check_item",
+        "items": [
+          "hummus"
+        ]
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vad står på listan?",
+      "expect": {
+        "intent": "show_list"
+      },
+      "ms": 632,
+      "raw": "{\"intent\":\"show_list\"}",
+      "parsed": {
+        "intent": "show_list"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "what's on the list",
+      "expect": {
+        "intent": "show_list"
+      },
+      "ms": 632,
+      "raw": "{\"intent\":\"show_list\"}",
+      "parsed": {
+        "intent": "show_list"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "har vi kvar tahini?",
+      "expect": {
+        "intent": "show_list",
+        "query": "tahini"
+      },
+      "ms": 871,
+      "raw": "{\"intent\":\"show_list\",\"query\":\"tahini\"}",
+      "parsed": {
+        "intent": "show_list",
+        "query": "tahini"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "står ägg med på listan?",
+      "expect": {
+        "intent": "show_list",
+        "query": "ägg"
+      },
+      "ms": 852,
+      "raw": "{\"intent\":\"show_list\",\"query\":\"ägg\"}",
+      "parsed": {
+        "intent": "show_list",
+        "query": "ägg"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "nej jag menade sötpotatis",
+      "expect": {
+        "intent": "correct_last",
+        "replacement": "sötpotatis"
+      },
+      "ms": 1001,
+      "raw": "{\"intent\":\"correct_last\",\"replacement\":\"sötpotatis\"}",
+      "parsed": {
+        "intent": "correct_last",
+        "replacement": "sötpotatis"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "oj fel, skulle vara rött ris",
+      "expect": {
+        "intent": "correct_last",
+        "replacement": "rött ris"
+      },
+      "ms": 929,
+      "raw": "{\"intent\":\"correct_last\",\"replacement\":\"rött ris\"}",
+      "parsed": {
+        "intent": "correct_last",
+        "replacement": "rött ris"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vi tar felix ketchup istället för heinz nu",
+      "expect": {
+        "intent": "set_preference",
+        "ingredient": "ketchup",
+        "product": "felix"
+      },
+      "ms": 1142,
+      "raw": "{\"intent\":\"set_preference\",\"ingredient\":\"ketchup\",\"product\":\"felix\"}",
+      "parsed": {
+        "intent": "set_preference",
+        "ingredient": "ketchup",
+        "product": "felix"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vi har gått över till coop:s egna havregryn",
+      "expect": {
+        "intent": "set_preference",
+        "ingredient": "havregryn",
+        "product": "coop"
+      },
+      "ms": 1184,
+      "raw": "{\"intent\":\"set_preference\",\"ingredient\":\"havregryn\",\"product\":\"coop\"}",
+      "parsed": {
+        "intent": "set_preference",
+        "ingredient": "havregryn",
+        "product": "coop"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "numera köper vi alltid violife istället för vanlig ost",
+      "expect": {
+        "intent": "set_preference",
+        "ingredient": "ost",
+        "product": "violife"
+      },
+      "ms": 1110,
+      "raw": "{\"intent\":\"set_preference\",\"ingredient\":\"ost\",\"product\":\"violife\"}",
+      "parsed": {
+        "intent": "set_preference",
+        "ingredient": "ost",
+        "product": "violife"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vad äter vi imorgon?",
+      "expect": {
+        "intent": "query_tonight",
+        "day_offset": 1
+      },
+      "ms": 998,
+      "raw": "{\"intent\":\"query_tonight\",\"day_offset\":1}",
+      "parsed": {
+        "intent": "query_tonight",
+        "day_offset": 1
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "what's cooking tonight?",
+      "expect": {
+        "intent": "query_tonight"
+      },
+      "ms": 753,
+      "raw": "{\"intent\":\"query_tonight\"}",
+      "parsed": {
+        "intent": "query_tonight"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "vad blir det till middag?",
+      "expect": {
+        "intent": "query_tonight"
+      },
+      "ms": 828,
+      "raw": "{\"intent\":\"show_list\",\"query\":\"middag\"}",
+      "parsed": {
+        "intent": "show_list",
+        "query": "middag"
+      },
+      "outcome": "fail"
+    },
+    {
+      "utterance": "kan vi planera veckan?",
+      "expect": {
+        "intent": "plan_draft"
+      },
+      "ms": 847,
+      "raw": "{\"intent\":\"plan_draft\",\"horizon\":\"week\"}",
+      "parsed": {
+        "intent": "plan_draft",
+        "horizon": "week"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "dags att planera igen",
+      "expect": {
+        "intent": "plan_draft"
+      },
+      "ms": 666,
+      "raw": "{\"intent\":\"plan_draft\"}",
+      "parsed": {
+        "intent": "plan_draft"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "planera fram till onsdag",
+      "expect": {
+        "intent": "plan_draft",
+        "horizon": "wednesday"
+      },
+      "ms": 869,
+      "raw": "{\"intent\":\"plan_draft\",\"horizon\":\"wednesday\"}",
+      "parsed": {
+        "intent": "plan_draft",
+        "horizon": "wednesday"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "byt lördag till pizza",
+      "expect": {
+        "intent": "plan_set_day",
+        "day": "saturday",
+        "recipe_query": "pizza"
+      },
+      "ms": 1137,
+      "raw": "{\"intent\":\"plan_set_day\",\"day\":\"saturday\",\"recipe_query\":\"pizza\"}",
+      "parsed": {
+        "intent": "plan_set_day",
+        "day": "saturday",
+        "recipe_query": "pizza"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kör dal på tisdagen istället",
+      "expect": {
+        "intent": "plan_set_day",
+        "day": "tuesday",
+        "recipe_query": "dal"
+      },
+      "ms": 1180,
+      "raw": "{\"intent\":\"plan_set_day\",\"day\":\"tuesday\",\"recipe_query\":\"dal\"}",
+      "parsed": {
+        "intent": "plan_set_day",
+        "day": "tuesday",
+        "recipe_query": "dal"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "change friday to ramen",
+      "expect": {
+        "intent": "plan_set_day",
+        "day": "friday",
+        "recipe_query": "ramen"
+      },
+      "ms": 1247,
+      "raw": "{\"intent\":\"plan_set_day\",\"day\":\"friday\",\"recipe_query\":\"ramen\"}",
+      "parsed": {
+        "intent": "plan_set_day",
+        "day": "friday",
+        "recipe_query": "ramen"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "dubbla portioner på fredagen tack",
+      "expect": {
+        "intent": "plan_set_multiplier",
+        "day": "friday",
+        "multiplier": 2
+      },
+      "ms": 1254,
+      "raw": "{\"intent\":\"plan_set_multiplier\",\"day\":\"friday\",\"multiplier\":2}",
+      "parsed": {
+        "intent": "plan_set_multiplier",
+        "day": "friday",
+        "multiplier": 2
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "kan vi göra tre gånger så mycket på måndag?",
+      "expect": {
+        "intent": "plan_set_multiplier",
+        "day": "monday",
+        "multiplier": 3
+      },
+      "ms": 1221,
+      "raw": "{\"intent\":\"plan_set_multiplier\",\"day\":\"monday\",\"multiplier\":3}",
+      "parsed": {
+        "intent": "plan_set_multiplier",
+        "day": "monday",
+        "multiplier": 3
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "lås veckan",
+      "expect": {
+        "intent": "plan_lock"
+      },
+      "ms": 661,
+      "raw": "{\"intent\":\"plan_lock\"}",
+      "parsed": {
+        "intent": "plan_lock"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "lock it in",
+      "expect": {
+        "intent": "plan_lock"
+      },
+      "ms": 653,
+      "raw": "{\"intent\":\"plan_lock\"}",
+      "parsed": {
+        "intent": "plan_lock"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "för salt förra gången, dra ner på saltet",
+      "expect": {
+        "intent": "note_recipe",
+        "note": "salt"
+      },
+      "ms": 995,
+      "raw": "{\"intent\":\"note_recipe\",\"note\":\"dra ner på saltet\"}",
+      "parsed": {
+        "intent": "note_recipe",
+        "note": "dra ner på saltet"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "grymt recept men dubbla vitlöken nästa gång",
+      "expect": {
+        "intent": "note_recipe",
+        "note": "vitlök"
+      },
+      "ms": 1088,
+      "raw": "{\"intent\":\"note_recipe\",\"note\":\"dubbla vitlöken\"}",
+      "parsed": {
+        "intent": "note_recipe",
+        "note": "dubbla vitlöken"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "hej vega, hur mår du?",
+      "expect": {
+        "intent": "chitchat"
+      },
+      "ms": 1314,
+      "raw": "{\"intent\":\"chitchat\",\"note\":\"hej vega, hur mår du?\"}",
+      "parsed": {
+        "intent": "chitchat",
+        "note": "hej vega, hur mår du?"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "tack för hjälpen!",
+      "expect": {
+        "intent": "chitchat"
+      },
+      "ms": 1222,
+      "raw": "{\"intent\":\"chitchat\",\"note\":\"tack för hjälpen!\"}",
+      "parsed": {
+        "intent": "chitchat",
+        "note": "tack för hjälpen!"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "haha den var bra 😂",
+      "expect": {
+        "intent": "chitchat"
+      },
+      "ms": 681,
+      "raw": "{\"intent\":\"chitchat\"}",
+      "parsed": {
+        "intent": "chitchat"
+      },
+      "outcome": "pass"
+    },
+    {
+      "utterance": "god morgon!",
+      "expect": {
+        "intent": "chitchat"
+      },
+      "ms": 1118,
+      "raw": "{\"intent\":\"chitchat\",\"note\":\"god morgon!\"}",
+      "parsed": {
+        "intent": "chitchat",
+        "note": "god morgon!"
+      },
+      "outcome": "pass"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 # R3 — Runtime + model bake-off: Findings
 
-Status: model bake-off complete incl. harness-layer experiment,
-2026-08-14 — **a passing configuration exists** (round 2 below). Spike R3 of
+Status: model bake-off complete incl. harness-layer and held-out
+accuracy experiments, 2026-08-14 — **winning recipe: qwen3:8b +
+two-stage harness, 96 %/95 %, zero wrong intents** (round 3 below). Spike R3 of
 [telegram-pivot-research-plan.md](telegram-pivot-research-plan.md);
 kit in [spikes/r3-nlu-bakeoff/](../../spikes/r3-nlu-bakeoff/README.md).
 Run on the target machine itself: **M1 Pro, 16 GB, macOS 26.6.1**
@@ -132,14 +133,67 @@ latency from p50 19 s to 0.93 s at top-of-field accuracy. Notable:
   discovered on this same fixture set (paraphrased, never verbatim).
   Real-household utterances (R6) are the uncontaminated test.
 
+## Round 3 — held-out set + accuracy push on qwen3:8b
+
+Round 2's caveat (few-shot tuned on fixture-derived traps) demanded a
+clean test before optimizing further. Round 3 added
+`fixtures-heldout.json` — **44 fresh utterances** authored from the R1
+scripts' domain (new items, phrasings, typos, code-switching; disjoint
+from the original 24 and from every few-shot example) — and three
+accuracy experiments on qwen3:8b (`think:false` throughout):
+
+| Config (qwen3:8b) | original 24 | held-out 44 | fails | p95 |
+| --- | --- | --- | --- | --- |
+| one-shot harness v1 (round 2) | 22/24 | 41/44 | 1–2 | 1.4 s |
+| one-shot harness v2 (+disambig rules) | 22/24 | 41/44 | 0–1 | 1.5 s |
+| two-stage v1 (classify → extract) | 22/24 | 41/44 | **0** | 2.4 s |
+| **two-stage v2 (+day override)** | **23/24 (96 %)** | **42/44 (95 %)** | **0** | **2.3 s** |
+| two-stage v2 on qwen3:14b | 23/24 | 41/44 | 0 | 4.1 s |
+
+- **The round-2 winner generalizes**: harness v1 scored 93 % on the
+  held-out set it was never tuned toward — the contamination worry
+  did not materialize.
+- **Two-stage** (`run-twostage.mjs`: stage 1 classifies intent
+  against a bare 13-value enum; stage 2 extracts slots with an
+  intent-specific schema and micro-prompt) reached **100 % intent
+  accuracy on all 68 fixtures** — every residual miss is a slot
+  detail, never a wrong action. Cost: two sequential calls, p95
+  2.3 s — still under the bar.
+- **Two-stage v2** adds a deterministic weekday override: models
+  false-friend Swedish weekdays under the English enum
+  ("torsdag" → `tuesday`), but the weekday is regexable from the
+  utterance, so post-processing overrides it. This is the harness
+  thesis working: every deterministic sub-problem removed from the
+  model converts an error class to zero.
+- **qwen3:14b is not worth it**: no accuracy gain, ~2× latency, and
+  one hallucinated slot (echoed a prompt example). Per-call search
+  space beat parameter count.
+
+The three residual intent-only misses are not model-capability
+problems: (1) "oatly → mjölk" ingredient inference needs the
+household preference table in the prompt — a production feature the
+real bot gets for free; (2) `note` vs `context` key choice — content
+is always right; recommend merging them into one `note` field in the
+P4 schema; (3) unrepaired diacritics on one typo'd multi-item row —
+production catalog fuzzy-matching territory.
+
+**Fine-tuning verdict: not now.** At 95–96 % with zero intent errors,
+the remaining misses are context/schema/product issues that LoRA
+cannot fix better than the harness already does. Revisit only if R6's
+live week surfaces error classes the harness can't absorb (training
+data would then exist for free in the transcripts).
+
 ## Gate input
 
-- **Track B has a working local recipe: qwen3:8b via Ollama +
-  the domain harness** — 92 % pass, structurally-guaranteed JSON,
-  ~1 s replies, 5.6 GB resident (10 GB headroom on the 16 GB M1).
-  The harness pattern (schema-constrained decode + few-shot + post-
-  process) is exactly the P4 assistant's parser seam; qwen2.5:7b is a
-  same-shape fallback. R6 (sandboxed live week) is unblocked.
+- **Track B has a working local recipe: qwen3:8b via Ollama + the
+  two-stage domain harness** — 96 % / 95 % (original / held-out),
+  **zero wrong intents in 68 fixtures**, structurally-guaranteed
+  JSON, p95 2.3 s, 5.6 GB resident (10 GB headroom on the 16 GB M1).
+  The harness pattern (enum classify → per-intent constrained
+  extract → deterministic post-process) is exactly the P4
+  assistant's parser seam; qwen2.5:7b is a same-shape fallback and
+  the one-shot harness (p95 1.4 s) the low-latency variant. R6
+  (sandboxed live week) is unblocked.
 - **TurboFieldfare** is out for the chat path despite best zero-shot
   accuracy and a superb memory story (~1 GB): no prompt caching +
   ~2 tok/s decode on the M1 ⇒ ~13 s replies, and no constrained
@@ -152,12 +206,16 @@ latency from p50 19 s to 0.93 s at top-of-field accuracy. Notable:
   cd spikes/r3-nlu-bakeoff && BAKEOFF_URL=<endpoint>/v1 BAKEOFF_KEY=<key> BAKEOFF_MODEL=<model> node run.mjs --out results-hosted.json
   ```
 
-## Kit changes across both rounds
+## Kit changes across the three rounds
 
 - `run.mjs`: opt-in `BAKEOFF_NOTHINK=1` appends qwen3's `/no_think`
   soft switch (round 1; ineffective — kept for the record). Mock
   self-test re-verified 24/24 after the change.
-- `run-harnessed.mjs` (round 2): the domain-harness runner described
-  above, Ollama native API only.
-- Committed result reports for all eleven live runs
+- `run-harnessed.mjs` (rounds 2–3): the one-shot domain-harness
+  runner; `--fixtures <file>`, `BAKEOFF_FEWSHOT=v2` for the
+  disambiguation-rules variant. Ollama native API only.
+- `run-twostage.mjs` (round 3): two-stage runner (enum classify →
+  per-intent extract) with the deterministic weekday override.
+- `fixtures-heldout.json` (round 3): 44 held-out fixtures.
+- Committed result reports for all twenty live runs
   (`results-*.json`).
