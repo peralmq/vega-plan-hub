@@ -2,7 +2,7 @@
 id: p4-02-capture-bot
 title: "Buy milk" end-to-end — the capture bot on the chosen transport
 phase: P4
-status: todo
+status: in-progress
 depends_on: [p4-01-schema-rolling-plan]
 ---
 
@@ -45,9 +45,9 @@ contract: r1-conversation-scripts.md Scripts 1–2 + design.spec.md
 
 - [x] Transport decision read from gate-brief; recorded here
       (hybrid via queue — see Context)
-- [ ] Intent parser (rules + fallback) with fixture tests in harness
-- [ ] Allow-list gate + attribution + add/show/check tools
-- [ ] Reaction confirmations; clarify flow for unknown items
+- [x] Intent parser (rules + fallback) with fixture tests in harness
+- [x] Allow-list gate + attribution + add/show/check tools
+- [x] Reaction confirmations; clarify flow for unknown items
 - [ ] Live smoke with both household partners
 
 ## Steps
@@ -79,4 +79,50 @@ contract: r1-conversation-scripts.md Scripts 1–2 + design.spec.md
 
 ## Evidence
 
-(recorded during implementation)
+**2026-08-14 (implementation, pre-deploy):**
+
+- Parser seam graduated from the r3 kit: `src/lib/intentParser.ts`
+  (rules layer + two-stage prompts/postProcess ported verbatim),
+  `src/lib/botActions.ts` (pure action planner — the enumerable-tool
+  guarantee as code). All 68 r3 fixtures (24 original + 44 held-out)
+  committed to `src/lib/__fixtures__/intent-fixtures.json` and run on
+  every `./harness check` via `src/lib/intentParser.test.ts`
+  (77 tests): rules claim 44/68 deterministically (every capture-path
+  intent — zero model calls for Script 1/2 phrasings, including the
+  diacritic-repair and negation-trap rows the LLM used to miss); the
+  remaining 24 replay through the real two-stage pipeline against the
+  committed qwen3:8b winning-run outputs
+  (`src/lib/__fixtures__/intent-llm-cache.json`, cache-first per
+  orchestration lore). The R3 "zero wrong intents" invariant is
+  asserted for every fixture; the single known slot miss (oatly →
+  mjölk ingredient inference, a p4-04 feature) is pinned so new misses
+  fail.
+- Must-not-act: `tack snälla vega!` → chitchat and `köp inte mer
+  kaffe` → remove_item are proven at the parser AND at the action
+  planner (`planActions` emits zero write actions / no insert) —
+  deterministic, in the unit suite.
+- Capture layer: `supabase/functions/telegram-capture/index.ts` —
+  secret-token check → allow-list (silence + log for unknowns, never
+  enqueued) → verbatim enqueue into `telegram_inbox` (update_id
+  dedupe); household-user session auth (r4 §3), no service role.
+  Migration: `supabase/migrations/20260814090000_p4_02_telegram_inbox.sql`.
+- M1 consumer: `bot/` (`npm run bot`) — outbound Realtime subscription
+  + sweep timer wake a single-flight drain over `processed_at IS
+  NULL` (wake-signal races cannot double-process); rules-first parse,
+  qwen3:8b two-stage fallback via local Ollama; tools add / show /
+  check / remove / correct_last with add-time preference resolution
+  and Script 2's unknown-item clarify ([Yes, remember] stubbed no-op);
+  reactions 👍/👌/🫡 (Telegram's allowed-reaction set has no 🥛 — 
+  Script 1's item-emoji fantasy is an API impossibility, R2's 👍 
+  stands). Auth refresh events are logged (r4 §3 longevity evidence 
+  accrues during the live week).
+- Harness: new `tsc bot` step in `./harness check` (vite build never
+  typechecked `bot/` — self-improvement rule). `./harness check`:
+  deps OK (73), lint OK, test OK (77), build OK, tsc bot OK, plans
+  validate OK (18), validate-recipe OK (30).
+- Scope note: `remove_item` implemented beyond the plan's four listed
+  tools — it is in r4 §4 T2's enumerable tool list, and its negation
+  traps are fixtures; a capture bot that can't take items off the
+  list fails the household in week one.
+
+(live-smoke evidence pending deploy — see Steps 5)

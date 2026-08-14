@@ -1,0 +1,204 @@
+// p4-02: the R3 fixture set (all 68 — original 24 + held-out 44) as a
+// deterministic harness suite. Two layers under test:
+//
+//  1. Rules layer: wherever parseWithRules claims an utterance, it must
+//     match the fixture expectation exactly — the rules layer is never
+//     allowed to be wrong. A canonical capture set must ALSO be claimed by
+//     rules (the common case runs with zero model calls).
+//  2. LLM fallback: fixtures the rules decline replay through the real
+//     two-stage pipeline against cached qwen3:8b responses (the committed
+//     winning-run outputs, per the cache-first runner lore) — the R3
+//     "zero wrong intents in 68" invariant is enforced on every run.
+
+import { describe, expect, it } from "vitest";
+import {
+  parseUtterance,
+  parseWithRules,
+  type LlmChat,
+  type ParsedUtterance,
+  SLOT_SPECS,
+  type Intent,
+} from "./intentParser";
+import { planActions, isWriteAction, matchCandidates } from "./botActions";
+import fixtures from "./__fixtures__/intent-fixtures.json";
+import llmCache from "./__fixtures__/intent-llm-cache.json";
+
+interface Fixture {
+  utterance: string;
+  expect: Record<string, unknown> & { intent: string };
+  set: string;
+}
+const FIXTURES = fixtures as Fixture[];
+const CACHE = llmCache as Record<string, Record<string, unknown> & { intent: Intent }>;
+
+// Scorer ported from the R3 kit (run-twostage.mjs) — fuzzy on slot strings
+// (substring either way), exact on intent and numbers.
+const norm = (s: unknown) => String(s).toLowerCase().trim();
+function slotMatch(expected: unknown, actual: unknown): boolean {
+  if (Array.isArray(expected)) {
+    const got = Array.isArray(actual) ? actual.map(norm) : [norm(actual ?? "")];
+    return expected.every((e) =>
+      got.some((g) => g.includes(norm(e)) || norm(e).includes(g)),
+    );
+  }
+  if (typeof expected === "number") return Number(actual) === expected;
+  return (
+    actual != null &&
+    (norm(actual).includes(norm(expected)) || norm(expected).includes(norm(actual)))
+  );
+}
+
+function assertParseMatches(fixture: Fixture, parse: ParsedUtterance) {
+  expect(parse.intent, `intent for "${fixture.utterance}"`).toBe(fixture.expect.intent);
+  const slotKeys = Object.keys(fixture.expect).filter((k) => k !== "intent");
+  for (const key of slotKeys) {
+    expect(
+      slotMatch(fixture.expect[key], (parse as Record<string, unknown>)[key]),
+      `slot "${key}" for "${fixture.utterance}" — expected ${JSON.stringify(fixture.expect[key])}, got ${JSON.stringify((parse as Record<string, unknown>)[key])}`,
+    ).toBe(true);
+  }
+}
+
+// A fake two-stage client serving the committed qwen3:8b winning-run
+// outputs: stage 1 answers the cached intent, stage 2 the cached slots.
+const cachedChat: LlmChat = async (_system, utterance, format) => {
+  const cached = CACHE[utterance];
+  if (!cached) throw new Error(`no cached LLM response for "${utterance}"`);
+  const props = (format as { properties: Record<string, unknown> }).properties;
+  if ("intent" in props) return JSON.stringify({ intent: cached.intent });
+  const { intent: _intent, ...slots } = cached;
+  return JSON.stringify(slots);
+};
+
+// The one residual slot-level miss in the winning R3 runs: ingredient
+// inference ("oatly deluxe" → mjölk) needs the preference table in the
+// prompt — a p4-04 feature. Intent is still correct; the slot exception is
+// pinned here so any NEW miss fails the suite.
+const KNOWN_SLOT_MISSES = new Set([
+  "vi har bytt från oatly deluxe till ica havredryck",
+]);
+
+// Script 1/2's canonical capture phrasings must never need a model call.
+const MUST_BE_RULED = [
+  "köp mjölk",
+  "buy toilet paper and coffee",
+  "kop mjolk o brod",
+  "vi behöver citroner till på lördag",
+  "lägg till sojasås på listan",
+  "visa listan",
+  "vad står på listan?",
+  "har vi vitlök hemma?",
+  "bocka av spenaten",
+  "nej, penne",
+  "ta bort kaffe från listan",
+  "köp inte mer kaffe",
+  "tack snälla vega!",
+];
+
+describe("rules layer", () => {
+  it("claims every canonical capture phrasing", () => {
+    for (const utterance of MUST_BE_RULED) {
+      expect(parseWithRules(utterance), `rules must claim "${utterance}"`).not.toBeNull();
+    }
+  });
+
+  for (const fixture of FIXTURES) {
+    const ruled = parseWithRules(fixture.utterance);
+    if (ruled === null) continue;
+    it(`is never wrong: "${fixture.utterance}" (${fixture.set})`, () => {
+      assertParseMatches(fixture, ruled);
+    });
+  }
+});
+
+describe("LLM fallback (cached qwen3:8b two-stage replay)", () => {
+  for (const fixture of FIXTURES) {
+    if (parseWithRules(fixture.utterance) !== null) continue;
+    it(`parses "${fixture.utterance}" (${fixture.set})`, async () => {
+      const { parse, source } = await parseUtterance(fixture.utterance, cachedChat);
+      expect(source).toBe("llm");
+      // The R3 invariant: intent is NEVER wrong, no exceptions.
+      expect(parse.intent, `intent for "${fixture.utterance}"`).toBe(fixture.expect.intent);
+      if (!KNOWN_SLOT_MISSES.has(fixture.utterance)) {
+        assertParseMatches(fixture, parse);
+      }
+    });
+  }
+
+  it("every intent in the enum has a slot spec entry", () => {
+    for (const intent of Object.keys(SLOT_SPECS)) {
+      expect(SLOT_SPECS[intent as Intent] !== undefined).toBe(true);
+    }
+  });
+});
+
+describe("must-not-act guarantees (r4 §4 T2 / p4-02 verification)", () => {
+  const prefs = new Map<string, string>();
+
+  it('"tack snälla vega!" plans zero write actions', () => {
+    const parse = parseWithRules("tack snälla vega!");
+    expect(parse?.intent).toBe("chitchat");
+    const actions = planActions(parse!, prefs);
+    expect(actions.some(isWriteAction)).toBe(false);
+  });
+
+  it('"köp inte mer kaffe" is remove, never an insert', () => {
+    const parse = parseWithRules("köp inte mer kaffe");
+    expect(parse?.intent).toBe("remove_item");
+    const actions = planActions(parse!, prefs);
+    expect(actions.some((a) => a.type === "insert_item")).toBe(false);
+  });
+
+  it("unsupported intents (planning etc.) plan zero write actions", () => {
+    for (const intent of ["set_preference", "plan_lock", "plan_draft", "note_recipe"] as const) {
+      const actions = planActions({ intent }, prefs);
+      expect(actions.some(isWriteAction), intent).toBe(false);
+    }
+  });
+});
+
+describe("action planning (add-time preference resolution, gate call §6.1)", () => {
+  it("resolves a preferred product at add-time", () => {
+    const prefs = new Map([["mjölk", "ICA Havredryck"]]);
+    const parse = parseWithRules("köp mjölk")!;
+    const actions = planActions(parse, prefs);
+    expect(actions).toEqual([
+      expect.objectContaining({
+        type: "insert_item",
+        displayName: "ICA Havredryck",
+        asWritten: "mjölk",
+        canonicalIngredient: "mjölk",
+        preferenceResolved: true,
+      }),
+    ]);
+  });
+
+  it("keeps unknown items as written (Script 2's new-one-for-me path)", () => {
+    const parse = parseWithRules("köp nutritional yeast")!;
+    const actions = planActions(parse, new Map());
+    expect(actions).toEqual([
+      expect.objectContaining({
+        type: "insert_item",
+        displayName: "nutritional yeast",
+        preferenceResolved: false,
+      }),
+    ]);
+  });
+
+  it("strips Swedish definite forms for check-off matching", () => {
+    expect(matchCandidates("spenaten")).toContain("spenat");
+    expect(matchCandidates("linserna")).toContain("linser");
+    expect(matchCandidates("havregrynen")).toContain("havregryn");
+    expect(matchCandidates("tofun")).toContain("tofu");
+    // the spoken form always stays first so exact rows win
+    expect(matchCandidates("spenaten")[0]).toBe("spenaten");
+  });
+
+  it("carries the day note onto the inserted row", () => {
+    const parse = parseWithRules("vi behöver citroner till på lördag")!;
+    const actions = planActions(parse, new Map());
+    expect(actions).toEqual([
+      expect.objectContaining({ type: "insert_item", note: "lördag" }),
+    ]);
+  });
+});

@@ -334,6 +334,8 @@ function check() {
     ["npm run lint", "npm run lint --silent"],
     ["npm test", "npm test --silent"],
     ["npm run build", "npm run build --silent"],
+    // vite build never typechecks bot/ (the M1 consumer, p4-02) — tsc does.
+    ["tsc bot", "npx tsc -p bot/tsconfig.json"],
   ];
   for (const [name, cmd] of steps) {
     process.stdout.write(`check: ${name} ... `);

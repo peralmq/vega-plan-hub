@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bot": "tsx bot/consumer.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -82,6 +83,7 @@
     "lovable-tagger": "^1.3.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.64.0",
     "vite": "^7",

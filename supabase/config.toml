@@ -1,3 +1,8 @@
 project_id = "fbssmpypnakawxxvvgvo"
 [functions.telegram-spike]
 verify_jwt = false
+
+# p4-02 capture layer: Telegram authenticates via the secret-token header,
+# not a JWT (same posture the spike verified live in R2).
+[functions.telegram-capture]
+verify_jwt = false

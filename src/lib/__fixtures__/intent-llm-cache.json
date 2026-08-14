@@ -1,0 +1,344 @@
+{
+  "köp mjölk": {
+    "intent": "add_item",
+    "items": [
+      "mjölk"
+    ]
+  },
+  "buy toilet paper and coffee": {
+    "intent": "add_item",
+    "items": [
+      "toilet paper",
+      "coffee"
+    ]
+  },
+  "vi behöver citroner till på lördag": {
+    "intent": "add_item",
+    "items": [
+      "citroner"
+    ],
+    "note": "lördag",
+    "context": "pannkakorna"
+  },
+  "köp mjölk till pannkakorna": {
+    "intent": "add_item",
+    "items": [
+      "mjölk"
+    ],
+    "context": "pannkakorna"
+  },
+  "köp också diskmedel": {
+    "intent": "add_item",
+    "items": [
+      "diskmedel"
+    ]
+  },
+  "3 burkar krossade tomater": {
+    "intent": "add_item",
+    "items": [
+      "burkar krossade tomater"
+    ],
+    "quantity": "3"
+  },
+  "nej, penne": {
+    "intent": "correct_last",
+    "replacement": "penne"
+  },
+  "ta bort kaffe från listan": {
+    "intent": "remove_item",
+    "items": [
+      "kaffe"
+    ]
+  },
+  "köp inte mer kaffe": {
+    "intent": "remove_item",
+    "items": [
+      "kaffe"
+    ]
+  },
+  "vi har bytt från oatly deluxe till ica havredryck": {
+    "intent": "set_preference",
+    "ingredient": "havredryck",
+    "product": "ica"
+  },
+  "mindre stark nästa gång bara": {
+    "intent": "note_recipe",
+    "note": "mindre stark"
+  },
+  "vad blir det för mat ikväll?": {
+    "intent": "query_tonight",
+    "day_offset": 0
+  },
+  "what's for dinner tomorrow": {
+    "intent": "query_tonight",
+    "day_offset": 1
+  },
+  "byt torsdag till tacos istället": {
+    "intent": "plan_set_day",
+    "day": "thursday",
+    "recipe_query": "tacos"
+  },
+  "kan vi köra dubbla portioner på söndagen?": {
+    "intent": "plan_set_multiplier",
+    "day": "sunday",
+    "multiplier": 2
+  },
+  "kan vi planera de närmsta dagarna?": {
+    "intent": "plan_draft",
+    "horizon": "sunday"
+  },
+  "planera fram till söndag": {
+    "intent": "plan_draft",
+    "horizon": "sunday"
+  },
+  "lås dagarna": {
+    "intent": "plan_lock"
+  },
+  "visa listan": {
+    "intent": "show_list",
+    "query": "visa listan"
+  },
+  "har vi vitlök hemma?": {
+    "intent": "show_list",
+    "query": "vitlök"
+  },
+  "bocka av spenaten": {
+    "intent": "check_item",
+    "items": [
+      "spenat"
+    ]
+  },
+  "tack snälla vega!": {
+    "intent": "chitchat"
+  },
+  "köp taco-grejer": {
+    "intent": "add_item",
+    "items": [
+      "taco-grejer"
+    ]
+  },
+  "kop mjolk o brod": {
+    "intent": "add_item",
+    "items": [
+      "mjölk",
+      "bröd"
+    ]
+  },
+  "köp havregryn": {
+    "intent": "add_item",
+    "items": [
+      "havregryn"
+    ]
+  },
+  "vi behöver tahini och kikärtor": {
+    "intent": "add_item",
+    "items": [
+      "tahini",
+      "kikärtor"
+    ]
+  },
+  "get oat milk and bananas": {
+    "intent": "add_item",
+    "items": [
+      "oat milk",
+      "bananas"
+    ]
+  },
+  "2 paket tofu": {
+    "intent": "add_item",
+    "items": [
+      "tofu"
+    ],
+    "quantity": "2 paket"
+  },
+  "kop rodbetor o fetaost": {
+    "intent": "add_item",
+    "items": [
+      "rodbetor",
+      "fetaost"
+    ]
+  },
+  "vi behöver jäst till på fredag": {
+    "intent": "add_item",
+    "items": [
+      "jäst"
+    ],
+    "note": "fredag"
+  },
+  "köp ingefära till currygrytan": {
+    "intent": "add_item",
+    "items": [
+      "ingefära"
+    ],
+    "note": "currygrytan"
+  },
+  "lägg till sojasås på listan": {
+    "intent": "add_item",
+    "items": [
+      "sojasås"
+    ]
+  },
+  "vi behöver mer olivolja": {
+    "intent": "add_item",
+    "items": [
+      "olivolja"
+    ]
+  },
+  "kan du lägga till frysta ärtor också": {
+    "intent": "add_item",
+    "items": [
+      "frysta ärtor"
+    ],
+    "note": "till på lördag"
+  },
+  "ta bort tofun": {
+    "intent": "remove_item",
+    "items": [
+      "tofun"
+    ]
+  },
+  "skippa bananerna": {
+    "intent": "remove_item",
+    "items": [
+      "bananer"
+    ]
+  },
+  "vi behöver inte mer ris": {
+    "intent": "remove_item",
+    "items": [
+      "ris"
+    ]
+  },
+  "bocka av havregrynen": {
+    "intent": "check_item",
+    "items": [
+      "havregryn"
+    ]
+  },
+  "tog linserna nyss": {
+    "intent": "check_item",
+    "items": [
+      "linser"
+    ]
+  },
+  "check off the hummus": {
+    "intent": "check_item",
+    "items": [
+      "hummus"
+    ]
+  },
+  "vad står på listan?": {
+    "intent": "show_list",
+    "query": "vad står på listan?"
+  },
+  "what's on the list": {
+    "intent": "show_list",
+    "query": "what's on the list"
+  },
+  "har vi kvar tahini?": {
+    "intent": "show_list",
+    "query": "tahini"
+  },
+  "står ägg med på listan?": {
+    "intent": "show_list",
+    "query": "ägg"
+  },
+  "nej jag menade sötpotatis": {
+    "intent": "correct_last",
+    "replacement": "sötpotatis"
+  },
+  "oj fel, skulle vara rött ris": {
+    "intent": "correct_last",
+    "replacement": "rött ris"
+  },
+  "vi tar felix ketchup istället för heinz nu": {
+    "intent": "set_preference",
+    "ingredient": "ketchup",
+    "product": "felix"
+  },
+  "vi har gått över till coop:s egna havregryn": {
+    "intent": "set_preference",
+    "ingredient": "havregryn",
+    "product": "coop"
+  },
+  "numera köper vi alltid violife istället för vanlig ost": {
+    "intent": "set_preference",
+    "ingredient": "ost",
+    "product": "violife"
+  },
+  "vad äter vi imorgon?": {
+    "intent": "query_tonight",
+    "day_offset": 1
+  },
+  "what's cooking tonight?": {
+    "intent": "query_tonight",
+    "day_offset": 0
+  },
+  "vad blir det till middag?": {
+    "intent": "query_tonight",
+    "day_offset": 0
+  },
+  "kan vi planera veckan?": {
+    "intent": "plan_draft",
+    "horizon": "sunday"
+  },
+  "dags att planera igen": {
+    "intent": "plan_draft",
+    "horizon": "sunday"
+  },
+  "planera fram till onsdag": {
+    "intent": "plan_draft",
+    "horizon": "wednesday"
+  },
+  "byt lördag till pizza": {
+    "intent": "plan_set_day",
+    "day": "saturday",
+    "recipe_query": "pizza"
+  },
+  "kör dal på tisdagen istället": {
+    "intent": "plan_set_day",
+    "day": "tuesday",
+    "recipe_query": "kör dal"
+  },
+  "change friday to ramen": {
+    "intent": "plan_set_day",
+    "day": "friday",
+    "recipe_query": "ramen"
+  },
+  "dubbla portioner på fredagen tack": {
+    "intent": "plan_set_multiplier",
+    "day": "friday",
+    "multiplier": 2
+  },
+  "kan vi göra tre gånger så mycket på måndag?": {
+    "intent": "plan_set_multiplier",
+    "day": "monday",
+    "multiplier": 3
+  },
+  "lås veckan": {
+    "intent": "plan_lock"
+  },
+  "lock it in": {
+    "intent": "plan_lock"
+  },
+  "för salt förra gången, dra ner på saltet": {
+    "intent": "note_recipe",
+    "note": "saltet ska minska"
+  },
+  "grymt recept men dubbla vitlöken nästa gång": {
+    "intent": "note_recipe",
+    "note": "grymt recept men dubbla vitlöken nästa gång"
+  },
+  "hej vega, hur mår du?": {
+    "intent": "chitchat"
+  },
+  "tack för hjälpen!": {
+    "intent": "chitchat"
+  },
+  "haha den var bra 😂": {
+    "intent": "chitchat"
+  },
+  "god morgon!": {
+    "intent": "chitchat"
+  }
+}
