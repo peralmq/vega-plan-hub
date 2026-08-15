@@ -12,11 +12,15 @@ From a Vega shopping list, produce a cross-store comparison the
 household can act on: per store, the matched basket with total price,
 unmatched items, and — the decision-driving filter — **whether the
 store can deliver on day X around time Y** to the household address.
-Stores in scope: **Mathem via its official MCP server** (launched
-2026-08-07, OAuth + dynamic client registration verified 2026-08-16)
-and **Willys / Hemköp / Coop via Erik Hellman's MIT-licensed CLI
-suite** (willys-agent, hemkop-cli, coop-cli — the same trio his
-food-shopping-agent drives). Direction set by Pelle 2026-08-16.
+Stores in scope — all five: **Mathem via its official MCP server**
+(launched 2026-08-07, OAuth + dynamic client registration verified
+2026-08-16), **Willys / Hemköp / Coop via Erik Hellman's
+MIT-licensed CLI suite** (willys-agent, hemkop-cli, coop-cli — the
+same trio his food-shopping-agent drives), and **ICA pinned to one
+particular ICA store** (ICA online shopping is per-store at
+`handlaprivatkund.ica.se/stores/{storeId}`; the household's store is
+chosen by Pelle at dispatch). Direction set by Pelle 2026-08-16,
+ICA-inclusive scope confirmed same day.
 
 This is a spike: it ends in working prototype evidence, a gate brief,
 and the tech.spec boundary wording for the follow-up implementation
@@ -57,6 +61,17 @@ on:
   does slot selection with a session; the official MCP may expose
   slots — check first. Coop: unknown, investigate in coop-cli's API
   or via the site.
+- ICA: per-store **anonymous** product search works with a browser
+  UA (`/stores/{storeId}/api/v5/products/search?term=`) — enough for
+  the price-comparison leg with no credentials. Cart/list push needs
+  auth: list tier via reverse-engineered OAuth
+  (`ims.icagruppen.se` → `apimgw-pub.ica.se`; references
+  kanylbullen/ica-mcp, mar-schmidt/ica-cli) or cart via a captured
+  browser session (fragile; WAF 403s non-browser UAs). No known slot
+  endpoint — slots shown at checkout per store; investigate with a
+  session. ICA is the one store where the 2024 API-crackdown
+  precedent argues for keeping the anonymous-search-only leg as the
+  default and auth tiers opt-in.
 - Prior art to study before writing code: simonnordberg/veckomenyn
   (pluggable store backends), ErikHellman/food-shopping-agent (the
   compare-and-fill-cheapest agentic loop this plan generalizes).
@@ -65,6 +80,8 @@ on:
 
 - [ ] Mathem MCP: client registered, OAuth complete, tools enumerated
 - [ ] Hellman CLIs working on the M1 against current sites
+- [ ] ICA leg: household storeId chosen, anonymous search verified,
+      auth tier decided (list push vs search-only)
 - [ ] `delivery_check` probe per store (day/time-window filter)
 - [ ] Comparison harness with fixtures in `./harness check`
 - [ ] Gate brief incl. tech.spec boundary proposal
@@ -83,22 +100,32 @@ on:
    human steps (created by Pelle, credentials straight into
    bot/.env — never echoed). Chains without an account the household
    wants can be dropped; price-compare value degrades gracefully.
-3. **Slot availability per store.** Implement a read-only
+3. **ICA leg.** Pelle names the household's ICA store (human step);
+   verify anonymous per-store search for the price-comparison leg.
+   Decide the auth tier: default is search-only (comparison works
+   with zero ICA credentials); the list-push tier (ica-mcp/ica-cli
+   pattern, personnummer + password) is opt-in if the household
+   wants "send list to ICA app" too.
+4. **Slot availability per store.** Implement a read-only
    `delivery_check(store, postalCode, date, timeWindow)` probe:
    Axfood pair via `tms/delivery-slots`; Mathem via MCP tool if one
-   exists, else the session ajax; Coop per findings from step 2.
-   Output: matching slots (start, end, price) or "cannot deliver".
-4. **Comparison harness.** A script that takes a shopping list
+   exists, else the session ajax; Coop per findings from step 2; ICA
+   per-store slots investigated with a browser session (no known
+   endpoint — may land as "manual check at checkout" for ICA in this
+   spike, recorded honestly in the comparison output). Output:
+   matching slots (start, end, price) or "cannot deliver" or
+   "unknown — check at store".
+5. **Comparison harness.** A script that takes a shopping list
    (fixture file in the Vega list shape) + target day/time-window and
    emits per-store JSON: matched items with prices, unmatched items,
    basket total, delivery options passing the filter — plus a human
-   summary table. Product matching reuses
+   summary table across all five stores. Product matching reuses
    `src/lib/ingredientNormalization` canonical names as search terms.
-5. **Fixture the deterministic parts** (self-improvement rule):
+6. **Fixture the deterministic parts** (self-improvement rule):
    matching logic and comparison assembly run from committed fixture
    API responses in `./harness check`; live calls stay in the spike
    evidence only.
-6. **Gate brief.** Evidence: one real household list compared across
+7. **Gate brief.** Evidence: one real household list compared across
    the working stores with the delivery filter live. Propose the
    tech.spec boundary wording (store integrations as outbound calls
    from the adopted M1 host; credential handling; which chains) and
@@ -111,8 +138,10 @@ on:
 - Comparison harness on a fixture list: deterministic output from
   cached responses — per-store totals, unmatched items, and slot
   filter results match committed expectations.
-- Live evidence recorded: Mathem MCP tool list; each working chain's
-  cart filled from a real list and visible in that store's UI;
+- Live evidence recorded: Mathem MCP tool list; ICA anonymous search
+  returning priced products for the household's chosen storeId; each
+  working chain's cart filled from a real list and visible in that
+  store's UI (ICA cart/list only if the auth tier was opted into);
   `delivery_check` returning real slots for the household postal code
   filtered to a day/time-window; at least one store correctly
   excluded by the filter (no slots in window) if reality provides
