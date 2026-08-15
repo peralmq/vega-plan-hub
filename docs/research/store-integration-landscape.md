@@ -261,6 +261,26 @@ household's store credentials on the M1 (bot/.env pattern, never in
 repo) and accepting breakage risk — Willys/ICA ToS gray zones are
 acceptable for personal use, not for a product.
 
+## Round 3 addendum (2026-08-16): direction set, key facts verified
+
+Pelle's gate direction: **use the official Mathem MCP, plus Erik
+Hellman's CLI suite for multi-chain price comparison, with a
+"can they deliver day X around time Y" filter** on an assembled
+shopping list. Hands-on facts verified same day:
+
+- Mathem's AS metadata (`/o/.well-known/oauth-authorization-server`):
+  **dynamic client registration supported** (`/o/register/`),
+  authorization-code + PKCE S256, refresh tokens, scope `mcp`, token
+  auth `none` — self-registered clients work, no partnership needed.
+- Hellman's willys-agent / hemkop-cli / coop-cli /
+  food-shopping-agent: all **MIT**, last pushed 2026-03-28. Coverage
+  is search + cart add/clear only — **no delivery-slot support
+  anywhere in the suite** (only static delivery-cost metadata); the
+  slot filter is new work (Axfood reference: jimmystridh/willys-mcp).
+
+Spike plan: [p5-01-store-comparison-spike](../execplans/p5-01-store-comparison-spike.md)
+(P5, depends on p4-02).
+
 ## Open questions for the spike's second half (hands-on)
 
 - **Mathem MCP (new, first priority)**: what tools does the official
