@@ -141,4 +141,13 @@ fixtures, set `live-20260814`, 72 total), and replies mirror the
 sender's language with Swedish default (design.spec Chat voice A.7
 verdict recorded from live use — spec updated in this change set).
 
+**2026-08-15 (queue health check):** read-only probe of
+`telegram_inbox` via the household session (scratchpad script, no
+schema or data changes): 7 rows total, 7 processed, 0 unprocessed,
+0 `processing_error` — the full live-round-1 traffic (1 add_item +
+1 callback + 5 show_list phrasings). All rows are from sender
+167811658 (Pelle); **no traffic from Saga's account yet**, so the
+both-partner smoke remains the only open item. M1 consumer confirmed
+running (`npm run bot`, deployment checkout at f79bfa6).
+
 (live smoke with both partners still pending — see Steps 5)
