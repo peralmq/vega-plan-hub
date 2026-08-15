@@ -1,0 +1,212 @@
+{
+  "havremjölk": [
+    {
+      "productId": "2aa08959-663b-4d8a-bed1-12b69f1b945d",
+      "retailerProductId": "1487131",
+      "name": "Havredryck iKaffe 3% 1l Oatly",
+      "brand": "Oatly",
+      "packSizeDescription": "1L",
+      "price": { "amount": "17.93", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "17.93", "currency": "SEK" }, "unit": "fop.price.per.litre", "unitName": "PER_LITRE" },
+      "available": true
+    },
+    {
+      "productId": "a495f8cf-2ba1-436f-8581-c0914b7a78fd",
+      "retailerProductId": "2044852",
+      "name": "Havredryck Barista Glutenfri 3% 1l Oddlygood®",
+      "brand": "Oddlygood",
+      "packSizeDescription": "1L",
+      "price": { "amount": "17.90", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "17.90", "currency": "SEK" }, "unit": "fop.price.per.litre", "unitName": "PER_LITRE" },
+      "available": true
+    },
+    {
+      "productId": "4c393449-c25b-4666-af8f-fe7b624f2a0f",
+      "retailerProductId": "2035617",
+      "name": "Havredryck Naturell 1l ICA",
+      "brand": "ICA",
+      "packSizeDescription": "1L",
+      "price": { "amount": "14.95", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "14.95", "currency": "SEK" }, "unit": "fop.price.per.litre", "unitName": "PER_LITRE" },
+      "available": true
+    },
+    {
+      "productId": "022cf950-038d-485e-b8f0-70a8492472bd",
+      "retailerProductId": "2090748",
+      "name": "Havredryck Barista 1l ICA",
+      "brand": "ICA",
+      "packSizeDescription": "1L",
+      "price": { "amount": "16.98", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "16.98", "currency": "SEK" }, "unit": "fop.price.per.litre", "unitName": "PER_LITRE" },
+      "available": true
+    }
+  ],
+  "krossade tomater": [
+    {
+      "productId": "2ab79c97-b613-47d8-93fc-3690a0a31aa9",
+      "retailerProductId": "2119127",
+      "name": "Krossade tomater 390 g ICA",
+      "brand": "ICA",
+      "packSizeDescription": "0.39kg",
+      "price": { "amount": "9.41", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "24.13", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "0e2ada18-ae51-4bcb-bed2-b9e92ea6133c",
+      "retailerProductId": "1466015",
+      "name": "Finkrossade Tomater 390g ICA",
+      "brand": "ICA",
+      "packSizeDescription": "0.39kg",
+      "price": { "amount": "12.90", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "33.08", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "5d05475f-9dba-4239-80a6-1ab1a8e570a5",
+      "retailerProductId": "2121137",
+      "name": "Tomater krossade 500g ICA Basic",
+      "brand": "ICA Basic",
+      "packSizeDescription": "0.5kg",
+      "price": { "amount": "8.47", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "16.94", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "30b0db2a-3027-49ab-881b-788875e58f07",
+      "retailerProductId": "1403821",
+      "name": "Finkrossade Tomater Polpa 400g Mutti",
+      "brand": "Mutti",
+      "packSizeDescription": "0.4kg",
+      "price": { "amount": "19.82", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "49.55", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    }
+  ],
+  "pasta penne": [
+    {
+      "productId": "b35ef62f-606d-46ad-81ad-7ade570b6ebe",
+      "retailerProductId": "1007761",
+      "name": "Penne Rigate 500g ICA",
+      "brand": "ICA",
+      "packSizeDescription": "0.5kg",
+      "price": { "amount": "12.25", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "24.50", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "94fbf048-531b-4546-8a61-e2e290b85317",
+      "retailerProductId": "1424196",
+      "name": "Penne rigate 1kg ICA",
+      "brand": "ICA",
+      "packSizeDescription": "1kg",
+      "price": { "amount": "23.61", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "23.61", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "86eb5e51-6bf8-44d9-a747-526ff48616a6",
+      "retailerProductId": "2089171",
+      "name": "Pasta Penne Rigate 500g ICA Basic",
+      "brand": "ICA Basic",
+      "packSizeDescription": "0.5kg",
+      "price": { "amount": "8.47", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "16.94", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "d0e00b60-5436-438d-a171-574f41e23b9a",
+      "retailerProductId": "1007537",
+      "name": "Pasta Penne Rigate 500g Barilla",
+      "brand": "Barilla",
+      "packSizeDescription": "0.5kg",
+      "price": { "amount": "17.88", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "35.76", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    }
+  ],
+  "gul lök": [
+    {
+      "productId": "ddf62e08-c688-439c-aa21-9b3372938aee",
+      "retailerProductId": "1131017",
+      "name": "Gul lök 500g Klass 1 ICA",
+      "brand": "ICA",
+      "packSizeDescription": "0.5kg",
+      "price": { "amount": "11.39", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "22.78", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "ac09af42-82ed-4022-9f44-1f949c14bdcd",
+      "retailerProductId": "1400083",
+      "name": "Gul lök 1kg Klass 1 ICA",
+      "brand": "ICA",
+      "packSizeDescription": "1kg",
+      "price": { "amount": "9.90", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "9.90", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "00df76ee-4ed7-4cc9-af08-947b8fefe1e4",
+      "retailerProductId": "1281437",
+      "name": "Vitlök 250g Klass 1 ICA",
+      "brand": "ICA",
+      "packSizeDescription": "0.25kg",
+      "price": { "amount": "26.40", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "105.60", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "0935723d-4850-410a-bf15-09a0dd2d08fc",
+      "retailerProductId": "2099005",
+      "name": "Gul lök i nät 500g Klass 1 ICA I love eco",
+      "brand": "ICA I love eco",
+      "packSizeDescription": "0.5kg",
+      "price": { "amount": "22.89", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "45.78", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    }
+  ],
+  "kikärtor": [
+    {
+      "productId": "c2a69a25-5ced-4196-aa66-23540ecdf372",
+      "retailerProductId": "1378514",
+      "name": "Kikärtor 380g ICA",
+      "brand": "ICA",
+      "packSizeDescription": "0.23kg",
+      "price": { "amount": "9.95", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "43.26", "currency": "SEK" }, "unit": "fop.price.per.kg.without.liquid", "unitName": "PER_1KG_WITHOUT_LIQUID" },
+      "available": true
+    },
+    {
+      "productId": "e2e1acf9-b77b-4d20-aec9-25c7ca03f866",
+      "retailerProductId": "1502638",
+      "name": "Kikärtor 380g ICA I Love Eco",
+      "brand": "ICA I love eco",
+      "packSizeDescription": "0.23kg",
+      "price": { "amount": "13.20", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "57.39", "currency": "SEK" }, "unit": "fop.price.per.kg.without.liquid", "unitName": "PER_1KG_WITHOUT_LIQUID" },
+      "available": true
+    },
+    {
+      "productId": "9beef1ce-445d-4276-837b-7f9215062a52",
+      "retailerProductId": "2149202",
+      "name": "Kikärtor 540g Sedir Food",
+      "brand": "Sedir Food",
+      "packSizeDescription": "0.4kg",
+      "price": { "amount": "13.06", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "32.65", "currency": "SEK" }, "unit": "fop.price.per.kg", "unitName": "PER_1KG" },
+      "available": true
+    },
+    {
+      "productId": "b36bae60-c472-421d-aeae-12bf3aa46068",
+      "retailerProductId": "1344007",
+      "name": "Kikärtor Ekologisk 380g Zeta",
+      "brand": "Zeta",
+      "packSizeDescription": "0.23kg",
+      "price": { "amount": "15.09", "currency": "SEK" },
+      "unitPrice": { "price": { "amount": "65.61", "currency": "SEK" }, "unit": "fop.price.per.kg.without.liquid", "unitName": "PER_1KG_WITHOUT_LIQUID" },
+      "available": true
+    }
+  ]
+}

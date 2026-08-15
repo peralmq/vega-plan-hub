@@ -2,8 +2,8 @@
 id: p5-01-store-comparison-spike
 title: Store comparison spike — Mathem MCP + multi-chain price/delivery compare
 phase: P5
-status: todo
-depends_on: [p4-02-capture-bot]
+status: in-progress
+depends_on: []
 ---
 
 ## Goal
@@ -79,11 +79,20 @@ on:
 ## Progress
 
 - [ ] Mathem MCP: client registered, OAuth complete, tools enumerated
-- [ ] Hellman CLIs working on the M1 against current sites
-- [ ] ICA leg: household storeId chosen, anonymous search verified,
-      auth tier decided (list push vs search-only)
-- [ ] `delivery_check` probe per store (day/time-window filter)
-- [ ] Comparison harness with fixtures in `./harness check`
+- [ ] Hellman CLIs working on the M1 against current sites (or ported;
+      Willys/Hemköp search already native in `compare/`)
+- [x] ICA leg: default store = Maxi ICA Stormarknad Lindhagen
+      (account 1003418, Pelle 2026-08-16); anonymous v6 search + WAF
+      behavior mapped; auth tier still open (list push vs search-only)
+- [~] `delivery_check`: ICA store-eligibility-by-zip live (anonymous);
+      slot times per store still need auth (see Evidence)
+- [x] Comparison CLI (`compare/`, `npm run compare`) with fixture
+      suite in `./harness check` (tsc compare + 11 vitest cases)
+- [ ] Favorites/commonly-bought seeding (Pelle 2026-08-16): Mathem
+      favorites via MCP once OAuth lands; ICA "Dina favoriter" /
+      "Återkommande" (`/stores/{id}/favorites`, `/regulars`) once the
+      household logs in — seed the ingredient→product mapping from
+      what the household actually buys
 - [ ] Gate brief incl. tech.spec boundary proposal
 
 ## Steps
@@ -150,5 +159,62 @@ on:
 
 ## Evidence
 
-(none yet — plan drafted 2026-08-16 from Pelle's direction +
-verified OAuth/licensing/slot-gap facts recorded in Context)
+**2026-08-16 (dispatch + reverse-engineering + CLI v1):** Pelle
+dispatched the plan directly ("go ahead and build this as a separate
+tool", "the end tool would be good if it is a cli") — dependency on
+p4-02 lifted at his direction; the capture bot's remaining smoke is
+unaffected. Same day he set the ICA default store (Maxi ICA
+Stormarknad Lindhagen) and added the favorites-seeding idea (tracked
+in Progress).
+
+Reverse-engineering findings (all live-verified 2026-08-16):
+
+- **ICA has migrated domains**: `handlaprivatkund.ica.se` store URLs
+  302 → `handla.ica.se?chooseStore=true`; the community-documented
+  `/api/v5/products/search` is gone. Current shape (captured via
+  in-browser network inspection): store chooser `handla.ica.se` calls
+  **`GET /api/store/v1?zip={zip}&customerType=B2C`** (anonymous!) →
+  all stores serving that zip with `deliveryMethods`
+  (HOME_DELIVERY/PICKUP), address, accountId; the per-store shop
+  still lives on handlaprivatkund with **search
+  `GET /stores/{accountId}/api/webproductpagews/v6/product-pages/search?q=`**
+  (v6, accountId not old storeId; productId UUID + retailerProductId,
+  price/unitPrice envelopes).
+- **ICA WAF**: AWS WAF challenges non-browser clients intermittently
+  (202 + `x-amzn-waf-action: challenge`, empty body) — rate-based:
+  plain curl worked, then got challenged mid-run. Browser sessions
+  pass. CLI degrades per-term and suggests `ICA_COOKIE`.
+- **ICA slots**: the slot API is
+  `POST /stores/{accountId}/api/ecomslots/v2/slots` (body needs
+  `deliveryDestinationId` + `regionId`; also
+  `/v1/slots/next-available-slot`), extracted from the site's JS
+  bundles. Creating a delivery destination anonymously via
+  `api/address`/`ecomdeliverydestinations` returned 403/405 in all
+  tried shapes — appears to need the logged-in checkout walk, and the
+  `/delivery` route 302s to login. **Slot times therefore stay
+  "check at checkout" for ICA until the household account tier**;
+  store-level "can they deliver to my zip" is solved anonymously.
+  Favorites surfaces confirmed in the header nav:
+  `/stores/{id}/favorites`, `/lists`, `/regulars`.
+- **Mathem/Willys/Hemköp anonymous search verified** (Hemköp =
+  Willys' `search/clean` shape on hemkop.se). Mathem robots-policy
+  bot UA used with contact email. Mathem's guessed
+  `delivery-availability` ajax 404s — slots wait for the MCP.
+
+Build (commit this change set): `compare/` CLI (`npm run compare`) +
+pure logic in `src/lib/storeCompare.ts` with fixtures from real
+captured responses (`src/lib/__fixtures__/store-search/*.json`, 4
+stores × 5 terms, ICA captured through the WAF-blessed browser
+session). Matching lesson encoded in tests: **stores legally rename
+plant milk** ("havremjölk" → "Havredryck"), so token-coverage match
+falls back to store relevance flagged `weak`; the inverse trap
+(Hemköp returning "Havremjöl" — oat *flour* — as top hit) is pinned
+to never silently count as good. `./harness check` green incl. new
+`tsc compare` step; 11 new vitest cases.
+
+Live run (`--list fixtures/compare-list.json --zip 11251 --day
+2026-08-20 --window 17-20`): ICA 35,81 kr (3/5 before WAF challenge
+kicked in, eligibility line: "Maxi ICA Stormarknad Lindhagen
+home-delivers to 11251"), Mathem 64,52 kr (5/5), Willys 69,10 kr
+(5/5), Hemköp 102,95 kr (5/5, havremjöl trap correctly ⚠-flagged).
+Delivery lines report needs-auth honestly per store.

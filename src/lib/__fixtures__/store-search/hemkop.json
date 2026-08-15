@@ -1,0 +1,507 @@
+{
+  "havremjölk": [
+    {
+      "code": "101337236_ST",
+      "name": "Havremjöl",
+      "manufacturer": "Risenta",
+      "priceValue": 22.66,
+      "comparePrice": "75,53 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "300g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    }
+  ],
+  "krossade tomater": [
+    {
+      "code": "101215340_KG",
+      "name": "Tomater Kvist Sverige Klass 1",
+      "manufacturer": null,
+      "priceValue": 33.85,
+      "comparePrice": "33,85 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "ca: 160g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100521259_KG",
+      "name": "Tomat Runda Sverige Klass 1",
+      "manufacturer": null,
+      "priceValue": 33.95,
+      "comparePrice": "33,95 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "ca: 80g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100819651_ST",
+      "name": "Tomater Babyplommon Klass 1",
+      "manufacturer": null,
+      "priceValue": 24.45,
+      "comparePrice": "97,80 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "250g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100814709_ST",
+      "name": "Tomater Cocktail Klass 1",
+      "manufacturer": null,
+      "priceValue": 19.95,
+      "comparePrice": "79,80 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "250g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100819633_ST",
+      "name": "Cocktailtomat Kvist Klass 1",
+      "manufacturer": null,
+      "priceValue": 37.95,
+      "comparePrice": "75,90 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100152282_KG",
+      "name": "Kvisttomat Import Klass 1",
+      "manufacturer": null,
+      "priceValue": 29.95,
+      "comparePrice": "29,95 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "ca: 140g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101829539_ST",
+      "name": "Tomat Babyplommon Kl 1",
+      "manufacturer": null,
+      "priceValue": 37.95,
+      "comparePrice": "126,50 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "300g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101267404_ST",
+      "name": "Tomat Babyplommon Klass 1",
+      "manufacturer": null,
+      "priceValue": 39.95,
+      "comparePrice": "79,90 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    }
+  ],
+  "pasta penne": [
+    {
+      "code": "101548687_ST",
+      "name": "Fusilli",
+      "manufacturer": "Garant",
+      "priceValue": 15.09,
+      "comparePrice": "30,18 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101358836_ST",
+      "name": "Gemelli Pasta",
+      "manufacturer": "Garant",
+      "priceValue": 15.09,
+      "comparePrice": "30,18 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101548709_ST",
+      "name": "Penne Rigate",
+      "manufacturer": "Garant",
+      "priceValue": 15.09,
+      "comparePrice": "30,18 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101548708_ST",
+      "name": "Gnocchi",
+      "manufacturer": "Garant",
+      "priceValue": 15.09,
+      "comparePrice": "30,18 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101332229_ST",
+      "name": "Fusilli Tricolore Pasta",
+      "manufacturer": "Garant",
+      "priceValue": 15.09,
+      "comparePrice": "30,18 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101548710_ST",
+      "name": "Farfalle",
+      "manufacturer": "Garant",
+      "priceValue": 15.09,
+      "comparePrice": "30,18 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100148270_ST",
+      "name": "Penne Rigate Pasta",
+      "manufacturer": "Barilla",
+      "priceValue": 18.45,
+      "comparePrice": "36,90 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101284620_ST",
+      "name": "Mezze Maniche Rigate Pasta",
+      "manufacturer": "Garofalo",
+      "priceValue": 20.77,
+      "comparePrice": "41,54 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    }
+  ],
+  "gul lök": [
+    {
+      "code": "100269139_KG",
+      "name": "Lök Gul Klass 1",
+      "manufacturer": null,
+      "priceValue": 11.95,
+      "comparePrice": "11,95 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "ca: 175g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100147967_KG",
+      "name": "Lök Röd Klass 1",
+      "manufacturer": null,
+      "priceValue": 17.85,
+      "comparePrice": "17,85 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "ca: 160g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100812738_ST",
+      "name": "Lök Gul i Påse Klass 1",
+      "manufacturer": "Garant",
+      "priceValue": 10.95,
+      "comparePrice": "10,95 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "1kg",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101331906_ST",
+      "name": "Lök Vit Stor Klass 1",
+      "manufacturer": null,
+      "priceValue": 11.3,
+      "comparePrice": "188,33 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "60g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100825065_ST",
+      "name": "Lök Röd i Påse Klass 1",
+      "manufacturer": "Garant",
+      "priceValue": 16.85,
+      "comparePrice": "16,85 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "1kg",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100930076_ST",
+      "name": "Lök Gul Eko Klass 1",
+      "manufacturer": "Garant Eko",
+      "priceValue": 19.85,
+      "comparePrice": "33,08 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "600g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100761677_ST",
+      "name": "Lök Schalotten Klass 1",
+      "manufacturer": "Garant",
+      "priceValue": 18.88,
+      "comparePrice": "75,52 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "250g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101064125_ST",
+      "name": "Lök Röd Eko Klass 1",
+      "manufacturer": "Garant Eko",
+      "priceValue": 23.81,
+      "comparePrice": "47,62 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    }
+  ],
+  "kikärtor": [
+    {
+      "code": "101262311_ST",
+      "name": "Kikärter Ekologiska Naturella",
+      "manufacturer": "Garant Eko",
+      "priceValue": 14.14,
+      "comparePrice": "61,48 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "380/230g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101281323_ST",
+      "name": "Kikärter Naturella",
+      "manufacturer": "Garant",
+      "priceValue": 11.83,
+      "comparePrice": "51,43 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "380/230g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "100841920_ST",
+      "name": "Kikärtor Ekologiska",
+      "manufacturer": "Zeta",
+      "priceValue": 16.04,
+      "comparePrice": "69,74 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "380/230g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101224490_ST",
+      "name": "Kikärter",
+      "manufacturer": "Eldorado",
+      "priceValue": 11.3,
+      "comparePrice": "47,08 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "400/240g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101337623_ST",
+      "name": "Kikärtor",
+      "manufacturer": "Zeta",
+      "priceValue": 17.93,
+      "comparePrice": "61,83 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "480/290g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101802371_ST",
+      "name": "Favabön Kikärt Foul",
+      "manufacturer": "Sevan",
+      "priceValue": 13.2,
+      "comparePrice": "50,77 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "400g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101289460_ST",
+      "name": "Kikärtor",
+      "manufacturer": "Garant Eko",
+      "priceValue": 29.29,
+      "comparePrice": "58,58 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "500g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    },
+    {
+      "code": "101250199_ST",
+      "name": "Kikärter",
+      "manufacturer": "Eldorado",
+      "priceValue": 30.23,
+      "comparePrice": "37,79 kr",
+      "comparePriceUnit": "kg",
+      "displayVolume": "800g",
+      "outOfStock": false,
+      "online": true,
+      "productBasketType": {
+        "code": "ST",
+        "type": "ProductBasketTypeEnum"
+      }
+    }
+  ]
+}

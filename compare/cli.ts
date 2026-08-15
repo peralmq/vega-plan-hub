@@ -1,0 +1,205 @@
+// p5-01 store-comparison CLI: compare a shopping list across Mathem,
+// Willys, Hemköp and ICA (default store: Maxi Lindhagen), with a
+// delivery-eligibility check. Cart-ready only — checkout, slot booking
+// and payment always stay with the human (non-goal by design).
+//
+//   npm run compare -- --list fixtures/compare-list.json [--zip 11251]
+//     [--stores mathem,willys,hemkop,ica] [--day 2026-08-20]
+//     [--window 17-20] [--json]
+//
+// List file: JSON array of search terms (strings) or {name} objects.
+// Slot-level day/time filtering needs store logins (Willys/Hemköp) or the
+// Mathem MCP OAuth — until those human steps land, --day/--window are
+// recorded in the output but per-store slot status is reported honestly
+// as needs-auth / check-at-checkout.
+import { readFileSync } from "node:fs";
+
+import { buildComparison, type StoreComparison } from "@/lib/storeCompare";
+import {
+  ICA_DEFAULT_STORE,
+  icaStoresForZip,
+  searchHemkop,
+  searchIca,
+  searchMathem,
+  searchWillys,
+  type SearchResult,
+} from "./stores";
+
+type DeliveryStatus =
+  | { kind: "eligible"; detail: string }
+  | { kind: "not-deliverable"; detail: string }
+  | { kind: "needs-auth"; detail: string }
+  | { kind: "unknown"; detail: string };
+
+interface StoreReport {
+  comparison: StoreComparison | null;
+  errors: string[];
+  delivery: DeliveryStatus;
+}
+
+const SEARCHERS: Record<string, (term: string) => Promise<SearchResult>> = {
+  mathem: searchMathem,
+  willys: searchWillys,
+  hemkop: searchHemkop,
+  ica: searchIca,
+};
+
+function parseArgs(argv: string[]) {
+  const args: Record<string, string | boolean> = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (!a.startsWith("--")) continue;
+    const key = a.slice(2);
+    const next = argv[i + 1];
+    if (next && !next.startsWith("--")) {
+      args[key] = next;
+      i++;
+    } else {
+      args[key] = true;
+    }
+  }
+  return args;
+}
+
+function readList(path: string): string[] {
+  const raw = JSON.parse(readFileSync(path, "utf8")) as unknown;
+  if (!Array.isArray(raw)) throw new Error("list file must be a JSON array");
+  return raw.map((entry) =>
+    typeof entry === "string" ? entry : (entry as { name: string }).name,
+  );
+}
+
+async function deliveryForStore(store: string, zip: string | null): Promise<DeliveryStatus> {
+  switch (store) {
+    case "mathem":
+      return {
+        kind: "needs-auth",
+        detail: "slots via official Mathem MCP once OAuth is approved (p5-01 step 1)",
+      };
+    case "willys":
+    case "hemkop":
+      return {
+        kind: "needs-auth",
+        detail: "slot endpoint (tms/delivery-slots) requires store login (p5-01 step 2)",
+      };
+    case "ica": {
+      if (!zip) return { kind: "unknown", detail: "pass --zip to check ICA delivery eligibility" };
+      try {
+        const stores = await icaStoresForZip(zip);
+        const match = stores.find((s) => s.accountId === ICA_DEFAULT_STORE.accountId);
+        return match
+          ? {
+              kind: "eligible",
+              detail: `${ICA_DEFAULT_STORE.name} home-delivers to ${zip}; slot times shown at checkout`,
+            }
+          : {
+              kind: "not-deliverable",
+              detail: `${ICA_DEFAULT_STORE.name} does not deliver to ${zip} (${stores.length} other ICA stores do)`,
+            };
+      } catch (e) {
+        return { kind: "unknown", detail: `store lookup failed: ${e instanceof Error ? e.message : e}` };
+      }
+    }
+    default:
+      return { kind: "unknown", detail: "unknown store" };
+  }
+}
+
+async function runStore(store: string, terms: string[], zip: string | null): Promise<StoreReport> {
+  const search = SEARCHERS[store];
+  const productsByTerm: Record<string, never[]> = {};
+  const errors: string[] = [];
+  for (const term of terms) {
+    const result = await search(term);
+    if (result.ok) {
+      productsByTerm[term] = result.products as never[];
+    } else {
+      productsByTerm[term] = [];
+      errors.push(`"${term}": ${result.error}`);
+    }
+    await new Promise((r) => setTimeout(r, 250)); // polite pacing, per Mathem robots policy
+  }
+  // Every term erroring means the store is unreachable, not an empty catalog.
+  const comparison =
+    errors.length === terms.length ? null : buildComparison(store, terms, productsByTerm);
+  return { comparison, errors, delivery: await deliveryForStore(store, zip) };
+}
+
+const fmtKr = (n: number) => `${n.toFixed(2).replace(".", ",")} kr`;
+
+function printHuman(reports: Record<string, StoreReport>, terms: string[], day?: string, window?: string) {
+  console.log(`\n🛒 Store comparison — ${terms.length} items`);
+  if (day || window) {
+    console.log(`🚚 Wanted delivery: ${day ?? "any day"}${window ? ` around ${window}` : ""}`);
+  }
+  const ranked = Object.entries(reports)
+    .filter(([, r]) => r.comparison !== null)
+    .sort((a, b) => a[1].comparison!.total - b[1].comparison!.total);
+  for (const [store, report] of ranked) {
+    const c = report.comparison!;
+    const flags = [
+      c.weak ? `${c.weak} weak match${c.weak > 1 ? "es" : ""} — review` : null,
+      c.unmatched.length ? `missing: ${c.unmatched.join(", ")}` : null,
+    ].filter(Boolean);
+    console.log(`\n${store.toUpperCase()} — ${fmtKr(c.total)} (${c.matched}/${terms.length} matched)`);
+    for (const item of c.items) {
+      const mark = item.product === null ? "✗" : item.quality === "weak" ? "⚠" : "✓";
+      const line = item.product
+        ? `${item.product.name} — ${fmtKr(item.product.price)}${item.alternatives ? ` (+${item.alternatives} alternatives)` : ""}`
+        : "no match";
+      console.log(`  ${mark} ${item.term}: ${line}`);
+    }
+    if (flags.length) console.log(`  ⚠ ${flags.join(" · ")}`);
+    console.log(`  🚚 ${report.delivery.kind}: ${report.delivery.detail}`);
+    if (report.errors.length) console.log(`  ⚠ errors: ${report.errors.join("; ")}`);
+  }
+  for (const [store, report] of Object.entries(reports)) {
+    if (report.comparison === null) {
+      console.log(`\n${store.toUpperCase()} — unreachable (${report.errors[0] ?? "unknown error"})`);
+    }
+  }
+  console.log();
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const listPath = typeof args.list === "string" ? args.list : null;
+  if (!listPath) {
+    console.error(
+      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica] [--day YYYY-MM-DD] [--window HH-HH] [--json]",
+    );
+    process.exit(1);
+  }
+  const terms = readList(listPath);
+  const stores =
+    typeof args.stores === "string" ? args.stores.split(",") : Object.keys(SEARCHERS);
+  const unknown = stores.filter((s) => !SEARCHERS[s]);
+  if (unknown.length) {
+    console.error(`unknown store(s): ${unknown.join(", ")} (coop pending: needs account, p5-01 step 2)`);
+    process.exit(1);
+  }
+  const zip = typeof args.zip === "string" ? args.zip : null;
+
+  const reports: Record<string, StoreReport> = {};
+  await Promise.all(
+    stores.map(async (store) => {
+      reports[store] = await runStore(store, terms, zip);
+    }),
+  );
+
+  if (args.json) {
+    console.log(JSON.stringify({ terms, day: args.day ?? null, window: args.window ?? null, reports }, null, 2));
+  } else {
+    printHuman(
+      reports,
+      terms,
+      typeof args.day === "string" ? args.day : undefined,
+      typeof args.window === "string" ? args.window : undefined,
+    );
+  }
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

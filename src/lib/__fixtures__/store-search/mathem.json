@@ -1,0 +1,612 @@
+{
+  "havremjölk": [
+    {
+      "id": 3182,
+      "full_name": "Oatly iKaffe Barista Edition Havredryck 3%",
+      "brand": "Oatly",
+      "gross_price": "17.95",
+      "gross_unit_price": "17.95",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/3182-oatly-ikaffe-barista-edition-havredryck-3/"
+    },
+    {
+      "id": 2190,
+      "full_name": "Oddlygood® Barista Glutenfri Havredryck 3%",
+      "brand": "Oddlygood®",
+      "gross_price": "16.40",
+      "gross_unit_price": "16.40",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/2190-oddlygood-r-barista-glutenfri-havredryck-3/"
+    },
+    {
+      "id": 4708,
+      "full_name": "Garant Barista Havredryck 3%",
+      "brand": "Garant",
+      "gross_price": "16.56",
+      "gross_unit_price": "16.56",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4708-garant-barista-havredryck-3/"
+    },
+    {
+      "id": 4602,
+      "full_name": "Garant Havredryck Naturell 1,5%",
+      "brand": "Garant",
+      "gross_price": "15.62",
+      "gross_unit_price": "15.62",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4602-garant-havredryck-naturell-15/"
+    },
+    {
+      "id": 63548,
+      "full_name": "Oatly iKaffe Barista Edition Havredryck 3%",
+      "brand": "Oatly",
+      "gross_price": "26.45",
+      "gross_unit_price": "17.63",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/63548-oatly-ikaffe-barista-edition-havredryck-3/"
+    },
+    {
+      "id": 5116,
+      "full_name": "Oatly Havredryck 1,5 %",
+      "brand": "Oatly",
+      "gross_price": "15.50",
+      "gross_unit_price": "15.50",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/5116-oatly-havredryck-15/"
+    },
+    {
+      "id": 38833,
+      "full_name": "Oatly iKaffe Barista Edition Ekologisk Havredryck 3,2%",
+      "brand": "Oatly",
+      "gross_price": "23.61",
+      "gross_unit_price": "23.61",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/38833-oatly-ikaffe-barista-edition-ekologisk-havredryck/"
+    },
+    {
+      "id": 63547,
+      "full_name": "Oatly iKaffe Light Havredryck 2%",
+      "brand": "Oatly",
+      "gross_price": "17.95",
+      "gross_unit_price": "17.95",
+      "unit_price_quantity_abbreviation": "l",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/63547-oatly-ikaffe-light-havredryck-2/"
+    }
+  ],
+  "krossade tomater": [
+    {
+      "id": 7505,
+      "full_name": "Garant Krossade Tomater",
+      "brand": "Garant",
+      "gross_price": "13.72",
+      "gross_unit_price": "35.18",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7505-garant-krossade-tomater/"
+    },
+    {
+      "id": 4575,
+      "full_name": "Garant Eko Krossade Tomater EKO",
+      "brand": "Garant Eko",
+      "gross_price": "16.04",
+      "gross_unit_price": "41.13",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4575-garant-eko-krossade-tomater-eko/"
+    },
+    {
+      "id": 8235,
+      "full_name": "Mutti Finkrossade Tomater 3x400g",
+      "brand": "Mutti",
+      "gross_price": "41.50",
+      "gross_unit_price": "34.58",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/8235-mutti-finkrossade-tomater-3x400g/"
+    },
+    {
+      "id": 227,
+      "full_name": "Eldorado Krossade Tomater",
+      "brand": "Eldorado",
+      "gross_price": "10.88",
+      "gross_unit_price": "21.76",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/227-eldorado-krossade-tomater/"
+    },
+    {
+      "id": 63267,
+      "full_name": "Garant Finkrossade Tomater 3-p",
+      "brand": "Garant",
+      "gross_price": "30.76",
+      "gross_unit_price": "26.29",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/63267-garant-finkrossade-tomater-3-p/"
+    },
+    {
+      "id": 7560,
+      "full_name": "Garant Krossade Tomater Vitlök",
+      "brand": "Garant",
+      "gross_price": "14.67",
+      "gross_unit_price": "37.62",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7560-garant-krossade-tomater-vitlok/"
+    },
+    {
+      "id": 7577,
+      "full_name": "Garant Krossade Tomater Örter",
+      "brand": "Garant",
+      "gross_price": "14.67",
+      "gross_unit_price": "37.62",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7577-garant-krossade-tomater-orter/"
+    },
+    {
+      "id": 7519,
+      "full_name": "Garant Krossade Tomater Chili",
+      "brand": "Garant",
+      "gross_price": "14.67",
+      "gross_unit_price": "37.62",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7519-garant-krossade-tomater-chili/"
+    }
+  ],
+  "pasta penne": [
+    {
+      "id": 4684,
+      "full_name": "Barilla Pasta Penne Rigate",
+      "brand": "Barilla",
+      "gross_price": "15.95",
+      "gross_unit_price": "31.90",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4684-barilla-pasta-penne-rigate/"
+    },
+    {
+      "id": 7704,
+      "full_name": "Garant Pasta Penne Rigate",
+      "brand": "Garant",
+      "gross_price": "14.95",
+      "gross_unit_price": "29.90",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7704-garant-pasta-penne-rigate/"
+    },
+    {
+      "id": 5267,
+      "full_name": "Zeta Pasta Penne Rigate",
+      "brand": "Zeta",
+      "gross_price": "21.29",
+      "gross_unit_price": "53.23",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/5267-zeta-pasta-penne-rigate/"
+    },
+    {
+      "id": 63904,
+      "full_name": "Monte Castello Pasta Penne Rigate",
+      "brand": "Monte Castello",
+      "gross_price": "10.95",
+      "gross_unit_price": "21.90",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/63904-monte-castello-pasta-penne-rigate/"
+    },
+    {
+      "id": 4593,
+      "full_name": "Garant Eko Pasta Penne Rigate EKO",
+      "brand": "Garant Eko",
+      "gross_price": "17.95",
+      "gross_unit_price": "35.90",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4593-garant-eko-pasta-penne-rigate-eko/"
+    },
+    {
+      "id": 7705,
+      "full_name": "Garant Pasta Penne Rigate Fullkorn",
+      "brand": "Garant",
+      "gross_price": "14.95",
+      "gross_unit_price": "29.90",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7705-garant-pasta-penne-rigate-fullkorn/"
+    },
+    {
+      "id": 64393,
+      "full_name": "Barilla Pasta Penne Rigate",
+      "brand": "Barilla",
+      "gross_price": "31.18",
+      "gross_unit_price": "31.18",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/64393-barilla-pasta-penne-rigate/"
+    },
+    {
+      "id": 65293,
+      "full_name": "Zeta Pasta Penne Rigate Glutenfri",
+      "brand": "Zeta",
+      "gross_price": "24.56",
+      "gross_unit_price": "61.40",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/65293-zeta-pasta-penne-rigate-glutenfri/"
+    }
+  ],
+  "gul lök": [
+    {
+      "id": 4445,
+      "full_name": "Lök Gul styck Klass1 Sverige",
+      "brand": null,
+      "gross_price": "3.95",
+      "gross_unit_price": "19.75",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4445-lok-gul-styck-klass1/"
+    },
+    {
+      "id": 5531,
+      "full_name": "Lök Gul Påse Klass1 Sverige",
+      "brand": null,
+      "gross_price": "15.50",
+      "gross_unit_price": "15.50",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/5531-lok-gul-pase-klass1/"
+    },
+    {
+      "id": 14088,
+      "full_name": "Lök Gul Klass1 Sverige",
+      "brand": null,
+      "gross_price": "10.36",
+      "gross_unit_price": "20.72",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/14088-lok-gul-klass1/"
+    },
+    {
+      "id": 6726,
+      "full_name": "Lök Gul EKO Klass1 Sverige",
+      "brand": null,
+      "gross_price": "23.95",
+      "gross_unit_price": "47.90",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/6726-lok-gul-eko-klass1/"
+    },
+    {
+      "id": 7714,
+      "full_name": "Eldorado Gul Lök Hackad Fryst",
+      "brand": "Eldorado",
+      "gross_price": "13.95",
+      "gross_unit_price": "46.50",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7714-eldorado-gul-lok-hackad-fryst/"
+    },
+    {
+      "id": 16246,
+      "full_name": "Lök Gul i Knippe Klass1 Sverige",
+      "brand": null,
+      "gross_price": "27.95",
+      "gross_unit_price": "111.80",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/16246-lok-gul-i-knippe-klass1/"
+    },
+    {
+      "id": 7365,
+      "full_name": "Vitlök Klass1 Spanien",
+      "brand": null,
+      "gross_price": "9.95",
+      "gross_unit_price": "180.91",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7365-vitlok-klass1/"
+    },
+    {
+      "id": 4379,
+      "full_name": "Lök Röd styck Klass1 Sverige",
+      "brand": null,
+      "gross_price": "4.95",
+      "gross_unit_price": "30.00",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4379-lok-rod-styck-klass1/"
+    }
+  ],
+  "kikärtor": [
+    {
+      "id": 4806,
+      "full_name": "Zeta Kikärtor EKO",
+      "brand": "Zeta",
+      "gross_price": "12.95",
+      "gross_unit_price": "56.30",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4806-zeta-kikartor-eko/"
+    },
+    {
+      "id": 4581,
+      "full_name": "Garant Kikärtor",
+      "brand": "Garant",
+      "gross_price": "10.88",
+      "gross_unit_price": "47.30",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4581-garant-kikartor/"
+    },
+    {
+      "id": 4692,
+      "full_name": "Garant Eko Kikärter EKO",
+      "brand": "Garant Eko",
+      "gross_price": "12.26",
+      "gross_unit_price": "53.30",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4692-garant-eko-kikarter-eko/"
+    },
+    {
+      "id": 8452,
+      "full_name": "Garant Eko Kikärtor EKO",
+      "brand": "Garant Eko",
+      "gross_price": "29.50",
+      "gross_unit_price": "59.00",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/8452-garant-eko-kikartor-eko/"
+    },
+    {
+      "id": 3926,
+      "full_name": "Zeta Kikärtor",
+      "brand": "Zeta",
+      "gross_price": "15.09",
+      "gross_unit_price": "52.03",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/3926-zeta-kikartor/"
+    },
+    {
+      "id": 7506,
+      "full_name": "Eldorado Kikärtor",
+      "brand": "Eldorado",
+      "gross_price": "10.95",
+      "gross_unit_price": "45.63",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/7506-eldorado-kikartor/"
+    },
+    {
+      "id": 67084,
+      "full_name": "Chitchat Chokladtäckta Rostade Kikärtor",
+      "brand": "Chitchat",
+      "gross_price": "27.40",
+      "gross_unit_price": "274.00",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/67084-chitchat-chokladtackta-rostade-kikartor/"
+    },
+    {
+      "id": 4842,
+      "full_name": "Zeta Blandade Bönor EKO",
+      "brand": "Zeta",
+      "gross_price": "18.46",
+      "gross_unit_price": "80.26",
+      "unit_price_quantity_abbreviation": "kg",
+      "availability": {
+        "is_available": true,
+        "description": "",
+        "description_short": "",
+        "code": "available"
+      },
+      "front_url": "https://www.mathem.se/se/products/4842-zeta-blandade-bonor-eko/"
+    }
+  ]
+}
