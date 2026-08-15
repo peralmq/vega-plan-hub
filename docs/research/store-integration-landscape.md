@@ -1,11 +1,14 @@
 # Store Integration Landscape — Mathem, Willys, ICA
 
-Status: desk research, 2026-08-15. First half of the research spike the
-back-burnered grocery-purchase integration requires (new backend
-surface = ask-first per [AGENTS.md](../../AGENTS.md); no spec change or
-code in this change set). Three parallel research agents; live endpoint
-probes were performed 2026-08-15 where noted. Full per-store reports
-were produced in-session; this doc is the durable synthesis.
+Status: desk research, 2026-08-15 (round 2 addendum same day). First
+half of the research spike the back-burnered grocery-purchase
+integration requires (new backend surface = ask-first per
+[AGENTS.md](../../AGENTS.md); no spec change or code in this change
+set). Round 1: three parallel research agents, one per store. Round 2:
+a GitHub ecosystem sweep (authenticated `gh` search incl. code search)
+plus an X.com/social sweep. Live endpoint probes were performed
+2026-08-15 where noted. Full per-agent reports were produced
+in-session; this doc is the durable synthesis.
 
 ## The question
 
@@ -15,12 +18,19 @@ official APIs, cart-preview-before-purchase, home-delivery selection.
 
 ## Headline answers
 
-- **Official public APIs: none, at any of the three.** No developer
-  portals, no self-serve partner programs. All three run modern
-  internal API platforms (Mathem/Oda: Django REST; Willys/Axfood: SAP
-  Commerce Cloud v2; ICA: WSO2 gateway) — partnership is technically
-  easy for them, but it is a business-development conversation, not a
-  signup form.
+- **Official public APIs: none at Willys or ICA — but Mathem/Oda
+  shipped an OFFICIAL MCP server ~2026-08-07.** (Round-2 correction
+  to round 1's "none anywhere".) `https://www.mathem.se/mcp` is live:
+  OAuth-protected (401 + `.well-known/oauth-protected-resource/mcp`
+  metadata, authorization server `https://www.mathem.se/o`, scope
+  `mcp`) — verified first-hand 2026-08-15. Announced on LinkedIn by
+  Oda engineers ("For everyone who asked, it's here — Oda MCP"),
+  explicitly built because of community demand; same endpoint live on
+  oda.com. Mathem is now the only Swedish grocer with *sanctioned*
+  agentic shopping access. Willys/ICA remain: no developer portals,
+  no self-serve partner programs, modern internal API platforms
+  (Axfood: SAP Commerce Cloud v2; ICA: WSO2 gateway) — partnership
+  there is a business-development conversation, not a signup form.
 - **"Preview cart before purchase" is the universally available flow.**
   Nobody exposes programmatic checkout worth touching anyway; the
   viable pattern everywhere is *pre-fill, then human review*: fill a
@@ -129,7 +139,7 @@ public." The community re-reverse-engineered the new
 
 | | Mathem | Willys | ICA |
 |---|---|---|---|
-| Official API | ❌ | ❌ | ❌ (killed 2024) |
+| Official API | ✅ **MCP, Aug 2026** | ❌ | ❌ (killed 2024) |
 | Anonymous product search | ✅ verified | ✅ verified, CORS `*` | ✅ per-store, browser UA |
 | Programmatic cart/list fill | ✅ cart (session) | ✅ cart, even anonymous (session) | ✅ shopping list (OAuth) / cart (fragile) |
 | Cart preview before purchase | ✅ user checks out in UI | ✅ same | ✅ via ICA app from list |
@@ -139,24 +149,112 @@ public." The community re-reverse-engineered the new
 | ToS risk | low | medium (personal-use clause) | medium-high (app-secret reuse) |
 | Ecosystem freshness | mcp-oda pushed 2026-08 | two projects pushed 2026 Q1 | two projects pushed 2026 Q2 |
 
+## Round 2: community ecosystem (GitHub + social sweep, 2026-08-15)
+
+The scene is bigger and fresher than round 1 found — at least **nine
+grocery MCP servers** for the Swedish market, nearly all created
+2025-10 → 2026-07, plus CLI suites and Home Assistant coverage of all
+three ecosystems. Cross-cutting patterns:
+
+- **"Cart-ready, never checkout" is the community's safety
+  convention** — stated explicitly by the two most polished projects
+  ("Veckomenyn stops at cart-ready. Delivery and payment stay where
+  they belong."). Matches Vega's human-gate ethos and round 1's flow
+  conclusion.
+- **MCP is the integration surface of the moment**; no browser
+  extensions surfaced at all — the community builds CLIs, MCP
+  servers, HA integrations, and self-hosted web apps.
+- **Two prolific Swedish authors each built a whole suite**: Erik
+  Hellman ([willys-agent](https://github.com/ErikHellman/willys-agent),
+  [hemkop-cli](https://github.com/ErikHellman/hemkop-cli), coop-cli,
+  [food-shopping-agent](https://github.com/ErikHellman/food-shopping-agent)
+  — an agent that price-compares Hemköp/Willys/Coop and fills the
+  cheapest cart — and
+  [dinner-planner-assistant](https://github.com/ErikHellman/dinner-planner-assistant),
+  a Swedish-language chat agent that fills the Willys cart, pushed
+  2026-08-11) and Simon Nordberg
+  ([veckomenyn](https://github.com/simonnordberg/veckomenyn), a
+  self-hosted family meal planner with pluggable LLM + store
+  backends, 6 stars, pushed 2026-07-22, plus
+  [willys-cli](https://github.com/simonnordberg/willys-cli)).
+  Veckomenyn is the closest existing thing to Vega's store ambition —
+  study before building.
+
+Standout new finds per store (beyond round 1's inventory):
+
+- **Mathem**: [marcusforsberg/ha-mathem](https://github.com/marcusforsberg/ha-mathem)
+  (Home Assistant, 2026-07/08: search, *diet-aware cart* with
+  allergen fail-closed mode, **delivery-slot selection**, Swedish
+  voice control — proof the slot ajax works with a session),
+  [Corpra/mathem-cli](https://github.com/Corpra/mathem-cli) (npm,
+  anonymous search + cookie-session cart),
+  [dinorastoder/oda-agent-kit](https://github.com/dinorastoder/oda-agent-kit)
+  (TS monorepo: core client, CLI, MCP server, delivery slots).
+  Historical: Kolonial.no (Oda's ancestor) once had an *official*
+  API (python-kolonial etc., dead) — official access is a
+  return-to-form for them, now realized as the official MCP.
+- **Willys/Axfood**: earliest modern agent is
+  [elitan/willys-agent-meal-planner](https://github.com/elitan/willys-agent-meal-planner)
+  (2025-06, by Nhost founder Johan Eliasson, publicized on LinkedIn,
+  ships a reverse-engineered `WILLYS_API.md`). The Axfood
+  `axfood/rest` shape extends to Hemköp (hemkop-cli + two 2026
+  clones).
+- **ICA**: [kanylbullen/ica-mcp](https://github.com/kanylbullen/ica-mcp)
+  (2026-07, ~20 tools: lists, recipes, offers-on-my-list matching,
+  Stammis balance, EAN lookup; personnummer+password, no BankID),
+  [cheif/ica-caldav](https://github.com/cheif/ica-caldav) (CalDAV
+  bridge → ICA lists via Siri/Apple Reminders, **BankID login flow**,
+  maintained since 2024),
+  [JMrtzsn/Matkorgen](https://github.com/JMrtzsn/Matkorgen)
+  (Playwright-driven ICA MCP). A 2026-02 attempt to revive the old
+  HA integration shows demand persists post-crackdown.
+- **Cross-store**: [Kronixion/matval](https://github.com/Kronixion/matval)
+  (MCP scraping ICA/Coop/Willys/Hemköp/Mathem: meal plans from
+  nutritional requirements, price history),
+  [Armandur/fyndkartan](https://github.com/Armandur/fyndkartan)
+  (unified FastAPI over six chains' stores + weekly offers, pushed
+  2026-08-07). matspar.se: no community integrations exist; offer
+  data comes via ereklamblad.se / matpriskollen.se scrapers instead.
+
+X.com specifically: near-empty — X blocks anonymous indexing, so
+recent hobbyist posts are unfindable from outside. The one verified
+store interaction is from 2015 (@Mathem replying "not at the moment,
+but I'll check with IT" to an API request — eleven years before they
+shipped the MCP). The real announcement channels for this scene are
+GitHub and LinkedIn (both the Oda MCP launch and Eliasson's Willys
+write-up were LinkedIn posts).
+
+Tolerance signals, updated: **Mathem** went from "no API" (2015) to an
+official MCP (2026) — the strongest possible signal. **Willys**:
+silent tolerance; three MCP/agent projects and commercial scrapers
+operate openly, no blocking observed, but all carry "unofficial, use
+responsibly" disclaimers. **ICA**: one real crackdown (Apr 2024 API
+shutdown) and the community rebuilt anyway; no action against the
+rebuilt projects observed.
+
 ## Recommended path (proposal — gate decision is Pelle's)
 
-1. **Tier 0, ship-safe now**: ingredient → product matching + price
-   preview on the anonymous search APIs (all three; Mathem and Willys
-   are trivial). No auth, low ToS risk, and it upgrades the existing
-   Shopping Summary regardless of which store wins.
-2. **Tier 1 prototype: Mathem cart pre-fill.** Friendliest posture
-   (bot policy, no protection, no BankID, active reference
-   implementation), household already fits the delivery area, and the
-   flow ends in their UI for review + slot + payment. Identify the
-   client per their robots.txt policy.
-3. **Willys** second if price matters more than posture — anonymous
-   cart-add is verified but the session handoff needs a browser-side
-   component; **ICA** only via the shopping-list tier, opt-in, given
-   credential-handling liability.
-4. **In parallel**: Mathem/Oda partnership feeler (they built and
-   shipped their own agentic-shopping MCP; Adtraction affiliate is
-   live today) before investing beyond household scale.
+1. **Tier 1 (was: prototype; now: the headline): the official Mathem
+   MCP.** Sanctioned, OAuth-based (no stored passwords), MCP is
+   exactly the shape Vega's M1 agent runtime consumes, and the flow
+   presumably ends in Mathem's UI for review + slot + payment. The
+   hands-on spike should start here: complete the OAuth flow against
+   `https://www.mathem.se/o`, enumerate the MCP's tools, and test
+   list → cart end-to-end with the household account.
+2. **Tier 0, ship-safe regardless**: ingredient → product matching +
+   price preview on the anonymous search APIs (all three; Mathem and
+   Willys are trivial). No auth, low ToS risk, upgrades the existing
+   Shopping Summary whichever store wins.
+3. **Willys** as price-motivated fallback — anonymous cart-add is
+   verified but unsanctioned, and the session handoff needs a
+   browser-side component; **ICA** only via the shopping-list tier,
+   opt-in, given credential-handling liability and their 2024
+   crackdown precedent.
+4. **Study before building**: veckomenyn (simonnordberg) — a working
+   family meal-planner → Willys-cart agent with pluggable store
+   backends — and ha-mathem's diet-aware cart + slot handling.
+   Adtraction affiliate remains available for revenue-neutral
+   linking.
 
 Household-scale caveat: all unofficial paths mean handling the
 household's store credentials on the M1 (bot/.env pattern, never in
@@ -165,9 +263,13 @@ acceptable for personal use, not for a product.
 
 ## Open questions for the spike's second half (hands-on)
 
-- Mathem: does an anonymous pre-filled cart merge into the account
-  cart at login? (Decides whether Vega needs stored credentials at
-  all.)
+- **Mathem MCP (new, first priority)**: what tools does the official
+  server expose (search? cart? lists? slots?), does OAuth client
+  registration work for a hobby client (dynamic registration or
+  manual?), and does an MCP-filled cart show up for review in the
+  normal mathem.se checkout?
+- Mathem (fallback only if the MCP is too limited): does an anonymous
+  pre-filled cart merge into the account cart at login?
 - Mathem: cart-add against a real account end-to-end incl. checkout
   preview (stop before payment).
 - Willys: does CORS permit credentialed cart calls from another
