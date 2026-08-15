@@ -61,6 +61,14 @@ on:
   (pluggable store backends), ErikHellman/food-shopping-agent (the
   compare-and-fill-cheapest agentic loop this plan generalizes).
 
+## Progress
+
+- [ ] Mathem MCP: client registered, OAuth complete, tools enumerated
+- [ ] Hellman CLIs working on the M1 against current sites
+- [ ] `delivery_check` probe per store (day/time-window filter)
+- [ ] Comparison harness with fixtures in `./harness check`
+- [ ] Gate brief incl. tech.spec boundary proposal
+
 ## Steps
 
 1. **Mathem MCP first.** Register a client at `/o/register/`, run the
