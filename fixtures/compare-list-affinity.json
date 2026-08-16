@@ -1,0 +1,9 @@
+[
+  "havremjölk",
+  "krossade tomater",
+  "pasta penne",
+  "gul lök",
+  "kikärtor",
+  { "name": "ost", "stores": ["willys", "ica"] },
+  { "name": "havregryn", "stores": ["hemkop", "mathem", "willys"] }
+]

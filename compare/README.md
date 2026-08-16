@@ -11,7 +11,18 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   [--fill-cart mathem] [--json]
 ```
 
-- List file: JSON array of search terms or `{name}` objects.
+- List file: JSON array of search terms or `{name}` objects. A
+  `{name, stores: ["willys", "ica"]}` entry is a **store affinity**
+  (p5-02): that item is only sourced at those stores — other stores
+  never search it (shown as "✂ not sourced here") and their totals
+  exclude it.
+- **Rotation** (p5-02): the 🔁 line suggests this run's primary store —
+  best affinity coverage, then deliverability, then rotating away from
+  the store that got the last order (per-item history), then the
+  fee-aware rank. Advisory only: after actually ordering, run
+  `--record <store>` to update the per-item history
+  (`compare/.rotation.json`, local + gitignored — household run data
+  stays on the M1).
 - Ranking is fee-aware (p5-03): stores are ordered on **basket +
   cheapest eligible slot fee** where fees are known (Mathem/Coop/
   Willys/Hemköp per-slot; the header shows both numbers), on basket

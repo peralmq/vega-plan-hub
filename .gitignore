@@ -33,3 +33,4 @@ dist-ssr
 compare/.mathem-oauth.json
 compare/.env
 compare/.cache/
+compare/.rotation.json

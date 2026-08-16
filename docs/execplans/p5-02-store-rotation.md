@@ -2,7 +2,7 @@
 id: p5-02-store-rotation
 title: Store rotation — per-item store affinity and week-to-week rotation
 phase: P5
-status: todo
+status: done
 depends_on: [p5-01-store-comparison-spike, p5-03-fee-aware-totals]
 ---
 
@@ -47,12 +47,23 @@ override.
 
 ## Progress
 
-- [ ] Affinity shape + rotation-state design (incl. persistence
-      decision)
-- [ ] Pure logic: affinity filtering, basket assembly, rotation
-      suggestion (fixture-tested)
-- [ ] CLI surfacing
-- [ ] Evidence with real household affinity cases (ost, havregryn)
+- [x] Affinity shape + rotation-state design (incl. persistence
+      decision): list entries `{name, stores: [...]}`; history =
+      `compare/.rotation.json` (local gitignored file, bot/.env
+      pattern — household run data stays on the M1, no Supabase
+      schema so the ask-first gate never triggers); history written
+      only on explicit `--record <store>` (suggestion is advisory,
+      the human's actual order is what's remembered)
+- [x] Pure logic: `src/lib/storeRotation.ts` — parseListEntries,
+      allowedTerms (affinity gate), suggestPrimary (coverage →
+      deliverability → rotate-away-from-last → fee-aware rank);
+      11 vitest cases on the household's real affinity data
+- [x] CLI surfacing: ✂ "not sourced here" per store (excluded terms
+      never searched, never in totals; matched shown per-store), 🔁
+      rotation line with reason + rotate-away detail, `--record`
+      flag, rotation in `--json`
+- [x] Evidence with real household affinity cases (ost, havregryn)
+      — see Evidence, incl. a live week-over-week flip
 
 ## Steps
 
@@ -77,4 +88,33 @@ override.
 
 ## Evidence
 
-(none yet)
+**2026-08-16 (implemented; test-first on the pure core):**
+
+- `npx vitest run src/lib/storeRotation.test.ts` → 11 passed —
+  parsing (incl. rejecting an empty affinity list as unbuyable),
+  affinity gating, no-history pick (max coverage), tied-coverage
+  week-over-week alternation (willys→ica→willys), rotate-away
+  reporting, deliverability guard (rotation never suggests a store
+  with no eligible slot when a deliverable one covers as much),
+  rank tie-break, shop-separately (unsourced) listing.
+- Live, real household cases (`fixtures/compare-list-affinity.json`:
+  the 5-item list + ost [willys,ica] + havregryn
+  [hemkop,mathem,willys]), zip 11251, 2026-08-18 window 17-20:
+  "🔁 Rotation: this week WILLYS — covers 7/7 items" (only store
+  allowed to supply both affinity items); per-store output shows
+  e.g. Coop "✂ not sourced here (affinity): ost, havregryn" with a
+  5-item basket, Mathem 6/6 with havregryn pinned to the
+  household's real staple ("Garant Eko Havregryn ★ staple" via the
+  p5-01 seed layer — affinity and seeding compose).
+- **Live week-over-week flip** (ost-only affinity list, where
+  willys and ica tie on coverage): `--record willys` →
+  `.rotation.json` `{ost: {store: willys, date: 2026-08-16}}`;
+  rerun → "🔁 Rotation: this week ICA — covers 6/6 items · rotates
+  ost (last: willys 2026-08-16)". Demo state deleted afterwards
+  (no real order was placed).
+- `./harness check` → OK end to end (npm test 217 total; the
+  compare tier is 50 cases across storeCompare + feeTotals +
+  storeRotation + cache).
+- Basket assembly honors affinity by construction: disallowed terms
+  are never searched at a store (fewer live requests too), so they
+  cannot enter its comparison, total, or cart plan.

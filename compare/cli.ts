@@ -7,7 +7,11 @@
 //     [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20]
 //     [--window 17-20] [--fill-cart mathem] [--json]
 //
-// List file: JSON array of search terms (strings) or {name} objects.
+// List file: JSON array of search terms (strings) or {name} objects; a
+// {name, stores: [...]} entry restricts where that item may be sourced
+// (p5-02 affinity), and the rotation suggestion alternates the primary
+// store among tied candidates week over week (--record <store> after
+// ordering updates compare/.rotation.json).
 // Slot-level day/time filtering needs store logins (Willys/Hemköp) or the
 // Mathem MCP OAuth — until those human steps land, --day/--window are
 // recorded in the output but per-store slot status is reported honestly
@@ -31,7 +35,15 @@ import {
   type StoreComparison,
   type StoreProduct,
 } from "@/lib/storeCompare";
+import {
+  allowedTerms,
+  parseListEntries,
+  suggestPrimary,
+  type ListItem,
+  type RotationSuggestion,
+} from "@/lib/storeRotation";
 import { AxfoodSession, type AxfoodSlot } from "./axfood";
+import { loadRotationHistory, recordRun } from "./rotation-state";
 import { cached } from "./cache";
 import { loadCompareEnv } from "./env";
 import {
@@ -74,6 +86,8 @@ interface StoreReport {
   comparison: StoreComparison | null;
   errors: string[];
   delivery: DeliveryStatus;
+  /** Terms this store may not supply under the list's affinities. */
+  excluded: string[];
 }
 
 const SEARCHERS: Record<string, (term: string) => Promise<SearchResult>> = {
@@ -101,12 +115,10 @@ function parseArgs(argv: string[]) {
   return args;
 }
 
-function readList(path: string): string[] {
+function readList(path: string): ListItem[] {
   const raw = JSON.parse(readFileSync(path, "utf8")) as unknown;
   if (!Array.isArray(raw)) throw new Error("list file must be a JSON array");
-  return raw.map((entry) =>
-    typeof entry === "string" ? entry : (entry as { name: string }).name,
-  );
+  return parseListEntries(raw);
 }
 
 /** Format a UTC instant (ISO string or epoch ms) as local Stockholm HH:MM. */
@@ -321,11 +333,15 @@ async function deliveryForStore(
 
 async function runStore(
   store: string,
-  terms: string[],
+  items: ListItem[],
   zip: string | null,
   day: string | null,
   window: string | null,
 ): Promise<StoreReport> {
+  // Affinity gate (p5-02): terms this store may not supply are never even
+  // searched — they can't enter its basket or total.
+  const terms = allowedTerms(items, store);
+  const excluded = items.map((i) => i.term).filter((t) => !terms.includes(t));
   const search = SEARCHERS[store];
   const productsByTerm: Record<string, never[]> = {};
   const errors: string[] = [];
@@ -360,7 +376,7 @@ async function runStore(
   const comparison =
     errors.length === terms.length ? null : buildComparison(store, terms, productsByTerm, seeds);
   if (seedError) errors.push(seedError);
-  return { comparison, errors, delivery: await deliveryForStore(store, zip, day, window) };
+  return { comparison, errors, excluded, delivery: await deliveryForStore(store, zip, day, window) };
 }
 
 const fmtKr = (n: number) => `${n.toFixed(2).replace(".", ",")} kr`;
@@ -426,12 +442,31 @@ function moneyLine(basket: number, fees: DeliveryFees, comparable: number | null
   }
 }
 
-function printHuman(reports: Record<string, StoreReport>, terms: string[], day?: string, window?: string) {
-  console.log(`\n🛒 Store comparison — ${terms.length} items`);
+function printRotation(rotation: RotationSuggestion, items: ListItem[]): void {
+  if (rotation.primary === null || !items.some((i) => i.stores !== null)) return;
+  const parts = [
+    `covers ${rotation.coverage}/${items.length} items`,
+    ...rotation.rotations.map((r) => `rotates ${r.term} (last: ${r.from} ${r.date})`),
+    rotation.unsourced.length ? `shop separately: ${rotation.unsourced.join(", ")}` : null,
+  ].filter(Boolean);
+  console.log(
+    `🔁 Rotation: this week ${rotation.primary.toUpperCase()} — ${parts.join(" · ")}; after ordering, record it with --record ${rotation.primary}`,
+  );
+}
+
+function printHuman(
+  reports: Record<string, StoreReport>,
+  items: ListItem[],
+  rotation: RotationSuggestion,
+  day?: string,
+  window?: string,
+) {
+  console.log(`\n🛒 Store comparison — ${items.length} items`);
   if (day || window) {
     console.log(`🚚 Wanted delivery: ${day ?? "any day"}${window ? ` around ${window}` : ""}`);
   }
   console.log("💰 Ranked on basket + cheapest eligible slot fee where fees are known");
+  printRotation(rotation, items);
   const ranked = rankedStores(reports);
   for (const { store, basket, fees, comparable } of ranked) {
     const report = reports[store];
@@ -441,7 +476,7 @@ function printHuman(reports: Record<string, StoreReport>, terms: string[], day?:
       c.unmatched.length ? `missing: ${c.unmatched.join(", ")}` : null,
     ].filter(Boolean);
     console.log(
-      `\n${store.toUpperCase()} — ${moneyLine(basket, fees, comparable)} (${c.matched}/${terms.length} matched)`,
+      `\n${store.toUpperCase()} — ${moneyLine(basket, fees, comparable)} (${c.matched}/${c.items.length} matched)`,
     );
     for (const item of c.items) {
       const mark = item.product === null ? "✗" : item.quality === "weak" ? "⚠" : "✓";
@@ -449,6 +484,9 @@ function printHuman(reports: Record<string, StoreReport>, terms: string[], day?:
         ? `${item.product.name} — ${fmtKr(item.product.price)}${item.seeded ? " ★ staple" : ""}${item.alternatives ? ` (+${item.alternatives} alternatives)` : ""}`
         : "no match";
       console.log(`  ${mark} ${item.term}: ${line}`);
+    }
+    if (report.excluded.length) {
+      console.log(`  ✂ not sourced here (affinity): ${report.excluded.join(", ")}`);
     }
     if (flags.length) console.log(`  ⚠ ${flags.join(" · ")}`);
     console.log(`  🚚 ${report.delivery.kind}: ${report.delivery.detail}`);
@@ -468,11 +506,11 @@ async function main() {
   const listPath = typeof args.list === "string" ? args.list : null;
   if (!listPath) {
     console.error(
-      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--json]",
+      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--record <store>] [--json]",
     );
     process.exit(1);
   }
-  const terms = readList(listPath);
+  const items = readList(listPath);
   const stores =
     typeof args.stores === "string" ? args.stores.split(",") : Object.keys(SEARCHERS);
   const unknown = stores.filter((s) => !SEARCHERS[s]);
@@ -503,11 +541,37 @@ async function main() {
     }
   }
 
+  // --record <store>: the human placed the order there — remember it for
+  // the next rotation suggestion, then exit (no comparison run needed).
+  if (typeof args.record === "string") {
+    if (!SEARCHERS[args.record]) {
+      console.error(`--record ${args.record}: unknown store`);
+      process.exit(1);
+    }
+    const history = recordRun(args.record, items, new Date().toISOString().slice(0, 10));
+    const recorded = items.filter((i) => i.stores !== null && history[i.term]?.store === args.record);
+    console.log(
+      recorded.length
+        ? `🔁 recorded: ${recorded.map((i) => i.term).join(", ")} → ${args.record}`
+        : `🔁 nothing to record — no affinity item in this list is sourced at ${args.record}`,
+    );
+    return;
+  }
+
   const reports: Record<string, StoreReport> = {};
   await Promise.all(
     stores.map(async (store) => {
-      reports[store] = await runStore(store, terms, zip, day, window);
+      reports[store] = await runStore(store, items, zip, day, window);
     }),
+  );
+  const rotation = suggestPrimary(
+    rankedStores(reports).map((r, rank) => ({
+      store: r.store,
+      rank,
+      deliverable: reports[r.store].delivery.kind !== "not-deliverable",
+    })),
+    items,
+    loadRotationHistory(),
   );
 
   let cartFill: CartFillResult | null = null;
@@ -524,10 +588,11 @@ async function main() {
     console.log(
       JSON.stringify(
         {
-          terms,
+          items,
           day: args.day ?? null,
           window: args.window ?? null,
           ranking: rankedStores(reports),
+          rotation,
           reports,
           cartFill,
         },
@@ -538,7 +603,8 @@ async function main() {
   } else {
     printHuman(
       reports,
-      terms,
+      items,
+      rotation,
       typeof args.day === "string" ? args.day : undefined,
       typeof args.window === "string" ? args.window : undefined,
     );
