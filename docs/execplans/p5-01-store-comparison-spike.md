@@ -2,7 +2,7 @@
 id: p5-01-store-comparison-spike
 title: Store comparison spike — Mathem MCP + multi-chain price/delivery compare
 phase: P5
-status: in-progress
+status: done
 depends_on: []
 ---
 
@@ -99,23 +99,22 @@ on:
 - [x] Mathem cart-fill (`--fill-cart mathem`): matched basket pushed
       via manipulate_cart, cart URL printed for human review —
       cart-ready only, checkout stays in the shop
-- [~] Favorites/commonly-bought seeding (Pelle 2026-08-16): **Mathem
+- [x] Favorites/commonly-bought seeding (Pelle 2026-08-16): **Mathem
       done** — likely_to_buy seeds pin fully-covering staples in the
       matcher (`★ staple` in output; weak staples never pin). ICA
-      "Dina favoriter" / "Återkommande" waits on the login tier; the
-      seed layer is store-agnostic (same `pickBest(term, products,
-      seeds)` for any store's staples list)
-- [~] Fee-aware totals (Pelle 2026-08-16: stores differ — some bake
+      "Dina favoriter" / "Återkommande" closed by the gate's
+      no-ICA-login-tier decision; the seed layer stays store-agnostic
+      (same `pickBest(term, products, seeds)` for any store's list)
+- [x] Fee-aware totals (Pelle 2026-08-16: stores differ — some bake
       home delivery into product prices, others add fixed
-      delivery/bag/packing fees at checkout): surfaced today where
-      known (Mathem items vs cart-total-incl-fees; Coop/Axfood slot
-      fees on the delivery line); full fee normalization proposed as
-      implementation-plan scope in the gate brief
-- [~] Gate brief incl. tech.spec boundary proposal: **drafted**
-      2026-08-16 (docs/research/p5-store-comparison-gate-brief.md)
-      — awaiting Pelle's gate decisions (spec wording, ICA login
-      tier, p5-03 fee-totals scope); plan closes when the gate
-      passes
+      delivery/bag/packing fees at checkout): surfaced in this spike
+      where known (Mathem items vs cart-total-incl-fees; Coop/Axfood
+      slot fees on the delivery line); full normalization graduated
+      to **p5-03-fee-aware-totals** at the gate
+- [x] Gate brief incl. tech.spec boundary proposal
+      (docs/research/p5-store-comparison-gate-brief.md): **gate
+      passed 2026-08-16**, Pelle in chat — spec wording adopted,
+      ICA stays anonymous, p5-03 filed (p5-02 re-pointed onto it)
 
 ## Steps
 
@@ -482,3 +481,16 @@ Delivery lines report needs-auth honestly per store.
   ordering vs p5-02.
 - Spec untouched until the gate passes (spec changes are human
   decisions); plan stays in-progress pending those decisions.
+
+**2026-08-16 (gate passed — plan done):**
+
+- Pelle approved the brief in chat ("Good, continue"). Decisions
+  recorded in the brief: tech.spec "Store integrations" section
+  adopted as proposed · ICA anonymous-search-only (no login tier) ·
+  p5-03-fee-aware-totals filed, p5-02 re-pointed to depend on it.
+- Change set per AGENTS.md: tech.spec.md (new contract section) +
+  p5-03 filed + p5-02 depends_on + this plan → done, one commit.
+- Open [~] items resolved by the gate: favorites-seeding's ICA part
+  is closed by the no-login-tier decision (seed layer stays
+  store-agnostic, Mathem done); fee-aware totals moves to p5-03 as
+  its own plan.

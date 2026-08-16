@@ -3,7 +3,7 @@ id: p5-02-store-rotation
 title: Store rotation — per-item store affinity and week-to-week rotation
 phase: P5
 status: todo
-depends_on: [p5-01-store-comparison-spike]
+depends_on: [p5-01-store-comparison-spike, p5-03-fee-aware-totals]
 ---
 
 ## Goal
@@ -42,6 +42,8 @@ override.
 - Rotation needs memory of past runs (which store got the last order
   for an affinity group) — the first deterministic design question of
   this plan.
+- Depends on p5-03 (p5-01 gate decision 2026-08-16): rotation ranks
+  eligible stores on the fee-aware comparable total, not item sum.
 
 ## Progress
 

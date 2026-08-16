@@ -112,6 +112,28 @@ points, binding for P4 work:
 - **Recipes**: markdown-in-repo stays the source of truth; the bot
   consumes them via shared loader logic or a build-time mirror.
 
+## Store integrations (adopted 2026-08-16, p5-01 gate)
+
+Grocery-store integrations are **outbound calls from the adopted M1
+household host only** — never from the web app, never from edge
+functions. Chains in scope: Mathem (official MCP, OAuth), Willys +
+Hemköp (authenticated Axfood REST), Coop (anonymous API), ICA
+(anonymous per-store search; **no login tier** — p5-01 gate decision
+2026-08-16, revisit only at a future gate). Contract points:
+
+- **Cart-ready, never checkout**: integrations may search, read
+  delivery slots, and fill carts for human review in the store's own
+  UI. Checkout, slot booking, and payment always stay with the
+  human. This is a 🚫-never boundary.
+- **Credentials** live only on the M1 in gitignored mode-600 files
+  (`compare/.env`, `compare/.mathem-oauth.json` — bot/.env pattern);
+  never in the repo, never echoed into evidence.
+- **Be a polite client**: read-only by default, cached (12h), paced
+  where a WAF asks for it; we never bypass bot-detection challenges.
+- Deterministic logic (matching, basket assembly, fee/total
+  computation) lives in fixture-tested code under `./harness check`;
+  live network calls are evidence-only.
+
 ## Boundaries
 
 - ✅ Always: `./harness check` before handoff; recipes as markdown files;

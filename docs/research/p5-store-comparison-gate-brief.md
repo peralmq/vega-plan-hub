@@ -1,8 +1,19 @@
 # Human Gate Brief — Store Comparison (p5-01)
 
-Status: **awaiting Pelle's decisions** (drafted 2026-08-16). The spike
-is evidence-complete; what remains is decision-gated. Approving §3's
-wording revises tech.spec in the same change set per AGENTS.md.
+Status: **gate passed 2026-08-16** — Pelle approved in chat ("Good,
+continue"), same day as drafting. Outcomes, recorded per AGENTS.md in
+the same change set (reversible only by Pelle at a future gate):
+
+1. **tech.spec wording** — ✅ adopted as proposed in §3: "Store
+   integrations" section added to tech.spec.md (adopted 2026-08-16).
+2. **ICA login tier** — ✅ default taken: **anonymous search-only**;
+   ICA slot times/fees stay "check at checkout", favorites/list-push
+   not pursued.
+3. **Follow-up scope** — ✅ p5-03-fee-aware-totals filed as proposed
+   (§4, plus the adapter-drift check from §5); p5-02 store-rotation
+   re-pointed to depend on it.
+
+p5-01 closes with this gate (status: done).
 
 ## 1. What the spike proved (all live 2026-08-16, household data)
 
