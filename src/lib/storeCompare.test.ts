@@ -8,6 +8,7 @@ import {
   buildComparison,
   cartPlan,
   extractAxfood,
+  extractCoop,
   extractIca,
   extractMathem,
   extractMathemMcp,
@@ -15,6 +16,7 @@ import {
   pickBest,
   type StoreProduct,
 } from "./storeCompare";
+import coopFixture from "./__fixtures__/store-search/coop.json";
 import hemkopFixture from "./__fixtures__/store-search/hemkop.json";
 import icaFixture from "./__fixtures__/store-search/ica.json";
 import likelyFixture from "./__fixtures__/mathem-likely-to-buy.json";
@@ -45,6 +47,14 @@ describe("extraction", () => {
     const withCompare = products.find((p) => p.comparePrice !== null);
     expect(withCompare).toBeDefined();
     expect(Number.isFinite(withCompare!.comparePrice)).toBe(true);
+  });
+
+  it("maps Coop b2c price envelopes and EAN ids", () => {
+    const products = extractCoop(coopFixture["kikärtor"] as never[]);
+    expect(products.length).toBeGreaterThan(0);
+    expect(products[0].name).toMatch(/kikärtor/i);
+    expect(products.every((p) => Number.isFinite(p.price) && p.price > 0)).toBe(true);
+    expect(products.every((p) => /^\d+$/.test(p.id))).toBe(true);
   });
 
   it("maps ICA price envelopes to numbers", () => {
@@ -88,6 +98,14 @@ describe("pickBest on real fixtures", () => {
   it("flags Hemköp's oat-flour-for-oat-milk result instead of silently accepting it", () => {
     const match = pickBest("havremjölk", extractAxfood(hemkopFixture["havremjölk"] as never[]));
     expect(match.quality).not.toBe("good");
+  });
+
+  it("flags Coop's query-corrected havremjöl results the same way", () => {
+    // Coop's search itself corrects "havremjölk" → "havremjöl" (queryUsed
+    // in the raw response) and returns only oat flour — must stay weak.
+    const match = pickBest("havremjölk", extractCoop(coopFixture["havremjölk"] as never[]));
+    expect(match.product).not.toBeNull();
+    expect(match.quality).toBe("weak");
   });
 
   it("skips unavailable products", () => {
@@ -178,6 +196,7 @@ describe("buildComparison", () => {
       buildComparison("willys", TERMS, extractAll(willysFixture as FixtureMap, extractAxfood)),
       buildComparison("hemkop", TERMS, extractAll(hemkopFixture as FixtureMap, extractAxfood)),
       buildComparison("ica", TERMS, extractAll(icaFixture as FixtureMap, extractIca)),
+      buildComparison("coop", TERMS, extractAll(coopFixture as FixtureMap, extractCoop)),
     ];
     for (const cmp of stores) {
       expect(cmp.matched + cmp.unmatched.length).toBe(TERMS.length);

@@ -1,0 +1,565 @@
+{
+  "havremjölk": [
+    {
+      "id": "7312631023659",
+      "name": "Havremjöl",
+      "manufacturerName": "Risenta",
+      "salesPriceData": {
+        "b2cPrice": 20.77,
+        "b2bPrice": 19.59
+      },
+      "comparativePriceData": {
+        "b2cPrice": 69.23,
+        "b2bPrice": 65.31
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7311312008329",
+      "name": "Tortilla Havre Medium 6-pack",
+      "manufacturerName": "Santa Maria",
+      "salesPriceData": {
+        "b2cPrice": 28.35,
+        "b2bPrice": 26.75
+      },
+      "comparativePriceData": {
+        "b2cPrice": 118.13,
+        "b2bPrice": 111.44
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7311143100117",
+      "name": "Glutenfri Mjölmix",
+      "manufacturerName": "Finax",
+      "salesPriceData": {
+        "b2cPrice": 33.08,
+        "b2bPrice": 31.21
+      },
+      "comparativePriceData": {
+        "b2cPrice": 36.76,
+        "b2bPrice": 34.68
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7311143101305",
+      "name": "Glutenfri Mjölmix Basmjöl",
+      "manufacturerName": "Finax",
+      "salesPriceData": {
+        "b2cPrice": 33.08,
+        "b2bPrice": 31.21
+      },
+      "comparativePriceData": {
+        "b2cPrice": 36.76,
+        "b2bPrice": 34.68
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    }
+  ],
+  "krossade tomater": [
+    {
+      "id": "7340191170414",
+      "name": "Krossade tomater",
+      "manufacturerName": "Coop",
+      "salesPriceData": {
+        "b2cPrice": 9.42,
+        "b2bPrice": 8.89
+      },
+      "comparativePriceData": {
+        "b2cPrice": 24.15,
+        "b2bPrice": 22.78
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "8005110170300",
+      "name": "Tomater Krossade 3-pack ",
+      "manufacturerName": "Mutti",
+      "salesPriceData": {
+        "b2cPrice": 41.55,
+        "b2bPrice": 39.2
+      },
+      "comparativePriceData": {
+        "b2cPrice": 34.63,
+        "b2bPrice": 32.67
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7340191170452",
+      "name": "Krossade tomater Örter",
+      "manufacturerName": "Coop",
+      "salesPriceData": {
+        "b2cPrice": 13.72,
+        "b2bPrice": 12.94
+      },
+      "comparativePriceData": {
+        "b2cPrice": 35.18,
+        "b2bPrice": 33.19
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7340191170445",
+      "name": "Krossade tomater Vitlök",
+      "manufacturerName": "Coop",
+      "salesPriceData": {
+        "b2cPrice": 13.72,
+        "b2bPrice": 12.94
+      },
+      "comparativePriceData": {
+        "b2cPrice": 35.18,
+        "b2bPrice": 33.19
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7340191170438",
+      "name": "Krossade tomater Chili",
+      "manufacturerName": "Coop",
+      "salesPriceData": {
+        "b2cPrice": 13.72,
+        "b2bPrice": 12.94
+      },
+      "comparativePriceData": {
+        "b2cPrice": 35.18,
+        "b2bPrice": 33.19
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "8005110170423",
+      "name": "Tomater Krossade Med Basilika",
+      "manufacturerName": "Mutti",
+      "salesPriceData": {
+        "b2cPrice": 25.51,
+        "b2bPrice": 24.07
+      },
+      "comparativePriceData": {
+        "b2cPrice": 63.78,
+        "b2bPrice": 60.17
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "8005110000454",
+      "name": "Dadeltomater Krossade",
+      "manufacturerName": "Mutti",
+      "salesPriceData": {
+        "b2cPrice": 24.56,
+        "b2bPrice": 23.17
+      },
+      "comparativePriceData": {
+        "b2cPrice": 81.87,
+        "b2bPrice": 77.24
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "8001440118944",
+      "name": "Tomater Finkrossade 3-pack",
+      "manufacturerName": "Cirio",
+      "salesPriceData": {
+        "b2cPrice": 35.92,
+        "b2bPrice": 33.89
+      },
+      "comparativePriceData": {
+        "b2cPrice": 29.93,
+        "b2bPrice": 28.24
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    }
+  ],
+  "pasta penne": [
+    {
+      "id": "8076802085738",
+      "name": "Pasta Penne Rigate",
+      "manufacturerName": "Barilla",
+      "salesPriceData": {
+        "b2cPrice": 17.51,
+        "b2bPrice": 16.52
+      },
+      "comparativePriceData": {
+        "b2cPrice": 35.02,
+        "b2bPrice": 33.04
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7340011427605",
+      "name": "Pasta Penne Eko",
+      "manufacturerName": "Änglamark",
+      "salesPriceData": {
+        "b2cPrice": 17.43,
+        "b2bPrice": 16.44
+      },
+      "comparativePriceData": {
+        "b2cPrice": 34.86,
+        "b2bPrice": 32.89
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7350027795339",
+      "name": "Pasta Penne Rigate",
+      "manufacturerName": "Zeta",
+      "salesPriceData": {
+        "b2cPrice": 17.51,
+        "b2bPrice": 16.52
+      },
+      "comparativePriceData": {
+        "b2cPrice": 43.78,
+        "b2bPrice": 41.3
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7350166370121",
+      "name": "Penne Lisce",
+      "manufacturerName": "Mino",
+      "salesPriceData": {
+        "b2cPrice": 26.9,
+        "b2bPrice": 25.38
+      },
+      "comparativePriceData": {
+        "b2cPrice": 67.25,
+        "b2bPrice": 63.44
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "8000139910234",
+      "name": "Pasta Penne Ziti Rigate",
+      "manufacturerName": "Garofalo",
+      "salesPriceData": {
+        "b2cPrice": 18.46,
+        "b2bPrice": 17.42
+      },
+      "comparativePriceData": {
+        "b2cPrice": 36.92,
+        "b2bPrice": 34.83
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7350027797968",
+      "name": "Pasta Rigatini Quadri",
+      "manufacturerName": "Zeta",
+      "salesPriceData": {
+        "b2cPrice": 17.51,
+        "b2bPrice": 16.52
+      },
+      "comparativePriceData": {
+        "b2cPrice": 43.78,
+        "b2bPrice": 41.3
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7310130003882",
+      "name": "Fullkornspasta Penne ",
+      "manufacturerName": "Kungsörnen",
+      "salesPriceData": {
+        "b2cPrice": 18.46,
+        "b2bPrice": 17.42
+      },
+      "comparativePriceData": {
+        "b2cPrice": 36.92,
+        "b2bPrice": 34.83
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7310130011344",
+      "name": "Linspasta Penne",
+      "manufacturerName": "Kungsörnen",
+      "salesPriceData": {
+        "b2cPrice": 25.08,
+        "b2bPrice": 23.66
+      },
+      "comparativePriceData": {
+        "b2cPrice": 55.73,
+        "b2bPrice": 52.58
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    }
+  ],
+  "gul lök": [
+    {
+      "id": "2317466600001",
+      "name": "Gul Lök",
+      "manufacturerName": null,
+      "salesPriceData": {
+        "b2cPrice": 12.9,
+        "b2bPrice": 12.17
+      },
+      "comparativePriceData": {
+        "b2cPrice": 12.9,
+        "b2bPrice": 12.17
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7300156596727",
+      "name": "Lök Gul Eko",
+      "manufacturerName": "Änglamark",
+      "salesPriceData": {
+        "b2cPrice": 18.9,
+        "b2bPrice": 17.83
+      },
+      "comparativePriceData": {
+        "b2cPrice": 37.8,
+        "b2bPrice": 35.66
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7300156596734",
+      "name": "Lök Gul",
+      "manufacturerName": "COOP",
+      "salesPriceData": {
+        "b2cPrice": 12.9,
+        "b2bPrice": 12.17
+      },
+      "comparativePriceData": {
+        "b2cPrice": 12.9,
+        "b2bPrice": 12.17
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    }
+  ],
+  "kikärtor": [
+    {
+      "id": "7340191129801",
+      "name": "Kikärtor Eko",
+      "manufacturerName": "Änglamark",
+      "salesPriceData": {
+        "b2cPrice": 12.78,
+        "b2bPrice": 12.06
+      },
+      "comparativePriceData": {
+        "b2cPrice": 55.57,
+        "b2bPrice": 52.42
+      },
+      "comparativePriceUnit": {
+        "text": "utan sås/spad"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7340191144460",
+      "name": "Kikärtor",
+      "manufacturerName": "Coop",
+      "salesPriceData": {
+        "b2cPrice": 9.95,
+        "b2bPrice": 9.39
+      },
+      "comparativePriceData": {
+        "b2cPrice": 43.26,
+        "b2bPrice": 40.81
+      },
+      "comparativePriceUnit": {
+        "text": "utan sås/spad"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7312787710175",
+      "name": "Kikärtor",
+      "manufacturerName": "GoGreen",
+      "salesPriceData": {
+        "b2cPrice": 32.13,
+        "b2bPrice": 30.31
+      },
+      "comparativePriceData": {
+        "b2cPrice": 80.33,
+        "b2bPrice": 75.78
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7350027796817",
+      "name": "Kikärtor",
+      "manufacturerName": "Zeta",
+      "salesPriceData": {
+        "b2cPrice": 17.51,
+        "b2bPrice": 16.52
+      },
+      "comparativePriceData": {
+        "b2cPrice": 60.38,
+        "b2bPrice": 56.96
+      },
+      "comparativePriceUnit": {
+        "text": "utan sås/spad"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7331217010326",
+      "name": "Kikärtor Torkade",
+      "manufacturerName": "Sevan",
+      "salesPriceData": {
+        "b2cPrice": 36.86,
+        "b2bPrice": 34.77
+      },
+      "comparativePriceData": {
+        "b2cPrice": 40.96,
+        "b2bPrice": 38.64
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7310130009822",
+      "name": "Kikärtor Eko",
+      "manufacturerName": "GoGreen",
+      "salesPriceData": {
+        "b2cPrice": 15.62,
+        "b2bPrice": 14.74
+      },
+      "comparativePriceData": {
+        "b2cPrice": 67.91,
+        "b2bPrice": 64.07
+      },
+      "comparativePriceUnit": {
+        "text": "utan sås/spad"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "7350002402955",
+      "name": "Kikärtor Eko",
+      "manufacturerName": "Zeta",
+      "salesPriceData": {
+        "b2cPrice": 15.62,
+        "b2bPrice": 14.74
+      },
+      "comparativePriceData": {
+        "b2cPrice": 67.91,
+        "b2bPrice": 64.07
+      },
+      "comparativePriceUnit": {
+        "text": "utan sås/spad"
+      },
+      "availableOnline": true
+    },
+    {
+      "id": "8697420690083",
+      "name": "Kikärtor",
+      "manufacturerName": "Ceren",
+      "salesPriceData": {
+        "b2cPrice": 37.81,
+        "b2bPrice": 35.67
+      },
+      "comparativePriceData": {
+        "b2cPrice": 42.01,
+        "b2bPrice": 39.63
+      },
+      "comparativePriceUnit": {
+        "unit": "kg",
+        "text": "kr/kg"
+      },
+      "availableOnline": true
+    }
+  ]
+}

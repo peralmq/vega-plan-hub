@@ -6,6 +6,7 @@
 // store never sinks the whole comparison.
 import {
   extractAxfood,
+  extractCoop,
   extractIca,
   extractMathem,
   type StoreProduct,
@@ -61,6 +62,34 @@ const searchAxfood = (host: string) => (term: string): Promise<SearchResult> =>
 
 export const searchWillys = searchAxfood("www.willys.se");
 export const searchHemkop = searchAxfood("www.hemkop.se");
+
+// Coop's personalization API (reverse-engineered from coop.se 2026-08-16).
+// The subscription key is the site's PUBLIC anonymous browser key — it is
+// served to every visitor in the page config (coopSettings.serviceAccess),
+// same key for all; it is not a credential. store 251300 = the anonymous
+// "Hemleverans i Stockholm" assortment the site defaults to.
+const COOP_PUBLIC_KEY = "3becf0ce306f41a1ae94077c16798187";
+export const COOP_DEFAULT_STORE = { id: "251300", name: "Hemleverans i Stockholm" };
+
+export const searchCoop = (term: string, storeId = COOP_DEFAULT_STORE.id): Promise<SearchResult> =>
+  attempt(async () => {
+    const url =
+      `https://external.api.coop.se/personalization/search/products` +
+      `?api-version=v1&store=${storeId}&groups=CUSTOMER_PRIVATE&device=desktop&direct=true`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        "ocp-apim-subscription-key": COOP_PUBLIC_KEY,
+        "user-agent": BROWSER_UA,
+      },
+      body: JSON.stringify({ query: term, resultsOptions: { skip: 0, take: 10 } }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = (await res.json()) as { results?: { items?: never[] } };
+    return extractCoop(raw.results?.items ?? []);
+  });
 
 export const searchIca = (term: string, accountId = ICA_DEFAULT_STORE.accountId): Promise<SearchResult> =>
   attempt(async () => {

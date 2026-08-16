@@ -137,6 +137,30 @@ export function extractIca(products: IcaRawProduct[]): StoreProduct[] {
   }));
 }
 
+interface CoopRawProduct {
+  id: string;
+  name: string;
+  manufacturerName?: string | null;
+  salesPriceData?: { b2cPrice?: number } | null;
+  comparativePriceData?: { b2cPrice?: number } | null;
+  comparativePriceUnit?: { text?: string } | null;
+  availableOnline?: boolean;
+}
+
+export function extractCoop(products: CoopRawProduct[]): StoreProduct[] {
+  return products
+    .filter((p) => p.salesPriceData?.b2cPrice != null)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      brand: p.manufacturerName ?? null,
+      price: p.salesPriceData!.b2cPrice!,
+      comparePrice: p.comparativePriceData?.b2cPrice ?? null,
+      compareUnit: p.comparativePriceUnit?.text ?? null,
+      available: p.availableOnline !== false,
+    }));
+}
+
 // --- matching ---------------------------------------------------------------
 
 // Fold to lowercase ASCII-ish so "lök"/"lok" and composed/decomposed forms

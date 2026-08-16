@@ -81,8 +81,10 @@ on:
 - [x] Mathem MCP: client registered (dynamic registration), OAuth
       complete (Pelle approved 2026-08-16, refresh token stored),
       21 tools enumerated; slots wired into the CLI delivery filter
-- [ ] Hellman CLIs working on the M1 against current sites (or ported;
-      Willys/Hemköp search already native in `compare/`)
+- [~] Hellman CLIs superseded by native adapters: Willys/Hemköp/Coop
+      search all native in `compare/` (Coop via the personalization
+      API, anonymous). Remaining from this item: slot tiers, which
+      need household accounts (human steps)
 - [x] ICA leg: default store = Maxi ICA Stormarknad Lindhagen
       (account 1003418, Pelle 2026-08-16); anonymous v6 search + WAF
       behavior mapped; auth tier still open (list push vs search-only)
@@ -311,6 +313,11 @@ Delivery lines report needs-auth honestly per store.
   havremjölk unchanged (iKaffe via relevance, still ⚠). Seeds are
   12h-cached like searches; seed-fetch failure degrades to unseeded
   matching with a warning, never sinks the store.
+- Rotation need captured from Pelle same day ("ost" only from
+  Willys/ICA; oats from Hemköp/Mathem/Willys — buy from one store one
+  week, another the next): filed as
+  [p5-02-store-rotation](p5-02-store-rotation.md) (per-item store
+  affinity + rotation), depends_on p5-01.
 - **Cross-store seed design**: seeds are store-native product lists
   from each store's own "what I usually buy" surface (Mathem
   likely_to_buy now; ICA "Återkommande"/favorites after the login
@@ -319,3 +326,32 @@ Delivery lines report needs-auth honestly per store.
   cross-store product-id mapping needed since seeding happens
   per-store after search. This is the wording proposed for the gate
   brief.
+
+**2026-08-16 (Coop leg live — all five stores searchable):**
+
+- Coop reverse-engineered anonymously (no account needed for the
+  price leg): `POST external.api.coop.se/personalization/search/
+  products?api-version=v1&store=251300&groups=CUSTOMER_PRIVATE&
+  device=desktop&direct=true` with body `{query, resultsOptions:
+  {skip, take}}` and header `Ocp-Apim-Subscription-Key` set to the
+  site's **public** browser key (served to every visitor in
+  `coopSettings.serviceAccess` in the page config — the same key for
+  all; not a credential). Endpoint + params confirmed by watching the
+  real browser's requests (coop.se network inspection); store 251300
+  is the anonymous "Hemleverans i Stockholm" assortment. Prices are
+  `salesPriceData.b2cPrice` (numbers), ids are EANs.
+- **Coop's search auto-corrects "havremjölk" → "havremjöl"**
+  (`queryUsed` in the response) and returns only oat flour — the
+  third store to spring the oat trap, and the nastiest version since
+  the correction happens server-side. Weak-flag guard catches it
+  (pinned in tests; 19 vitest cases now). Possible follow-up:
+  synonym expansion at search time ("havremjölk" → also try
+  "havredryck") — noted for the implementation plan, not built in
+  the spike.
+- Live five-store run (`--zip 11251 --day 2026-08-18 --window
+  17-20`): ICA 57,15 · Willys 69,10 · **Coop 73,38** · Mathem 76,07
+  (with ★ staple gul lök) · Hemköp 102,95 — all 5/5 matched, Coop's
+  havremjöl ⚠-flagged, delivery lines honest per store (Coop:
+  needs-auth for slots, anonymous assortment noted).
+- Coop fixture (5 terms × ≤8 trimmed real items) committed; Coop in
+  the five-store fixture comparison test.

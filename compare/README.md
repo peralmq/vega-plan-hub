@@ -1,13 +1,13 @@
 # compare/ — store-comparison CLI (p5-01)
 
-Compares a shopping list across Mathem, Willys, Hemköp and ICA
-(default store: Maxi ICA Stormarknad Lindhagen, account 1003418) on
+Compares a shopping list across Mathem, Willys, Hemköp, ICA (default
+store: Maxi ICA Stormarknad Lindhagen, account 1003418) and Coop on
 price, match quality and delivery eligibility. Cart-ready only:
 checkout, slot booking and payment always stay with the human.
 
 ```
 npm run compare -- --list fixtures/compare-list.json --zip 11251 \
-  [--stores mathem,willys,hemkop,ica] [--day 2026-08-20] [--window 17-20] \
+  [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20] [--window 17-20] \
   [--fill-cart mathem] [--json]
 ```
 
@@ -40,6 +40,12 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   "havremjölk" list entry.
 - Willys/Hemköp slot times need store logins (p5-01 step 2); their
   delivery line reports honestly what it can't know.
-- Coop: pending household account (Hellman's coop-cli is the reference).
+- Coop: anonymous search via the personalization API
+  (`external.api.coop.se`) using the site's public browser
+  subscription key (served to every visitor in the page config — not
+  a credential) against the default anonymous "Hemleverans i
+  Stockholm" assortment (store 251300). Beware: Coop's search
+  auto-corrects "havremjölk" → "havremjöl" (oat flour) — the ⚠ weak
+  flag catches it. Slot times need a Coop login (p5-01 step 2).
 
 Endpoint provenance: docs/research/store-integration-landscape.md.

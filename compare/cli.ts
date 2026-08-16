@@ -1,11 +1,11 @@
 // p5-01 store-comparison CLI: compare a shopping list across Mathem,
-// Willys, Hemköp and ICA (default store: Maxi Lindhagen), with a
+// Willys, Hemköp, ICA (default store: Maxi Lindhagen) and Coop, with a
 // delivery-eligibility check. Cart-ready only — checkout, slot booking
 // and payment always stay with the human (non-goal by design).
 //
 //   npm run compare -- --list fixtures/compare-list.json [--zip 11251]
-//     [--stores mathem,willys,hemkop,ica] [--day 2026-08-20]
-//     [--window 17-20] [--json]
+//     [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20]
+//     [--window 17-20] [--fill-cart mathem] [--json]
 //
 // List file: JSON array of search terms (strings) or {name} objects.
 // Slot-level day/time filtering needs store logins (Willys/Hemköp) or the
@@ -31,9 +31,11 @@ import {
   type MathemSlot,
 } from "./mathem-mcp";
 import {
+  COOP_DEFAULT_STORE,
   ICA_DEFAULT_STORE,
   icaStoresForZip,
   pacedDelay,
+  searchCoop,
   searchHemkop,
   searchIca,
   searchMathem,
@@ -58,6 +60,7 @@ const SEARCHERS: Record<string, (term: string) => Promise<SearchResult>> = {
   willys: searchWillys,
   hemkop: searchHemkop,
   ica: searchIca,
+  coop: searchCoop,
 };
 
 function parseArgs(argv: string[]) {
@@ -152,6 +155,11 @@ async function deliveryForStore(
       return {
         kind: "needs-auth",
         detail: "slot endpoint (tms/delivery-slots) requires store login (p5-01 step 2)",
+      };
+    case "coop":
+      return {
+        kind: "needs-auth",
+        detail: `prices from the anonymous "${COOP_DEFAULT_STORE.name}" assortment; slot times need a Coop login (p5-01 step 2)`,
       };
     case "ica": {
       if (!zip) return { kind: "unknown", detail: "pass --zip to check ICA delivery eligibility" };
@@ -299,7 +307,7 @@ async function main() {
   const listPath = typeof args.list === "string" ? args.list : null;
   if (!listPath) {
     console.error(
-      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--json]",
+      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--json]",
     );
     process.exit(1);
   }
@@ -308,7 +316,7 @@ async function main() {
     typeof args.stores === "string" ? args.stores.split(",") : Object.keys(SEARCHERS);
   const unknown = stores.filter((s) => !SEARCHERS[s]);
   if (unknown.length) {
-    console.error(`unknown store(s): ${unknown.join(", ")} (coop pending: needs account, p5-01 step 2)`);
+    console.error(`unknown store(s): ${unknown.join(", ")}`);
     process.exit(1);
   }
   const zip = typeof args.zip === "string" ? args.zip : null;
