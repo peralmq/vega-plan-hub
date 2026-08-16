@@ -1,0 +1,1530 @@
+[
+  {
+    "categoryOrderedDeliveredProducts": {
+      "Frukt & Grönt": [
+        {
+          "code": "100144318_KG",
+          "name": "Äpple Pink Lady Klass 1",
+          "priceValue": 36.9,
+          "manufacturer": "",
+          "comparePrice": "36,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100068089_KG",
+          "name": "Banan Fairtrade Klass 1 Eko Klase",
+          "priceValue": 24.9,
+          "manufacturer": "",
+          "comparePrice": "24,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "100147388_KG",
+          "name": "Ingefära",
+          "priceValue": 59.9,
+          "manufacturer": "",
+          "comparePrice": "59,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100268130_ST",
+          "name": "Zucchini Klass 1",
+          "priceValue": 9.9,
+          "manufacturer": "",
+          "comparePrice": "27,73 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100151149_ST",
+          "name": "Rädisor Röda i Bunt",
+          "priceValue": 11.9,
+          "manufacturer": "",
+          "comparePrice": "47,60 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101229970_ST",
+          "name": "Morötter Eko Klass 1",
+          "priceValue": 14.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "29,80 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101249333_KG",
+          "name": "Purjolök Klass 1",
+          "priceValue": 26.9,
+          "manufacturer": "",
+          "comparePrice": "26,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101361485_ST",
+          "name": "Salladslök Knippe",
+          "priceValue": 15.9,
+          "manufacturer": "",
+          "comparePrice": "159,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100521259_KG",
+          "name": "Tomat Runda Sverige Klass 1",
+          "priceValue": 29.9,
+          "manufacturer": "",
+          "comparePrice": "29,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100901311_ST",
+          "name": "Spenat Klass 1",
+          "priceValue": 19.9,
+          "manufacturer": "",
+          "comparePrice": "79,60 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100594965_ST",
+          "name": "Gurka Sverige Klass 1",
+          "priceValue": 16.9,
+          "manufacturer": "",
+          "comparePrice": "54,52 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100288421_KG",
+          "name": "Spetskål Klass 1",
+          "priceValue": 34.9,
+          "manufacturer": "",
+          "comparePrice": "34,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100026865_KG",
+          "name": "Färskpotatis Tvättad Klass 1",
+          "priceValue": 13.9,
+          "manufacturer": "",
+          "comparePrice": "13,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100905754_ST",
+          "name": "Nektarin i Korg Klass 1",
+          "priceValue": 37.9,
+          "manufacturer": "",
+          "comparePrice": "37,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Fryst": [
+        {
+          "code": "101263789_ST",
+          "name": "Smooth Vanilla Soy Soyglass",
+          "priceValue": 31.13,
+          "manufacturer": "Choice",
+          "comparePrice": "41,51 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101698397_ST",
+          "name": "Nordiska Ärtor",
+          "priceValue": 34.92,
+          "manufacturer": "Apetit",
+          "comparePrice": "34,92 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101193541_ST",
+          "name": "Haricots Verts Frysta",
+          "priceValue": 18.83,
+          "manufacturer": "Eldorado",
+          "comparePrice": "18,83 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Glass, godis & snacks": [
+        {
+          "code": "101250970_ST",
+          "name": "Grillchips",
+          "priceValue": 27.9,
+          "manufacturer": "Estrella",
+          "comparePrice": "101,46 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101250988_ST",
+          "name": "Potatischips Saltade",
+          "priceValue": 27.9,
+          "manufacturer": "Estrella",
+          "comparePrice": "101,46 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100373052_ST",
+          "name": "Holiday Dippmix",
+          "priceValue": 9.36,
+          "manufacturer": "Estrella",
+          "comparePrice": "360,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Hem & Städ": [
+        {
+          "code": "101225898_ST",
+          "name": "Toalettpapper Original 3 Lager",
+          "priceValue": 109,
+          "manufacturer": "Fixa",
+          "comparePrice": "56,59 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101475566_ST",
+          "name": "Hushållspapper",
+          "priceValue": 34.9,
+          "manufacturer": "Fixa",
+          "comparePrice": "61,12 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101359233_ST",
+          "name": "Kulörtvätt Parfymfri Tvättmedel Flytande",
+          "priceValue": 35.5,
+          "manufacturer": "Grumme",
+          "comparePrice": "1,69 kr",
+          "comparePriceUnit": "tvätt",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Mejeri, ost & ägg": [
+        {
+          "code": "101231662_ST",
+          "name": "Ikaffe Barista Edition Havredryck",
+          "priceValue": 17.5,
+          "manufacturer": "Oatly",
+          "comparePrice": "17,50 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101223129_ST",
+          "name": "Imat Matlagningsbas 13%",
+          "priceValue": 26.4,
+          "manufacturer": "Oatly",
+          "comparePrice": "26,40 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101349759_ST",
+          "name": "Dream Fraiche Havrefraiche Gluten Free",
+          "priceValue": 21.67,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "54,18 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101226874_ST",
+          "name": "Bakning Växtbaserat Margarin",
+          "priceValue": 18.9,
+          "manufacturer": "Carlshamn",
+          "comparePrice": "37,80 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101324079_ST",
+          "name": "Imat Visp 23%",
+          "priceValue": 14.66,
+          "manufacturer": "Oatly",
+          "comparePrice": "58,64 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101552917_ST",
+          "name": "Blueberry Soygurt",
+          "priceValue": 32.9,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "32,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101545082_ST",
+          "name": "Matfett Normalsaltat 75% Laktosfri",
+          "priceValue": 39.9,
+          "manufacturer": "Eleplant",
+          "comparePrice": "66,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Skafferi": [
+        {
+          "code": "101275189_ST",
+          "name": "Pesto Con Tofu Vegansk",
+          "priceValue": 26.4,
+          "manufacturer": "Garant",
+          "comparePrice": "132,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100164910_ST",
+          "name": "Soy Sauce Japansk",
+          "priceValue": 69.9,
+          "manufacturer": "Kikkoman",
+          "comparePrice": "69,90 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101209784_ST",
+          "name": "Snabbnudlar Kyckling",
+          "priceValue": 4.63,
+          "manufacturer": "Samyang Ramen",
+          "comparePrice": "54,47 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101261105_ST",
+          "name": "Vermicelli Risnudlar",
+          "priceValue": 28.29,
+          "manufacturer": "Bamboo Tree",
+          "comparePrice": "70,73 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101192589_ST",
+          "name": "Bulgur Grov med Rostade Nudlar",
+          "priceValue": 18.5,
+          "manufacturer": "Sevan",
+          "comparePrice": "18,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101227778_ST",
+          "name": "Salt med Jod",
+          "priceValue": 9.9,
+          "manufacturer": "Jozo",
+          "comparePrice": "9,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101440943_ST",
+          "name": "Quinoa Tricolore",
+          "priceValue": 47.22,
+          "manufacturer": "Garant",
+          "comparePrice": "94,44 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101326928_ST",
+          "name": "Ljus Sirap",
+          "priceValue": 25.45,
+          "manufacturer": "Dansukker",
+          "comparePrice": "33,93 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101290880_ST",
+          "name": "Olivolja Classico Extra Virgin",
+          "priceValue": 72.9,
+          "manufacturer": "Garant",
+          "comparePrice": "97,20 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101329017_ST",
+          "name": "Vita Bönor Stora Naturella",
+          "priceValue": 12.2,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "53,04 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101082793_ST",
+          "name": "Gröna Linser Ekologiska",
+          "priceValue": 13.15,
+          "manufacturer": "Zeta",
+          "comparePrice": "57,17 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101205621_ST",
+          "name": "Idealmakaroner Gammaldags",
+          "priceValue": 11.9,
+          "manufacturer": "Kungsörnen",
+          "comparePrice": "15,87 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101284620_ST",
+          "name": "Mezze Maniche Rigate Pasta",
+          "priceValue": 15.99,
+          "manufacturer": "Garofalo",
+          "comparePrice": "31,98 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101301618_ST",
+          "name": "Girandole Pasta",
+          "priceValue": 16.5,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "33,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Vegetariskt": [
+        {
+          "code": "101275822_ST",
+          "name": "Vegokorv Fryst",
+          "priceValue": 72.5,
+          "manufacturer": "Anamma",
+          "comparePrice": "86,31 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101261026_ST",
+          "name": "Pastej Karljohansvamp Vegansk",
+          "priceValue": 16.94,
+          "manufacturer": "Pastejköket",
+          "comparePrice": "84,70 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101352102_ST",
+          "name": "Vegansk Salami Skivad",
+          "priceValue": 17.9,
+          "manufacturer": "Eldorado",
+          "comparePrice": "223,75 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101347194_ST",
+          "name": "Epic Mature Cheddar Flavour Vegansk",
+          "priceValue": 32.08,
+          "manufacturer": "Violife",
+          "comparePrice": "160,40 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101278407_ST",
+          "name": "Block Greek White Vegansk",
+          "priceValue": 28.29,
+          "manufacturer": "Violife",
+          "comparePrice": "141,45 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101277028_ST",
+          "name": "Vegobacon Klippta Skivor Vegansk",
+          "priceValue": 19.9,
+          "manufacturer": "Eldorado",
+          "comparePrice": "165,83 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101603464_ST",
+          "name": "Quorn Chiqin Skivor Vegan",
+          "priceValue": 24.9,
+          "manufacturer": "Quorn",
+          "comparePrice": "249,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101271138_ST",
+          "name": "Tofu Naturell Ekologisk Vegansk",
+          "priceValue": 27.9,
+          "manufacturer": "Yipin",
+          "comparePrice": "69,75 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101349521_ST",
+          "name": "Köttbullar Köttfria Leif Fryst",
+          "priceValue": 39.9,
+          "manufacturer": "Dafgårds",
+          "comparePrice": "79,80 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Övrigt": [
+        {
+          "code": "101263474_ST",
+          "name": "Pappkasse Vit",
+          "priceValue": 2.5,
+          "manufacturer": "Jd Stenqvist",
+          "comparePrice": "2,50 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": false,
+          "online": true
+        }
+      ]
+    }
+  },
+  {
+    "categoryOrderedDeliveredProducts": {
+      "Barn": [
+        {
+          "code": "101615647_ST",
+          "name": "Up&go 5 9-14kg Byxblöjor",
+          "priceValue": 98.9,
+          "manufacturer": "Libero",
+          "comparePrice": "3,41 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Bröd & Kakor": [
+        {
+          "code": "101285787_ST",
+          "name": "Rågbröd",
+          "priceValue": 18.83,
+          "manufacturer": "Garant",
+          "comparePrice": "58,84 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101305324_ST",
+          "name": "Rågbröd Solros & Pumpa 6-pack",
+          "priceValue": 18.83,
+          "manufacturer": "Garant",
+          "comparePrice": "55,38 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Dryck": [
+        {
+          "code": "101278232_ST",
+          "name": "Ginger Beer Premium Quality Läsk Burk",
+          "priceValue": 9.36,
+          "manufacturer": "Emd Bräu",
+          "comparePrice": "28,36 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101225727_ST",
+          "name": "Reko Extra Mörk Bryggkaffe",
+          "priceValue": 83.9,
+          "manufacturer": "Arvidnordquist",
+          "comparePrice": "186,44 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Frukt & Grönt": [
+        {
+          "code": "100145594_ST",
+          "name": "Ananas",
+          "priceValue": 24.9,
+          "manufacturer": "",
+          "comparePrice": "24,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100068089_KG",
+          "name": "Banan Fairtrade Klass 1 Eko Klase",
+          "priceValue": 24.9,
+          "manufacturer": "",
+          "comparePrice": "24,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101234341_ST",
+          "name": "Citron Eko Klass 1",
+          "priceValue": 9.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "82,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101058267_ST",
+          "name": "Potatis Fast Klass 1",
+          "priceValue": 27.9,
+          "manufacturer": "Garant",
+          "comparePrice": "13,95 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101254251_ST",
+          "name": "Gurka Eko Klass 1",
+          "priceValue": 21.9,
+          "manufacturer": "",
+          "comparePrice": "73,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100144318_KG",
+          "name": "Äpple Pink Lady Klass 1",
+          "priceValue": 36.9,
+          "manufacturer": "",
+          "comparePrice": "36,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101357956_ST",
+          "name": "Avokado 3-pack Mogen Klass 1",
+          "priceValue": 32.9,
+          "manufacturer": "Garant",
+          "comparePrice": "102,81 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100268130_ST",
+          "name": "Zucchini Klass 1",
+          "priceValue": 9.9,
+          "manufacturer": "",
+          "comparePrice": "27,73 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100180723_ST",
+          "name": "Kiwi Klass 1",
+          "priceValue": 8.9,
+          "manufacturer": "",
+          "comparePrice": "90,82 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100773272_ST",
+          "name": "Aubergine Klass 1",
+          "priceValue": 13.9,
+          "manufacturer": "",
+          "comparePrice": "46,33 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101180018_ST",
+          "name": "Bladselleri Eko Klass 1",
+          "priceValue": 32.9,
+          "manufacturer": "",
+          "comparePrice": "164,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100930058_ST",
+          "name": "Morötter Eko Klass 1",
+          "priceValue": 24.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "24,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101173625_ST",
+          "name": "Honungspomelo Klass 1",
+          "priceValue": 29.9,
+          "manufacturer": "",
+          "comparePrice": "34,17 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101200430_ST",
+          "name": "Lime Klass 1",
+          "priceValue": 4.9,
+          "manufacturer": "",
+          "comparePrice": "65,33 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101238494_ST",
+          "name": "Champinjoner Baby Klass 1",
+          "priceValue": 18.8,
+          "manufacturer": "Garant",
+          "comparePrice": "94,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101267405_ST",
+          "name": "Tomat Mix Klass 1",
+          "priceValue": 29.9,
+          "manufacturer": "",
+          "comparePrice": "85,43 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "100901311_ST",
+          "name": "Spenat Klass 1",
+          "priceValue": 19.9,
+          "manufacturer": "",
+          "comparePrice": "79,60 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Fryst": [
+        {
+          "code": "101152404_ST",
+          "name": "Sojabönor Frysta",
+          "priceValue": 18.83,
+          "manufacturer": "Garant",
+          "comparePrice": "75,32 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Glass, godis & snacks": [
+        {
+          "code": "101250970_ST",
+          "name": "Grillchips",
+          "priceValue": 27.9,
+          "manufacturer": "Estrella",
+          "comparePrice": "101,46 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Hem & Städ": [
+        {
+          "code": "101233756_ST",
+          "name": "Wc-sticks Wc-rengöringsmedel",
+          "priceValue": 26.9,
+          "manufacturer": "Domestos",
+          "comparePrice": "5,38 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101353764_ST",
+          "name": "Avfallspåse Återvunnen 40l med Knythandtag",
+          "priceValue": 19.9,
+          "manufacturer": "Fixa",
+          "comparePrice": "1,33 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Hälsa & Skönhet": [
+        {
+          "code": "101359612_ST",
+          "name": "Pocket Tissues Näsdukar",
+          "priceValue": 29.9,
+          "manufacturer": "Topz",
+          "comparePrice": "2,99 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Mejeri, ost & ägg": [
+        {
+          "code": "101231662_ST",
+          "name": "Ikaffe Barista Edition Havredryck",
+          "priceValue": 17.5,
+          "manufacturer": "Oatly",
+          "comparePrice": "17,50 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101223129_ST",
+          "name": "Imat Matlagningsbas 13%",
+          "priceValue": 26.4,
+          "manufacturer": "Oatly",
+          "comparePrice": "26,40 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101349759_ST",
+          "name": "Dream Fraiche Havrefraiche Gluten Free",
+          "priceValue": 21.67,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "54,18 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101553286_ST",
+          "name": "Vanilla Soygurt",
+          "priceValue": 32.9,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "32,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101676627_ST",
+          "name": "Citrus Proteingurt Växtbaserad",
+          "priceValue": 22.9,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "57,25 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101676644_ST",
+          "name": "Vanilla Ice Coffee Havredryck",
+          "priceValue": 23.9,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "23,90 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": true,
+          "online": true
+        }
+      ],
+      "Skafferi": [
+        {
+          "code": "101310187_ST",
+          "name": "Vegan Mayo",
+          "priceValue": 28.29,
+          "manufacturer": "Garant",
+          "comparePrice": "85,73 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101200489_ST",
+          "name": "Hasselnöt Dadlar Granola",
+          "priceValue": 37.76,
+          "manufacturer": "Paulúns",
+          "comparePrice": "83,91 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101334144_ST",
+          "name": "Senap Original",
+          "priceValue": 16.94,
+          "manufacturer": "Johnny's",
+          "comparePrice": "35,29 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101231193_ST",
+          "name": "Jordnötssmör Crunchy Ekologiskt",
+          "priceValue": 35.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "102,57 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101145716_ST",
+          "name": "Vetemjöl",
+          "priceValue": 15.9,
+          "manufacturer": "Garant",
+          "comparePrice": "7,95 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101310192_ST",
+          "name": "Röda Linser",
+          "priceValue": 26.9,
+          "manufacturer": "Eldorado",
+          "comparePrice": "33,63 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101482479_ST",
+          "name": "Vita Bönor Stora Naturella",
+          "priceValue": 9.9,
+          "manufacturer": "Garant",
+          "comparePrice": "43,04 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101192589_ST",
+          "name": "Bulgur Grov med Rostade Nudlar",
+          "priceValue": 18.5,
+          "manufacturer": "Sevan",
+          "comparePrice": "18,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101231767_ST",
+          "name": "Grönsaks Buljong Tärningar",
+          "priceValue": 10.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "3,63 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101284927_ST",
+          "name": "Tortillachips Havssalt",
+          "priceValue": 11.26,
+          "manufacturer": "Garant",
+          "comparePrice": "56,30 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101213673_ST",
+          "name": "Fass Kraut Surkål Premium",
+          "priceValue": 28.29,
+          "manufacturer": "Kühne",
+          "comparePrice": "70,73 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101656369_ST",
+          "name": "Rapsolja med Vitamin D",
+          "priceValue": 37.76,
+          "manufacturer": "Garant",
+          "comparePrice": "37,76 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100363376_ST",
+          "name": "Olivolja Extra Vergine Classico",
+          "priceValue": 89.81,
+          "manufacturer": "Zeta",
+          "comparePrice": "119,74 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Vegetariskt": [
+        {
+          "code": "101271138_ST",
+          "name": "Tofu Naturell Ekologisk Vegansk",
+          "priceValue": 27.9,
+          "manufacturer": "Yipin",
+          "comparePrice": "69,75 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101261026_ST",
+          "name": "Pastej Karljohansvamp Vegansk",
+          "priceValue": 16.94,
+          "manufacturer": "Pastejköket",
+          "comparePrice": "84,70 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101362712_ST",
+          "name": "Fiskfria Pinnar Fryst",
+          "priceValue": 37.76,
+          "manufacturer": "Garant",
+          "comparePrice": "107,27 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101352102_ST",
+          "name": "Vegansk Salami Skivad",
+          "priceValue": 17.9,
+          "manufacturer": "Eldorado",
+          "comparePrice": "223,75 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101520690_ST",
+          "name": "Original Chunk",
+          "priceValue": 79.9,
+          "manufacturer": "Oumph!",
+          "comparePrice": "114,15 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101349521_ST",
+          "name": "Köttbullar Köttfria Leif Fryst",
+          "priceValue": 39.9,
+          "manufacturer": "Dafgårds",
+          "comparePrice": "79,80 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101344106_ST",
+          "name": "Vegokebab",
+          "priceValue": 36.9,
+          "manufacturer": "Garant",
+          "comparePrice": "134,18 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Övrigt": [
+        {
+          "code": "101291280_ST",
+          "name": "Pappkasse Kpl Willys",
+          "priceValue": null,
+          "manufacturer": "Stenqvist",
+          "comparePrice": "",
+          "comparePriceUnit": "",
+          "outOfStock": true,
+          "online": true
+        }
+      ]
+    }
+  },
+  {
+    "categoryOrderedDeliveredProducts": {
+      "Bröd & Kakor": [
+        {
+          "code": "101315270_ST",
+          "name": "Tunn Havre Havreflingor Havsalt",
+          "priceValue": 22.61,
+          "manufacturer": "Wasa",
+          "comparePrice": "85,32 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101278587_ST",
+          "name": "Kärnsund Surdegsbröd",
+          "priceValue": 29.9,
+          "manufacturer": "Pågen",
+          "comparePrice": "42,72 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101258214_ST",
+          "name": "Frökusar 6-pack",
+          "priceValue": null,
+          "manufacturer": "Fazer",
+          "comparePrice": "",
+          "comparePriceUnit": "",
+          "outOfStock": true,
+          "online": true
+        }
+      ],
+      "Frukt & Grönt": [
+        {
+          "code": "100068089_KG",
+          "name": "Banan Fairtrade Klass 1 Eko Klase",
+          "priceValue": 24.9,
+          "manufacturer": "",
+          "comparePrice": "24,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101234341_ST",
+          "name": "Citron Eko Klass 1",
+          "priceValue": 9.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "82,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101254251_ST",
+          "name": "Gurka Eko Klass 1",
+          "priceValue": 21.9,
+          "manufacturer": "",
+          "comparePrice": "73,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100144318_KG",
+          "name": "Äpple Pink Lady Klass 1",
+          "priceValue": 36.9,
+          "manufacturer": "",
+          "comparePrice": "36,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101058267_ST",
+          "name": "Potatis Fast Klass 1",
+          "priceValue": 27.9,
+          "manufacturer": "Garant",
+          "comparePrice": "13,95 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101357956_ST",
+          "name": "Avokado 3-pack Mogen Klass 1",
+          "priceValue": 32.9,
+          "manufacturer": "Garant",
+          "comparePrice": "102,81 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100147388_KG",
+          "name": "Ingefära",
+          "priceValue": 59.9,
+          "manufacturer": "",
+          "comparePrice": "59,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101200430_ST",
+          "name": "Lime Klass 1",
+          "priceValue": 4.9,
+          "manufacturer": "",
+          "comparePrice": "65,33 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100147967_KG",
+          "name": "Lök Röd Klass 1",
+          "priceValue": 16.9,
+          "manufacturer": "",
+          "comparePrice": "16,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100358578_ST",
+          "name": "Druvor Gröna Klass 1",
+          "priceValue": 34.9,
+          "manufacturer": "",
+          "comparePrice": "69,80 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100180723_ST",
+          "name": "Kiwi Klass 1",
+          "priceValue": 8.9,
+          "manufacturer": "",
+          "comparePrice": "90,82 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101267405_ST",
+          "name": "Tomat Mix Klass 1",
+          "priceValue": 29.9,
+          "manufacturer": "",
+          "comparePrice": "85,43 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101180018_ST",
+          "name": "Bladselleri Eko Klass 1",
+          "priceValue": 32.9,
+          "manufacturer": "",
+          "comparePrice": "164,50 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100771309_ST",
+          "name": "Sparris Grön Klass 1",
+          "priceValue": 49.9,
+          "manufacturer": "",
+          "comparePrice": "199,60 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100901311_ST",
+          "name": "Spenat Klass 1",
+          "priceValue": 19.9,
+          "manufacturer": "",
+          "comparePrice": "79,60 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "100152282_KG",
+          "name": "Kvisttomat Import Klass 1",
+          "priceValue": 29.9,
+          "manufacturer": "",
+          "comparePrice": "29,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Glass, godis & snacks": [
+        {
+          "code": "100373052_ST",
+          "name": "Holiday Dippmix",
+          "priceValue": 9.36,
+          "manufacturer": "Estrella",
+          "comparePrice": "360,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Hem & Städ": [
+        {
+          "code": "101353764_ST",
+          "name": "Avfallspåse Återvunnen 40l med Knythandtag",
+          "priceValue": 19.9,
+          "manufacturer": "Fixa",
+          "comparePrice": "1,33 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101475566_ST",
+          "name": "Hushållspapper",
+          "priceValue": 34.9,
+          "manufacturer": "Fixa",
+          "comparePrice": "61,12 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101228197_ST",
+          "name": "Bakplåtspapper Ark",
+          "priceValue": 14.9,
+          "manufacturer": "Fixa",
+          "comparePrice": "0,62 kr",
+          "comparePriceUnit": "st",
+          "outOfStock": true,
+          "online": true
+        }
+      ],
+      "Mejeri, ost & ägg": [
+        {
+          "code": "101231662_ST",
+          "name": "Ikaffe Barista Edition Havredryck",
+          "priceValue": 17.5,
+          "manufacturer": "Oatly",
+          "comparePrice": "17,50 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101552916_ST",
+          "name": "Natural Soygurt",
+          "priceValue": 32.9,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "32,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        },
+        {
+          "code": "101552925_ST",
+          "name": "Strawberry Soygurt",
+          "priceValue": 32.9,
+          "manufacturer": "Oddlygood",
+          "comparePrice": "32,90 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": true,
+          "online": true
+        }
+      ],
+      "Skafferi": [
+        {
+          "code": "101269323_ST",
+          "name": "Rapsolja D-vitaminberikad",
+          "priceValue": 37.76,
+          "manufacturer": "Zeta",
+          "comparePrice": "41,96 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101262311_ST",
+          "name": "Kikärter Ekologiska Naturella",
+          "priceValue": 12.2,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "53,04 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101436925_ST",
+          "name": "Havregryn",
+          "priceValue": 15.9,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "21,20 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101220873_ST",
+          "name": "Torkad Mango Ekologisk",
+          "priceValue": 28.29,
+          "manufacturer": "Garant Eko",
+          "comparePrice": "377,20 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101275189_ST",
+          "name": "Pesto Con Tofu Vegansk",
+          "priceValue": 26.4,
+          "manufacturer": "Garant",
+          "comparePrice": "132,00 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101552948_ST",
+          "name": "Kokosmjölk 18%",
+          "priceValue": 13.9,
+          "manufacturer": "Spicefield",
+          "comparePrice": "34,75 kr",
+          "comparePriceUnit": "l",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101239929_ST",
+          "name": "Drottningsylt Ekologisk",
+          "priceValue": 33.97,
+          "manufacturer": "Björnekulla",
+          "comparePrice": "84,93 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Vegetariskt": [
+        {
+          "code": "101271138_ST",
+          "name": "Tofu Naturell Ekologisk Vegansk",
+          "priceValue": 27.9,
+          "manufacturer": "Yipin",
+          "comparePrice": "69,75 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101261026_ST",
+          "name": "Pastej Karljohansvamp Vegansk",
+          "priceValue": 16.94,
+          "manufacturer": "Pastejköket",
+          "comparePrice": "84,70 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101362712_ST",
+          "name": "Fiskfria Pinnar Fryst",
+          "priceValue": 37.76,
+          "manufacturer": "Garant",
+          "comparePrice": "107,27 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        },
+        {
+          "code": "101352102_ST",
+          "name": "Vegansk Salami Skivad",
+          "priceValue": 17.9,
+          "manufacturer": "Eldorado",
+          "comparePrice": "223,75 kr",
+          "comparePriceUnit": "kg",
+          "outOfStock": false,
+          "online": true
+        }
+      ],
+      "Övrigt": [
+        {
+          "code": "101291280_ST",
+          "name": "Pappkasse Kpl Willys",
+          "priceValue": null,
+          "manufacturer": "Stenqvist",
+          "comparePrice": "",
+          "comparePriceUnit": "",
+          "outOfStock": true,
+          "online": true
+        }
+      ]
+    }
+  }
+]

@@ -16,6 +16,11 @@ import {
   pickBest,
   type StoreProduct,
 } from "./storeCompare";
+import {
+  commonProductsFromOrders,
+  validateAxfoodOrders,
+} from "./storeCompare";
+import axfoodOrders from "./__fixtures__/axfood-orders.json";
 import coopFixture from "./__fixtures__/store-search/coop.json";
 import hemkopFixture from "./__fixtures__/store-search/hemkop.json";
 import icaFixture from "./__fixtures__/store-search/ica.json";
@@ -154,6 +159,60 @@ describe("seeding from household staples (likely_to_buy)", () => {
     const seededTerms = cmp.items.filter((i) => i.seeded).map((i) => i.term);
     expect(seededTerms).toEqual(["gul lök"]);
     expect(cmp.matched).toBe(TERMS.length);
+  });
+});
+
+describe("Axfood purchase-history seeds (p5-04)", () => {
+  // Real (scrubbed) Willys order history, 3 orders, captured 2026-08-16:
+  // only product-level fields — customer/address fields never leave the API.
+  it("accepts the committed order fixture and names a moved field on drift", () => {
+    expect(() => validateAxfoodOrders(axfoodOrders)).not.toThrow();
+    const mutated = structuredClone(axfoodOrders) as {
+      categoryOrderedDeliveredProducts: Record<string, { priceValue: unknown }[]>;
+    }[];
+    Object.values(mutated[0].categoryOrderedDeliveredProducts)[0][0].priceValue = "36,90";
+    expect(() => validateAxfoodOrders(mutated)).toThrow(/shape moved.*priceValue/i);
+    expect(() => validateAxfoodOrders({ orders: [] })).toThrow(/shape moved/i);
+  });
+
+  it("dedupes by product code and ranks by how often the household bought it", () => {
+    const common = commonProductsFromOrders(axfoodOrders as never[]);
+    const codes = common.map((p) => p.code);
+    expect(new Set(codes).size).toBe(codes.length);
+    // Bought in every one of the 3 orders → must rank ahead of one-offs.
+    const everyOrder = common.findIndex((p) => p.name === "Ikaffe Barista Edition Havredryck");
+    expect(everyOrder).toBeGreaterThanOrEqual(0);
+    expect(everyOrder).toBeLessThan(10);
+  });
+
+  it("pins a fully-covering history staple via the existing seed layer", () => {
+    const seeds = extractAxfood(commonProductsFromOrders(axfoodOrders as never[]) as never[]);
+    const fromSearch: StoreProduct[] = [
+      { id: "x", name: "Spenat Krossad Fryst", brand: null, price: 12, comparePrice: null, compareUnit: null, available: true },
+    ];
+    const match = pickBest("spenat", fromSearch, seeds);
+    expect(match.seeded).toBe(true);
+    expect(match.product!.name).toBe("Spenat Klass 1");
+  });
+
+  it("prices a pinned seed from today's search result, not the old order line", () => {
+    const seeds: StoreProduct[] = [
+      { id: "100", name: "Spenat Klass 1", brand: null, price: 22.9, comparePrice: null, compareUnit: null, available: true },
+    ];
+    const fromSearch: StoreProduct[] = [
+      { id: "100", name: "Spenat Klass 1", brand: null, price: 24.9, comparePrice: null, compareUnit: null, available: true },
+    ];
+    const match = pickBest("spenat", fromSearch, seeds);
+    expect(match.seeded).toBe(true);
+    expect(match.product!.price).toBe(24.9);
+  });
+
+  it("never lets a history product weakly hijack a term (existing invariant)", () => {
+    const seeds = extractAxfood(commonProductsFromOrders(axfoodOrders as never[]) as never[]);
+    const match = pickBest("havremjölk", extractAxfood(willysFixture["havremjölk"] as never[]), seeds);
+    // The household buys "Ikaffe Barista Edition Havredryck" every order,
+    // but it does not cover "havremjölk" — store relevance must win.
+    expect(match.seeded).toBe(false);
   });
 });
 

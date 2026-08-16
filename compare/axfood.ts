@@ -8,6 +8,7 @@
 import { createCipheriv, pbkdf2Sync, randomBytes } from "node:crypto";
 
 import { validateAxfoodSlots } from "@/lib/feeTotals";
+import { validateAxfoodOrders, type AxfoodOrder } from "@/lib/storeCompare";
 
 interface EncryptedCredential {
   key: string;
@@ -111,5 +112,23 @@ export class AxfoodSession {
     // 2026) — fail with the moved field, never a silent 0-kr fee.
     validateAxfoodSlots(slots);
     return slots;
+  }
+
+  /** The household's recent orders with their delivered lines (requires
+   * login) — the raw material for purchase-history seeds (p5-04).
+   * Read-only; paced like the search adapters. */
+  async orderHistory(maxOrders = 5): Promise<AxfoodOrder[]> {
+    const listRes = await this.request("/axfood/rest/account/orders");
+    if (!listRes.ok) throw new Error(`account/orders HTTP ${listRes.status}`);
+    const list = (await listRes.json()) as { orderNumber: string }[];
+    const orders: unknown[] = [];
+    for (const { orderNumber } of list.slice(0, maxOrders)) {
+      const res = await this.request(`/axfood/rest/orderdata?q=${encodeURIComponent(orderNumber)}`);
+      if (!res.ok) throw new Error(`orderdata HTTP ${res.status}`);
+      orders.push(await res.json());
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    validateAxfoodOrders(orders);
+    return orders;
   }
 }

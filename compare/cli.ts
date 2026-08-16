@@ -31,6 +31,8 @@ import {
 import {
   buildComparison,
   cartPlan,
+  commonProductsFromOrders,
+  extractAxfood,
   extractMathemMcp,
   type StoreComparison,
   type StoreProduct,
@@ -345,8 +347,10 @@ async function runStore(
   const search = SEARCHERS[store];
   const productsByTerm: Record<string, never[]> = {};
   const errors: string[] = [];
-  // Household-staple seeds (Mathem only for now): what the household
-  // actually buys pins fully-covering matches over search relevance.
+  // Household-staple seeds: what the household actually buys pins
+  // fully-covering matches over search relevance. Sources per store
+  // (p5-04): Mathem likely_to_buy (MCP), Willys/Hemköp order history
+  // (Axfood login). Weak seeds never pin (storeCompare invariant).
   let seeds: StoreProduct[] = [];
   let seedError: string | null = null;
   if (store === "mathem" && hasMathemAuth()) {
@@ -359,6 +363,25 @@ async function runStore(
       }
     });
     seeds = value ?? [];
+  } else if (store === "willys" || store === "hemkop") {
+    const prefix = store.toUpperCase();
+    const username = process.env[`${prefix}_USERNAME`];
+    const password = process.env[`${prefix}_PASSWORD`];
+    if (username && password) {
+      const { value } = await cached<StoreProduct[]>(`${store}:order-seeds`, async () => {
+        try {
+          const session = new AxfoodSession(
+            `https://www.${store === "willys" ? "willys" : "hemkop"}.se`,
+          );
+          await session.login(username, password);
+          return extractAxfood(commonProductsFromOrders(await session.orderHistory()));
+        } catch (e) {
+          seedError = `order-history seeds unavailable: ${e instanceof Error ? e.message : e}`;
+          return null;
+        }
+      });
+      seeds = value ?? [];
+    }
   }
   for (const term of terms) {
     // 12h cache first — the fewer live requests, the less bot-shaped we

@@ -161,6 +161,67 @@ export function extractCoop(products: CoopRawProduct[]): StoreProduct[] {
     }));
 }
 
+// --- Axfood purchase-history seeds (p5-04) ---------------------------------
+
+/** One order's delivered lines, keyed by category name. The line objects
+ * are AxfoodRawProduct supersets — the same extraction applies — except
+ * that delisted lines carry `priceValue: null`. */
+type AxfoodOrderLine = Omit<AxfoodRawProduct, "priceValue"> & { priceValue: number | null };
+
+export interface AxfoodOrder {
+  categoryOrderedDeliveredProducts: Record<string, AxfoodOrderLine[]>;
+}
+
+/** Drift check for `orderdata` responses, same contract as the slot
+ * validators in feeTotals: name the moved field, fail loudly. */
+export function validateAxfoodOrders(orders: unknown): asserts orders is AxfoodOrder[] {
+  const moved = (field: string, hint: string): Error =>
+    new Error(
+      `Axfood orderdata shape moved (${field} ${hint}) — update compare/axfood.ts and recapture src/lib/__fixtures__/axfood-orders.json`,
+    );
+  if (!Array.isArray(orders)) throw moved("orders", "is not an array");
+  for (const order of orders) {
+    const cats = (order as AxfoodOrder)?.categoryOrderedDeliveredProducts;
+    if (cats === null || typeof cats !== "object") {
+      throw moved("categoryOrderedDeliveredProducts", "missing or not an object");
+    }
+    for (const products of Object.values(cats)) {
+      if (!Array.isArray(products)) throw moved("category products", "not an array");
+      for (const p of products) {
+        if (typeof p?.code !== "string") throw moved("code", "missing or not a string");
+        // null is real: delisted lines (and Willys' paper bag) lose their price.
+        if (typeof p?.priceValue !== "number" && p?.priceValue !== null) {
+          throw moved("priceValue", "missing or not a number/null");
+        }
+      }
+    }
+  }
+}
+
+/**
+ * The household's commonly-bought products from order history: flattened
+ * across orders, deduped by product code, most-frequently-bought first.
+ * Feed through extractAxfood + pickBest seeds — the existing invariant
+ * (weak seeds never pin) keeps a favourite from hijacking a term it
+ * doesn't cover.
+ */
+export function commonProductsFromOrders(orders: AxfoodOrder[]): AxfoodRawProduct[] {
+  const byCode = new Map<string, { product: AxfoodRawProduct; count: number }>();
+  const priced = (p: AxfoodOrderLine): p is AxfoodRawProduct => p.priceValue != null;
+  for (const order of orders) {
+    for (const products of Object.values(order.categoryOrderedDeliveredProducts)) {
+      for (const p of products) {
+        // Delisted lines have no price and can't seed anything current.
+        if (!priced(p)) continue;
+        const entry = byCode.get(p.code);
+        if (entry) entry.count += 1;
+        else byCode.set(p.code, { product: p, count: 1 });
+      }
+    }
+  }
+  return [...byCode.values()].sort((a, b) => b.count - a.count).map((e) => e.product);
+}
+
 // --- matching ---------------------------------------------------------------
 
 // Fold to lowercase ASCII-ish so "lök"/"lok" and composed/decomposed forms
@@ -214,9 +275,12 @@ export function pickBest(
     (s) => s.available && matchQuality(term, s.name) === "good",
   );
   if (seedPin) {
+    // Seeds may carry stale prices (order history) — when today's search
+    // returned the same product, its current price/availability wins.
+    const current = available.find((p) => p.id === seedPin.id) ?? seedPin;
     return {
       term,
-      product: seedPin,
+      product: current,
       quality: "good",
       seeded: true,
       alternatives: available.filter((p) => p.id !== seedPin.id).length,
