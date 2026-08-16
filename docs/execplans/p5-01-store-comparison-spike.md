@@ -103,6 +103,12 @@ on:
       "Dina favoriter" / "Återkommande" waits on the login tier; the
       seed layer is store-agnostic (same `pickBest(term, products,
       seeds)` for any store's staples list)
+- [~] Fee-aware totals (Pelle 2026-08-16: stores differ — some bake
+      home delivery into product prices, others add fixed
+      delivery/bag/packing fees at checkout): surfaced today where
+      known (Mathem items vs cart-total-incl-fees; Coop/Axfood slot
+      fees on the delivery line); full fee normalization proposed as
+      implementation-plan scope in the gate brief
 - [ ] Gate brief incl. tech.spec boundary proposal
 
 ## Steps
@@ -377,3 +383,34 @@ Delivery lines report needs-auth honestly per store.
   Coop entries. Fixed with a process-shared map + regression tests
   (`compare/cache.test.ts`, vitest glob widened to `compare/**` —
   self-improvement rule).
+
+**2026-08-16 (Willys/Hemköp slot tier wired, awaiting credentials):**
+
+- Axfood login flow ported to `compare/axfood.ts` from Erik Hellman's
+  MIT willys-agent (fetched from GitHub, quoted verbatim before
+  porting): GET `/api/config` (JSESSIONID) → GET
+  `/axfood/rest/csrf-token` → POST `/login` with AES-128-CBC +
+  PBKDF2(SHA-1, 1000)-encrypted `j_username`/`j_password` (+ the
+  random numeric key alongside, replicating the site's own client
+  encryption) → csrf refresh. Slot endpoint per jimmystridh/
+  willys-mcp: GET `/axfood/rest/tms/delivery-slots?postalCode=` →
+  `deliveryDays[].slots[]` (startTime/endTime, totalCost,
+  available/fullyBooked/limitReached). Same class serves Willys and
+  Hemköp (same platform, per-chain credentials).
+- Read-only by construction: login + slot listing only; no cart
+  writes, no `select-slot`, no checkout.
+- Credentials pattern live: `compare/.env` (gitignored, mode 600,
+  loaded by `compare/env.ts` — bot/.env pattern) with
+  `WILLYS_USERNAME`/`WILLYS_PASSWORD`, `HEMKOP_*`; skeleton file
+  created for Pelle to fill (he confirmed an existing Willys account
+  2026-08-16). Without values the delivery line says exactly which
+  env keys are missing. **Live slot evidence pending the fill** —
+  the flow is untested against the real login until then; expect one
+  iteration loop.
+- Fee-structure requirement recorded from Pelle (same day): stores
+  differ — some bake home delivery into product prices, others add
+  fixed delivery/bag/packing fees at checkout (bags, packing).
+  Surfaced today where cheap (Mathem items vs cart total; slot fees
+  on Coop/Axfood delivery lines); full per-store fee normalization
+  (delivery + bags + packing into a comparable basket total) goes to
+  the gate brief as implementation-plan scope.

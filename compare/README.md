@@ -38,8 +38,17 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   relevance (shown as `★ staple`); weak staple matches never pin —
   the household buying chocolate oat drink must not hijack a
   "havremjölk" list entry.
-- Willys/Hemköp slot times need store logins (p5-01 step 2); their
-  delivery line reports honestly what it can't know.
+- Willys/Hemköp slot tier: put chain credentials in gitignored
+  `compare/.env` (mode 600) as `WILLYS_USERNAME`/`WILLYS_PASSWORD`
+  and `HEMKOP_USERNAME`/`HEMKOP_PASSWORD`; the CLI then logs in
+  (Hellman's MIT willys-agent flow) and filters real
+  `tms/delivery-slots` — read-only, no booking. Without credentials
+  the delivery line reports honestly what it can't know.
+- Prices are item prices only and fee models differ per store (some
+  bake delivery into prices, others add delivery/bag/packing fees at
+  checkout — Pelle 2026-08-16): Mathem's cart line prints items vs
+  cart-total-incl-fees, Coop/Willys/Hemköp slot lines include the
+  slot fee. Full fee normalization is implementation-plan scope.
 - Coop: anonymous search via the personalization API
   (`external.api.coop.se`) using the site's public browser
   subscription key (served to every visitor in the page config — not

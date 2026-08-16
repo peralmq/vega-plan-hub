@@ -21,7 +21,9 @@ import {
   type StoreComparison,
   type StoreProduct,
 } from "@/lib/storeCompare";
+import { AxfoodSession, type AxfoodSlot } from "./axfood";
 import { cached } from "./cache";
+import { loadCompareEnv } from "./env";
 import {
   cartItemsTotal,
   getDeliverySlots,
@@ -148,6 +150,86 @@ async function mathemDelivery(day: string | null, window: string | null): Promis
   }
 }
 
+/** Local hour of a slot boundary that may be ISO or plain "HH:MM". */
+const slotHour = (time: string): number | null => {
+  const parsed = new Date(time);
+  if (!Number.isNaN(parsed.getTime())) return localHour(time);
+  const m = time.match(/^(\d{1,2}):\d{2}/);
+  return m ? Number(m[1]) : null;
+};
+
+const axfoodSlotTime = (time: string): string => {
+  const parsed = new Date(time);
+  return Number.isNaN(parsed.getTime()) ? time : localTime(time);
+};
+
+function axfoodSlotInWindow(slot: AxfoodSlot, window: string | null): boolean {
+  if (!window) return true;
+  const m = window.match(/^(\d{1,2})-(\d{1,2})$/);
+  if (!m) return true;
+  const [from, to] = [Number(m[1]), Number(m[2])];
+  const start = slotHour(slot.startTime);
+  const end = slotHour(slot.endTime);
+  if (start === null || end === null) return true; // unknown format — keep, human reviews
+  return start < to && end > from;
+}
+
+/** Willys/Hemköp slot tier: same Axfood platform, credentials per chain
+ * from compare/.env ({PREFIX}_USERNAME / {PREFIX}_PASSWORD). Read-only —
+ * login + slot listing; booking stays with the human. */
+async function axfoodDelivery(
+  host: string,
+  envPrefix: string,
+  zip: string | null,
+  day: string | null,
+  window: string | null,
+): Promise<DeliveryStatus> {
+  const username = process.env[`${envPrefix}_USERNAME`];
+  const password = process.env[`${envPrefix}_PASSWORD`];
+  if (!username || !password) {
+    return {
+      kind: "needs-auth",
+      detail: `slot times need ${envPrefix}_USERNAME/${envPrefix}_PASSWORD in compare/.env`,
+    };
+  }
+  if (!zip) return { kind: "unknown", detail: "pass --zip to check delivery slots" };
+  try {
+    const session = new AxfoodSession(`https://${host}`);
+    await session.login(username, password);
+    const days = await session.deliverySlots(zip);
+    if (days.length === 0) {
+      return { kind: "not-deliverable", detail: `no home-delivery days for ${zip}` };
+    }
+    if (!day) {
+      return { kind: "eligible", detail: `${days.length} delivery day(s) for ${zip} — pass --day to filter slots` };
+    }
+    const forDay = days.find((d) => d.date?.startsWith(day));
+    const open = (forDay?.slots ?? []).filter(
+      (s) => s.available !== false && !s.fullyBooked && !s.limitReached,
+    );
+    const matching = open.filter((s) => axfoodSlotInWindow(s, window));
+    if (matching.length > 0) {
+      const shown = matching
+        .slice(0, 4)
+        .map((s) => `${axfoodSlotTime(s.startTime)}–${axfoodSlotTime(s.endTime)} (${s.totalCost})`)
+        .join(", ");
+      return {
+        kind: "eligible",
+        detail: `${matching.length} slot(s) on ${day}${window ? ` in ${window}` : ""}: ${shown}${matching.length > 4 ? ", …" : ""}`,
+      };
+    }
+    return {
+      kind: "not-deliverable",
+      detail:
+        open.length > 0
+          ? `no slots in ${window ?? "window"} on ${day}, but ${open.length} at other times that day`
+          : `no open slots on ${day}`,
+    };
+  } catch (e) {
+    return { kind: "unknown", detail: `slot lookup failed: ${e instanceof Error ? e.message : e}` };
+  }
+}
+
 /** Coop's slot surface is anonymous (postcode → time windows), so the
  * day/window filter is live for Coop with zero credentials. */
 async function coopDelivery(
@@ -199,11 +281,9 @@ async function deliveryForStore(
     case "mathem":
       return mathemDelivery(day, window);
     case "willys":
+      return axfoodDelivery("www.willys.se", "WILLYS", zip, day, window);
     case "hemkop":
-      return {
-        kind: "needs-auth",
-        detail: "slot endpoint (tms/delivery-slots) requires store login (p5-01 step 2)",
-      };
+      return axfoodDelivery("www.hemkop.se", "HEMKOP", zip, day, window);
     case "coop":
       return coopDelivery(zip, day, window);
     case "ica": {
@@ -348,6 +428,7 @@ function printHuman(reports: Record<string, StoreReport>, terms: string[], day?:
 }
 
 async function main() {
+  loadCompareEnv();
   const args = parseArgs(process.argv.slice(2));
   const listPath = typeof args.list === "string" ? args.list : null;
   if (!listPath) {
