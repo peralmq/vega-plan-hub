@@ -81,18 +81,19 @@ on:
 - [x] Mathem MCP: client registered (dynamic registration), OAuth
       complete (Pelle approved 2026-08-16, refresh token stored),
       21 tools enumerated; slots wired into the CLI delivery filter
-- [~] Hellman CLIs superseded by native adapters: Willys/Hemköp/Coop
+- [x] Hellman CLIs superseded by native adapters: Willys/Hemköp/Coop
       search all native in `compare/` (Coop via the personalization
-      API, anonymous). Remaining from this item: slot tiers, which
-      need household accounts (human steps)
+      API, anonymous); Willys + Hemköp slot tiers live with household
+      credentials (2026-08-16)
 - [x] ICA leg: default store = Maxi ICA Stormarknad Lindhagen
       (account 1003418, Pelle 2026-08-16); anonymous v6 search + WAF
       behavior mapped; auth tier still open (list push vs search-only)
-- [~] `delivery_check`: slot-time filter live for **Mathem** (MCP),
-      **Coop** (anonymous postcode/timewindows) and **Willys**
-      (household login via compare/.env); Hemköp same code path,
-      credentials pending; ICA store-eligibility-by-zip live
-      (anonymous, times at checkout, login tier = Pelle's decision)
+- [x] `delivery_check`: slot-time filter live for **Mathem** (MCP),
+      **Coop** (anonymous postcode/timewindows), **Willys** and
+      **Hemköp** (household logins via compare/.env, same Axfood
+      code path); ICA store-eligibility-by-zip live (anonymous,
+      times at checkout — the honest "check at checkout" outcome
+      step 4 allowed; login tier = Pelle's decision at the gate)
 - [x] Comparison CLI (`compare/`, `npm run compare`) with fixture
       suite in `./harness check` (tsc compare + 13 vitest cases)
 - [x] Mathem cart-fill (`--fill-cart mathem`): matched basket pushed
@@ -438,3 +439,27 @@ Delivery lines report needs-auth honestly per store.
   four stores now show real slot times in the window; Hemköp says
   exactly which env keys it waits for; ICA points at checkout.
 - Read-only stance held: no select-slot, no cart writes on Axfood.
+
+**2026-08-16 (Hemköp slots live — slot tier complete on all five):**
+
+- Pelle filled HEMKOP_USERNAME/HEMKOP_PASSWORD into compare/.env.
+  The shared Axfood adapter worked unchanged on hemkop.se — login
+  200 first try, `v1/slot/homeDelivery` returned real slots. Zero
+  code changes; the expected "one iteration loop" wasn't needed
+  (the Willys-run fixes already covered the platform).
+- Live: `--stores hemkop --day 2026-08-18 --window 17-20` →
+  "eligible: 5 slot(s) … 16:00–18:00 (128 kr varav plock 49),
+  17:00–19:00, 17:00–22:00, 18:00–20:00, …".
+- **Fee data point for the gate brief**: Hemköp charges 128 kr/slot
+  (delivery 79 + picking 49) vs sibling Willys 158 (99 + 59) on the
+  same platform, same zip, same slots — even intra-Axfood the fee
+  spread (30 kr) can exceed an entire basket-price gap, reinforcing
+  the fee-normalization requirement.
+- Full five-store run now shows live delivery data everywhere:
+  ICA 57,15 kr (eligibility by zip, times at checkout) · Coop
+  68,65 (7 slots in window, 59–89 kr) · Willys 69,10 (5 slots,
+  158 kr) · Mathem 76,07 (6 slots, 9–49 kr) · Hemköp 102,95
+  (5 slots, 128 kr) — all 5/5 matched, weak-match ⚠ flags intact
+  (Hemköp havremjöl trap still correctly flagged).
+- This was the last credential-gated tier; remaining plan work is
+  the gate brief.
