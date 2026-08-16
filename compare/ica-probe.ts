@@ -19,8 +19,8 @@ if (!hasIcaAuth()) {
 }
 
 const session = new IcaSession(ICA_DEFAULT_STORE.accountId);
-await session.login(process.env.ICA_PERSONNUMMER!, process.env.ICA_PASSWORD!);
-console.log("✓ login OK (OAuth resumed back to the shop)");
+await session.ensure(process.env.ICA_PERSONNUMMER!.trim(), process.env.ICA_PASSWORD!);
+console.log("✓ session OK (reused if persisted, full login otherwise)");
 
 const id = ICA_DEFAULT_STORE.accountId;
 const jsonProbes = [

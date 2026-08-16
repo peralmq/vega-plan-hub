@@ -75,11 +75,24 @@ defaults, tech.spec amended in the same change set):
       "Lösenord" authenticator (`/authn/authenticate/IcaCustomers`)
       takes `userName` (personnummer) + `password` as a form POST;
       per-host cookie jars carry the resumed session back to
-      handlaprivatkund. Full chain smoke-tested with a nonexistent
-      personnummer (fails exactly at credential check)
-- [ ] ICA seeds: favorites/"Återkommande" mapped into StoreProduct
-      seeds behind the login — `npm run ica-probe` maps the
-      endpoints once credentials exist
+      handlaprivatkund. **Live-verified with household credentials
+      2026-08-16.** Two browser-only steps replayed server-side:
+      the Curity auto-submit form (hidden token/state POSTed to the
+      OAuth resume path) and the shop's /sso-login page whose JS
+      GETs `/stores/{id}/sso-login/auth?iss=&code=&state=` for the
+      cookie-setting code exchange; login() verifies the session by
+      confirming /favorites no longer bounces to /login
+- [~] ICA seeds: favorites live behind the login —
+      `GET /stores/{id}/api/webproductpagews/v6/product-pages/
+      favorites?maxPageSize=100` returns the standard v6
+      productGroups envelope (extractIca applies unchanged); wired
+      as ica seeds in the CLI with WAF-challenge detection (202 +
+      x-amzn-waf-action → one patient 15s retry, never solved).
+      "Återkommande"/orders API paths answered 404 to all guesses —
+      favorites (the household's own curated list) is the seed
+      source. Live ★ evidence pending a cool WAF window (probe-time
+      fetch returned 200 with real products; the CLI run minutes
+      later was rate-challenged from this session's many logins)
 - [ ] ICA slot tier: ecomslots v2 retried with a session (same
       probe); fees wired via the p5-03 model, or "times at
       checkout" kept honestly

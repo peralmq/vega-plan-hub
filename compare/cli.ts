@@ -34,6 +34,7 @@ import {
   commonProductsFromMathemOrders,
   commonProductsFromOrders,
   extractAxfood,
+  extractIca,
   extractMathemMcp,
   mergeSeeds,
   validateMathemOrders,
@@ -48,6 +49,7 @@ import {
   type RotationSuggestion,
 } from "@/lib/storeRotation";
 import { AxfoodSession, type AxfoodSlot } from "./axfood";
+import { hasIcaAuth, IcaSession } from "./ica-auth";
 import { loadRotationHistory, recordRun } from "./rotation-state";
 import { cached } from "./cache";
 import { loadCompareEnv } from "./env";
@@ -392,6 +394,20 @@ async function runStore(
       });
       seeds = value ?? [];
     }
+  } else if (store === "ica" && hasIcaAuth()) {
+    // ICA login tier (p5-04): "Dina favoriter" is the household's own
+    // curated staples list — the closest surface to commonly-bought.
+    const { value } = await cached<StoreProduct[]>("ica:favorites-seeds", async () => {
+      try {
+        const session = new IcaSession(ICA_DEFAULT_STORE.accountId);
+        await session.ensure(process.env.ICA_PERSONNUMMER!.trim(), process.env.ICA_PASSWORD!);
+        return extractIca((await session.favorites()) as never[]);
+      } catch (e) {
+        seedError = `ICA favorites seeds unavailable: ${e instanceof Error ? e.message : e}`;
+        return null;
+      }
+    });
+    seeds = value ?? [];
   }
   for (const term of terms) {
     // 12h cache first — the fewer live requests, the less bot-shaped we

@@ -10,10 +10,20 @@
 // (ICA_PERSONNUMMER / ICA_PASSWORD) and never leave this process.
 // Read-only by construction: no cart writes, no checkout (tech.spec).
 
+import { chmodSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0 Safari/537.36";
 
 const MAX_HOPS = 12;
+
+// Persisted session cookies (gitignored, mode 600 — same pattern as the
+// Mathem tokens). Re-using a session instead of re-running the ~8-request
+// login chain every run is the politest thing we can do for ICA's
+// rate-based WAF.
+const SESSION_FILE = join(dirname(fileURLToPath(import.meta.url)), ".ica-session.json");
 
 export class IcaSession {
   /** Cookie jar per host — the login flow crosses ica.se subdomains and
@@ -71,7 +81,7 @@ export class IcaSession {
     }
     // 2. Switch to the password authenticator ("Lösenord") and submit.
     await this.follow(new URL("https://ims.icagruppen.se/authn/authenticate/IcaCustomers"));
-    const submit = await this.follow(
+    let step = await this.follow(
       new URL("https://ims.icagruppen.se/authn/authenticate/IcaCustomers"),
       {
         method: "POST",
@@ -79,17 +89,118 @@ export class IcaSession {
         body: new URLSearchParams({ userName: personnummer, password }).toString(),
       },
     );
-    // Success resumes the OAuth flow and ends back on the shop; landing on
-    // the IdP again means the form re-rendered (wrong credentials).
-    if (submit.url.host === "ims.icagruppen.se") {
-      throw new Error("ICA login failed — check ICA_PERSONNUMMER/ICA_PASSWORD (BankID-only accounts have no password set)");
+    // 3. Successful auth renders "Redirecting…" pages a browser would run:
+    // Curity auto-submit forms (hidden token/state POSTed to the OAuth
+    // resume path), then the shop's sso-login page whose JS GETs the
+    // /sso-login/auth code-exchange URL. Replay both until the shop
+    // session exists. A re-rendered credential form (userName input, no
+    // auto-submit payload) means the credentials were rejected.
+    for (let hop = 0; hop < 4; hop++) {
+      const body = await step.res.text();
+      const jsRedirect = body.match(/window\.location\.replace\("([^"]+)"\)/)?.[1];
+      if (jsRedirect) {
+        step = await this.follow(new URL(jsRedirect, step.url));
+        continue;
+      }
+      const action = body.match(/<form[^>]*action="([^"]*)"/)?.[1];
+      const fields = [...body.matchAll(/<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"/g)];
+      if (action && fields.length > 0) {
+        step = await this.follow(new URL(action, step.url), {
+          method: "POST",
+          headers: { "content-type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(Object.fromEntries(fields.map((f) => [f[1], f[2]]))).toString(),
+        });
+        continue;
+      }
+      break;
     }
+    if (step.url.host === "ims.icagruppen.se") {
+      throw new Error(
+        "ICA login failed — check ICA_PERSONNUMMER/ICA_PASSWORD (BankID-only accounts have no password set)",
+      );
+    }
+    // 4. Verify the session sticks: an authenticated page must not bounce
+    // back to /login.
+    if (!(await this.sessionValid())) {
+      throw new Error("ICA login: code exchange did not stick");
+    }
+    this.saveSession();
+  }
+
+  private async sessionValid(): Promise<boolean> {
+    const check = await this.fetch(
+      new URL(`https://handlaprivatkund.ica.se/stores/${this.accountId}/favorites`),
+    );
+    const bounced = (check.headers.get("location") ?? "").includes("/login");
+    return check.status < 400 && !bounced;
+  }
+
+  private saveSession(): void {
+    const dump = Object.fromEntries([...this.jars].map(([host, jar]) => [host, [...jar]]));
+    writeFileSync(SESSION_FILE, JSON.stringify(dump));
+    chmodSync(SESSION_FILE, 0o600);
+  }
+
+  private loadSession(): boolean {
+    if (!existsSync(SESSION_FILE)) return false;
+    try {
+      const dump = JSON.parse(readFileSync(SESSION_FILE, "utf8")) as Record<
+        string,
+        [string, string][]
+      >;
+      this.jars = new Map(Object.entries(dump).map(([host, pairs]) => [host, new Map(pairs)]));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Reuse the persisted session when it still works; run the full login
+   * chain only when it doesn't. */
+  async ensure(personnummer: string, password: string): Promise<void> {
+    if (this.loadSession() && (await this.sessionValid())) {
+      this.saveSession(); // refreshed cookies from the validity check
+      return;
+    }
+    this.jars = new Map();
+    await this.login(personnummer, password);
   }
 
   /** Authenticated GET against the per-store shop API. */
   async request(path: string, accept = "application/json"): Promise<Response> {
     const url = new URL(`https://handlaprivatkund.ica.se${path}`);
     return this.fetch(url, { headers: { accept } });
+  }
+
+  /** The household's favorites ("Dina favoriter") as raw v6 decorated
+   * products — the same envelope as search, so extractIca applies.
+   * Read-only seed source (p5-04). */
+  async favorites(): Promise<unknown[]> {
+    const fetchOnce = async (): Promise<unknown[]> => {
+      const res = await this.request(
+        `/stores/${this.accountId}/api/webproductpagews/v6/product-pages/favorites?maxPageSize=100`,
+      );
+      // The WAF answers 202 + empty body when challenging — that's ok:false
+      // territory for us even though fetch calls it ok.
+      if (res.status !== 200 || res.headers.get("x-amzn-waf-action")) {
+        throw new Error(`bot-challenge or HTTP ${res.status} on favorites`);
+      }
+      const raw = (await res.json()) as { productGroups?: { decoratedProducts?: unknown[] }[] };
+      if (!Array.isArray(raw.productGroups)) {
+        throw new Error(
+          "ICA favorites shape moved (productGroups missing) — update compare/ica-auth.ts",
+        );
+      }
+      return raw.productGroups.flatMap((g) => g.decoratedProducts ?? []);
+    };
+    try {
+      return await fetchOnce();
+    } catch {
+      // One patient retry, same policy as ICA search: wait out the rate
+      // window, never try to solve a challenge.
+      await new Promise((r) => setTimeout(r, 15_000));
+      return fetchOnce();
+    }
   }
 }
 

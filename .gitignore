@@ -34,3 +34,4 @@ compare/.mathem-oauth.json
 compare/.env
 compare/.cache/
 compare/.rotation.json
+compare/.ica-session.json
