@@ -7,6 +7,8 @@
 // no cart writes, no slot booking, no checkout (cart-ready non-goal).
 import { createCipheriv, pbkdf2Sync, randomBytes } from "node:crypto";
 
+import { validateAxfoodSlots } from "@/lib/feeTotals";
+
 interface EncryptedCredential {
   key: string;
   str: string;
@@ -104,6 +106,10 @@ export class AxfoodSession {
     );
     if (!res.ok) throw new Error(`slot/homeDelivery HTTP ${res.status}`);
     const json = (await res.json()) as { slots?: AxfoodSlot[] };
-    return json.slots ?? [];
+    const slots = json.slots ?? [];
+    // Drift check (p5-03): this surface moved once already (March→August
+    // 2026) — fail with the moved field, never a silent 0-kr fee.
+    validateAxfoodSlots(slots);
+    return slots;
   }
 }

@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1493760,
+    "name": null,
+    "cutoffTime": "2026-08-17T18:00:00Z",
+    "expireAt": null,
+    "openDatetime": "2026-08-18T03:00:00Z",
+    "closeDatetime": "2026-08-18T05:00:00Z",
+    "price": "39 kr",
+    "isFull": false,
+    "isUnavailable": false,
+    "unavailableDescription": null,
+    "isSelected": false
+  },
+  {
+    "id": 1493856,
+    "name": null,
+    "cutoffTime": "2026-08-17T18:00:00Z",
+    "expireAt": null,
+    "openDatetime": "2026-08-18T03:00:00Z",
+    "closeDatetime": "2026-08-18T07:00:00Z",
+    "price": "9 kr",
+    "isFull": false,
+    "isUnavailable": false,
+    "unavailableDescription": null,
+    "isSelected": false
+  },
+  {
+    "id": 1493862,
+    "name": null,
+    "cutoffTime": "2026-08-17T18:00:00Z",
+    "expireAt": null,
+    "openDatetime": "2026-08-18T04:00:00Z",
+    "closeDatetime": "2026-08-18T06:00:00Z",
+    "price": "39 kr",
+    "isFull": false,
+    "isUnavailable": false,
+    "unavailableDescription": null,
+    "isSelected": false
+  },
+  {
+    "id": 1493812,
+    "name": null,
+    "cutoffTime": "2026-08-17T18:00:00Z",
+    "expireAt": null,
+    "openDatetime": "2026-08-18T04:00:00Z",
+    "closeDatetime": "2026-08-18T09:00:00Z",
+    "price": "19 kr",
+    "isFull": false,
+    "isUnavailable": false,
+    "unavailableDescription": null,
+    "isSelected": false
+  },
+  {
+    "id": 1493096,
+    "name": null,
+    "cutoffTime": "2026-08-17T18:00:00Z",
+    "expireAt": null,
+    "openDatetime": "2026-08-18T05:00:00Z",
+    "closeDatetime": "2026-08-18T07:00:00Z",
+    "price": "59 kr",
+    "isFull": false,
+    "isUnavailable": false,
+    "unavailableDescription": null,
+    "isSelected": false
+  },
+  {
+    "id": 1493870,
+    "name": null,
+    "cutoffTime": "2026-08-17T18:00:00Z",
+    "expireAt": null,
+    "openDatetime": "2026-08-18T06:00:00Z",
+    "closeDatetime": "2026-08-18T08:00:00Z",
+    "price": "79 kr",
+    "isFull": false,
+    "isUnavailable": false,
+    "unavailableDescription": null,
+    "isSelected": false
+  }
+]

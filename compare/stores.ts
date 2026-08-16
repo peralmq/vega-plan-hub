@@ -4,6 +4,7 @@
 // 2026-08-15/16 (docs/research/store-integration-landscape.md). Each
 // adapter degrades to an error string instead of throwing so one broken
 // store never sinks the whole comparison.
+import { validateCoopWindows } from "@/lib/feeTotals";
 import {
   extractAxfood,
   extractCoop,
@@ -112,7 +113,10 @@ export async function coopTimeWindows(
     `https://external.api.coop.se/ecommerce/coop/users/anonymous/postcode/${encodeURIComponent(zip)}/timewindows?api-version=v1&numOfDays=${days}&availableDate=${fromDate}`,
     { "ocp-apim-subscription-key": COOP_PUBLIC_KEY, "user-agent": BROWSER_UA },
   )) as { listOfTimeWindowListWsDTO?: { timeWindowListWsDTO?: CoopTimeWindow[] }[] };
-  return (raw.listOfTimeWindowListWsDTO ?? []).flatMap((d) => d.timeWindowListWsDTO ?? []);
+  const windows = (raw.listOfTimeWindowListWsDTO ?? []).flatMap((d) => d.timeWindowListWsDTO ?? []);
+  // Drift check (p5-03): fail with the moved field, never a silent 0-kr fee.
+  validateCoopWindows(windows);
+  return windows;
 }
 
 export const searchIca = (term: string, accountId = ICA_DEFAULT_STORE.accountId): Promise<SearchResult> =>

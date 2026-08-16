@@ -12,6 +12,14 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
 ```
 
 - List file: JSON array of search terms or `{name}` objects.
+- Ranking is fee-aware (p5-03): stores are ordered on **basket +
+  cheapest eligible slot fee** where fees are known (Mathem/Coop/
+  Willys/Hemköp per-slot; the header shows both numbers), on basket
+  alone where a store hides fees until checkout (ICA — flagged
+  "fees unknown"), and last when no slot matches the day/window.
+  Slot responses are shape-validated on every call
+  (`src/lib/feeTotals.ts`) so an API move fails loudly, never as a
+  silent 0-kr fee.
 - Matching/assembly logic: `src/lib/storeCompare.ts` (fixture-tested in
   `./harness check`); this directory is network I/O + output only.
 - `⚠ weak` = the store's top hit didn't fully cover the term (e.g.

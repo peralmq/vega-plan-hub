@@ -15,6 +15,16 @@
 import { readFileSync } from "node:fs";
 
 import {
+  axfoodFeeSlot,
+  coopFeeSlot,
+  mathemFeeSlot,
+  rankByComparable,
+  slotFees,
+  unknownFees,
+  validateMathemSlots,
+  type DeliveryFees,
+} from "@/lib/feeTotals";
+import {
   buildComparison,
   cartPlan,
   extractMathemMcp,
@@ -46,10 +56,19 @@ import {
 } from "./stores";
 
 type DeliveryStatus =
-  | { kind: "eligible"; detail: string }
-  | { kind: "not-deliverable"; detail: string }
-  | { kind: "needs-auth"; detail: string }
-  | { kind: "unknown"; detail: string };
+  | { kind: "eligible"; detail: string; fees?: DeliveryFees }
+  | { kind: "not-deliverable"; detail: string; fees?: DeliveryFees }
+  | { kind: "needs-auth"; detail: string; fees?: DeliveryFees }
+  | { kind: "unknown"; detail: string; fees?: DeliveryFees };
+
+/** Fees for ranking: handlers attach them where computable; otherwise the
+ * status itself says why they are unknown (needs-auth, no --day, ICA's
+ * at-checkout fees) or that no eligible slot exists. */
+function feesOf(delivery: DeliveryStatus): DeliveryFees {
+  if (delivery.fees) return delivery.fees;
+  if (delivery.kind === "not-deliverable") return { kind: "none" };
+  return unknownFees(delivery.detail);
+}
 
 interface StoreReport {
   comparison: StoreComparison | null;
@@ -126,7 +145,9 @@ async function mathemDelivery(day: string | null, window: string | null): Promis
   if (!day) return { kind: "eligible", detail: "authenticated — pass --day YYYY-MM-DD to fetch slots" };
   try {
     const days = await getDeliverySlots([day]);
-    const open = (days[0]?.slots ?? []).filter((s) => !s.isFull && !s.isUnavailable);
+    const allSlots = days[0]?.slots ?? [];
+    validateMathemSlots(allSlots);
+    const open = allSlots.filter((s) => !s.isFull && !s.isUnavailable);
     const inWindow = open.filter((s) => slotInWindow(s, window));
     if (inWindow.length > 0) {
       const shown = inWindow
@@ -136,6 +157,7 @@ async function mathemDelivery(day: string | null, window: string | null): Promis
       return {
         kind: "eligible",
         detail: `${inWindow.length} slot(s) on ${day}${window ? ` in ${window}` : ""}: ${shown}${inWindow.length > 4 ? ", …" : ""}`,
+        fees: slotFees(inWindow.map(mathemFeeSlot)),
       };
     }
     return {
@@ -200,6 +222,7 @@ async function axfoodDelivery(
       return {
         kind: "eligible",
         detail: `${matching.length} slot(s) on ${day}${window ? ` in ${window}` : ""}: ${shown}${matching.length > 4 ? ", …" : ""}`,
+        fees: slotFees(matching.map(axfoodFeeSlot)),
       };
     }
     return {
@@ -241,6 +264,7 @@ async function coopDelivery(
       return {
         kind: "eligible",
         detail: `${matching.length} slot(s) on ${day}${window ? ` in ${window}` : ""}: ${shown}${matching.length > 4 ? ", …" : ""}`,
+        fees: slotFees(matching.map(coopFeeSlot)),
       };
     }
     return {
@@ -279,6 +303,8 @@ async function deliveryForStore(
           ? {
               kind: "eligible",
               detail: `${ICA_DEFAULT_STORE.name} home-delivers to ${zip}; slot times shown at checkout`,
+              // No ICA login tier (p5-01 gate): fees stay honestly unknown.
+              fees: unknownFees("ICA fees shown at checkout"),
             }
           : {
               kind: "not-deliverable",
@@ -377,21 +403,46 @@ function printCartFill({ plan, cart }: CartFillResult): void {
   );
 }
 
+const rankedStores = (reports: Record<string, StoreReport>) =>
+  rankByComparable(
+    Object.entries(reports)
+      .filter(([, r]) => r.comparison !== null)
+      .map(([store, r]) => ({ store, basket: r.comparison!.total, fees: feesOf(r.delivery) })),
+  );
+
+/** Header money line: both numbers, per the p5-01 gate — the basket and
+ * what taking the cheapest eligible slot actually costs. */
+function moneyLine(basket: number, fees: DeliveryFees, comparable: number | null): string {
+  switch (fees.kind) {
+    case "slots": {
+      const split =
+        fees.cheapest.picking != null ? ` varav plock ${fees.cheapest.picking}` : "";
+      return `basket ${fmtKr(basket)} · with delivery ${fmtKr(comparable!)} (cheapest slot ${fees.cheapest.total} kr${split})`;
+    }
+    case "none":
+      return `basket ${fmtKr(basket)} · no eligible slot`;
+    case "unknown":
+      return `basket ${fmtKr(basket)} + delivery fees unknown (${fees.reason})`;
+  }
+}
+
 function printHuman(reports: Record<string, StoreReport>, terms: string[], day?: string, window?: string) {
   console.log(`\n🛒 Store comparison — ${terms.length} items`);
   if (day || window) {
     console.log(`🚚 Wanted delivery: ${day ?? "any day"}${window ? ` around ${window}` : ""}`);
   }
-  const ranked = Object.entries(reports)
-    .filter(([, r]) => r.comparison !== null)
-    .sort((a, b) => a[1].comparison!.total - b[1].comparison!.total);
-  for (const [store, report] of ranked) {
+  console.log("💰 Ranked on basket + cheapest eligible slot fee where fees are known");
+  const ranked = rankedStores(reports);
+  for (const { store, basket, fees, comparable } of ranked) {
+    const report = reports[store];
     const c = report.comparison!;
     const flags = [
       c.weak ? `${c.weak} weak match${c.weak > 1 ? "es" : ""} — review` : null,
       c.unmatched.length ? `missing: ${c.unmatched.join(", ")}` : null,
     ].filter(Boolean);
-    console.log(`\n${store.toUpperCase()} — ${fmtKr(c.total)} (${c.matched}/${terms.length} matched)`);
+    console.log(
+      `\n${store.toUpperCase()} — ${moneyLine(basket, fees, comparable)} (${c.matched}/${terms.length} matched)`,
+    );
     for (const item of c.items) {
       const mark = item.product === null ? "✗" : item.quality === "weak" ? "⚠" : "✓";
       const line = item.product
@@ -472,7 +523,14 @@ async function main() {
   if (args.json) {
     console.log(
       JSON.stringify(
-        { terms, day: args.day ?? null, window: args.window ?? null, reports, cartFill },
+        {
+          terms,
+          day: args.day ?? null,
+          window: args.window ?? null,
+          ranking: rankedStores(reports),
+          reports,
+          cartFill,
+        },
         null,
         2,
       ),

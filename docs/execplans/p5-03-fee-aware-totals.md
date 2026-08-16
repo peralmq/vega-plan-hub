@@ -2,7 +2,7 @@
 id: p5-03-fee-aware-totals
 title: Fee-aware totals — comparable basket+fees ranking across stores
 phase: P5
-status: todo
+status: done
 depends_on: [p5-01-store-comparison-spike]
 ---
 
@@ -46,18 +46,23 @@ comparable total.
 
 ## Progress
 
-- [ ] Fee model design: per-store fee components, slot-specific
-      totals, unknown-fee representation (ICA)
-- [ ] Pure logic + fixtures: comparable-total computation in
-      `./harness check` (per-slot fixture data from p5-01 evidence)
-- [ ] CLI surfacing: "basket" and "basket + slot" columns; ranking
-      switched to comparable total; ICA marked unknown
-- [ ] Adapter-drift check (self-improvement rule, from p5-01 §5):
-      a deterministic check that fails loudly when a store response
-      no longer matches the committed shape (Axfood moved endpoints
-      March→August once already)
-- [ ] Live evidence: household list where fee-aware ranking differs
-      from item-sum ranking
+- [x] Fee model design: per-store fee components, slot-specific
+      totals, unknown-fee representation (ICA) —
+      `src/lib/feeTotals.ts` (FeeSlot / DeliveryFees:
+      slots|unknown|none, rankByComparable)
+- [x] Pure logic + fixtures: comparable-total computation in
+      `./harness check` (17 vitest cases over real slot captures in
+      `src/lib/__fixtures__/store-slots/`, 2026-08-16, zip 11251)
+- [x] CLI surfacing: header shows both numbers ("basket X · with
+      delivery Y (cheapest slot Z varav plock W)"); ranking on
+      comparable total; ICA "fees unknown (checkout)"; JSON output
+      gains a `ranking` array
+- [x] Adapter-drift check: validate* shape validators run on every
+      live slot response (compare/axfood.ts, stores.ts, cli.ts
+      Mathem path) and against committed fixtures in the gate;
+      failure names the moved field
+- [x] Live evidence: ranking flip recorded (Mathem 4th→1st among
+      fee-known stores; see Evidence)
 
 ## Steps
 
@@ -84,4 +89,45 @@ comparable total.
 
 ## Evidence
 
-(none yet)
+**2026-08-16 (implemented in one pass, test-first):**
+
+- Fixtures captured live (read-only): Axfood
+  `v1/slot/homeDelivery` via household logins (willys 79 slots,
+  hemkop 90 — kept 6 each), Coop anonymous timewindows (76 kept 6),
+  Mathem MCP `get_delivery_slots` for 2026-08-18 (19 kept 6) →
+  `src/lib/__fixtures__/store-slots/*.json`. Scanned for
+  credential material: clean.
+- Red→green: `npx vitest run src/lib/feeTotals.test.ts` failed
+  (module absent), then `17 passed (17)` — parseSek's three store
+  spellings ("39 kr", "89:-", "158,00 kr"), Axfood delivery+picking
+  split summing to total, intra-Axfood Hemköp<Willys fee gap, drift
+  validators accepting all fixtures and naming mutated/re-typed
+  fields, ranking flip and no-slot-ranks-last.
+- `./harness check` → OK end to end (lint 0 errors / 9
+  grandfathered warnings untouched, npm test incl. the new 17,
+  build, tsc bot+compare, 21 plans, 30 recipes).
+- **Live ranking flip** (`npm run compare -- --list
+  fixtures/compare-list.json --zip 11251 --day 2026-08-18
+  --window 17-20`):
+
+  ```
+  💰 Ranked on basket + cheapest eligible slot fee where fees are known
+  ICA — basket 57,15 kr + delivery fees unknown (ICA fees shown at checkout)
+  MATHEM — basket 76,07 kr · with delivery 85,07 kr (cheapest slot 9 kr)
+  COOP — basket 68,65 kr · with delivery 127,65 kr (cheapest slot 59 kr)
+  WILLYS — basket 69,10 kr · with delivery 227,10 kr (cheapest slot 158 kr varav plock 59)
+  HEMKOP — basket 102,95 kr · with delivery 230,95 kr (cheapest slot 128 kr varav plock 49)
+  ```
+
+  Item-sum order was ICA·Coop·Willys·Mathem·Hemköp — Mathem's 9 kr
+  slot beats Coop and Willys despite the dearest fee-known basket;
+  Willys' 2nd-cheapest basket drops to 4th under its 158 kr slot
+  fee. Exactly the wrong-store pick the p5-01 gate flagged, now
+  visible and corrected in the output.
+- Bag/packing fees beyond the slot fee: none surfaced anywhere in
+  the slot responses (Axfood's split is delivery+picking, summing
+  to total; Coop/Mathem publish flat window prices). If a store
+  later adds one, it lands in FeeSlot alongside delivery/picking.
+- Mathem slot-price variance note (p5-01) honored by design: fees
+  come from the same response as the run's slots — nothing cached
+  across runs, totals are slot-specific.
