@@ -231,3 +231,34 @@ credentials):**
 - `./harness check` OK. Plan complete: ICA login live, ICA
   favorites + Mathem/Willys history seeding live, Hemköp
   activates with its first orders.
+
+**2026-08-16 (post-close addendum: ICA slot contract fully mapped,
+blocked only on the WAF's JS challenge):**
+
+- Background chunk-mining (static `/static/index-*.js`, one 2MB
+  download, all analysis offline) extracted the complete contract:
+  - `GET /stores/{id}/api/ecomdeliverydestinations/v4/
+    delivery-addresses?deliveryMethod=HOME_DELIVERY` →
+    **live-verified 200**: the household destination with
+    `deliveryDestinationId` + `resolvedRegionId` (note: not
+    `regionId`).
+  - `POST /stores/{id}/api/ecomslots/v2/slots` body
+    `{deliveryDestinationId, regionId, shippingGroupType:
+    "HOME_DELIVERY", numberOfDays}`; also
+    `POST /v1/slots/next-available-slot` `{deliveryDestinationId}`.
+    `GET /api/customersessions/v2/sessions/active` (200) shows the
+    session already carries the destination.
+  - Reservation/confirm endpoints exist in the same service —
+    **never to be called** (cart-ready 🚫-never).
+- Blocker, precisely characterized: authenticated **GETs pass** the
+  WAF (favorites, delivery-addresses), but the slots **POST is
+  challenged** (202 + x-amzn-waf-action: challenge) consistently,
+  including after multi-minute cool-downs — token-gated on the
+  WAF's JS challenge (`awswaf.com jsapi.js` on the page), which we
+  do not bypass (tech.spec polite-client rule).
+- Sanctioned path if the household wants ICA slot times: the
+  existing ICA_COOKIE escape hatch — a browser-copied cookie header
+  (which includes the human-obtained aws-waf-token) would carry the
+  POST; wiring is then ~an hour against the contract above (fees
+  via the p5-03 model, fixture + validator). Until then ICA stays
+  eligibility-by-zip + times-at-checkout, unchanged.
