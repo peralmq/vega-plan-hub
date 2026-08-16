@@ -9,6 +9,12 @@ the same change set (reversible only by Pelle at a future gate):
 2. **ICA login tier** — ✅ default taken: **anonymous search-only**;
    ICA slot times/fees stay "check at checkout", favorites/list-push
    not pursued.
+   **Amended same day (Pelle in chat, 2026-08-16):** login tier
+   **adopted** after all — plus purchase-history seeding for the
+   stores where the household has history (ICA favorites/
+   "Återkommande", Willys via the Axfood login). Filed as
+   p5-04-ica-login-history-seeds; tech.spec updated in the same
+   change set. Anonymous search stays the fallback.
 3. **Follow-up scope** — ✅ p5-03-fee-aware-totals filed as proposed
    (§4, plus the adapter-drift check from §5); p5-02 store-rotation
    re-pointed to depend on it.

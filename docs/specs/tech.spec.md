@@ -118,8 +118,14 @@ Grocery-store integrations are **outbound calls from the adopted M1
 household host only** — never from the web app, never from edge
 functions. Chains in scope: Mathem (official MCP, OAuth), Willys +
 Hemköp (authenticated Axfood REST), Coop (anonymous API), ICA
-(anonymous per-store search; **no login tier** — p5-01 gate decision
-2026-08-16, revisit only at a future gate). Contract points:
+(anonymous per-store search + **household login tier** — adopted by
+Pelle 2026-08-16 in chat, reversing the same-day gate default; the
+anonymous search leg stays the fallback whenever credentials are
+absent). **Purchase-history seeding** is in scope per store: the
+household's commonly-bought products (Mathem likely_to_buy, ICA
+favorites/"Återkommande", Axfood purchase history) may be read to
+pin real staples in the comparison — read-only, same credential
+rules. Contract points:
 
 - **Cart-ready, never checkout**: integrations may search, read
   delivery slots, and fill carts for human review in the store's own
