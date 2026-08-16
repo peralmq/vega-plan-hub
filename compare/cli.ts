@@ -14,10 +14,13 @@
 // as needs-auth / check-at-checkout.
 import { readFileSync } from "node:fs";
 
-import { buildComparison, type StoreComparison } from "@/lib/storeCompare";
+import { buildComparison, type StoreComparison, type StoreProduct } from "@/lib/storeCompare";
+import { cached } from "./cache";
+import { getDeliverySlots, hasMathemAuth, type MathemSlot } from "./mathem-mcp";
 import {
   ICA_DEFAULT_STORE,
   icaStoresForZip,
+  pacedDelay,
   searchHemkop,
   searchIca,
   searchMathem,
@@ -69,13 +72,68 @@ function readList(path: string): string[] {
   );
 }
 
-async function deliveryForStore(store: string, zip: string | null): Promise<DeliveryStatus> {
+/** Format a UTC ISO instant as local Stockholm HH:MM. */
+const localTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+const localHour = (iso: string) =>
+  Number(
+    new Date(iso).toLocaleTimeString("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", hour12: false }),
+  );
+
+function slotInWindow(slot: MathemSlot, window: string | null): boolean {
+  if (!window) return true;
+  const m = window.match(/^(\d{1,2})-(\d{1,2})$/);
+  if (!m) return true;
+  const [from, to] = [Number(m[1]), Number(m[2])];
+  // Overlap test: the slot's local delivery window intersects [from, to).
+  return localHour(slot.openDatetime) < to && localHour(slot.closeDatetime) > from;
+}
+
+async function mathemDelivery(day: string | null, window: string | null): Promise<DeliveryStatus> {
+  if (!hasMathemAuth()) {
+    return { kind: "needs-auth", detail: "run `npm run mathem-auth` to enable Mathem slot checks" };
+  }
+  if (!day) return { kind: "eligible", detail: "authenticated — pass --day YYYY-MM-DD to fetch slots" };
+  try {
+    const days = await getDeliverySlots([day]);
+    const open = (days[0]?.slots ?? []).filter((s) => !s.isFull && !s.isUnavailable);
+    const inWindow = open.filter((s) => slotInWindow(s, window));
+    if (inWindow.length > 0) {
+      const shown = inWindow
+        .slice(0, 4)
+        .map((s) => `${localTime(s.openDatetime)}–${localTime(s.closeDatetime)} (${s.price})`)
+        .join(", ");
+      return {
+        kind: "eligible",
+        detail: `${inWindow.length} slot(s) on ${day}${window ? ` in ${window}` : ""}: ${shown}${inWindow.length > 4 ? ", …" : ""}`,
+      };
+    }
+    return {
+      kind: "not-deliverable",
+      detail:
+        open.length > 0
+          ? `no slots in ${window ?? "window"} on ${day}, but ${open.length} at other times that day`
+          : `no open slots on ${day}`,
+    };
+  } catch (e) {
+    return { kind: "unknown", detail: `Mathem slot lookup failed: ${e instanceof Error ? e.message : e}` };
+  }
+}
+
+async function deliveryForStore(
+  store: string,
+  zip: string | null,
+  day: string | null,
+  window: string | null,
+): Promise<DeliveryStatus> {
   switch (store) {
     case "mathem":
-      return {
-        kind: "needs-auth",
-        detail: "slots via official Mathem MCP once OAuth is approved (p5-01 step 1)",
-      };
+      return mathemDelivery(day, window);
     case "willys":
     case "hemkop":
       return {
@@ -105,24 +163,32 @@ async function deliveryForStore(store: string, zip: string | null): Promise<Deli
   }
 }
 
-async function runStore(store: string, terms: string[], zip: string | null): Promise<StoreReport> {
+async function runStore(
+  store: string,
+  terms: string[],
+  zip: string | null,
+  day: string | null,
+  window: string | null,
+): Promise<StoreReport> {
   const search = SEARCHERS[store];
   const productsByTerm: Record<string, never[]> = {};
   const errors: string[] = [];
   for (const term of terms) {
-    const result = await search(term);
-    if (result.ok) {
-      productsByTerm[term] = result.products as never[];
-    } else {
-      productsByTerm[term] = [];
+    // 12h cache first — the fewer live requests, the less bot-shaped we
+    // look to ICA's WAF (and the politer we are everywhere else).
+    const { value, hit } = await cached<StoreProduct[]>(`${store}:${term}`, async () => {
+      const result = await search(term);
+      if (result.ok) return result.products;
       errors.push(`"${term}": ${result.error}`);
-    }
-    await new Promise((r) => setTimeout(r, 250)); // polite pacing, per Mathem robots policy
+      return null;
+    });
+    productsByTerm[term] = (value ?? []) as never[];
+    if (!hit) await pacedDelay(store);
   }
   // Every term erroring means the store is unreachable, not an empty catalog.
   const comparison =
     errors.length === terms.length ? null : buildComparison(store, terms, productsByTerm);
-  return { comparison, errors, delivery: await deliveryForStore(store, zip) };
+  return { comparison, errors, delivery: await deliveryForStore(store, zip, day, window) };
 }
 
 const fmtKr = (n: number) => `${n.toFixed(2).replace(".", ",")} kr`;
@@ -179,11 +245,13 @@ async function main() {
     process.exit(1);
   }
   const zip = typeof args.zip === "string" ? args.zip : null;
+  const day = typeof args.day === "string" ? args.day : null;
+  const window = typeof args.window === "string" ? args.window : null;
 
   const reports: Record<string, StoreReport> = {};
   await Promise.all(
     stores.map(async (store) => {
-      reports[store] = await runStore(store, terms, zip);
+      reports[store] = await runStore(store, terms, zip, day, window);
     }),
   );
 

@@ -28,3 +28,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# p5-01: store credentials/tokens live outside git (bot/.env pattern)
+compare/.mathem-oauth.json
+compare/.env
+compare/.cache/

@@ -78,7 +78,9 @@ on:
 
 ## Progress
 
-- [ ] Mathem MCP: client registered, OAuth complete, tools enumerated
+- [x] Mathem MCP: client registered (dynamic registration), OAuth
+      complete (Pelle approved 2026-08-16, refresh token stored),
+      21 tools enumerated; slots wired into the CLI delivery filter
 - [ ] Hellman CLIs working on the M1 against current sites (or ported;
       Willys/Hemköp search already native in `compare/`)
 - [x] ICA leg: default store = Maxi ICA Stormarknad Lindhagen
@@ -218,3 +220,40 @@ kicked in, eligibility line: "Maxi ICA Stormarknad Lindhagen
 home-delivers to 11251"), Mathem 64,52 kr (5/5), Willys 69,10 kr
 (5/5), Hemköp 102,95 kr (5/5, havremjöl trap correctly ⚠-flagged).
 Delivery lines report needs-auth honestly per store.
+
+**2026-08-16 (Mathem MCP live + ICA mitigations):**
+
+- **Official Mathem MCP fully working.** Dynamic client registration
+  at `/o/register/` accepted a loopback public client; PKCE
+  authorization-code flow via `npm run mathem-auth` (60-min loopback
+  listener; tokens in gitignored `compare/.mathem-oauth.json`, mode
+  600, refresh token present, inline auto-refresh in
+  `compare/mathem-mcp.ts`). **21 tools**: product_search (multi-query),
+  recipe_search, category/brand browse, **likely_to_buy** (returned
+  50 real household staples with prices — exactly the
+  favorites-seeding source Pelle asked for), unique_for_you,
+  similar_and_related_products, get_cart / **manipulate_cart**,
+  get_orders / get_order / order_tracking, get_delivery_addresses
+  (household's Årsta address, id 8415637),
+  **get_delivery_slots(delivery_dates)** / select_delivery_slot,
+  product/dinner lists, liked/purchased recipes, feedback. Server
+  instructions state "Checkout and payment happen in the shop, not
+  through MCP" — the cart-ready principle is theirs too.
+- **The day-X/time-Y filter is live for Mathem**: CLI run with
+  `--day 2026-08-18 --window 17-20` → "6 slot(s) … 14:00–19:00
+  (19 kr), 16:00–18:00 (49 kr), 17:00–19:00 (49 kr), 17:00–22:00
+  (9 kr), …" (UTC→Europe/Stockholm conversion, overlap semantics,
+  full/unavailable slots excluded).
+- **ICA WAF mitigations** (Pelle asked for options): analysis —
+  fingerprint+rate detection, not plain rate limiting (node fetch
+  challenged immediately, curl/browser passed until rate rose).
+  Implemented: 12h file cache (`compare/.cache/`) so repeat runs make
+  ~zero ICA requests; ~2s jittered ICA pacing (others 250ms); one
+  15s-backoff retry on challenge. Explicitly NOT solving the WAF
+  challenge programmatically (bot-detection bypass — out of bounds);
+  `ICA_COOKIE` from the household's own browser stays the manual
+  fallback. Structural fix when the household opts into the ICA
+  login tier: the app gateway (`apimgw-pub.ica.se`, ica-mcp/ica-cli
+  pattern) — no WAF, and unlocks "Återkommande" seeding. Result:
+  full 4-store run now matches 5/5 on ICA (57,15 kr — cheapest
+  basket), zero challenges surfaced.

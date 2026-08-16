@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "bot": "tsx bot/consumer.ts",
-    "compare": "tsx compare/cli.ts"
+    "compare": "tsx compare/cli.ts",
+    "mathem-auth": "tsx compare/mathem-oauth.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

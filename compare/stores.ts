@@ -64,14 +64,46 @@ export const searchHemkop = searchAxfood("www.hemkop.se");
 
 export const searchIca = (term: string, accountId = ICA_DEFAULT_STORE.accountId): Promise<SearchResult> =>
   attempt(async () => {
-    const headers: Record<string, string> = { "user-agent": BROWSER_UA };
-    if (process.env.ICA_COOKIE) headers.cookie = process.env.ICA_COOKIE;
-    const raw = (await getJson(
-      `https://handlaprivatkund.ica.se/stores/${accountId}/api/webproductpagews/v6/product-pages/search?maxPageSize=20&maxProductsToDecorate=10&q=${encodeURIComponent(term)}&tag=web`,
-      headers,
-    )) as { productGroups?: { decoratedProducts?: never[] }[] };
-    return extractIca((raw.productGroups ?? []).flatMap((g) => g.decoratedProducts ?? []));
+    const fetchOnce = async () => {
+      const headers: Record<string, string> = { "user-agent": BROWSER_UA };
+      if (process.env.ICA_COOKIE) headers.cookie = process.env.ICA_COOKIE;
+      const raw = (await getJson(
+        `https://handlaprivatkund.ica.se/stores/${accountId}/api/webproductpagews/v6/product-pages/search?maxPageSize=20&maxProductsToDecorate=10&q=${encodeURIComponent(term)}&tag=web`,
+        headers,
+      )) as { productGroups?: { decoratedProducts?: never[] }[] };
+      return extractIca((raw.productGroups ?? []).flatMap((g) => g.decoratedProducts ?? []));
+    };
+    try {
+      return await fetchOnce();
+    } catch (e) {
+      // One patient retry on a WAF challenge: back off well clear of the
+      // rate window, then try again. We never attempt to solve the
+      // challenge itself — if the retry is challenged too, we report it.
+      if (e instanceof Error && e.message.startsWith("bot-challenge")) {
+        await new Promise((r) => setTimeout(r, 15_000));
+        return await fetchOnce();
+      }
+      throw e;
+    }
   });
+
+/**
+ * Per-store inter-request pacing (ms, jittered ±30%). ICA's AWS WAF is
+ * fingerprint+rate based — pacing far below human speed keeps the request
+ * pattern polite; the rest tolerate a light touch. Mathem's robots policy
+ * asks for backoff, which the shared 250 ms + jitter respects at our
+ * request volumes.
+ */
+export const STORE_PACING_MS: Record<string, number> = {
+  ica: 2000,
+  default: 250,
+};
+
+export const pacedDelay = (store: string): Promise<void> => {
+  const base = STORE_PACING_MS[store] ?? STORE_PACING_MS.default;
+  const jitter = base * 0.3 * (Math.random() * 2 - 1);
+  return new Promise((r) => setTimeout(r, Math.max(0, Math.round(base + jitter))));
+};
 
 export interface IcaStore {
   id: string;
