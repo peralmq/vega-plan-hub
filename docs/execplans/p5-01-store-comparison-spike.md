@@ -111,7 +111,11 @@ on:
       known (Mathem items vs cart-total-incl-fees; Coop/Axfood slot
       fees on the delivery line); full fee normalization proposed as
       implementation-plan scope in the gate brief
-- [ ] Gate brief incl. tech.spec boundary proposal
+- [~] Gate brief incl. tech.spec boundary proposal: **drafted**
+      2026-08-16 (docs/research/p5-store-comparison-gate-brief.md)
+      — awaiting Pelle's gate decisions (spec wording, ICA login
+      tier, p5-03 fee-totals scope); plan closes when the gate
+      passes
 
 ## Steps
 
@@ -463,3 +467,18 @@ Delivery lines report needs-auth honestly per store.
   (Hemköp havremjöl trap still correctly flagged).
 - This was the last credential-gated tier; remaining plan work is
   the gate brief.
+
+**2026-08-16 (gate brief drafted — spike evidence-complete):**
+
+- docs/research/p5-store-comparison-gate-brief.md drafted in the
+  P4 gate-brief format: five-store live evidence table, proposed
+  tech.spec "Store integrations" section (M1-outbound-only,
+  cart-ready-never-checkout as 🚫-never, mode-600 credential
+  pattern, polite-client rules), and proposed p5-03 fee-aware
+  totals scope (with p5-02 rotation re-pointed to depend on it,
+  since rotation ranks stores on total cost).
+- Three decisions queued for Pelle: adopt/adjust the spec wording ·
+  ICA login tier opt-in vs anonymous default · p5-03 filing +
+  ordering vs p5-02.
+- Spec untouched until the gate passes (spec changes are human
+  decisions); plan stays in-progress pending those decisions.
