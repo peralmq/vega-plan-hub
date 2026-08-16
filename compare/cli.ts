@@ -90,20 +90,20 @@ function readList(path: string): string[] {
   );
 }
 
-/** Format a UTC ISO instant as local Stockholm HH:MM. */
-const localTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString("sv-SE", {
+/** Format a UTC instant (ISO string or epoch ms) as local Stockholm HH:MM. */
+const localTime = (t: string | number) =>
+  new Date(t).toLocaleTimeString("sv-SE", {
     timeZone: "Europe/Stockholm",
     hour: "2-digit",
     minute: "2-digit",
   });
 
-const localHour = (iso: string) =>
+const localHour = (t: string | number) =>
   Number(
-    new Date(iso).toLocaleTimeString("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", hour12: false }),
+    new Date(t).toLocaleTimeString("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", hour12: false }),
   );
 
-function inWindow(openIso: string, closeIso: string, window: string | null): boolean {
+function inWindow(openIso: string | number, closeIso: string | number, window: string | null): boolean {
   if (!window) return true;
   const m = window.match(/^(\d{1,2})-(\d{1,2})$/);
   if (!m) return true;
@@ -115,9 +115,9 @@ function inWindow(openIso: string, closeIso: string, window: string | null): boo
 const slotInWindow = (slot: MathemSlot, window: string | null): boolean =>
   inWindow(slot.openDatetime, slot.closeDatetime, window);
 
-/** Local Stockholm calendar date (YYYY-MM-DD) of a UTC ISO instant. */
-const localDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" });
+/** Local Stockholm calendar date (YYYY-MM-DD) of a UTC instant. */
+const localDate = (t: string | number): string =>
+  new Date(t).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" });
 
 async function mathemDelivery(day: string | null, window: string | null): Promise<DeliveryStatus> {
   if (!hasMathemAuth()) {
@@ -150,33 +150,13 @@ async function mathemDelivery(day: string | null, window: string | null): Promis
   }
 }
 
-/** Local hour of a slot boundary that may be ISO or plain "HH:MM". */
-const slotHour = (time: string): number | null => {
-  const parsed = new Date(time);
-  if (!Number.isNaN(parsed.getTime())) return localHour(time);
-  const m = time.match(/^(\d{1,2}):\d{2}/);
-  return m ? Number(m[1]) : null;
-};
-
-const axfoodSlotTime = (time: string): string => {
-  const parsed = new Date(time);
-  return Number.isNaN(parsed.getTime()) ? time : localTime(time);
-};
-
-function axfoodSlotInWindow(slot: AxfoodSlot, window: string | null): boolean {
-  if (!window) return true;
-  const m = window.match(/^(\d{1,2})-(\d{1,2})$/);
-  if (!m) return true;
-  const [from, to] = [Number(m[1]), Number(m[2])];
-  const start = slotHour(slot.startTime);
-  const end = slotHour(slot.endTime);
-  if (start === null || end === null) return true; // unknown format — keep, human reviews
-  return start < to && end > from;
-}
+const axfoodSlotInWindow = (slot: AxfoodSlot, window: string | null): boolean =>
+  inWindow(slot.startTime, slot.endTime, window);
 
 /** Willys/Hemköp slot tier: same Axfood platform, credentials per chain
  * from compare/.env ({PREFIX}_USERNAME / {PREFIX}_PASSWORD). Read-only —
- * login + slot listing; booking stays with the human. */
+ * login + slot listing; booking stays with the human. Slot fees are
+ * per-slot (totalCost = delivery + picking), shown with each slot. */
 async function axfoodDelivery(
   host: string,
   envPrefix: string,
@@ -196,22 +176,26 @@ async function axfoodDelivery(
   try {
     const session = new AxfoodSession(`https://${host}`);
     await session.login(username, password);
-    const days = await session.deliverySlots(zip);
-    if (days.length === 0) {
-      return { kind: "not-deliverable", detail: `no home-delivery days for ${zip}` };
+    const slots = await session.deliverySlots(zip);
+    if (slots.length === 0) {
+      return { kind: "not-deliverable", detail: `no home-delivery slots for ${zip}` };
     }
     if (!day) {
-      return { kind: "eligible", detail: `${days.length} delivery day(s) for ${zip} — pass --day to filter slots` };
+      const days = new Set(slots.map((s) => localDate(s.startTime))).size;
+      return {
+        kind: "eligible",
+        detail: `${days} delivery day(s) for ${zip} — pass --day YYYY-MM-DD to filter slots`,
+      };
     }
-    const forDay = days.find((d) => d.date?.startsWith(day));
-    const open = (forDay?.slots ?? []).filter(
-      (s) => s.available !== false && !s.fullyBooked && !s.limitReached,
-    );
+    const open = slots.filter((s) => s.available && localDate(s.startTime) === day);
     const matching = open.filter((s) => axfoodSlotInWindow(s, window));
     if (matching.length > 0) {
       const shown = matching
         .slice(0, 4)
-        .map((s) => `${axfoodSlotTime(s.startTime)}–${axfoodSlotTime(s.endTime)} (${s.totalCost})`)
+        .map(
+          (s) =>
+            `${localTime(s.startTime)}–${localTime(s.endTime)} (${s.totalCost.value} kr${s.pickingCost?.value ? ` varav plock ${s.pickingCost.value}` : ""})`,
+        )
         .join(", ");
       return {
         kind: "eligible",

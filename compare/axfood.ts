@@ -26,23 +26,18 @@ function encryptCredential(plaintext: string): EncryptedCredential {
   return { key, str: Buffer.from(combined).toString("base64") };
 }
 
+/** Slot shape of the current API (v1, live-verified 2026-08-16):
+ * epoch-milli times, and the fee split Pelle described — totalCost =
+ * deliveryCost + pickingCost, varying per slot. */
 export interface AxfoodSlot {
-  slotId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  formattedTime: string;
-  totalCost: string;
-  totalCostValue: number;
+  code: string;
+  startTime: number;
+  endTime: number;
   available: boolean;
-  fullyBooked: boolean;
-  limitReached: boolean;
-}
-
-export interface AxfoodDeliveryDay {
-  date: string;
-  formattedDate: string;
-  slots: AxfoodSlot[];
+  formattedTime: string;
+  totalCost: { value: number; formattedValue: string };
+  deliveryCost?: { value: number } | null;
+  pickingCost?: { value: number } | null;
 }
 
 export class AxfoodSession {
@@ -99,13 +94,16 @@ export class AxfoodSession {
     await this.refreshCsrf();
   }
 
-  /** Home-delivery slot days for a postal code (requires login). */
-  async deliverySlots(postalCode: string): Promise<AxfoodDeliveryDay[]> {
+  /** Home-delivery slots for a postal code (requires login). The old
+   * community-documented `tms/delivery-slots` 404s since the Next.js
+   * rewrite; the live path is `v1/slot/homeDelivery` (from the site's
+   * own JS bundles). */
+  async deliverySlots(postalCode: string): Promise<AxfoodSlot[]> {
     const res = await this.request(
-      `/axfood/rest/tms/delivery-slots?postalCode=${encodeURIComponent(postalCode)}`,
+      `/axfood/rest/v1/slot/homeDelivery?postalCode=${encodeURIComponent(postalCode)}`,
     );
-    if (!res.ok) throw new Error(`delivery-slots HTTP ${res.status}`);
-    const json = (await res.json()) as { deliveryDays?: AxfoodDeliveryDay[] };
-    return json.deliveryDays ?? [];
+    if (!res.ok) throw new Error(`slot/homeDelivery HTTP ${res.status}`);
+    const json = (await res.json()) as { slots?: AxfoodSlot[] };
+    return json.slots ?? [];
   }
 }

@@ -88,10 +88,11 @@ on:
 - [x] ICA leg: default store = Maxi ICA Stormarknad Lindhagen
       (account 1003418, Pelle 2026-08-16); anonymous v6 search + WAF
       behavior mapped; auth tier still open (list push vs search-only)
-- [~] `delivery_check`: slot-time filter live for **Mathem** (MCP) and
-      **Coop** (anonymous postcode/timewindows); ICA
-      store-eligibility-by-zip live (anonymous, times at checkout);
-      Willys/Hemköp slot times still need store logins
+- [~] `delivery_check`: slot-time filter live for **Mathem** (MCP),
+      **Coop** (anonymous postcode/timewindows) and **Willys**
+      (household login via compare/.env); Hemköp same code path,
+      credentials pending; ICA store-eligibility-by-zip live
+      (anonymous, times at checkout, login tier = Pelle's decision)
 - [x] Comparison CLI (`compare/`, `npm run compare`) with fixture
       suite in `./harness check` (tsc compare + 13 vitest cases)
 - [x] Mathem cart-fill (`--fill-cart mathem`): matched basket pushed
@@ -414,3 +415,26 @@ Delivery lines report needs-auth honestly per store.
   on Coop/Axfood delivery lines); full per-store fee normalization
   (delivery + bags + packing into a comparable basket total) goes to
   the gate brief as implementation-plan scope.
+
+**2026-08-16 (Willys slots LIVE with household account):**
+
+- Pelle filled WILLYS_USERNAME/WILLYS_PASSWORD into compare/.env
+  (existing account). Login worked first try (customer profile 200)
+  but the March-era `tms/delivery-slots` endpoint 404s — willys.se
+  is a Next.js app now and the REST surface moved to
+  `/axfood/rest/v1/*`. Mined the site's chunks for the current
+  path: **`GET /axfood/rest/v1/slot/homeDelivery?postalCode=`** →
+  `{slots[], startDate, endDate, …}`, slot = `{code, startTime/
+  endTime (epoch ms), available, formattedTime, totalCost,
+  deliveryCost, pickingCost}`. Adapter updated
+  (`compare/axfood.ts`); willys-mcp's old response types discarded.
+- **The per-slot fee split confirms Pelle's fee point in data**:
+  Willys totalCost 158 kr = deliveryCost 99 + pickingCost 59 per
+  slot, while Mathem slots are 9–49 kr (fees mostly in item prices)
+  and Coop windows 59–89 kr. CLI shows "158 kr varav plock 59".
+- Live: `--stores willys --day 2026-08-18 --window 17-20` →
+  "eligible: 5 slot(s) … 16:00–18:00 (158 kr varav plock 59),
+  17:00–19:00, 17:00–22:00, 18:00–20:00, …". Full five-store run:
+  four stores now show real slot times in the window; Hemköp says
+  exactly which env keys it waits for; ICA points at checkout.
+- Read-only stance held: no select-slot, no cart writes on Axfood.
