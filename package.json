@@ -12,7 +12,8 @@
     "test": "vitest run",
     "bot": "tsx bot/consumer.ts",
     "compare": "tsx compare/cli.ts",
-    "mathem-auth": "tsx compare/mathem-oauth.ts"
+    "mathem-auth": "tsx compare/mathem-oauth.ts",
+    "ica-probe": "tsx compare/ica-probe.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

@@ -42,6 +42,16 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   `ICA_COOKIE` (copy the cookie header from a browser visit to
   handlaprivatkund.ica.se). Store delivery eligibility per postal
   code is checked anonymously via handla.ica.se.
+- **Seeds** (★ staple): household staples pin fully-covering matches —
+  Mathem via likely_to_buy (MCP), Willys/Hemköp via order history
+  (p5-04; the last 5 orders' lines, most-frequently-bought first,
+  priced from today's search when available). Weak seeds never pin.
+- **ICA login tier** (p5-04): fill `ICA_PERSONNUMMER` +
+  `ICA_PASSWORD` in `compare/.env`, then run `npm run ica-probe` to
+  verify the login (ims.icagruppen.se "Lösenord" authenticator; a
+  BankID-only account must first set a password at ica.se) and map
+  the favorites/"Återkommande"/slot endpoints for the next
+  iteration. Anonymous search stays the fallback without keys.
 - Mathem: `npm run mathem-auth` runs the one-time OAuth (PKCE,
   loopback callback) against the **official Mathem MCP**; tokens in
   `compare/.mathem-oauth.json` (gitignored, mode 600, auto-refresh).

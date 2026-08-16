@@ -63,20 +63,32 @@ defaults, tech.spec amended in the same change set):
 
 ## Progress
 
-- [ ] Axfood history seeds: endpoint mined, adapter + extraction,
-      wired into the comparison for willys/hemkop with drift
-      validation and fixture tests
-- [ ] ICA login flow reverse-engineered and implemented (or the
-      honest blocker recorded: exact flow, where it stops, and the
-      fallback)
+- [x] Axfood history seeds: `account/orders` + `orderdata?q=` mined
+      live (both current on the v1 surface), orderHistory() on the
+      session, commonProductsFromOrders + validateAxfoodOrders in
+      storeCompare (scrubbed 3-order fixture), wired for
+      willys/hemkop, ★ staples live-verified on the household's
+      real repeat buys
+- [x] ICA login flow reverse-engineered and implemented
+      (`compare/ica-auth.ts`): shop login route → OAuth authorize
+      (client OcadoB2C) → Curity IdP — BankID default, but the
+      "Lösenord" authenticator (`/authn/authenticate/IcaCustomers`)
+      takes `userName` (personnummer) + `password` as a form POST;
+      per-host cookie jars carry the resumed session back to
+      handlaprivatkund. Full chain smoke-tested with a nonexistent
+      personnummer (fails exactly at credential check)
 - [ ] ICA seeds: favorites/"Återkommande" mapped into StoreProduct
-      seeds behind the login
-- [ ] ICA slot tier: ecomslots v2 retried with a session; fees wired
-      via the p5-03 model, or "times at checkout" kept honestly
-- [ ] Fixtures + `./harness check` green; README/env skeleton
-      updated
+      seeds behind the login — `npm run ica-probe` maps the
+      endpoints once credentials exist
+- [ ] ICA slot tier: ecomslots v2 retried with a session (same
+      probe); fees wired via the p5-03 model, or "times at
+      checkout" kept honestly
+- [x] Fixtures + `./harness check` green; README/env skeleton
+      updated (ICA_PERSONNUMMER/ICA_PASSWORD appended empty)
 - [ ] Live evidence with household ICA credentials (human step:
-      Pelle fills the ICA keys in compare/.env)
+      **Pelle fills the ICA keys in compare/.env and we run
+      `npm run ica-probe`**; a BankID-only account needs a password
+      set at ica.se first)
 
 ## Steps
 
@@ -111,4 +123,37 @@ defaults, tech.spec amended in the same change set):
 
 ## Evidence
 
-(running log below)
+**2026-08-16 (Axfood history seeds live; ICA login built, awaiting
+credentials):**
+
+- Willys endpoint probe (logged in, read-only): the March-era
+  community endpoints partly survive — `account/orders` (also at
+  `v1/`) and `orderdata?q={orderNumber}` both 200; every
+  `mostpurchased`-style guess 404s; the CMS "minavanligastevaror"
+  page exists but order lines are the richer source. Household
+  account has 6 real orders.
+- Order lines are AxfoodRawProduct supersets → existing
+  `extractAxfood` applies. Real-data finding: delisted lines carry
+  `priceValue: null` (including Willys' own paper bag as an order
+  line) — validator accepts number|null, seed builder skips
+  unpriced lines.
+- Seed correctness fix that fell out of review: a pinned seed now
+  takes today's search-result price when the same product code is
+  in the results (order-history prices are stale by definition);
+  regression test added.
+- `npx vitest run src/lib/storeCompare.test.ts` → 24 passed. Live:
+  `--stores willys` on [spenat, tofu naturell, gul lök] →
+  "✓ spenat: Spenat Klass 1 — 19,90 kr ★ staple · ✓ tofu naturell:
+  Tofu Naturell Ekologisk Vegansk — 27,90 kr ★ staple" — the
+  household's actual repeat buys, at current prices. Hemköp rides
+  the same code path (fresh account, no history yet — degrades to
+  no seeds).
+- ICA login flow walked anonymously and mapped (see Progress);
+  implemented in `compare/ica-auth.ts` with per-host cookie jars.
+  Full-chain smoke with a nonexistent personnummer reaches the
+  credential check and fails with our message — every hop before
+  it verified. `npm run ica-probe` stands ready to (1) verify a
+  real login and (2) print the favorites/regulars/slot endpoint
+  map (statuses + keys only, no bodies/personal data).
+- `./harness check` OK before each commit. Commits: 2502984 (gate
+  amendment + plan), 91c5ec7 (Axfood seeds), this one (ICA login).
