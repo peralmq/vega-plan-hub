@@ -133,3 +133,17 @@ export const manipulateCart = (
 ): Promise<MathemCart> => mcpToolCall<MathemCart>("manipulate_cart", { operations });
 
 export const getCart = (): Promise<MathemCart> => mcpToolCall<MathemCart>("get_cart", {});
+
+/** Product shape shared by likely_to_buy and cart lines. */
+export interface MathemMcpProduct {
+  id: number;
+  name: string;
+  price: string;
+  unitPrice?: string | null;
+  unitName?: string | null;
+  brand?: string | null;
+}
+
+/** The household's ~50 staples by purchase history — the matching seed. */
+export const likelyToBuy = (): Promise<MathemMcpProduct[]> =>
+  mcpToolCall<MathemMcpProduct[]>("likely_to_buy", {});

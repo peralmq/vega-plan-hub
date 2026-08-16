@@ -32,8 +32,12 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   again) and prints the cart URL for review. Weak matches go in
   flagged; unmatched terms are listed as manual. The printed cart
   total includes Mathem's fees on top of the item sum. Checkout, slot
-  booking and payment always stay with the human. likely_to_buy
-  seeding is next (p5-01).
+  booking and payment always stay with the human. With auth the
+  matcher is also seeded from `likely_to_buy` (the household's ~50
+  staples): a staple that fully covers a term pins over search
+  relevance (shown as `★ staple`); weak staple matches never pin —
+  the household buying chocolate oat drink must not hijack a
+  "havremjölk" list entry.
 - Willys/Hemköp slot times need store logins (p5-01 step 2); their
   delivery line reports honestly what it can't know.
 - Coop: pending household account (Hellman's coop-cli is the reference).

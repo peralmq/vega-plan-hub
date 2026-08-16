@@ -14,12 +14,19 @@
 // as needs-auth / check-at-checkout.
 import { readFileSync } from "node:fs";
 
-import { buildComparison, cartPlan, type StoreComparison, type StoreProduct } from "@/lib/storeCompare";
+import {
+  buildComparison,
+  cartPlan,
+  extractMathemMcp,
+  type StoreComparison,
+  type StoreProduct,
+} from "@/lib/storeCompare";
 import { cached } from "./cache";
 import {
   cartItemsTotal,
   getDeliverySlots,
   hasMathemAuth,
+  likelyToBuy,
   manipulateCart,
   type MathemSlot,
 } from "./mathem-mcp";
@@ -179,6 +186,21 @@ async function runStore(
   const search = SEARCHERS[store];
   const productsByTerm: Record<string, never[]> = {};
   const errors: string[] = [];
+  // Household-staple seeds (Mathem only for now): what the household
+  // actually buys pins fully-covering matches over search relevance.
+  let seeds: StoreProduct[] = [];
+  let seedError: string | null = null;
+  if (store === "mathem" && hasMathemAuth()) {
+    const { value } = await cached<StoreProduct[]>("mathem:likely_to_buy", async () => {
+      try {
+        return extractMathemMcp(await likelyToBuy());
+      } catch (e) {
+        seedError = `likely_to_buy seeds unavailable: ${e instanceof Error ? e.message : e}`;
+        return null;
+      }
+    });
+    seeds = value ?? [];
+  }
   for (const term of terms) {
     // 12h cache first — the fewer live requests, the less bot-shaped we
     // look to ICA's WAF (and the politer we are everywhere else).
@@ -193,7 +215,8 @@ async function runStore(
   }
   // Every term erroring means the store is unreachable, not an empty catalog.
   const comparison =
-    errors.length === terms.length ? null : buildComparison(store, terms, productsByTerm);
+    errors.length === terms.length ? null : buildComparison(store, terms, productsByTerm, seeds);
+  if (seedError) errors.push(seedError);
   return { comparison, errors, delivery: await deliveryForStore(store, zip, day, window) };
 }
 
@@ -255,7 +278,7 @@ function printHuman(reports: Record<string, StoreReport>, terms: string[], day?:
     for (const item of c.items) {
       const mark = item.product === null ? "✗" : item.quality === "weak" ? "⚠" : "✓";
       const line = item.product
-        ? `${item.product.name} — ${fmtKr(item.product.price)}${item.alternatives ? ` (+${item.alternatives} alternatives)` : ""}`
+        ? `${item.product.name} — ${fmtKr(item.product.price)}${item.seeded ? " ★ staple" : ""}${item.alternatives ? ` (+${item.alternatives} alternatives)` : ""}`
         : "no match";
       console.log(`  ${mark} ${item.term}: ${line}`);
     }

@@ -10,12 +10,14 @@ import {
   extractAxfood,
   extractIca,
   extractMathem,
+  extractMathemMcp,
   matchQuality,
   pickBest,
   type StoreProduct,
 } from "./storeCompare";
 import hemkopFixture from "./__fixtures__/store-search/hemkop.json";
 import icaFixture from "./__fixtures__/store-search/ica.json";
+import likelyFixture from "./__fixtures__/mathem-likely-to-buy.json";
 import mathemFixture from "./__fixtures__/store-search/mathem.json";
 import willysFixture from "./__fixtures__/store-search/willys.json";
 
@@ -94,6 +96,46 @@ describe("pickBest on real fixtures", () => {
       { id: "2", name: "Kikärtor 500g", brand: null, price: 9, comparePrice: null, compareUnit: null, available: true },
     ];
     expect(pickBest("kikärtor", products).product!.id).toBe("2");
+  });
+});
+
+describe("seeding from household staples (likely_to_buy)", () => {
+  // Trimmed real likely_to_buy capture, 2026-08-16: the household's
+  // actual staples, incl. "Lök Gul Påse" and "Oatly Havredryck Choklad".
+  const seeds = extractMathemMcp(likelyFixture as never[]);
+
+  it("maps the MCP product shape (flat strings, numeric ids)", () => {
+    expect(seeds.length).toBeGreaterThanOrEqual(5);
+    expect(seeds.every((s) => /^\d+$/.test(s.id))).toBe(true);
+    expect(seeds.every((s) => Number.isFinite(s.price) && s.price > 0)).toBe(true);
+    expect(seeds.every((s) => s.available)).toBe(true);
+  });
+
+  it("pins a fully-covering staple over search relevance", () => {
+    const products = extractMathem(mathemFixture["gul lök"] as never[]);
+    const match = pickBest("gul lök", products, seeds);
+    // Search's top hit is the single onion (3,95); the household buys the bag.
+    expect(match.product!.name).toBe("Lök Gul Påse Klass1 Sverige");
+    expect(match.seeded).toBe(true);
+    expect(match.quality).toBe("good");
+  });
+
+  it("never pins a weak seed — chocolate oat milk must not hijack havremjölk", () => {
+    // The household really buys "Oatly Havredryck Choklad 1,5%", but it only
+    // weakly matches "havremjölk"; store relevance must win instead.
+    const products = extractMathem(mathemFixture["havremjölk"] as never[]);
+    const match = pickBest("havremjölk", products, seeds);
+    expect(match.seeded).toBe(false);
+    expect(match.product!.name).not.toMatch(/choklad/i);
+    expect(match.quality).toBe("weak");
+  });
+
+  it("threads seeds through buildComparison and leaves unrelated terms alone", () => {
+    const byTerm = extractAll(mathemFixture as FixtureMap, extractMathem);
+    const cmp = buildComparison("mathem", TERMS, byTerm, seeds);
+    const seededTerms = cmp.items.filter((i) => i.seeded).map((i) => i.term);
+    expect(seededTerms).toEqual(["gul lök"]);
+    expect(cmp.matched).toBe(TERMS.length);
   });
 });
 

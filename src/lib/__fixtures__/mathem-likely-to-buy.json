@@ -1,0 +1,68 @@
+[
+  {
+    "id": 63122,
+    "name": "Daily Greens Bananklase EKO Klass1 Ecuador",
+    "description": "Ecuador, 1200 g",
+    "price": "20.00",
+    "unitPrice": "16.67",
+    "unitName": "kilogram",
+    "brand": "Daily Greens",
+    "brandId": 1578,
+    "url": "https://www.mathem.se/se/products/63122-daily-greens-bananklase-eko-klass1/"
+  },
+  {
+    "id": 4672,
+    "name": "Gurka Svensk Klass1 Sverige",
+    "description": "Max 10 per kund, Sverige, 270 g",
+    "price": "18.95",
+    "unitPrice": "70.19",
+    "unitName": "kilogram",
+    "brand": null,
+    "brandId": null,
+    "url": "https://www.mathem.se/se/products/4672-gurka-svensk-klass1/"
+  },
+  {
+    "id": 4978,
+    "name": "Garant Eko Havregryn EKO/KRAV",
+    "description": "750 g",
+    "price": "15.95",
+    "unitPrice": "21.27",
+    "unitName": "kilogram",
+    "brand": "Garant Eko",
+    "brandId": 141,
+    "url": "https://www.mathem.se/se/products/4978-garant-eko-havregryn-eko-krav/"
+  },
+  {
+    "id": 3471,
+    "name": "Oatly Havredryck Choklad 1,5%",
+    "description": "250 g",
+    "price": "8.47",
+    "unitPrice": "33.88",
+    "unitName": "liter",
+    "brand": "Oatly",
+    "brandId": 346,
+    "url": "https://www.mathem.se/se/products/3471-oatly-havredryck-choklad-15/"
+  },
+  {
+    "id": 5531,
+    "name": "Lök Gul Påse Klass1 Sverige",
+    "description": "Sverige, 1000 g",
+    "price": "15.50",
+    "unitPrice": "15.50",
+    "unitName": "kilogram",
+    "brand": null,
+    "brandId": null,
+    "url": "https://www.mathem.se/se/products/5531-lok-gul-pase-klass1/"
+  },
+  {
+    "id": 8323,
+    "name": "Oatly iMat 13%",
+    "description": "1 l",
+    "price": "34.97",
+    "unitPrice": "34.97",
+    "unitName": "liter",
+    "brand": "Oatly",
+    "brandId": 346,
+    "url": "https://www.mathem.se/se/products/8323-oatly-imat-13/"
+  }
+]

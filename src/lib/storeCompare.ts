@@ -24,6 +24,9 @@ export interface ItemMatch {
   term: string;
   product: StoreProduct | null;
   quality: MatchQuality;
+  /** True when the product was pinned from the household's staples
+   * (likely_to_buy-style seed) instead of search relevance. */
+  seeded: boolean;
   /** Other candidate products the term surfaced (for a human to swap in). */
   alternatives: number;
 }
@@ -87,6 +90,30 @@ export function extractAxfood(products: AxfoodRawProduct[]): StoreProduct[] {
   }));
 }
 
+interface MathemMcpRawProduct {
+  id: number;
+  name: string;
+  price: string;
+  unitPrice?: string | null;
+  unitName?: string | null;
+  brand?: string | null;
+}
+
+/** Product shape the official Mathem MCP returns (likely_to_buy, cart
+ * lines) — flat strings, unlike the search API's full_name/gross_price. */
+export function extractMathemMcp(products: MathemMcpRawProduct[]): StoreProduct[] {
+  return products.map((p) => ({
+    id: String(p.id),
+    name: p.name,
+    brand: p.brand ?? null,
+    price: Number(p.price),
+    comparePrice: p.unitPrice != null ? Number(p.unitPrice) : null,
+    compareUnit: p.unitName ?? null,
+    // The MCP only surfaces purchasable products in these tools.
+    available: true,
+  }));
+}
+
 interface IcaRawProduct {
   productId: string;
   retailerProductId?: string;
@@ -145,9 +172,32 @@ export function matchQuality(term: string, productName: string): MatchQuality {
  * covers the term (stores legally rename e.g. "havremjölk" → "Havredryck")
  * we trust the store's top relevance hit but flag it "weak" so a human
  * reviews it. Product is null only when the store returned nothing usable.
+ *
+ * Seeds are the household's actual staples (Mathem likely_to_buy, later
+ * ICA "Återkommande", …) in store-native product form. A seed pins the
+ * match ONLY when it fully covers the term ("good") — what the household
+ * really buys beats search relevance then. Weak seed matches never pin:
+ * the household buying "Oatly Havredryck Choklad" must not turn a
+ * "havremjölk" list entry into chocolate oat milk.
  */
-export function pickBest(term: string, products: StoreProduct[]): ItemMatch {
+export function pickBest(
+  term: string,
+  products: StoreProduct[],
+  seeds: StoreProduct[] = [],
+): ItemMatch {
   const available = products.filter((p) => p.available);
+  const seedPin = seeds.find(
+    (s) => s.available && matchQuality(term, s.name) === "good",
+  );
+  if (seedPin) {
+    return {
+      term,
+      product: seedPin,
+      quality: "good",
+      seeded: true,
+      alternatives: available.filter((p) => p.id !== seedPin.id).length,
+    };
+  }
   const scored = available.map((product) => ({
     product,
     quality: matchQuality(term, product.name),
@@ -162,6 +212,7 @@ export function pickBest(term: string, products: StoreProduct[]): ItemMatch {
     term,
     product: chosen?.product ?? null,
     quality: chosen?.quality ?? "none",
+    seeded: false,
     alternatives: Math.max(0, available.length - 1),
   };
 }
@@ -213,8 +264,9 @@ export function buildComparison(
   store: string,
   terms: string[],
   productsByTerm: Record<string, StoreProduct[]>,
+  seeds: StoreProduct[] = [],
 ): StoreComparison {
-  const items = terms.map((term) => pickBest(term, productsByTerm[term] ?? []));
+  const items = terms.map((term) => pickBest(term, productsByTerm[term] ?? [], seeds));
   const matchedItems = items.filter((i) => i.product !== null);
   return {
     store,

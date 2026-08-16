@@ -93,11 +93,12 @@ on:
 - [x] Mathem cart-fill (`--fill-cart mathem`): matched basket pushed
       via manipulate_cart, cart URL printed for human review —
       cart-ready only, checkout stays in the shop
-- [ ] Favorites/commonly-bought seeding (Pelle 2026-08-16): Mathem
-      favorites via MCP once OAuth lands; ICA "Dina favoriter" /
-      "Återkommande" (`/stores/{id}/favorites`, `/regulars`) once the
-      household logs in — seed the ingredient→product mapping from
-      what the household actually buys
+- [~] Favorites/commonly-bought seeding (Pelle 2026-08-16): **Mathem
+      done** — likely_to_buy seeds pin fully-covering staples in the
+      matcher (`★ staple` in output; weak staples never pin). ICA
+      "Dina favoriter" / "Återkommande" waits on the login tier; the
+      seed layer is store-agnostic (same `pickBest(term, products,
+      seeds)` for any store's staples list)
 - [ ] Gate brief incl. tech.spec boundary proposal
 
 ## Steps
@@ -291,3 +292,30 @@ Delivery lines report needs-auth honestly per store.
   compare/README.md).
 - The 5-item evidence cart is left in place for Pelle to review at
   mathem.se (verification step "cart visible in the store's UI").
+
+**2026-08-16 (likely_to_buy seeding live):**
+
+- `likely_to_buy` returns the household's 50 actual staples in the
+  same flat product shape as cart lines (id/name/price/unitPrice/
+  brand/url) — new `extractMathemMcp` extractor; trimmed 6-item real
+  capture committed as `src/lib/__fixtures__/mathem-likely-to-buy.json`.
+- **Seed rule (the design decision): a staple pins the match only
+  when it fully covers the term ("good"); weak staple matches never
+  pin.** The household's own data provided the counterexample that
+  set the rule: they really buy "Oatly Havredryck Choklad 1,5%",
+  which would otherwise turn a "havremjölk" list entry into
+  chocolate oat milk. Pinned in tests (17 vitest cases now).
+- Live effect (`--stores mathem`): "gul lök" now resolves to
+  "Lök Gul Påse Klass1 Sverige — 15,50 kr ★ staple" (the bag the
+  household buys) instead of search's single onion at 3,95 kr;
+  havremjölk unchanged (iKaffe via relevance, still ⚠). Seeds are
+  12h-cached like searches; seed-fetch failure degrades to unseeded
+  matching with a warning, never sinks the store.
+- **Cross-store seed design**: seeds are store-native product lists
+  from each store's own "what I usually buy" surface (Mathem
+  likely_to_buy now; ICA "Återkommande"/favorites after the login
+  tier; Axfood equivalents after accounts). Every store flows
+  through the same pure `pickBest(term, products, seeds)` — no
+  cross-store product-id mapping needed since seeding happens
+  per-store after search. This is the wording proposed for the gate
+  brief.
