@@ -2,7 +2,7 @@
 id: p5-04-ica-login-history-seeds
 title: ICA login tier + purchase-history seeding (ICA favorites, Axfood history)
 phase: P5
-status: in-progress
+status: done
 depends_on: [p5-03-fee-aware-totals]
 ---
 
@@ -82,20 +82,24 @@ defaults, tech.spec amended in the same change set):
       GETs `/stores/{id}/sso-login/auth?iss=&code=&state=` for the
       cookie-setting code exchange; login() verifies the session by
       confirming /favorites no longer bounces to /login
-- [~] ICA seeds: favorites live behind the login —
+- [x] ICA seeds: favorites **live with ★ pins** —
       `GET /stores/{id}/api/webproductpagews/v6/product-pages/
-      favorites?maxPageSize=100` returns the standard v6
-      productGroups envelope (extractIca applies unchanged); wired
-      as ica seeds in the CLI with WAF-challenge detection (202 +
-      x-amzn-waf-action → one patient 15s retry, never solved).
-      "Återkommande"/orders API paths answered 404 to all guesses —
-      favorites (the household's own curated list) is the seed
-      source. Live ★ evidence pending a cool WAF window (probe-time
-      fetch returned 200 with real products; the CLI run minutes
-      later was rate-challenged from this session's many logins)
-- [ ] ICA slot tier: ecomslots v2 retried with a session (same
-      probe); fees wired via the p5-03 model, or "times at
-      checkout" kept honestly
+      favorites?maxPageSize=100&maxProductsToDecorate=100&tag=web`
+      (maxProductsToDecorate is load-bearing: without it the
+      envelope carries only bare otherProductIds); standard v6
+      productGroups envelope, extractIca unchanged; WAF-challenge
+      detection (202/x-amzn-waf-action → one patient 15s retry,
+      never solved). "Återkommande"/orders API paths 404 to all
+      guesses — favorites (the household's own curated list) is
+      the seed source, 100 products decorated
+- [x] ICA slot tier — step 4's else-branch taken, recorded
+      honestly: with the session, `/stores/{id}/delivery` now
+      renders (448KB SPA page, previously login-bounced) so slots
+      are human-reachable, but the JSON contract still wants a
+      deliveryDestinationId (`next-available-slot` 400s) and no
+      destination API answers under guessable paths — extracting it
+      means mining the SPA chunks, deferred; the comparison keeps
+      "eligibility by zip, times at checkout" for ICA
 - [x] Mathem history seeds (Pelle 2026-08-16: "Mathem also has
       purchase history"): get_orders embeds full product objects per
       order — commonProductsFromMathemOrders + validateMathemOrders,
@@ -105,10 +109,8 @@ defaults, tech.spec amended in the same change set):
       surviving likely_to_buy pin (Lök Gul Påse)
 - [x] Fixtures + `./harness check` green; README/env skeleton
       updated (ICA_PERSONNUMMER/ICA_PASSWORD appended empty)
-- [ ] Live evidence with household ICA credentials (human step:
-      **Pelle fills the ICA keys in compare/.env and we run
-      `npm run ica-probe`**; a BankID-only account needs a password
-      set at ica.se first)
+- [x] Live evidence with household ICA credentials (Pelle filled
+      the keys 2026-08-16) — see Evidence
 
 ## Steps
 
@@ -196,3 +198,36 @@ credentials):**
 - ICA: Pelle defers filling the keys ("I'll fix the Ica login
   later") — the remaining Progress items stay open on that human
   step; everything code-side is ready (`npm run ica-probe`).
+
+**2026-08-16 (ICA live — login, favorites seeds, plan done):**
+
+- Pelle filled the keys. First real submission exposed two
+  browser-only steps the smoke test couldn't see: the Curity
+  "Redirecting…" auto-submit form (hidden token/state → OAuth
+  resume) and the shop's /sso-login page whose JS GETs
+  `/stores/{id}/sso-login/auth?iss=&code=&state=` for the
+  cookie-setting code exchange. Both replayed server-side in
+  login(); session verified by /favorites no longer bouncing.
+- Session persistence added (compare/.ica-session.json, mode 600,
+  gitignored): ensure() reuses cookies and only re-runs the
+  ~8-request login chain when stale — the politest posture toward
+  ICA's rate-based WAF, which this session's repeated login rounds
+  did trip (202 + x-amzn-waf-action on favorites twice; clean
+  after a cool-down, and production cadence is one fetch/12h).
+- Favorites: empty until `maxProductsToDecorate=100` was added
+  (load-bearing param, same as search) — then 100 decorated
+  products. Live ★ pins from "Dina favoriter": "Gul lök 1kg
+  Klass 1 ICA" (favorite 1kg beat search's 500g and cut the basket
+  57,15→55,66), "Kikärtor 380g ICA", "Bladspenat Fryst Ekologisk
+  450g ICA I love eco", "Tofu naturell Ekologisk 400g KRAV YiPin".
+- **Emergent resilience**: on the staple-list run the WAF
+  challenged the two live searches, yet both terms still matched
+  ★ from seeds alone — favorites keep ICA usable during
+  challenges (empty search + good seed → seedPin, 0 alternatives).
+- Cache subtlety fixed in passing: cached() stores any non-null
+  value, so the pre-fix empty favorites array was cached; entry
+  invalidated manually, real result now cached 12h.
+- Slot tier closed on step 4's else-branch (see Progress).
+- `./harness check` OK. Plan complete: ICA login live, ICA
+  favorites + Mathem/Willys history seeding live, Hemköp
+  activates with its first orders.

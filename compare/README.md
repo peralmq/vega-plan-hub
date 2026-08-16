@@ -47,12 +47,16 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   (history first), Willys/Hemköp via order history (p5-04; last ~5
   orders' lines, most-frequently-bought first, priced from today's
   search when available). Weak seeds never pin.
-- **ICA login tier** (p5-04): fill `ICA_PERSONNUMMER` +
-  `ICA_PASSWORD` in `compare/.env`, then run `npm run ica-probe` to
-  verify the login (ims.icagruppen.se "Lösenord" authenticator; a
-  BankID-only account must first set a password at ica.se) and map
-  the favorites/"Återkommande"/slot endpoints for the next
-  iteration. Anonymous search stays the fallback without keys.
+- **ICA login tier** (p5-04, live): `ICA_PERSONNUMMER` +
+  `ICA_PASSWORD` in `compare/.env` (ims.icagruppen.se "Lösenord"
+  authenticator; a BankID-only account must first set a password at
+  ica.se). The session persists in `compare/.ica-session.json`
+  (mode 600, gitignored) so runs reuse cookies instead of
+  re-logging in. With auth, "Dina favoriter" seeds ★ staples for
+  ICA — and keeps terms matching even when the WAF challenges a
+  live search. Anonymous search stays the fallback without keys;
+  ICA slot times remain at checkout (`npm run ica-probe` re-checks
+  the endpoint map).
 - Mathem: `npm run mathem-auth` runs the one-time OAuth (PKCE,
   loopback callback) against the **official Mathem MCP**; tokens in
   `compare/.mathem-oauth.json` (gitignored, mode 600, auto-refresh).

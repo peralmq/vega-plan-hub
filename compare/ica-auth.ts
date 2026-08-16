@@ -177,8 +177,10 @@ export class IcaSession {
    * Read-only seed source (p5-04). */
   async favorites(): Promise<unknown[]> {
     const fetchOnce = async (): Promise<unknown[]> => {
+      // maxProductsToDecorate is load-bearing: without it the envelope
+      // returns bare otherProductIds and zero decorated products.
       const res = await this.request(
-        `/stores/${this.accountId}/api/webproductpagews/v6/product-pages/favorites?maxPageSize=100`,
+        `/stores/${this.accountId}/api/webproductpagews/v6/product-pages/favorites?maxPageSize=100&maxProductsToDecorate=100&tag=web`,
       );
       // The WAF answers 202 + empty body when challenging — that's ok:false
       // territory for us even though fetch calls it ok.
