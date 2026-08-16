@@ -43,9 +43,10 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   handlaprivatkund.ica.se). Store delivery eligibility per postal
   code is checked anonymously via handla.ica.se.
 - **Seeds** (★ staple): household staples pin fully-covering matches —
-  Mathem via likely_to_buy (MCP), Willys/Hemköp via order history
-  (p5-04; the last 5 orders' lines, most-frequently-bought first,
-  priced from today's search when available). Weak seeds never pin.
+  Mathem via order history (get_orders) merged with likely_to_buy
+  (history first), Willys/Hemköp via order history (p5-04; last ~5
+  orders' lines, most-frequently-bought first, priced from today's
+  search when available). Weak seeds never pin.
 - **ICA login tier** (p5-04): fill `ICA_PERSONNUMMER` +
   `ICA_PASSWORD` in `compare/.env`, then run `npm run ica-probe` to
   verify the login (ims.icagruppen.se "Lösenord" authenticator; a

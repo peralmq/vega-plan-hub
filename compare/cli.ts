@@ -31,9 +31,12 @@ import {
 import {
   buildComparison,
   cartPlan,
+  commonProductsFromMathemOrders,
   commonProductsFromOrders,
   extractAxfood,
   extractMathemMcp,
+  mergeSeeds,
+  validateMathemOrders,
   type StoreComparison,
   type StoreProduct,
 } from "@/lib/storeCompare";
@@ -51,6 +54,7 @@ import { loadCompareEnv } from "./env";
 import {
   cartItemsTotal,
   getDeliverySlots,
+  getOrders,
   hasMathemAuth,
   likelyToBuy,
   manipulateCart,
@@ -354,11 +358,17 @@ async function runStore(
   let seeds: StoreProduct[] = [];
   let seedError: string | null = null;
   if (store === "mathem" && hasMathemAuth()) {
-    const { value } = await cached<StoreProduct[]>("mathem:likely_to_buy", async () => {
+    const { value } = await cached<StoreProduct[]>("mathem:seeds", async () => {
       try {
-        return extractMathemMcp(await likelyToBuy());
+        // Real order history first, likely_to_buy prediction as backfill.
+        const { orders } = await getOrders();
+        validateMathemOrders(orders);
+        return mergeSeeds(
+          extractMathemMcp(commonProductsFromMathemOrders(orders)),
+          extractMathemMcp(await likelyToBuy()),
+        );
       } catch (e) {
-        seedError = `likely_to_buy seeds unavailable: ${e instanceof Error ? e.message : e}`;
+        seedError = `Mathem seeds unavailable: ${e instanceof Error ? e.message : e}`;
         return null;
       }
     });

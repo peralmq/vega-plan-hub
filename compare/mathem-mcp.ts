@@ -147,3 +147,8 @@ export interface MathemMcpProduct {
 /** The household's ~50 staples by purchase history — the matching seed. */
 export const likelyToBuy = (): Promise<MathemMcpProduct[]> =>
   mcpToolCall<MathemMcpProduct[]>("likely_to_buy", {});
+
+/** Recent orders with their lines (p5-04 history seeds). The tool embeds
+ * full product objects per order — one call covers the last ~10 orders. */
+export const getOrders = (): Promise<{ hasMore: boolean; orders: unknown[] }> =>
+  mcpToolCall<{ hasMore: boolean; orders: unknown[] }>("get_orders", {});

@@ -222,6 +222,51 @@ export function commonProductsFromOrders(orders: AxfoodOrder[]): AxfoodRawProduc
   return [...byCode.values()].sort((a, b) => b.count - a.count).map((e) => e.product);
 }
 
+// --- Mathem purchase-history seeds (p5-04) ---------------------------------
+
+/** One Mathem order's lines as the MCP get_orders tool returns them:
+ * the nested product is the standard MCP product shape. */
+export interface MathemOrder {
+  products: { product: MathemMcpRawProduct; quantity: number }[];
+}
+
+export function validateMathemOrders(orders: unknown): asserts orders is MathemOrder[] {
+  const moved = (field: string, hint: string): Error =>
+    new Error(
+      `Mathem get_orders shape moved (${field} ${hint}) — update compare/mathem-mcp.ts and recapture src/lib/__fixtures__/mathem-orders.json`,
+    );
+  if (!Array.isArray(orders)) throw moved("orders", "is not an array");
+  for (const order of orders) {
+    const products = (order as MathemOrder)?.products;
+    if (!Array.isArray(products)) throw moved("products", "missing or not an array");
+    for (const line of products) {
+      if (typeof line?.product?.id !== "number") throw moved("product.id", "missing or not a number");
+      if (typeof line?.product?.price !== "string") throw moved("product.price", "missing or not a string");
+    }
+  }
+}
+
+/** Commonly-bought Mathem products across orders: deduped by id,
+ * most-frequently-bought first (same ranking as the Axfood variant). */
+export function commonProductsFromMathemOrders(orders: MathemOrder[]): MathemMcpRawProduct[] {
+  const byId = new Map<number, { product: MathemMcpRawProduct; count: number }>();
+  for (const order of orders) {
+    for (const { product } of order.products) {
+      const entry = byId.get(product.id);
+      if (entry) entry.count += 1;
+      else byId.set(product.id, { product, count: 1 });
+    }
+  }
+  return [...byId.values()].sort((a, b) => b.count - a.count).map((e) => e.product);
+}
+
+/** Merge seed sources, primary first, deduped by product id — real
+ * purchase history outranks the store's likely_to_buy prediction. */
+export function mergeSeeds(primary: StoreProduct[], secondary: StoreProduct[]): StoreProduct[] {
+  const seen = new Set(primary.map((s) => s.id));
+  return [...primary, ...secondary.filter((s) => !seen.has(s.id))];
+}
+
 // --- matching ---------------------------------------------------------------
 
 // Fold to lowercase ASCII-ish so "lök"/"lok" and composed/decomposed forms

@@ -17,10 +17,14 @@ import {
   type StoreProduct,
 } from "./storeCompare";
 import {
+  commonProductsFromMathemOrders,
   commonProductsFromOrders,
+  mergeSeeds,
   validateAxfoodOrders,
+  validateMathemOrders,
 } from "./storeCompare";
 import axfoodOrders from "./__fixtures__/axfood-orders.json";
+import mathemOrders from "./__fixtures__/mathem-orders.json";
 import coopFixture from "./__fixtures__/store-search/coop.json";
 import hemkopFixture from "./__fixtures__/store-search/hemkop.json";
 import icaFixture from "./__fixtures__/store-search/ica.json";
@@ -213,6 +217,50 @@ describe("Axfood purchase-history seeds (p5-04)", () => {
     // The household buys "Ikaffe Barista Edition Havredryck" every order,
     // but it does not cover "havremjölk" — store relevance must win.
     expect(match.seeded).toBe(false);
+  });
+});
+
+describe("Mathem purchase-history seeds (p5-04)", () => {
+  // Real (scrubbed) Mathem get_orders capture, 3 orders, 2026-08-16.
+  it("accepts the committed fixture and names a moved field on drift", () => {
+    expect(() => validateMathemOrders(mathemOrders)).not.toThrow();
+    const mutated = structuredClone(mathemOrders) as {
+      products: { product: { price: unknown } }[];
+    }[];
+    mutated[0].products[0].product.price = 24.95; // string → number drift
+    expect(() => validateMathemOrders(mutated)).toThrow(/shape moved.*price/i);
+    expect(() => validateMathemOrders({ orders: [] })).toThrow(/shape moved/i);
+  });
+
+  it("dedupes by id and ranks the household's every-order staples first", () => {
+    const common = commonProductsFromMathemOrders(mathemOrders as never[]);
+    const ids = common.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    const tofu = common.findIndex((p) => p.name.startsWith("Yipin Tofu"));
+    expect(tofu).toBeGreaterThanOrEqual(0);
+    expect(tofu).toBeLessThan(15);
+  });
+
+  it("merges history with likely_to_buy, history first, deduped by id", () => {
+    const history = extractMathemMcp(commonProductsFromMathemOrders(mathemOrders as never[]));
+    const likely = extractMathemMcp(likelyFixture as never[]);
+    const merged = mergeSeeds(history, likely);
+    expect(merged.slice(0, history.length)).toEqual(history);
+    expect(new Set(merged.map((s) => s.id)).size).toBe(merged.length);
+    // Every likely_to_buy staple not already in history must survive.
+    for (const s of likely) {
+      expect(merged.some((m) => m.id === s.id)).toBe(true);
+    }
+  });
+
+  it("pins a real Mathem staple through the seed layer", () => {
+    const seeds = extractMathemMcp(commonProductsFromMathemOrders(mathemOrders as never[]));
+    const fromSearch: StoreProduct[] = [
+      { id: "999", name: "Tofu Marinerad", brand: null, price: 30, comparePrice: null, compareUnit: null, available: true },
+    ];
+    const match = pickBest("tofu naturell", fromSearch, seeds);
+    expect(match.seeded).toBe(true);
+    expect(match.product!.name).toMatch(/Tofu Naturell/);
   });
 });
 

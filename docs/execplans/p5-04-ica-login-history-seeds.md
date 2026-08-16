@@ -83,6 +83,13 @@ defaults, tech.spec amended in the same change set):
 - [ ] ICA slot tier: ecomslots v2 retried with a session (same
       probe); fees wired via the p5-03 model, or "times at
       checkout" kept honestly
+- [x] Mathem history seeds (Pelle 2026-08-16: "Mathem also has
+      purchase history"): get_orders embeds full product objects per
+      order — commonProductsFromMathemOrders + validateMathemOrders,
+      merged with likely_to_buy via mergeSeeds (history first,
+      deduped by id); scrubbed 3-order fixture; live ★ pins from
+      real history (Yipin Tofu, Garant Bladspenat) alongside a
+      surviving likely_to_buy pin (Lök Gul Påse)
 - [x] Fixtures + `./harness check` green; README/env skeleton
       updated (ICA_PERSONNUMMER/ICA_PASSWORD appended empty)
 - [ ] Live evidence with household ICA credentials (human step:
@@ -156,4 +163,23 @@ credentials):**
   real login and (2) print the favorites/regulars/slot endpoint
   map (statuses + keys only, no bodies/personal data).
 - `./harness check` OK before each commit. Commits: 2502984 (gate
-  amendment + plan), 91c5ec7 (Axfood seeds), this one (ICA login).
+  amendment + plan), 91c5ec7 (Axfood seeds), d6a1082 (ICA login).
+
+**2026-08-16 (Mathem history seeds; ICA keys deferred by Pelle):**
+
+- Pelle: "Mathem also has purchase history" — get_orders probed:
+  `{hasMore, orders[10]}`, each order embeds
+  `products[{product, quantity, totalGrossAmount}]` with the
+  standard MCP product shape → extractMathemMcp applies unchanged.
+  Scrubbed 3-order fixture (46+40+29 lines, product fields only).
+- Seeds for Mathem are now history-first: order-history staples
+  (frequency-ranked) merged with likely_to_buy backfill, deduped by
+  id (mergeSeeds). Cache key bumped mathem:likely_to_buy →
+  mathem:seeds. 28 storeCompare tests green.
+- Live: [spenat, tofu naturell, gul lök] at Mathem → all three ★:
+  "Garant Eko Bladspenat EKO Fryst" + "Yipin Tofu Naturell EKO"
+  from history, "Lök Gul Påse Klass1 Sverige" surviving from
+  likely_to_buy — merge works as designed.
+- ICA: Pelle defers filling the keys ("I'll fix the Ica login
+  later") — the remaining Progress items stay open on that human
+  step; everything code-side is ready (`npm run ica-probe`).

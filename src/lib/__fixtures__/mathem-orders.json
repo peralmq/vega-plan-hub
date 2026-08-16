@@ -1,0 +1,1279 @@
+[
+  {
+    "products": [
+      {
+        "product": {
+          "id": 18926,
+          "name": "Färskpotatis Estelle Klass1 900 g",
+          "price": "24.95",
+          "unitPrice": "24.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 3
+      },
+      {
+        "product": {
+          "id": 5978,
+          "name": "Mango ätmogen Klass1 400 g",
+          "price": "24.95",
+          "unitPrice": "24.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 65691,
+          "name": "Garant Eko Havregryn EKO 1,5 kg",
+          "price": "34.54",
+          "unitPrice": "34.54",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7839,
+          "name": "Garant Eko Vetemjöl EKO 2 kg",
+          "price": "26.45",
+          "unitPrice": "26.45",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 28796,
+          "name": "Persika Donut Klass1 500 g",
+          "price": "34.95",
+          "unitPrice": "34.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 63122,
+          "name": "Daily Greens Bananklase EKO Klass1 1200 g",
+          "price": "25.95",
+          "unitPrice": "25.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 4672,
+          "name": "Gurka Svensk Klass1 270 g",
+          "price": "18.95",
+          "unitPrice": "18.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 3182,
+          "name": "Oatly iKaffe Barista Edition Havredryck 3% 1 l",
+          "price": "17.95",
+          "unitPrice": "17.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 4
+      },
+      {
+        "product": {
+          "id": 66771,
+          "name": "Äpple Pink Lady 4-pack Klass1 600 g",
+          "price": "39.47",
+          "unitPrice": "39.47",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 6
+      },
+      {
+        "product": {
+          "id": 9474,
+          "name": "Yipin Tofu Naturell EKO 400 g",
+          "price": "34.02",
+          "unitPrice": "34.02",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 8528,
+          "name": "Garant Eko Jordnötssmör Crunchy EKO 350 g",
+          "price": "35.95",
+          "unitPrice": "35.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 2483,
+          "name": "Oddlygood® Dream Fraiche Glutenfri 14% 400 g",
+          "price": "27.40",
+          "unitPrice": "27.40",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 5742,
+          "name": "Salladslök Klass1 125 g",
+          "price": "17.95",
+          "unitPrice": "17.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 45067,
+          "name": "Garant Drottningsylt 400 g",
+          "price": "32.65",
+          "unitPrice": "32.65",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7531,
+          "name": "Ingefära Klass1 50 g",
+          "price": "14.15",
+          "unitPrice": "14.15",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 67905,
+          "name": "Oumph!® Popcorn Ch*cken Fryst 300 g",
+          "price": "47.27",
+          "unitPrice": "47.27",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 9627,
+          "name": "Avokado ätmogen hållbar 2-pack Klass1 325 g",
+          "price": "41.95",
+          "unitPrice": "41.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7365,
+          "name": "Vitlök Klass1 55 g",
+          "price": "9.95",
+          "unitPrice": "9.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 39982,
+          "name": "Garant Fiskfria Pinnar Vegansk Fryst 352 g",
+          "price": "40.50",
+          "unitPrice": "40.50",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7089,
+          "name": "Estrella Chips Grill 275 g",
+          "price": "27.30",
+          "unitPrice": "27.30",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7470,
+          "name": "Estrella Dippmix Holiday 26 g",
+          "price": "11.95",
+          "unitPrice": "11.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 7419,
+          "name": "Citron EKO Klass1 160 g",
+          "price": "11.95",
+          "unitPrice": "11.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 6
+      },
+      {
+        "product": {
+          "id": 5779,
+          "name": "Oatly iMat Visp 23% 250 ml",
+          "price": "20.35",
+          "unitPrice": "20.35",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 3956,
+          "name": "Lime Klass1 94 g",
+          "price": "7.95",
+          "unitPrice": "7.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 5
+      },
+      {
+        "product": {
+          "id": 4171,
+          "name": "Paprika Gul Klass1 90 g",
+          "price": "7.95",
+          "unitPrice": "7.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 8381,
+          "name": "Domestos WC Sticks Ocean Fresh 5 st",
+          "price": "34.95",
+          "unitPrice": "34.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5336,
+          "name": "Pastejköket Vegetarisk Bredbar Pastej 200 g",
+          "price": "21.72",
+          "unitPrice": "21.72",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 2304,
+          "name": "Kronjäst Färsk 50 g",
+          "price": "4.68",
+          "unitPrice": "4.68",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5917,
+          "name": "Romansallad Klass1 180 g",
+          "price": "22.50",
+          "unitPrice": "22.50",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 63865,
+          "name": "Felix Vegetarisk Krögarpytt Fryst 1000 g",
+          "price": "72.40",
+          "unitPrice": "72.40",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 11696,
+          "name": "Casheury Black Garlic EKO 150 g",
+          "price": "77.56",
+          "unitPrice": "77.56",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6956,
+          "name": "Blekselleri Klass1 300 g",
+          "price": "27.95",
+          "unitPrice": "27.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 8323,
+          "name": "Oatly iMat 13% 1 l",
+          "price": "34.97",
+          "unitPrice": "34.97",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 3471,
+          "name": "Oatly Havredryck Choklad 1,5% 250 g",
+          "price": "8.47",
+          "unitPrice": "8.47",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 4
+      },
+      {
+        "product": {
+          "id": 5374,
+          "name": "Carlshamn Bordsmargarin Mjölkfritt 70% 400 g",
+          "price": "22.67",
+          "unitPrice": "22.67",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 8842,
+          "name": "Flora Plant B+tter Normalsaltat Växtbaserad 600 g",
+          "price": "35.92",
+          "unitPrice": "35.92",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6645,
+          "name": "Morötter EKO Klass1 1 kg",
+          "price": "29.95",
+          "unitPrice": "29.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 67866,
+          "name": "Garant Vegokebab 275 g",
+          "price": "38.76",
+          "unitPrice": "38.76",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5531,
+          "name": "Lök Gul Påse Klass1 1000 g",
+          "price": "15.10",
+          "unitPrice": "15.10",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 65314,
+          "name": "Garant Broccoli Buketter Frysta 800 g",
+          "price": "26.40",
+          "unitPrice": "26.40",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 9438,
+          "name": "Green Fries Pommes KRAV Fryst 600 g",
+          "price": "41.17",
+          "unitPrice": "41.17",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7804,
+          "name": "Göteborgs Utvalda Utvalda Havssaltade Kex Göteborgs Kex 150 g",
+          "price": "32.13",
+          "unitPrice": "32.13",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 65524,
+          "name": "Tomat 5-pack Sverige Klass1 500 g",
+          "price": "32.95",
+          "unitPrice": "32.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 66891,
+          "name": "Pripps Radler Öl Citron Alkoholfri 0,0% 33 cl",
+          "price": "13.72",
+          "unitPrice": "13.72",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 6801,
+          "name": "Bladpersilja knippe flow Klass1 50 g",
+          "price": "11.95",
+          "unitPrice": "11.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 67429,
+          "name": "Mikkeller Öl Burst Free Alkoholfri 0,3% 330 ml",
+          "price": "18.88",
+          "unitPrice": "18.88",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "products": [
+      {
+        "product": {
+          "id": 7531,
+          "name": "Ingefära Klass1 50 g",
+          "price": "14.15",
+          "unitPrice": "14.15",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6755,
+          "name": "Santa Maria Ingefära Malen 31 g",
+          "price": "25.51",
+          "unitPrice": "25.51",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5742,
+          "name": "Salladslök Klass1 125 g",
+          "price": "16.95",
+          "unitPrice": "16.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 8697,
+          "name": "Garant Eko Majskorn EKO 3-p 450 g",
+          "price": "27.95",
+          "unitPrice": "27.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 2638,
+          "name": "Renée Voltaire Furikake Original EKO 100 g",
+          "price": "94.60",
+          "unitPrice": "94.60",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 4898,
+          "name": "Falksalt Hushållssalt med Jod 600 g",
+          "price": "16.56",
+          "unitPrice": "16.56",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7644,
+          "name": "Garant Vanillinsocker 140 g",
+          "price": "11.83",
+          "unitPrice": "11.83",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 67068,
+          "name": "Barnängen Balsam Normal 250 ml",
+          "price": "26.95",
+          "unitPrice": "26.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 64005,
+          "name": "Libero Blöja Up&Go (6) 13-20kg 27 st",
+          "price": "96.95",
+          "unitPrice": "96.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 8842,
+          "name": "Flora Plant B+tter Normalsaltat Växtbaserad 600 g",
+          "price": "35.92",
+          "unitPrice": "35.92",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5374,
+          "name": "Carlshamn Bordsmargarin Mjölkfritt 70% 400 g",
+          "price": "22.67",
+          "unitPrice": "22.67",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 3182,
+          "name": "Oatly iKaffe Barista Edition Havredryck 3% 1 l",
+          "price": "18.88",
+          "unitPrice": "18.88",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 7
+      },
+      {
+        "product": {
+          "id": 3471,
+          "name": "Oatly Havredryck Choklad 1,5% 250 g",
+          "price": "8.47",
+          "unitPrice": "8.47",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 6
+      },
+      {
+        "product": {
+          "id": 66771,
+          "name": "Äpple Pink Lady 4-pack Klass1 600 g",
+          "price": "39.47",
+          "unitPrice": "39.47",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 63122,
+          "name": "Daily Greens Bananklase EKO Klass1 1200 g",
+          "price": "25.95",
+          "unitPrice": "25.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 4672,
+          "name": "Gurka Svensk Klass1 270 g",
+          "price": "16.95",
+          "unitPrice": "16.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 4978,
+          "name": "Garant Eko Havregryn EKO/KRAV 750 g",
+          "price": "18.83",
+          "unitPrice": "18.83",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 9474,
+          "name": "Yipin Tofu Naturell EKO 400 g",
+          "price": "34.02",
+          "unitPrice": "34.02",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 2483,
+          "name": "Oddlygood® Dream Fraiche Glutenfri 14% 400 g",
+          "price": "27.40",
+          "unitPrice": "27.40",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6752,
+          "name": "Potatis Kok/Fast Klass1 2 kg",
+          "price": "29.29",
+          "unitPrice": "29.29",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7089,
+          "name": "Estrella Chips Grill 275 g",
+          "price": "27.30",
+          "unitPrice": "27.30",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 7157,
+          "name": "Estrella Chips Saltade 275 g",
+          "price": "27.30",
+          "unitPrice": "27.30",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 39982,
+          "name": "Garant Fiskfria Pinnar Vegansk Fryst 352 g",
+          "price": "40.50",
+          "unitPrice": "40.50",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 7365,
+          "name": "Vitlök Klass1 55 g",
+          "price": "10.95",
+          "unitPrice": "10.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 67905,
+          "name": "Oumph!® Popcorn Ch*cken Fryst 300 g",
+          "price": "47.27",
+          "unitPrice": "47.27",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7470,
+          "name": "Estrella Dippmix Holiday 26 g",
+          "price": "11.95",
+          "unitPrice": "11.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 8381,
+          "name": "Domestos WC Sticks Ocean Fresh 5 st",
+          "price": "34.95",
+          "unitPrice": "34.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 4221,
+          "name": "Samyang Ramen Snabbnudlar Kycklingsmak 85 g",
+          "price": "5.63",
+          "unitPrice": "5.63",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 4
+      },
+      {
+        "product": {
+          "id": 8859,
+          "name": "Magnihill Jordgubbar Frysta 750 g",
+          "price": "56.95",
+          "unitPrice": "56.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 11696,
+          "name": "Casheury Black Garlic EKO 150 g",
+          "price": "77.56",
+          "unitPrice": "77.56",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5643,
+          "name": "Wettexduk Färg 4 st",
+          "price": "23.95",
+          "unitPrice": "23.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 63638,
+          "name": "Garant Crema di Carciofi 200 g",
+          "price": "34.97",
+          "unitPrice": "34.97",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 66561,
+          "name": "Semper Grötklämmis Passionsfrukt, Banan & Kokos 1-3 år 120 g",
+          "price": "15.10",
+          "unitPrice": "15.10",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 65249,
+          "name": "Semper Fullkornsgröt Äpple, Hallon & Banan 1-3 år 500 g",
+          "price": "55.70",
+          "unitPrice": "55.70",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 5779,
+          "name": "Oatly iMat Visp 23% 250 ml",
+          "price": "20.35",
+          "unitPrice": "20.35",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7896,
+          "name": "GB Glace Glass Big Pack Tresmak 2000 ml",
+          "price": "31.71",
+          "unitPrice": "31.71",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 65636,
+          "name": "Dazzley Glassås Choklad 300 g",
+          "price": "28.35",
+          "unitPrice": "28.35",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 28822,
+          "name": "Vattenmelon Hel Mini EKO Klass1 1050 g",
+          "price": "49.95",
+          "unitPrice": "49.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 67935,
+          "name": "Eldorado Vegansk Salami 80 g",
+          "price": "18.88",
+          "unitPrice": "18.88",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 5939,
+          "name": "Carlshamn Margarin Mjölkfri 80% 500 g",
+          "price": "24.56",
+          "unitPrice": "24.56",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "products": [
+      {
+        "product": {
+          "id": 2483,
+          "name": "Oddlygood® Dream Fraiche Glutenfri 14% 400 g",
+          "price": "27.40",
+          "unitPrice": "27.40",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 3182,
+          "name": "Oatly iKaffe Barista Edition Havredryck 3% 1 l",
+          "price": "18.88",
+          "unitPrice": "18.88",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 9
+      },
+      {
+        "product": {
+          "id": 64004,
+          "name": "Libero Blöja Up&Go (5) 9-14kg 29 st",
+          "price": "96.95",
+          "unitPrice": "96.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 63122,
+          "name": "Daily Greens Bananklase EKO Klass1 1200 g",
+          "price": "25.95",
+          "unitPrice": "25.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 4672,
+          "name": "Gurka Svensk Klass1 270 g",
+          "price": "16.95",
+          "unitPrice": "16.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 66771,
+          "name": "Äpple Pink Lady 4-pack Klass1 600 g",
+          "price": "39.47",
+          "unitPrice": "39.47",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 8528,
+          "name": "Garant Eko Jordnötssmör Crunchy EKO 350 g",
+          "price": "36.86",
+          "unitPrice": "36.86",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 3
+      },
+      {
+        "product": {
+          "id": 9474,
+          "name": "Yipin Tofu Naturell EKO 400 g",
+          "price": "34.02",
+          "unitPrice": "34.02",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 4978,
+          "name": "Garant Eko Havregryn EKO/KRAV 750 g",
+          "price": "18.83",
+          "unitPrice": "18.83",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 45067,
+          "name": "Garant Drottningsylt 400 g",
+          "price": "32.65",
+          "unitPrice": "32.65",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 7419,
+          "name": "Citron EKO Klass1 160 g",
+          "price": "12.50",
+          "unitPrice": "12.50",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 3
+      },
+      {
+        "product": {
+          "id": 5742,
+          "name": "Salladslök Klass1 125 g",
+          "price": "16.95",
+          "unitPrice": "16.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6159,
+          "name": "Eldorado Vegobacon Skivor 120 g",
+          "price": "25.08",
+          "unitPrice": "25.08",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 9627,
+          "name": "Avokado ätmogen hållbar 2-pack Klass1 325 g",
+          "price": "35.92",
+          "unitPrice": "35.92",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7531,
+          "name": "Ingefära Klass1 50 g",
+          "price": "14.15",
+          "unitPrice": "14.15",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 9346,
+          "name": "Garant Eko Jordgubbssylt EKO/KRAV 400 g",
+          "price": "33.08",
+          "unitPrice": "33.08",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6190,
+          "name": "Garant Eko Bladspenat EKO Fryst 450 g",
+          "price": "26.03",
+          "unitPrice": "26.03",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 10208,
+          "name": "Fontana Pizzabotten 2x180g 360 g",
+          "price": "37.38",
+          "unitPrice": "37.38",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 9945,
+          "name": "Findus Ärter Frysta 1 kg",
+          "price": "35.50",
+          "unitPrice": "35.50",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 2304,
+          "name": "Kronjäst Färsk 50 g",
+          "price": "4.68",
+          "unitPrice": "4.68",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 8295,
+          "name": "Zeta Rapsolja 900 ml",
+          "price": "34.54",
+          "unitPrice": "34.54",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 11178,
+          "name": "Felix Potatisbullar Frysta 1500 g",
+          "price": "50.11",
+          "unitPrice": "50.11",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 67905,
+          "name": "Oumph!® Popcorn Ch*cken Fryst 300 g",
+          "price": "47.27",
+          "unitPrice": "47.27",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6683,
+          "name": "Champinjoner Klass1 250 g",
+          "price": "23.95",
+          "unitPrice": "23.95",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 6234,
+          "name": "Garant Eko Haricots Verts EKO Fryst 450 g",
+          "price": "23.61",
+          "unitPrice": "23.61",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 30430,
+          "name": "Garant Olivolja Classico Extra Virgin 750 ml",
+          "price": "85.65",
+          "unitPrice": "85.65",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 63198,
+          "name": "Exotic Snacks Cashewnötter Naturella 400 g",
+          "price": "87.02",
+          "unitPrice": "87.02",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      },
+      {
+        "product": {
+          "id": 7949,
+          "name": "Mevolution Tvål Sensitive Refill 1000 ml",
+          "price": "32.50",
+          "unitPrice": "32.50",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 2
+      },
+      {
+        "product": {
+          "id": 63638,
+          "name": "Garant Crema di Carciofi 200 g",
+          "price": "34.97",
+          "unitPrice": "34.97",
+          "unitName": "",
+          "brand": null
+        },
+        "quantity": 1
+      }
+    ]
+  }
+]
