@@ -6,18 +6,27 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CACHE_DIR = join(dirname(fileURLToPath(import.meta.url)), ".cache");
+// COMPARE_CACHE_DIR override exists for the test suite (temp dir).
+const CACHE_DIR =
+  process.env.COMPARE_CACHE_DIR ?? join(dirname(fileURLToPath(import.meta.url)), ".cache");
 const CACHE_FILE = join(CACHE_DIR, "search.json");
 const TTL_MS = 12 * 60 * 60 * 1000;
 
 type Entry = { at: number; value: unknown };
 
+// Single shared map for the whole process: stores run concurrently, and a
+// per-call read-modify-write of the file loses concurrent writers' entries
+// (found 2026-08-16 when Coop's first-run cache entries vanished).
+let allCache: Record<string, Entry> | null = null;
+
 function loadAll(): Record<string, Entry> {
+  if (allCache) return allCache;
   try {
-    return JSON.parse(readFileSync(CACHE_FILE, "utf8"));
+    allCache = JSON.parse(readFileSync(CACHE_FILE, "utf8")) as Record<string, Entry>;
   } catch {
-    return {};
+    allCache = {};
   }
+  return allCache;
 }
 
 export async function cached<T>(key: string, fn: () => Promise<T | null>): Promise<{ value: T | null; hit: boolean }> {

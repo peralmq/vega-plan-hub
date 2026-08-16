@@ -91,6 +91,30 @@ export const searchCoop = (term: string, storeId = COOP_DEFAULT_STORE.id): Promi
     return extractCoop(raw.results?.items ?? []);
   });
 
+export interface CoopTimeWindow {
+  startTime: string;
+  endTime: string;
+  cost: number;
+  fullyBooked: boolean;
+  active: boolean;
+  storeCode: string;
+}
+
+/** Anonymous: Coop home-delivery time windows for a postal code (the same
+ * call the site's store-chooser makes before any login). Empty array =
+ * Coop does not home-deliver to that zip. */
+export async function coopTimeWindows(
+  zip: string,
+  fromDate: string,
+  days = 14,
+): Promise<CoopTimeWindow[]> {
+  const raw = (await getJson(
+    `https://external.api.coop.se/ecommerce/coop/users/anonymous/postcode/${encodeURIComponent(zip)}/timewindows?api-version=v1&numOfDays=${days}&availableDate=${fromDate}`,
+    { "ocp-apim-subscription-key": COOP_PUBLIC_KEY, "user-agent": BROWSER_UA },
+  )) as { listOfTimeWindowListWsDTO?: { timeWindowListWsDTO?: CoopTimeWindow[] }[] };
+  return (raw.listOfTimeWindowListWsDTO ?? []).flatMap((d) => d.timeWindowListWsDTO ?? []);
+}
+
 export const searchIca = (term: string, accountId = ICA_DEFAULT_STORE.accountId): Promise<SearchResult> =>
   attempt(async () => {
     const fetchOnce = async () => {

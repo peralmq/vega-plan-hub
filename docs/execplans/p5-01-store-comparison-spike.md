@@ -88,8 +88,10 @@ on:
 - [x] ICA leg: default store = Maxi ICA Stormarknad Lindhagen
       (account 1003418, Pelle 2026-08-16); anonymous v6 search + WAF
       behavior mapped; auth tier still open (list push vs search-only)
-- [~] `delivery_check`: ICA store-eligibility-by-zip live (anonymous);
-      slot times per store still need auth (see Evidence)
+- [~] `delivery_check`: slot-time filter live for **Mathem** (MCP) and
+      **Coop** (anonymous postcode/timewindows); ICA
+      store-eligibility-by-zip live (anonymous, times at checkout);
+      Willys/Hemköp slot times still need store logins
 - [x] Comparison CLI (`compare/`, `npm run compare`) with fixture
       suite in `./harness check` (tsc compare + 13 vitest cases)
 - [x] Mathem cart-fill (`--fill-cart mathem`): matched basket pushed
@@ -355,3 +357,23 @@ Delivery lines report needs-auth honestly per store.
   needs-auth for slots, anonymous assortment noted).
 - Coop fixture (5 terms × ≤8 trimmed real items) committed; Coop in
   the five-store fixture comparison test.
+- **Coop slot times are anonymous**: watching the store-chooser
+  ("Var är du?" → postnummer) revealed
+  `GET /ecommerce/coop/users/anonymous/postcode/{zip}/timewindows
+  ?api-version=v1&numOfDays=N&availableDate=YYYY-MM-DD` — full
+  window list (startTime/endTime UTC, cost, fullyBooked, storeCode)
+  with zero login, confirmed from curl. The day/window filter is now
+  live for Coop: `--zip 11251 --day 2026-08-18 --window 17-20` →
+  "eligible: 7 slot(s) … 12:00–18:00 (89 kr), 14:00–20:00 (59 kr),
+  16:00–18:00 (79 kr), 16:00–22:00 (59 kr), …". Slot-tier scoreboard:
+  Mathem ✓ (MCP) · Coop ✓ (anonymous) · ICA ~ (zip eligibility only)
+  · Willys/Hemköp ✗ (need logins).
+- Two Coop quirks recorded: search results are session-personalized
+  (Loop54) — the same query can return different products across
+  runs (68,65 kr vs 73,38 kr basket between two runs minutes apart);
+  and the 12h cache had a **concurrent-writer lost-update bug**
+  (stores run via Promise.all; per-call read-modify-write dropped
+  other writers' entries) which surfaced exactly as those vanished
+  Coop entries. Fixed with a process-shared map + regression tests
+  (`compare/cache.test.ts`, vitest glob widened to `compare/**` —
+  self-improvement rule).

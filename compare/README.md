@@ -46,6 +46,9 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   a credential) against the default anonymous "Hemleverans i
   Stockholm" assortment (store 251300). Beware: Coop's search
   auto-corrects "havremjölk" → "havremjöl" (oat flour) — the ⚠ weak
-  flag catches it. Slot times need a Coop login (p5-01 step 2).
+  flag catches it — and results are session-personalized, so reruns
+  can differ. **Coop slot times are anonymous too**
+  (`/ecommerce/coop/users/anonymous/postcode/{zip}/timewindows`), so
+  `--day`/`--window` filter real Coop slots with zero credentials.
 
 Endpoint provenance: docs/research/store-integration-landscape.md.

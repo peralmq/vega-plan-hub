@@ -31,7 +31,7 @@ import {
   type MathemSlot,
 } from "./mathem-mcp";
 import {
-  COOP_DEFAULT_STORE,
+  coopTimeWindows,
   ICA_DEFAULT_STORE,
   icaStoresForZip,
   pacedDelay,
@@ -101,14 +101,21 @@ const localHour = (iso: string) =>
     new Date(iso).toLocaleTimeString("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", hour12: false }),
   );
 
-function slotInWindow(slot: MathemSlot, window: string | null): boolean {
+function inWindow(openIso: string, closeIso: string, window: string | null): boolean {
   if (!window) return true;
   const m = window.match(/^(\d{1,2})-(\d{1,2})$/);
   if (!m) return true;
   const [from, to] = [Number(m[1]), Number(m[2])];
   // Overlap test: the slot's local delivery window intersects [from, to).
-  return localHour(slot.openDatetime) < to && localHour(slot.closeDatetime) > from;
+  return localHour(openIso) < to && localHour(closeIso) > from;
 }
+
+const slotInWindow = (slot: MathemSlot, window: string | null): boolean =>
+  inWindow(slot.openDatetime, slot.closeDatetime, window);
+
+/** Local Stockholm calendar date (YYYY-MM-DD) of a UTC ISO instant. */
+const localDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" });
 
 async function mathemDelivery(day: string | null, window: string | null): Promise<DeliveryStatus> {
   if (!hasMathemAuth()) {
@@ -141,6 +148,47 @@ async function mathemDelivery(day: string | null, window: string | null): Promis
   }
 }
 
+/** Coop's slot surface is anonymous (postcode → time windows), so the
+ * day/window filter is live for Coop with zero credentials. */
+async function coopDelivery(
+  zip: string | null,
+  day: string | null,
+  window: string | null,
+): Promise<DeliveryStatus> {
+  if (!zip) return { kind: "unknown", detail: "pass --zip to check Coop delivery" };
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const windows = (await coopTimeWindows(zip, today, 30)).filter((w) => w.active);
+    if (windows.length === 0) {
+      return { kind: "not-deliverable", detail: `Coop has no home-delivery windows for ${zip}` };
+    }
+    if (!day) {
+      return { kind: "eligible", detail: `Coop home-delivers to ${zip} — pass --day YYYY-MM-DD to filter slots` };
+    }
+    const open = windows.filter((w) => !w.fullyBooked && localDate(w.startTime) === day);
+    const matching = open.filter((w) => inWindow(w.startTime, w.endTime, window));
+    if (matching.length > 0) {
+      const shown = matching
+        .slice(0, 4)
+        .map((w) => `${localTime(w.startTime)}–${localTime(w.endTime)} (${w.cost} kr)`)
+        .join(", ");
+      return {
+        kind: "eligible",
+        detail: `${matching.length} slot(s) on ${day}${window ? ` in ${window}` : ""}: ${shown}${matching.length > 4 ? ", …" : ""}`,
+      };
+    }
+    return {
+      kind: "not-deliverable",
+      detail:
+        open.length > 0
+          ? `no slots in ${window ?? "window"} on ${day}, but ${open.length} at other times that day`
+          : `no open slots on ${day}`,
+    };
+  } catch (e) {
+    return { kind: "unknown", detail: `Coop slot lookup failed: ${e instanceof Error ? e.message : e}` };
+  }
+}
+
 async function deliveryForStore(
   store: string,
   zip: string | null,
@@ -157,10 +205,7 @@ async function deliveryForStore(
         detail: "slot endpoint (tms/delivery-slots) requires store login (p5-01 step 2)",
       };
     case "coop":
-      return {
-        kind: "needs-auth",
-        detail: `prices from the anonymous "${COOP_DEFAULT_STORE.name}" assortment; slot times need a Coop login (p5-01 step 2)`,
-      };
+      return coopDelivery(zip, day, window);
     case "ica": {
       if (!zip) return { kind: "unknown", detail: "pass --zip to check ICA delivery eligibility" };
       try {
