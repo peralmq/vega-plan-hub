@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildComparison,
+  cartPlan,
   extractAxfood,
   extractIca,
   extractMathem,
@@ -106,6 +107,27 @@ describe("buildComparison", () => {
     const manualTotal = cmp.items.reduce((s, i) => s + (i.product?.price ?? 0), 0);
     expect(cmp.total).toBeCloseTo(manualTotal, 2);
     expect(cmp.total).toBeGreaterThan(0);
+  });
+
+  it("plans one cart-add per matched term and skips unmatched terms", () => {
+    const byTerm = extractAll(mathemFixture as FixtureMap, extractMathem);
+    byTerm["saffran"] = []; // no product → must land in skipped, never in ops
+    const plan = cartPlan(buildComparison("mathem", [...TERMS, "saffran"], byTerm));
+    expect(plan.ops).toHaveLength(TERMS.length);
+    expect(plan.skipped).toEqual(["saffran"]);
+    expect(plan.ops.every((o) => o.quantity === 1)).toBe(true);
+    // manipulate_cart takes integer product ids — Mathem ids must be numeric.
+    expect(plan.ops.every((o) => /^\d+$/.test(o.productId))).toBe(true);
+  });
+
+  it("keeps weak matches in the cart plan (human reviews in store UI) but counts them", () => {
+    const plan = cartPlan(
+      buildComparison("mathem", TERMS, extractAll(mathemFixture as FixtureMap, extractMathem)),
+    );
+    const havre = plan.ops.find((o) => o.term === "havremjölk");
+    expect(havre).toBeDefined();
+    expect(havre!.quality).toBe("weak");
+    expect(plan.weak).toBeGreaterThanOrEqual(1);
   });
 
   it("produces a full five-store comparison from fixtures with every store matching most terms", () => {

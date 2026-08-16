@@ -7,7 +7,8 @@ checkout, slot booking and payment always stay with the human.
 
 ```
 npm run compare -- --list fixtures/compare-list.json --zip 11251 \
-  [--stores mathem,willys,hemkop,ica] [--day 2026-08-20] [--window 17-20] [--json]
+  [--stores mathem,willys,hemkop,ica] [--day 2026-08-20] [--window 17-20] \
+  [--fill-cart mathem] [--json]
 ```
 
 - List file: JSON array of search terms or `{name}` objects.
@@ -26,8 +27,13 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   loopback callback) against the **official Mathem MCP**; tokens in
   `compare/.mathem-oauth.json` (gitignored, mode 600, auto-refresh).
   With auth, `--day`/`--window` filter real bookable slots (prices
-  included). The MCP also offers cart, lists, likely_to_buy (mapping
-  seed) — wiring tracked in p5-01.
+  included), and `--fill-cart mathem` pushes the matched basket into
+  the household cart (additive — one unit per term; re-running adds
+  again) and prints the cart URL for review. Weak matches go in
+  flagged; unmatched terms are listed as manual. The printed cart
+  total includes Mathem's fees on top of the item sum. Checkout, slot
+  booking and payment always stay with the human. likely_to_buy
+  seeding is next (p5-01).
 - Willys/Hemköp slot times need store logins (p5-01 step 2); their
   delivery line reports honestly what it can't know.
 - Coop: pending household account (Hellman's coop-cli is the reference).

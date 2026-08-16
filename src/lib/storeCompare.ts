@@ -166,6 +166,49 @@ export function pickBest(term: string, products: StoreProduct[]): ItemMatch {
   };
 }
 
+// --- cart fill --------------------------------------------------------------
+
+export interface CartOp {
+  term: string;
+  /** Store-native product id (Mathem ids are numeric strings). */
+  productId: string;
+  name: string;
+  price: number;
+  quality: MatchQuality;
+  quantity: number;
+}
+
+export interface CartPlan {
+  ops: CartOp[];
+  /** Terms with no usable product — the human shops these manually. */
+  skipped: string[];
+  weak: number;
+}
+
+/**
+ * Turn a store comparison into cart-add operations, one unit per matched
+ * term. Weak matches stay in — the whole point of cart-ready-only is that
+ * a human reviews the cart in the store UI before checkout — but they are
+ * counted so the CLI can warn.
+ */
+export function cartPlan(comparison: StoreComparison): CartPlan {
+  const ops = comparison.items
+    .filter((i) => i.product !== null)
+    .map((i) => ({
+      term: i.term,
+      productId: i.product!.id,
+      name: i.product!.name,
+      price: i.product!.price,
+      quality: i.quality,
+      quantity: 1,
+    }));
+  return {
+    ops,
+    skipped: comparison.unmatched,
+    weak: ops.filter((o) => o.quality === "weak").length,
+  };
+}
+
 export function buildComparison(
   store: string,
   terms: string[],

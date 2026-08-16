@@ -89,7 +89,10 @@ on:
 - [~] `delivery_check`: ICA store-eligibility-by-zip live (anonymous);
       slot times per store still need auth (see Evidence)
 - [x] Comparison CLI (`compare/`, `npm run compare`) with fixture
-      suite in `./harness check` (tsc compare + 11 vitest cases)
+      suite in `./harness check` (tsc compare + 13 vitest cases)
+- [x] Mathem cart-fill (`--fill-cart mathem`): matched basket pushed
+      via manipulate_cart, cart URL printed for human review —
+      cart-ready only, checkout stays in the shop
 - [ ] Favorites/commonly-bought seeding (Pelle 2026-08-16): Mathem
       favorites via MCP once OAuth lands; ICA "Dina favoriter" /
       "Återkommande" (`/stores/{id}/favorites`, `/regulars`) once the
@@ -257,3 +260,34 @@ Delivery lines report needs-auth honestly per store.
   pattern) — no WAF, and unlocks "Återkommande" seeding. Result:
   full 4-store run now matches 5/5 on ICA (57,15 kr — cheapest
   basket), zero challenges surfaced.
+
+**2026-08-16 (Mathem cart-fill live):**
+
+- Tool schemas pulled via `tools/list` (new `mcpRpc` helper):
+  `manipulate_cart` takes `operations[]` — integer `productId` +
+  `quantity` (positive adds, negative removes, `overrideQuantity`
+  sets exact); returns the updated cart with a `url`. `get_cart`
+  read-only, same cart shape.
+- New pure `cartPlan(comparison)` in `src/lib/storeCompare.ts`
+  (comparison → one add-op per matched term, weak kept + counted,
+  unmatched → skipped) with 2 new fixture tests (13 total), incl.
+  pinning that Mathem product ids are numeric strings since
+  manipulate_cart wants integers.
+- Live run `npm run compare -- --list fixtures/compare-list.json
+  --zip 11251 --day 2026-08-18 --window 17-20 --fill-cart mathem`:
+  cart was empty before; after — "🛒 Mathem cart filled — 5 item(s)
+  added … → cart now 5 item(s): items 64,52 kr, cart total 170,52 kr
+  incl. fees — review & checkout: https://www.mathem.se/se/cart/".
+  Line items in get_cart match the comparison exactly (Oatly iKaffe
+  17,95 / Garant Krossade Tomater 13,72 / Barilla Penne 15,95 / Gul
+  lök 3,95 / Zeta Kikärtor EKO 12,95). **Cart `totalGrossAmount`
+  includes ~106 kr of fees on top of line items** (likely delivery +
+  small-order fee at this basket size) — CLI prints both numbers so
+  the total is honest.
+- Negative-quantity removal verified live: single-item re-add
+  (kikärtor → 6 items) then `manipulate_cart [{productId: 4806,
+  quantity: -1}]` restored the 5-item cart. Additive semantics
+  confirmed: re-running --fill-cart adds again (documented in
+  compare/README.md).
+- The 5-item evidence cart is left in place for Pelle to review at
+  mathem.se (verification step "cart visible in the store's UI").

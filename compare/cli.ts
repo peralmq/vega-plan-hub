@@ -14,9 +14,15 @@
 // as needs-auth / check-at-checkout.
 import { readFileSync } from "node:fs";
 
-import { buildComparison, type StoreComparison, type StoreProduct } from "@/lib/storeCompare";
+import { buildComparison, cartPlan, type StoreComparison, type StoreProduct } from "@/lib/storeCompare";
 import { cached } from "./cache";
-import { getDeliverySlots, hasMathemAuth, type MathemSlot } from "./mathem-mcp";
+import {
+  cartItemsTotal,
+  getDeliverySlots,
+  hasMathemAuth,
+  manipulateCart,
+  type MathemSlot,
+} from "./mathem-mcp";
 import {
   ICA_DEFAULT_STORE,
   icaStoresForZip,
@@ -193,6 +199,44 @@ async function runStore(
 
 const fmtKr = (n: number) => `${n.toFixed(2).replace(".", ",")} kr`;
 
+interface CartFillResult {
+  plan: ReturnType<typeof cartPlan>;
+  cart: Awaited<ReturnType<typeof manipulateCart>> | null;
+}
+
+/**
+ * Push the matched Mathem basket into the household's cart (additive: one
+ * unit per term; re-running adds again). Cart-ready only — checkout, slot
+ * booking and payment stay in the shop, which the Mathem MCP server itself
+ * also enforces.
+ */
+async function fillMathemCart(comparison: StoreComparison): Promise<CartFillResult> {
+  const plan = cartPlan(comparison);
+  if (plan.ops.length === 0) return { plan, cart: null };
+  const cart = await manipulateCart(
+    plan.ops.map((o) => ({ productId: Number(o.productId), quantity: o.quantity })),
+  );
+  return { plan, cart };
+}
+
+function printCartFill({ plan, cart }: CartFillResult): void {
+  if (cart === null) {
+    console.log("🛒 Mathem cart-fill: nothing matched — cart untouched\n");
+    return;
+  }
+  console.log(`🛒 Mathem cart filled — ${plan.ops.length} item(s) added:`);
+  for (const op of plan.ops) {
+    console.log(`  ${op.quality === "weak" ? "⚠" : "✓"} ${op.term}: ${op.name} — ${fmtKr(op.price)}`);
+  }
+  if (plan.skipped.length) console.log(`  ✗ not in cart (no match): ${plan.skipped.join(", ")}`);
+  if (plan.weak > 0) {
+    console.log(`  ⚠ ${plan.weak} weak match(es) went into the cart — swap them in the shop if wrong`);
+  }
+  console.log(
+    `  → cart now ${cart.productQuantityCount} item(s): items ${fmtKr(cartItemsTotal(cart))}, cart total ${fmtKr(Number(cart.totalGrossAmount))} incl. fees — review & checkout: ${cart.url}\n`,
+  );
+}
+
 function printHuman(reports: Record<string, StoreReport>, terms: string[], day?: string, window?: string) {
   console.log(`\n🛒 Store comparison — ${terms.length} items`);
   if (day || window) {
@@ -232,7 +276,7 @@ async function main() {
   const listPath = typeof args.list === "string" ? args.list : null;
   if (!listPath) {
     console.error(
-      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica] [--day YYYY-MM-DD] [--window HH-HH] [--json]",
+      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--json]",
     );
     process.exit(1);
   }
@@ -247,6 +291,25 @@ async function main() {
   const zip = typeof args.zip === "string" ? args.zip : null;
   const day = typeof args.day === "string" ? args.day : null;
   const window = typeof args.window === "string" ? args.window : null;
+  // --fill-cart: validate before any network work so a typo fails fast.
+  const fillStore =
+    typeof args["fill-cart"] === "string" ? args["fill-cart"] : args["fill-cart"] === true ? "mathem" : null;
+  if (fillStore) {
+    if (fillStore !== "mathem") {
+      console.error(
+        `--fill-cart ${fillStore}: only mathem is supported (official MCP); other stores need their account tiers (p5-01 step 2)`,
+      );
+      process.exit(1);
+    }
+    if (!stores.includes("mathem")) {
+      console.error("--fill-cart mathem requires mathem in --stores");
+      process.exit(1);
+    }
+    if (!hasMathemAuth()) {
+      console.error("--fill-cart mathem needs auth — run `npm run mathem-auth` first");
+      process.exit(1);
+    }
+  }
 
   const reports: Record<string, StoreReport> = {};
   await Promise.all(
@@ -255,8 +318,24 @@ async function main() {
     }),
   );
 
+  let cartFill: CartFillResult | null = null;
+  if (fillStore === "mathem") {
+    const comparison = reports.mathem?.comparison;
+    if (comparison) {
+      cartFill = await fillMathemCart(comparison);
+    } else {
+      console.error("cart-fill skipped: Mathem was unreachable — cart untouched");
+    }
+  }
+
   if (args.json) {
-    console.log(JSON.stringify({ terms, day: args.day ?? null, window: args.window ?? null, reports }, null, 2));
+    console.log(
+      JSON.stringify(
+        { terms, day: args.day ?? null, window: args.window ?? null, reports, cartFill },
+        null,
+        2,
+      ),
+    );
   } else {
     printHuman(
       reports,
@@ -264,6 +343,7 @@ async function main() {
       typeof args.day === "string" ? args.day : undefined,
       typeof args.window === "string" ? args.window : undefined,
     );
+    if (cartFill) printCartFill(cartFill);
   }
 }
 
