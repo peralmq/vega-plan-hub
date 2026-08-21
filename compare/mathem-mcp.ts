@@ -99,8 +99,14 @@ export interface MathemSlotDay {
   slots: MathemSlot[];
 }
 
+/** MCP schema drift 2026-08-21: the tool now takes a single `delivery_date`
+ * and returns one {deliveryDate, slots} object — fan out per date. */
 export const getDeliverySlots = (dates: string[]): Promise<MathemSlotDay[]> =>
-  mcpToolCall<MathemSlotDay[]>("get_delivery_slots", { delivery_dates: dates });
+  Promise.all(
+    dates.map((date) =>
+      mcpToolCall<MathemSlotDay>("get_delivery_slots", { delivery_date: date }),
+    ),
+  );
 
 export interface MathemCartItem {
   product: { id: number; name: string; price: string; url?: string };
