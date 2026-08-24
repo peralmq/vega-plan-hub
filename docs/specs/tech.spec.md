@@ -125,6 +125,18 @@ points, binding for P4 work:
   the egress allow-list; push auth is a repo-scoped deploy key (or the
   household git credentials) kept in gitignored mode-600 config, never
   in the repo.
+- **Structured recipe edits (extension adopted 2026-08-24, Pelle in
+  chat — p4-09)**: the same write path may change the recipe *for
+  real*, but only through **rules-interpreted, enumerable edit
+  operations** — currently ingredient-quantity scaling
+  (dubbla/halvera/tredubbla and English equivalents), interpreted
+  deterministically from the raw utterance (never from LLM output) and
+  applied by pure fixture-tested code to the ingredient table. The
+  confirmation message echoes the exact before→after per matched row;
+  an utterance no rule can interpret falls back to the notes path
+  above. Every other invariant is unchanged: validate-recipe
+  pre-flight with rollback, explicit confirmation before commit,
+  fixed-argument git, no LLM-generated file content ever.
 
 ## Store integrations (adopted 2026-08-16, p5-01 gate)
 

@@ -20,15 +20,33 @@ import {
   matchRecipeTitle,
   type RecipeIndexEntry,
 } from "../src/lib/recipeNotes";
+import {
+  applyScale,
+  describeChanges,
+  expandTermCandidates,
+  interpretEdit,
+  type SynonymEntry,
+} from "../src/lib/recipeEdits";
 import { REACTIONS, TelegramApi } from "./telegram";
 
-// The repo-write seam (p4-08): tools.ts decides WHAT to save and asks the
-// sender; recipePublish.ts (injected by the consumer) is the only code that
-// touches files or git, and only from the note_yes callback below.
-export interface RecipeNotesDeps {
+// The repo-write seam (p4-08/p4-09): tools.ts decides WHAT to save and asks
+// the sender; recipePublish.ts (injected by the consumer) is the only code
+// that touches files or git, and only from the note_yes callback below.
+export interface RecipeRepoDeps {
   index(): RecipeIndexEntry[];
-  publish(recipeId: string, noteLine: string): Promise<{ committed: boolean; pushed: boolean }>;
+  synonyms(): SynonymEntry[];
+  read(recipeId: string): string;
+  publishNote(recipeId: string, noteLine: string): Promise<{ committed: boolean; pushed: boolean }>;
+  publishEdit(
+    recipeId: string,
+    candidates: string[],
+    factor: number,
+  ): Promise<{ committed: boolean; pushed: boolean }>;
 }
+
+export type PendingChange =
+  | { kind: "note"; recipeId: string; title: string; noteLine: string }
+  | { kind: "edit"; recipeId: string; title: string; candidates: string[]; factor: number };
 
 export interface InboxRow {
   id: number;
@@ -49,10 +67,10 @@ export interface InboxRow {
 // instead of guessing at a stale row.
 export interface ChatState {
   lastInsert?: { rowIds: string[]; displayNames: string[] };
-  // A note awaiting its [Ja, spara] press. In-process on purpose (same
-  // restart semantics as lastInsert): after a restart the callback says
-  // "skicka igen" instead of publishing something stale.
-  pendingNote?: { recipeId: string; title: string; noteLine: string };
+  // A note or edit awaiting its [Ja, spara] press. In-process on purpose
+  // (same restart semantics as lastInsert): after a restart the callback
+  // says "skicka igen" instead of publishing something stale.
+  pendingChange?: PendingChange;
 }
 export type StateMap = Map<number, ChatState>;
 
@@ -88,6 +106,8 @@ const T = {
       "🤔 Vilket recept gäller det? Ingen middag är planerad idag — nämn rättens namn så fixar jag det.",
     noteConfirm: (title: string, noteLine: string) =>
       `📝 Spara på ${title}?\n„${noteLine}"`,
+    editConfirm: (title: string, changes: string) =>
+      `✏️ Uppdatera ${title}?\n${changes}`,
     btnSaveNote: "Ja, spara",
     btnSkipNote: "Avbryt",
     cbNoteSaved: (title: string) =>
@@ -126,6 +146,8 @@ const T = {
       "🤔 Which recipe is that for? Nothing is planned today — name the dish and I'll take it.",
     noteConfirm: (title: string, noteLine: string) =>
       `📝 Save on ${title}?\n"${noteLine}"`,
+    editConfirm: (title: string, changes: string) =>
+      `✏️ Update ${title}?\n${changes}`,
     btnSaveNote: "Yes, save",
     btnSkipNote: "Cancel",
     cbNoteSaved: (title: string) =>
@@ -256,7 +278,7 @@ export async function handleMessage(
   row: InboxRow,
   parse: ParsedUtterance,
   states: StateMap,
-  notes?: RecipeNotesDeps,
+  notes?: RecipeRepoDeps,
 ): Promise<void> {
   const state = states.get(row.chat_id) ?? {};
   states.set(row.chat_id, state);
@@ -272,30 +294,62 @@ export async function handleMessage(
   }
 }
 
-// note_recipe here only PREPARES: resolve the recipe, stage the note line,
+// note_recipe here only PREPARES: resolve the recipe, stage the change,
 // ask. The commit/push lives exclusively in the note_yes callback path —
-// that asymmetry is the p4-08 verification claim.
-async function prepareNote(
+// that asymmetry is the p4-08/p4-09 verification claim.
+//
+// Edit-vs-note branch (p4-09): the raw utterance — not the NLU note slot,
+// which compresses the verb away — is checked against the enumerable edit
+// rules. A rule match whose preview applies becomes a structural edit with
+// per-row before→after in the confirm; everything else stays a note.
+async function prepareRecipeChange(
   supa: SupabaseClient,
   tg: TelegramApi,
   row: InboxRow,
   action: NoteRecipeAction,
   state: ChatState,
   lang: Lang,
-  notes: RecipeNotesDeps | undefined,
+  repo: RecipeRepoDeps | undefined,
 ): Promise<void> {
-  if (!notes) {
+  if (!repo) {
     await tg.sendMessage(row.chat_id, T[lang].unsupported);
     return;
   }
-  const target = await resolveNoteRecipe(supa, row, notes.index());
+  const target = await resolveNoteRecipe(supa, row, repo.index());
   if (!target) {
     await tg.sendMessage(row.chat_id, T[lang].noteWhich);
     return;
   }
+
+  const edit = interpretEdit(row.text ?? "");
+  if (edit) {
+    const candidates = expandTermCandidates(edit.term, repo.synonyms());
+    const preview = applyScale(repo.read(target.id), candidates, edit.factor);
+    if (preview.ok) {
+      state.pendingChange = {
+        kind: "edit",
+        recipeId: target.id,
+        title: target.title,
+        candidates,
+        factor: edit.factor,
+      };
+      await tg.sendMessage(
+        row.chat_id,
+        T[lang].editConfirm(target.title, describeChanges(preview.changes)),
+        [[
+          { text: T[lang].btnSaveNote, callback_data: "note_yes" },
+          { text: T[lang].btnSkipNote, callback_data: "note_no" },
+        ]],
+      );
+      return;
+    }
+    // Interpretable but not applicable (no matching row / not numeric):
+    // fall through to the note path rather than guessing.
+  }
+
   const author = await familyMemberName(supa, row.family_member_id);
   const noteLine = formatNoteLine(action.note, author, localIsoDate());
-  state.pendingNote = { recipeId: target.id, title: target.title, noteLine };
+  state.pendingChange = { kind: "note", recipeId: target.id, title: target.title, noteLine };
   await tg.sendMessage(row.chat_id, T[lang].noteConfirm(target.title, noteLine), [[
     { text: T[lang].btnSaveNote, callback_data: "note_yes" },
     { text: T[lang].btnSkipNote, callback_data: "note_no" },
@@ -310,14 +364,14 @@ async function executeOne(
   state: ChatState,
   preferences: Map<string, string>,
   lang: Lang,
-  notes?: RecipeNotesDeps,
+  notes?: RecipeRepoDeps,
 ): Promise<void> {
   switch (action.type) {
     case "insert_item":
       return; // batched in executeInserts
 
     case "note_recipe":
-      return prepareNote(supa, tg, row, action, state, lang, notes);
+      return prepareRecipeChange(supa, tg, row, action, state, lang, notes);
 
     case "check_items": {
       for (const term of action.terms) {
@@ -431,7 +485,7 @@ export async function handleCallback(
   tg: TelegramApi,
   row: InboxRow,
   states: StateMap,
-  notes?: RecipeNotesDeps,
+  notes?: RecipeRepoDeps,
 ): Promise<void> {
   const callbackId = row.payload.callback_query?.id;
   if (callbackId) await tg.answerCallbackQuery(callbackId);
@@ -439,12 +493,12 @@ export async function handleCallback(
   // Callback data carries no language, so replies follow the household
   // default (Swedish).
 
-  // p4-08: the ONLY place a repo write can start — and only when the
-  // pending note from this process's confirm question is still around.
+  // p4-08/p4-09: the ONLY place a repo write can start — and only when the
+  // pending change from this process's confirm question is still around.
   if (row.text === "note_yes" || row.text === "note_no") {
     const state = states.get(row.chat_id);
-    const pending = state?.pendingNote;
-    if (state) delete state.pendingNote;
+    const pending = state?.pendingChange;
+    if (state) delete state.pendingChange;
     if (row.text === "note_no") {
       await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteSkipped);
       return;
@@ -454,7 +508,10 @@ export async function handleCallback(
       return;
     }
     try {
-      const result = await notes.publish(pending.recipeId, pending.noteLine);
+      const result =
+        pending.kind === "edit"
+          ? await notes.publishEdit(pending.recipeId, pending.candidates, pending.factor)
+          : await notes.publishNote(pending.recipeId, pending.noteLine);
       await tg.editMessageText(
         row.chat_id,
         row.message_id,

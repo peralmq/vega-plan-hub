@@ -16,22 +16,33 @@ import {
   handleMessage,
   helpText,
   type InboxRow,
-  type RecipeNotesDeps,
+  type RecipeRepoDeps,
   type StateMap,
 } from "./tools";
-import { loadRecipeIndex, publishRecipeNote } from "./recipePublish";
+import {
+  loadIngredientSynonyms,
+  loadRecipeIndex,
+  publishRecipeEdit,
+  publishRecipeNote,
+  readRecipe,
+} from "./recipePublish";
 
 const cfg = loadConfig();
 const tg = new TelegramApi(cfg.telegramBotToken);
 const chat = ollamaChat(cfg.ollamaUrl, cfg.nluModel);
 const states: StateMap = new Map();
 
-// p4-08 recipe notes: the enumerated repo-write tool, bound to the
-// checkout/push settings from env. Injected so tools.ts stays git-free.
-const notes: RecipeNotesDeps = {
+// p4-08/p4-09 recipe notes + structured edits: the enumerated repo-write
+// tools, bound to the checkout/push settings from env. Injected so
+// tools.ts stays git-free.
+const notes: RecipeRepoDeps = {
   index: () => loadRecipeIndex(cfg.recipeRepoDir),
-  publish: (recipeId, noteLine) =>
+  synonyms: () => loadIngredientSynonyms(cfg.recipeRepoDir),
+  read: (recipeId) => readRecipe(cfg.recipeRepoDir, recipeId),
+  publishNote: (recipeId, noteLine) =>
     publishRecipeNote({ repoDir: cfg.recipeRepoDir, recipeId, noteLine, push: cfg.recipePush }),
+  publishEdit: (recipeId, candidates, factor) =>
+    publishRecipeEdit({ repoDir: cfg.recipeRepoDir, recipeId, candidates, factor, push: cfg.recipePush }),
 };
 
 const supa = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {

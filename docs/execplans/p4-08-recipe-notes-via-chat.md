@@ -2,7 +2,7 @@
 id: p4-08-recipe-notes-via-chat
 title: Recipe notes via chat — "mindre stark nästa gång" lands in the repo and the cooking view
 phase: P4
-status: in-progress
+status: done
 depends_on: [p4-02-capture-bot]
 ---
 
@@ -60,10 +60,9 @@ note language.
 - [x] Bot side: recipe index, confirm flow, `publishRecipeNote` tool
       (validate → rollback-on-fail → fixed-arg git), consumer wiring
 - [x] Local end-to-end git test against a scratch bare remote
-- [ ] M1 deployment: pull, set push credentials (deploy key) +
+- [x] M1 deployment: pull, set push credentials (deploy key) +
       `github.com` egress, restart bot
-- [ ] Live smoke: a real "mindre stark nästa gång" from a partner
-      lands on GitHub Pages
+- [x] Live smoke: a real note from a partner lands on GitHub Pages
 
 ## Steps
 
@@ -142,3 +141,10 @@ note language.
   egress allow-list; restart `npm run bot` and check the
   `[boot] recipe notes: repo=… push=on` line. `RECIPE_PUSH=0` gives a
   commit-only dry-run mode for the first live smoke if preferred.
+
+**2026-08-24 (live smoke, human-reported):** Pelle deployed per the
+runbook and reports the smoke test works end-to-end — a chat note lands
+in the recipe via the confirm flow. Immediate feedback: a note alone is
+not enough; "dubbla vitlöken" should change the ingredient table for
+real, with the exact before→after echoed before saving. That extension
+is p4-09-recipe-edits-via-chat.
