@@ -30,7 +30,27 @@ TELEGRAM_BOT_TOKEN=<from BotFather>
 # OLLAMA_URL=http://localhost:11434
 # NLU_MODEL=qwen3:8b
 # SWEEP_MS=15000
+# p4-08 recipe notes:
+# RECIPE_REPO_DIR=<checkout to publish from; default: this checkout>
+# RECIPE_PUSH=0   # commit-only dry run (no push) — useful for first smoke
 ```
+
+## Recipe notes (p4-08)
+
+"mindre stark nästa gång" → confirm button → note appended to the
+recipe's `## Notes`, validated (`./harness validate-recipe`), committed
+and pushed to `main`; CI + Pages make it live in CookMode in ~1–2 min.
+Extra prerequisites beyond p4-02:
+
+- The checkout in `RECIPE_REPO_DIR` must be able to `git pull --rebase`
+  and `git push origin main`: a repo-scoped **deploy key** (or the
+  household git credentials) on the M1, per the tech.spec "Recipe
+  notes" contract — key material stays out of the repo.
+- `github.com` added to the egress allow-list (r6 runbook amendment).
+- Git author identity set in the checkout (`git config user.name/email`).
+
+First smoke: set `RECIPE_PUSH=0`, send a note, press [Ja, spara],
+inspect the local commit; then unset and go live.
 
 ## Run
 
