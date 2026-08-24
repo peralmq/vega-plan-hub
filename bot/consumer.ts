@@ -16,13 +16,23 @@ import {
   handleMessage,
   helpText,
   type InboxRow,
+  type RecipeNotesDeps,
   type StateMap,
 } from "./tools";
+import { loadRecipeIndex, publishRecipeNote } from "./recipePublish";
 
 const cfg = loadConfig();
 const tg = new TelegramApi(cfg.telegramBotToken);
 const chat = ollamaChat(cfg.ollamaUrl, cfg.nluModel);
 const states: StateMap = new Map();
+
+// p4-08 recipe notes: the enumerated repo-write tool, bound to the
+// checkout/push settings from env. Injected so tools.ts stays git-free.
+const notes: RecipeNotesDeps = {
+  index: () => loadRecipeIndex(cfg.recipeRepoDir),
+  publish: (recipeId, noteLine) =>
+    publishRecipeNote({ repoDir: cfg.recipeRepoDir, recipeId, noteLine, push: cfg.recipePush }),
+};
 
 const supa = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
   auth: { persistSession: false, autoRefreshToken: true },
@@ -37,7 +47,7 @@ supa.auth.onAuthStateChange((event) => {
 async function processRow(row: InboxRow): Promise<void> {
   const t0 = performance.now();
   if (row.kind === "callback_query") {
-    await handleCallback(tg, row);
+    await handleCallback(tg, row, states, notes);
     console.log(`[row ${row.id}] callback "${row.text}" ${Math.round(performance.now() - t0)}ms`);
     return;
   }
@@ -55,7 +65,7 @@ async function processRow(row: InboxRow): Promise<void> {
   }
 
   const { parse, source } = await parseUtterance(text, chat);
-  await handleMessage(supa, tg, row, parse, states);
+  await handleMessage(supa, tg, row, parse, states, notes);
   console.log(
     `[row ${row.id}] intent=${parse.intent} source=${source} ` +
       `${Math.round(performance.now() - t0)}ms "${text}"`,
@@ -108,6 +118,7 @@ async function main(): Promise<void> {
   });
   if (error) throw new Error(`household sign-in failed: ${error.message}`);
   console.log(`[boot] signed in as household user; model=${cfg.nluModel} ollama=${cfg.ollamaUrl}`);
+  console.log(`[boot] recipe notes: repo=${cfg.recipeRepoDir} push=${cfg.recipePush ? "on" : "off"}`);
 
   // Warm probe: fail loudly at boot if the local LLM is down, instead of
   // on the first hard utterance.

@@ -158,10 +158,21 @@ describe("must-not-act guarantees (r4 §4 T2 / p4-02 verification)", () => {
   });
 
   it("unsupported intents (planning etc.) plan zero write actions", () => {
-    for (const intent of ["set_preference", "plan_lock", "plan_draft", "note_recipe"] as const) {
+    for (const intent of ["set_preference", "plan_lock", "plan_draft"] as const) {
       const actions = planActions({ intent }, prefs);
       expect(actions.some(isWriteAction), intent).toBe(false);
     }
+  });
+
+  // p4-08: note_recipe graduated from UNSUPPORTED to a write action — but
+  // only when the parser actually extracted a note; an empty slot must
+  // stay inert, and the git side is additionally gated on a button press.
+  it("note_recipe plans a note write with the extracted slot, noop without", () => {
+    expect(planActions({ intent: "note_recipe", note: "mindre stark" }, prefs)).toEqual([
+      { type: "note_recipe", note: "mindre stark" },
+    ]);
+    expect(planActions({ intent: "note_recipe" }, prefs)).toEqual([{ type: "noop" }]);
+    expect(planActions({ intent: "note_recipe", note: "  " }, prefs)).toEqual([{ type: "noop" }]);
   });
 });
 

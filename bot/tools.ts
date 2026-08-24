@@ -8,12 +8,27 @@ import { detectLanguage, type ParsedUtterance } from "../src/lib/intentParser";
 import {
   type BotAction,
   type InsertItemAction,
+  type NoteRecipeAction,
   matchCandidates,
   planActions,
 } from "../src/lib/botActions";
 import { currentPreferenceMap } from "../src/lib/productPreferences";
 import { normalizeIngredientName } from "../src/lib/ingredientNormalization";
+import {
+  formatNoteLine,
+  localIsoDate,
+  matchRecipeTitle,
+  type RecipeIndexEntry,
+} from "../src/lib/recipeNotes";
 import { REACTIONS, TelegramApi } from "./telegram";
+
+// The repo-write seam (p4-08): tools.ts decides WHAT to save and asks the
+// sender; recipePublish.ts (injected by the consumer) is the only code that
+// touches files or git, and only from the note_yes callback below.
+export interface RecipeNotesDeps {
+  index(): RecipeIndexEntry[];
+  publish(recipeId: string, noteLine: string): Promise<{ committed: boolean; pushed: boolean }>;
+}
 
 export interface InboxRow {
   id: number;
@@ -34,6 +49,10 @@ export interface InboxRow {
 // instead of guessing at a stale row.
 export interface ChatState {
   lastInsert?: { rowIds: string[]; displayNames: string[] };
+  // A note awaiting its [Ja, spara] press. In-process on purpose (same
+  // restart semantics as lastInsert): after a restart the callback says
+  // "skicka igen" instead of publishing something stale.
+  pendingNote?: { recipeId: string; title: string; noteLine: string };
 }
 export type StateMap = Map<number, ChatState>;
 
@@ -65,6 +84,19 @@ const T = {
       "🚧 Jag kan bara list-grejer än så länge (köp / visa listan / bocka av). Planeringssnack kommer snart 🌱",
     cbRemember: "🌱 Att komma ihåg stapelvaror lär jag mig i nästa uppdatering — noterat i själen!",
     cbOnce: "👍 Bara denna gång, då.",
+    noteWhich:
+      "🤔 Vilket recept gäller det? Ingen middag är planerad idag — nämn rättens namn så fixar jag det.",
+    noteConfirm: (title: string, noteLine: string) =>
+      `📝 Spara på ${title}?\n„${noteLine}"`,
+    btnSaveNote: "Ja, spara",
+    btnSkipNote: "Avbryt",
+    cbNoteSaved: (title: string) =>
+      `📝 Sparat på ${title}! Publicerar — syns i appen om ett par minuter 🌱`,
+    cbNoteCommitted: (title: string) =>
+      `📝 Sparat på ${title} (lokal commit — push är avstängd på den här maskinen).`,
+    cbNoteGone: "🤔 Hittar ingen anteckning att spara — skicka den igen 🙏",
+    cbNoteSkipped: "👍 Skippar anteckningen.",
+    cbNoteFailed: (reason: string) => `😵 Kunde inte spara anteckningen: ${reason}`,
   },
   en: {
     help:
@@ -90,6 +122,19 @@ const T = {
       "🚧 I only do list stuff so far (köp / visa listan / bocka av). Planning chat is the next update 🌱",
     cbRemember: "🌱 I'll learn to remember staples in the next update — noted in spirit!",
     cbOnce: "👍 Just this once then.",
+    noteWhich:
+      "🤔 Which recipe is that for? Nothing is planned today — name the dish and I'll take it.",
+    noteConfirm: (title: string, noteLine: string) =>
+      `📝 Save on ${title}?\n"${noteLine}"`,
+    btnSaveNote: "Yes, save",
+    btnSkipNote: "Cancel",
+    cbNoteSaved: (title: string) =>
+      `📝 Saved on ${title}! Publishing — in the app in a couple of minutes 🌱`,
+    cbNoteCommitted: (title: string) =>
+      `📝 Saved on ${title} (local commit — push is off on this machine).`,
+    cbNoteGone: "🤔 No note waiting to be saved — send it again 🙏",
+    cbNoteSkipped: "👍 Skipping the note.",
+    cbNoteFailed: (reason: string) => `😵 Couldn't save the note: ${reason}`,
   },
 } satisfies Record<Lang, unknown>;
 
@@ -103,6 +148,38 @@ async function loadPreferences(
     .eq("user_id", userId)
     .is("superseded_by", null);
   return currentPreferenceMap(data ?? []);
+}
+
+// Note target resolution: a dish named in the message wins; otherwise the
+// meal planned for today (planned_meals is unique per user + meal_date).
+async function resolveNoteRecipe(
+  supa: SupabaseClient,
+  row: InboxRow,
+  index: RecipeIndexEntry[],
+): Promise<RecipeIndexEntry | null> {
+  const named = matchRecipeTitle(row.text ?? "", index);
+  if (named) return named;
+  const { data } = await supa
+    .from("planned_meals")
+    .select("recipe_id")
+    .eq("user_id", row.user_id)
+    .eq("meal_date", localIsoDate())
+    .maybeSingle();
+  if (!data?.recipe_id) return null;
+  return index.find((r) => r.id === data.recipe_id) ?? null;
+}
+
+async function familyMemberName(
+  supa: SupabaseClient,
+  familyMemberId: string | null,
+): Promise<string | null> {
+  if (!familyMemberId) return null;
+  const { data } = await supa
+    .from("family_members")
+    .select("name")
+    .eq("id", familyMemberId)
+    .maybeSingle();
+  return data?.name ?? null;
 }
 
 async function findUnchecked(
@@ -179,6 +256,7 @@ export async function handleMessage(
   row: InboxRow,
   parse: ParsedUtterance,
   states: StateMap,
+  notes?: RecipeNotesDeps,
 ): Promise<void> {
   const state = states.get(row.chat_id) ?? {};
   states.set(row.chat_id, state);
@@ -190,8 +268,38 @@ export async function handleMessage(
   if (inserts.length > 0) await executeInserts(supa, tg, row, inserts, state, lang);
 
   for (const action of actions) {
-    await executeOne(supa, tg, row, action, state, preferences, lang);
+    await executeOne(supa, tg, row, action, state, preferences, lang, notes);
   }
+}
+
+// note_recipe here only PREPARES: resolve the recipe, stage the note line,
+// ask. The commit/push lives exclusively in the note_yes callback path —
+// that asymmetry is the p4-08 verification claim.
+async function prepareNote(
+  supa: SupabaseClient,
+  tg: TelegramApi,
+  row: InboxRow,
+  action: NoteRecipeAction,
+  state: ChatState,
+  lang: Lang,
+  notes: RecipeNotesDeps | undefined,
+): Promise<void> {
+  if (!notes) {
+    await tg.sendMessage(row.chat_id, T[lang].unsupported);
+    return;
+  }
+  const target = await resolveNoteRecipe(supa, row, notes.index());
+  if (!target) {
+    await tg.sendMessage(row.chat_id, T[lang].noteWhich);
+    return;
+  }
+  const author = await familyMemberName(supa, row.family_member_id);
+  const noteLine = formatNoteLine(action.note, author, localIsoDate());
+  state.pendingNote = { recipeId: target.id, title: target.title, noteLine };
+  await tg.sendMessage(row.chat_id, T[lang].noteConfirm(target.title, noteLine), [[
+    { text: T[lang].btnSaveNote, callback_data: "note_yes" },
+    { text: T[lang].btnSkipNote, callback_data: "note_no" },
+  ]]);
 }
 
 async function executeOne(
@@ -202,10 +310,14 @@ async function executeOne(
   state: ChatState,
   preferences: Map<string, string>,
   lang: Lang,
+  notes?: RecipeNotesDeps,
 ): Promise<void> {
   switch (action.type) {
     case "insert_item":
       return; // batched in executeInserts
+
+    case "note_recipe":
+      return prepareNote(supa, tg, row, action, state, lang, notes);
 
     case "check_items": {
       for (const term of action.terms) {
@@ -318,16 +430,47 @@ async function executeOne(
 export async function handleCallback(
   tg: TelegramApi,
   row: InboxRow,
+  states: StateMap,
+  notes?: RecipeNotesDeps,
 ): Promise<void> {
   const callbackId = row.payload.callback_query?.id;
   if (callbackId) await tg.answerCallbackQuery(callbackId);
-  // v1 stub (p4-02 scope): [Yes, remember] is acknowledged but writes
-  // nothing — preference LEARNING lands in p4-04. Callback data carries no
-  // language, so these follow the household default (Swedish).
-  if (row.message_id != null) {
-    const text = row.text === "remember" ? T.sv.cbRemember : T.sv.cbOnce;
-    await tg.editMessageText(row.chat_id, row.message_id, text);
+  if (row.message_id == null) return;
+  // Callback data carries no language, so replies follow the household
+  // default (Swedish).
+
+  // p4-08: the ONLY place a repo write can start — and only when the
+  // pending note from this process's confirm question is still around.
+  if (row.text === "note_yes" || row.text === "note_no") {
+    const state = states.get(row.chat_id);
+    const pending = state?.pendingNote;
+    if (state) delete state.pendingNote;
+    if (row.text === "note_no") {
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteSkipped);
+      return;
+    }
+    if (!pending || !notes) {
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteGone);
+      return;
+    }
+    try {
+      const result = await notes.publish(pending.recipeId, pending.noteLine);
+      await tg.editMessageText(
+        row.chat_id,
+        row.message_id,
+        result.pushed ? T.sv.cbNoteSaved(pending.title) : T.sv.cbNoteCommitted(pending.title),
+      );
+    } catch (err) {
+      const reason = String(err instanceof Error ? err.message : err).slice(0, 200);
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteFailed(reason));
+    }
+    return;
   }
+
+  // v1 stub (p4-02 scope): [Yes, remember] is acknowledged but writes
+  // nothing — preference LEARNING lands in p4-04.
+  const text = row.text === "remember" ? T.sv.cbRemember : T.sv.cbOnce;
+  await tg.editMessageText(row.chat_id, row.message_id, text);
 }
 
 export function helpText(sourceText: string): string {

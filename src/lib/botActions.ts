@@ -21,6 +21,9 @@ export interface CheckItemsAction { type: "check_items"; terms: string[] }
 export interface RemoveItemsAction { type: "remove_items"; terms: string[] }
 export interface CorrectLastAction { type: "correct_last"; replacement: string }
 export interface ShowListAction { type: "show_list"; query?: string }
+// The repo-write path (p4-08): planning only carries the extracted note —
+// recipe resolution, human confirmation, and the git tool live in bot/.
+export interface NoteRecipeAction { type: "note_recipe"; note: string }
 export interface UnsupportedAction { type: "unsupported"; intent: string }
 export interface NoopAction { type: "noop" }
 
@@ -30,10 +33,11 @@ export type BotAction =
   | RemoveItemsAction
   | CorrectLastAction
   | ShowListAction
+  | NoteRecipeAction
   | UnsupportedAction
   | NoopAction;
 
-const WRITE_ACTIONS = new Set(["insert_item", "check_items", "remove_items", "correct_last"]);
+const WRITE_ACTIONS = new Set(["insert_item", "check_items", "remove_items", "correct_last", "note_recipe"]);
 
 export function isWriteAction(action: BotAction): boolean {
   return WRITE_ACTIONS.has(action.type);
@@ -44,7 +48,7 @@ export function isWriteAction(action: BotAction): boolean {
 // "not yet" reply from the consumer, never a data write.
 const UNSUPPORTED: ReadonlySet<string> = new Set([
   "set_preference", "query_tonight", "plan_draft", "plan_set_day",
-  "plan_set_multiplier", "plan_lock", "note_recipe",
+  "plan_set_multiplier", "plan_lock",
 ]);
 
 // Check-off and removal match by ilike against what's on the list, but
@@ -101,6 +105,10 @@ export function planActions(
         : [{ type: "noop" }];
     case "show_list":
       return [{ type: "show_list", ...(parse.query ? { query: parse.query } : {}) }];
+    case "note_recipe":
+      return parse.note?.trim()
+        ? [{ type: "note_recipe", note: parse.note.trim() }]
+        : [{ type: "noop" }];
     case "chitchat":
       return [{ type: "noop" }];
     default:

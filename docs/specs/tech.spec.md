@@ -111,6 +111,20 @@ points, binding for P4 work:
   shell, no browser, no arbitrary SQL.
 - **Recipes**: markdown-in-repo stays the source of truth; the bot
   consumes them via shared loader logic or a build-time mirror.
+- **Recipe notes (adopted 2026-08-24, Pelle in chat — p4-08)**: the one
+  sanctioned repo-write path from chat. The bot may append a household
+  note to a recipe's `## Notes` section via a single enumerated tool:
+  path-restricted to `src/data/recipes/<id>.md`, deterministic template
+  (the only free text is the parser's extracted `note` slot, verbatim),
+  `./harness validate-recipe` pre-flight with rollback on failure,
+  explicit sender confirmation via inline button *before* any commit,
+  and fixed-argument git (`pull --rebase` / `add` / `commit` / `push
+  origin main`) run by the tool — the LLM never gets shell. `main`
+  stays the publish branch: CI re-validates and Pages redeploys
+  (~1–2 min). Operational prerequisites on the M1: `github.com` joins
+  the egress allow-list; push auth is a repo-scoped deploy key (or the
+  household git credentials) kept in gitignored mode-600 config, never
+  in the repo.
 
 ## Store integrations (adopted 2026-08-16, p5-01 gate)
 

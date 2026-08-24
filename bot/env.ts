@@ -15,6 +15,8 @@ export interface BotConfig {
   ollamaUrl: string;
   nluModel: string;
   sweepMs: number;
+  recipeRepoDir: string;
+  recipePush: boolean;
 }
 
 export function loadConfig(): BotConfig {
@@ -39,5 +41,9 @@ export function loadConfig(): BotConfig {
     ollamaUrl: process.env.OLLAMA_URL ?? "http://localhost:11434",
     nluModel: process.env.NLU_MODEL ?? "qwen3:8b",
     sweepMs: Number(process.env.SWEEP_MS ?? 15000),
+    // p4-08 recipe notes: the checkout the bot publishes from (defaults to
+    // the one it runs from) and RECIPE_PUSH=0 for commit-only dry runs.
+    recipeRepoDir: process.env.RECIPE_REPO_DIR ?? join(dirname(fileURLToPath(import.meta.url)), ".."),
+    recipePush: process.env.RECIPE_PUSH !== "0",
   };
 }
