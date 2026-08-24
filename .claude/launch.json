@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev-mock",
+      "runtimeExecutable": "./harness",
+      "runtimeArgs": ["dev-mock"],
+      "port": 8080
+    }
+  ]
+}
