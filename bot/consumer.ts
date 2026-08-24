@@ -41,8 +41,8 @@ const notes: RecipeRepoDeps = {
   read: (recipeId) => readRecipe(cfg.recipeRepoDir, recipeId),
   publishNote: (recipeId, noteLine) =>
     publishRecipeNote({ repoDir: cfg.recipeRepoDir, recipeId, noteLine, push: cfg.recipePush }),
-  publishEdit: (recipeId, candidates, factor) =>
-    publishRecipeEdit({ repoDir: cfg.recipeRepoDir, recipeId, candidates, factor, push: cfg.recipePush }),
+  publishEdit: (recipeId, candidates, edit) =>
+    publishRecipeEdit({ repoDir: cfg.recipeRepoDir, recipeId, candidates, edit, push: cfg.recipePush }),
 };
 
 const supa = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {

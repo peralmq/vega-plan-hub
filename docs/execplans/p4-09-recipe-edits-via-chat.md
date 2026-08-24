@@ -59,6 +59,9 @@ read as if authored that way.
       confirm message, `publishRecipeEdit` beside `publishRecipeNote`
 - [x] Local end-to-end git test (scale garlic in a scratch clone,
       assert table change + push; fallback + rollback still hold)
+- [x] Live-miss fix (2026-08-24 screenshot): edit verbs classified
+      note_recipe at the RULES layer; verb set extended (mer/mindre
+      family, dubblera/tripla, set-to-N); fixtures grown to 79
 - [ ] M1: pull + restart; live smoke "dubbla vitlöken i <dish>" lands
       the table change on Pages
 
@@ -113,3 +116,23 @@ read as if authored that way.
   never double an already-changed row — it re-applies or fails loudly.
 - M1 deploy for this plan is just `git pull` + bot restart (no new env,
   no new credentials beyond p4-08's).
+
+**2026-08-24 (live miss + fix, same day):** Pelle's live try "dubbla
+vitlöken i mapo tofun" (no "nästa gång") got the unsupported-intent
+reply — the LLM classifier filed it under planning, so interpretEdit
+never ran. Fix: these phrasings are now claimed deterministically by
+`parseWithRules` (guards: negations, "portion" → plan_set_multiplier,
+leading shopping verb; vague mer/mindre needs a next-time anchor), and
+the operation set grew per the amended spec bullet: dubblera/tripla,
+×1.5 öka/mer, ×0.75 dra ner på/minska/mindre, set-to-N ("ändra X till
+4", "ta 4 X istället", single-row only). Surprise recorded: JS `\b` is
+ASCII-only, so verb boundaries next to å/ä/ö silently failed ("ändra",
+"dra ner på") — replaced with letter-class lookarounds, caught by the
+unit suite. Evidence: 7 new rules fixtures (79 total, incl. the exact
+live-miss utterance) + decline-guard tests, all 92 parser tests green;
+recipeEdits suite at 14; `./harness check` fully green; e2e re-run:
+"dubbla vitlöken i mapo tofun" → rules-claimed → preview `garlic
+cloves: 2 → 4 st` → pushed commit `p4-09 recipe edit: mapo-tofu ×2
+vitlöken (via Vega chat)` with a 1-row diff. Reminder recorded from the
+same screenshot: the M1 still has `RECIPE_PUSH=0` and a dry-run note
+commit on its local main — reset or push before going live.

@@ -7,6 +7,8 @@
 // bot/nlu.ts). Every deterministic sub-problem removed from the model
 // converts an error class to zero — the R3 harness thesis.
 
+import { interpretEdit } from "./recipeEdits";
+
 export const INTENTS = [
   "add_item", "remove_item", "check_item", "show_list", "correct_last",
   "set_preference", "query_tonight", "plan_draft", "plan_set_day",
@@ -297,6 +299,26 @@ export function parseWithRules(utterance: string): ParsedUtterance | null {
   // plan_lock: exact ritual phrases only.
   if (/^(lås (dagarna|veckan)|lock it in)\s*!?$/i.test(low))
     return { intent: "plan_lock" };
+
+  // note_recipe via the structured-edit verbs (p4-09, added after the
+  // 2026-08-24 live miss: without a "nästa gång" cue the LLM filed
+  // "dubbla vitlöken i mapo tofun" under planning). Confident verbs
+  // (dubbla/halvera/…) claim on their own; the vaguer mer/mindre family
+  // only with a next-time anchor — never on negations, and never on
+  // portion talk, which is plan_set_multiplier's turf ("dubbla portioner
+  // på fredagen" fixtures). The note slot carries the verb + term so the
+  // p4-08 note fallback stays readable when no table row matches.
+  // ("köp mer kaffe nästa gång" is still shopping — a leading shopping
+  // verb opts the whole utterance out.)
+  if (
+    !/\binte\b|\bdon'?t\b/i.test(low) &&
+    !/portion/i.test(low) &&
+    !/^(?:köp|kop|buy|get|handla|vi behöver|vi behover|we need|lägg|kan du lägg)/i.test(low)
+  ) {
+    const edit = interpretEdit(low);
+    if (edit && (edit.confident || /nästa gång|förra gången|next time/i.test(low)))
+      return { intent: "note_recipe", note: edit.phrase };
+  }
 
   // add_item: "köp/buy/get X", "vi behöver X", "lägg till X", "3 burkar X".
   // Negations were consumed above, but guard anyway — a rules-layer add must

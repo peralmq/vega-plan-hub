@@ -639,5 +639,62 @@
       ]
     },
     "set": "live-20260814"
+  },
+  {
+    "utterance": "dubbla vitlöken i mapo tofun",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "dubbla vitlöken"
+    },
+    "note": "the 2026-08-24 live miss — no 'nästa gång' cue, LLM filed it as planning; rules must claim it",
+    "set": "p4-09-rules"
+  },
+  {
+    "utterance": "halvera chilin",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "halvera chili"
+    },
+    "set": "p4-09-rules"
+  },
+  {
+    "utterance": "dubblera sojan i pad thai",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "dubblera soja"
+    },
+    "set": "p4-09-rules"
+  },
+  {
+    "utterance": "mindre salt nästa gång",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "mindre salt"
+    },
+    "set": "p4-09-rules"
+  },
+  {
+    "utterance": "mer chili nästa gång tack",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "mer chili"
+    },
+    "set": "p4-09-rules"
+  },
+  {
+    "utterance": "ändra vitlöken till 4",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "ändra vitlöken till 4"
+    },
+    "set": "p4-09-rules"
+  },
+  {
+    "utterance": "double the garlic in mapo tofu",
+    "expect": {
+      "intent": "note_recipe",
+      "note": "double garlic"
+    },
+    "set": "p4-09-rules"
   }
 ]

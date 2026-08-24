@@ -164,6 +164,18 @@ describe("must-not-act guarantees (r4 §4 T2 / p4-02 verification)", () => {
     }
   });
 
+  // p4-09: the edit-verb rules must never poach neighboring intents —
+  // portion talk is plan_set_multiplier, shopping verbs stay shopping,
+  // negations stay inert. Rules must DECLINE these (LLM's turn).
+  it("edit-verb rules decline portion/shopping/negation phrasings", () => {
+    expect(parseWithRules("dubbla portioner på fredagen tack")).toBeNull();
+    expect(parseWithRules("kan vi köra dubbla portioner på söndagen?")).toBeNull();
+    expect(parseWithRules("köp mer kaffe nästa gång")?.intent).not.toBe("note_recipe");
+    expect(parseWithRules("dubbla inte vitlöken")).toBeNull();
+    // vague mer/mindre without a next-time anchor is not claimed either
+    expect(parseWithRules("mindre stark")).toBeNull();
+  });
+
   // p4-08: note_recipe graduated from UNSUPPORTED to a write action — but
   // only when the parser actually extracted a note; an empty slot must
   // stay inert, and the git side is additionally gated on a button press.

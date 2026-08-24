@@ -128,10 +128,20 @@ points, binding for P4 work:
 - **Structured recipe edits (extension adopted 2026-08-24, Pelle in
   chat — p4-09)**: the same write path may change the recipe *for
   real*, but only through **rules-interpreted, enumerable edit
-  operations** — currently ingredient-quantity scaling
-  (dubbla/halvera/tredubbla and English equivalents), interpreted
-  deterministically from the raw utterance (never from LLM output) and
-  applied by pure fixture-tested code to the ingredient table. The
+  operations**, interpreted deterministically from the raw utterance
+  (never from LLM output) and applied by pure fixture-tested code to
+  the ingredient table. The operation set (extended 2026-08-24 same day
+  after the live miss): scale ×2 (dubbla/dubblera/double), ×3
+  (tredubbla/tripla/triple), ×0.5 (halvera/halva/halve), the vaguer
+  household factors ×1.5 (öka/mer/more/increase) and ×0.75 (dra ner
+  på/minska/mindre/less/reduce), and set-to-N ("ändra X till 4", "ta 4
+  X istället"; refused when more than one row matches). These phrasings
+  are also classified `note_recipe` at the **rules layer** — zero model
+  calls; the live miss was the LLM filing "dubbla vitlöken i mapo
+  tofun" under planning — with confident verbs claiming on their own,
+  the mer/mindre family only with a next-time anchor, and never on
+  negations, portion talk (plan_set_multiplier's turf), or a leading
+  shopping verb. The
   confirmation message echoes the exact before→after per matched row;
   an utterance no rule can interpret falls back to the notes path
   above. Every other invariant is unchanged: validate-recipe

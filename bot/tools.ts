@@ -21,10 +21,11 @@ import {
   type RecipeIndexEntry,
 } from "../src/lib/recipeNotes";
 import {
-  applyScale,
+  applyEdit,
   describeChanges,
   expandTermCandidates,
   interpretEdit,
+  type EditIntent,
   type SynonymEntry,
 } from "../src/lib/recipeEdits";
 import { REACTIONS, TelegramApi } from "./telegram";
@@ -40,13 +41,13 @@ export interface RecipeRepoDeps {
   publishEdit(
     recipeId: string,
     candidates: string[],
-    factor: number,
+    edit: EditIntent,
   ): Promise<{ committed: boolean; pushed: boolean }>;
 }
 
 export type PendingChange =
   | { kind: "note"; recipeId: string; title: string; noteLine: string }
-  | { kind: "edit"; recipeId: string; title: string; candidates: string[]; factor: number };
+  | { kind: "edit"; recipeId: string; title: string; candidates: string[]; edit: EditIntent };
 
 export interface InboxRow {
   id: number;
@@ -324,14 +325,14 @@ async function prepareRecipeChange(
   const edit = interpretEdit(row.text ?? "");
   if (edit) {
     const candidates = expandTermCandidates(edit.term, repo.synonyms());
-    const preview = applyScale(repo.read(target.id), candidates, edit.factor);
+    const preview = applyEdit(repo.read(target.id), candidates, edit);
     if (preview.ok) {
       state.pendingChange = {
         kind: "edit",
         recipeId: target.id,
         title: target.title,
         candidates,
-        factor: edit.factor,
+        edit,
       };
       await tg.sendMessage(
         row.chat_id,
@@ -510,7 +511,7 @@ export async function handleCallback(
     try {
       const result =
         pending.kind === "edit"
-          ? await notes.publishEdit(pending.recipeId, pending.candidates, pending.factor)
+          ? await notes.publishEdit(pending.recipeId, pending.candidates, pending.edit)
           : await notes.publishNote(pending.recipeId, pending.noteLine);
       await tg.editMessageText(
         row.chat_id,

@@ -9,7 +9,7 @@ import { promisify } from "node:util";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { appendRecipeNote, type RecipeIndexEntry } from "../src/lib/recipeNotes";
-import { applyScale, type SynonymEntry } from "../src/lib/recipeEdits";
+import { applyEdit, type EditIntent, type SynonymEntry } from "../src/lib/recipeEdits";
 
 const run = promisify(execFile);
 
@@ -115,18 +115,20 @@ export function publishRecipeEdit(opts: {
   repoDir: string;
   recipeId: string;
   candidates: string[];
-  factor: number;
+  edit: EditIntent;
   push: boolean;
 }): Promise<PublishResult> {
+  const { edit } = opts;
+  const what = edit.kind === "scale" ? `×${edit.factor} ${edit.term}` : `${edit.term} = ${edit.value}`;
   return publishRecipeChange({
     repoDir: opts.repoDir,
     recipeId: opts.recipeId,
     push: opts.push,
     transform: (content) => {
-      const result = applyScale(content, opts.candidates, opts.factor);
+      const result = applyEdit(content, opts.candidates, edit);
       if (!result.ok) throw new Error(`edit no longer applies (${result.reason})`);
       return result.markdown;
     },
-    commitMessage: `p4-09 recipe edit: ${opts.recipeId} ×${opts.factor} (via Vega chat)`,
+    commitMessage: `p4-09 recipe edit: ${opts.recipeId} ${what} (via Vega chat)`,
   });
 }
