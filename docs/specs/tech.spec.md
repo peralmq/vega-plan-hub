@@ -92,6 +92,13 @@ points, binding for P4 work:
   decision 2, 2026-08-14). Gate calls adopted: preference resolution at **add-time**;
   ad-hoc items batchless until shopping mode gathers them; per-person
   preference column kept but written null in v0.
+  **Pool model** (directive Pelle 2026-08-27, design.spec "Pool over
+  calendar"): `planned_meals` rows are batch pool entries, not date
+  assignments — a meal prep is simply the same `recipe_id` twice in
+  the pool. The minimal schema delta (relax `meal_date` to nullable
+  and add a `cooked_on` stamp set when a dish is picked, or
+  equivalent) is a change to the approved §1 set and must be
+  confirmed at the p4-12 dispatch gate before migrating.
 - **Auth**: the bot authenticates as the (single, shared) household
   user with RLS active — the service-role key is not used. Senders are
   gated by the `telegram_accounts` allow-list; attribution stamps

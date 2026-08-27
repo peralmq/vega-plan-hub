@@ -37,23 +37,30 @@ bot path must reuse it, not fork it; recipe access per tech.spec.md
 and record why).
 
 2026-08-27 directive (Pelle): the first production batch is **5 days
-including one meal prep**. Meal prep is modeled with no schema
-change: the same `recipe_id` planned on consecutive days (one
-`planned_meals` row per day, each with its own multiplier) — the
-shared aggregation then scales the shopping list correctly, and the
-cook-day is the first day of the span. The draft proposer must be
-able to propose one such span for horizons ≥ 4 days (suitability =
-a simple heuristic over tags — stews/dals/soups first; freely
-editable in the loop), and draft + lock announcements label the span
-🍱. Downstream extensions of the lock announcement: p4-10 (Swedish
-menu card) and p5-05 (batch → compare handoff).
+including one meal prep**, and a batch is a **pool, not a calendar**
+(design.spec "Pool over calendar"): the draft is a *list of meals
+with counts* — no day assignment — and edits swap/add/remove list
+entries, not weekdays. Which dish gets cooked which night is decided
+later in Cook Mode (p4-12) or the daily nudge (p4-05), never at
+planning time; r1 Script 5's per-day draft lines are superseded on
+this point. Meal prep needs no extra concept: it is the same
+`recipe_id` twice in the pool (two `planned_meals` rows, each with
+its own multiplier) — the shared aggregation scales the shopping
+list correctly. The proposer must be able to propose one meal-prep
+pair for horizons ≥ 4 days (suitability = a simple heuristic over
+tags — stews/dals/soups first; freely editable in the loop), and
+draft + lock announcements badge it 🍱 ×2. Lock stores the pool plus
+the covered date range on `plan_batches`. Downstream extensions of
+the lock announcement: p4-10 (Swedish menu card) and p5-05 (batch →
+compare handoff).
 
 ## Progress
 
 - [ ] Recipe access mechanism chosen and recorded
 - [ ] Draft proposer + conversation state machine, unit-tested
-- [ ] Meal-prep span: propose (horizon ≥ 4), edit, 🍱 label, correct
-      list scaling via the shared aggregation lib
+- [ ] Pool drafting: meal list with counts, no day assignment; 🍱 ×2
+      meal-prep pair proposed for horizon ≥ 4, correct list scaling
+      via the shared aggregation lib
 - [ ] Lock → batch + list generation (shared lib), SEK estimate
 - [ ] Swap-with-diff; checked-state preservation
 - [ ] Live batch planned + locked by the household

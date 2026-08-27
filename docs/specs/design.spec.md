@@ -35,6 +35,12 @@ flowchart LR
 
 - **Cook Mode is home.** A signed-in user lands on tonight's meal, not a
   dashboard. Tonight-first is the core UX bet.
+- **Pool over calendar** (directive Pelle 2026-08-27): a plan batch is
+  a *pool* of meals with counts ("these dishes are in this plan"), not
+  per-day assignments. The household picks each day's dish from the
+  remaining pool when they decide to cook; dates appear only as the
+  batch's covered range. This supersedes the weekday-slot model below
+  wherever the two conflict; the web adoption is `p4-12`.
 - All routes except `/welcome` require auth; unknown routes redirect to
   `/`, logged-out users to `/welcome`.
 
@@ -43,8 +49,8 @@ flowchart LR
 | Screen | Purpose | Key elements |
 | --- | --- | --- |
 | Landing (`/welcome`) | Sell the app, sign in/up | Hero, value props, auth entry |
-| Cook Mode (`/`) | Cook tonight's meal | Today's recipe card; per-day servings stepper (multiplier ±); scaled ingredient list; step-by-step instructions; link out to original recipe; week overview navigation |
-| Plan Mode (`/plan`) | Build current/next week | Weekday slots (Mon–Sun); recipe picker from the library; servings slider per day; clear/reset; hand-off to summary |
+| Cook Mode (`/`) | Cook tonight's meal | Tonight's pick from the batch pool (choose-from-remaining picker; already-cooked entries shown as done); servings stepper (multiplier ±); scaled ingredient list; step-by-step instructions; link out to original recipe; batch overview navigation |
+| Plan Mode (`/plan`) | Build the active batch | The batch's meal pool as a list (dish × count, 🍱 meal-prep badge); recipe picker from the library; servings multiplier per meal; clear/reset; hand-off to summary |
 | Shopping Summary (`/summary`) | Shop the week | Aggregated, normalized, scaled ingredient list with checkboxes; SEK estimates; print and copy-to-clipboard actions; back to plan |
 | Account (`/account`) | Household settings | Profile, family members (for ratings/tastes), sign out |
 
