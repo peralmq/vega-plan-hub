@@ -239,7 +239,6 @@ export default function CookMode() {
         {currentBatch && (
           <BatchOverview
             startsOn={currentBatch.startsOn}
-            endsOn={currentBatch.endsOn}
             cookedCount={partition.cooked.length}
             totalCount={pool.length}
           />
@@ -466,12 +465,10 @@ export default function CookMode() {
 
 function BatchOverview({
   startsOn,
-  endsOn,
   cookedCount,
   totalCount,
 }: {
   startsOn: string;
-  endsOn: string;
   cookedCount: number;
   totalCount: number;
 }) {
@@ -480,8 +477,10 @@ function BatchOverview({
     <Card className="p-3 mb-6 flex items-center justify-between gap-3 flex-wrap bg-muted/50 border-dashed">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Package className="h-4 w-4 text-primary" />
+        {/* No end date on purpose: a batch runs until everything is cooked
+            or a new batch replaces it (design.spec "Pool over calendar"). */}
         <span>
-          Batch {startsOn} → {endsOn} · {cookedCount}/{totalCount} cooked
+          Batch started {startsOn} · {cookedCount}/{totalCount} cooked
         </span>
       </div>
       <Button variant="ghost" size="sm" onClick={() => navigate('/plan')}>

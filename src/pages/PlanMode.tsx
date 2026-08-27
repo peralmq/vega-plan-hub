@@ -131,7 +131,7 @@ export default function PlanMode() {
                 <span className="text-lg font-bold">Plan Mode</span>
                 {currentBatch && (
                   <span className="text-sm text-muted-foreground ml-2">
-                    {currentBatch.startsOn} → {currentBatch.endsOn}
+                    started {currentBatch.startsOn}
                   </span>
                 )}
               </div>

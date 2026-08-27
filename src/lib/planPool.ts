@@ -11,19 +11,22 @@ export const toISODate = (d: Date): string => format(d, "yyyy-MM-dd");
 export interface BatchRowLike {
   id: string;
   starts_on: string; // yyyy-MM-dd
-  ends_on: string; // yyyy-MM-dd
+  ends_on?: string; // chat-side sizing hint only — never read here
 }
 
-// The batch whose covered range includes today (inclusive both ends). If
-// more than one somehow overlaps today, the first in array order wins —
-// overlap prevention is p4-03's lock-time concern, not this read path's.
+// Open-ended batches (design.spec "Pool over calendar", directive Pelle
+// 2026-08-27 evening): a batch never expires by date — nobody knows when
+// the last dishes get cooked. The active batch is simply the one that
+// STARTED most recently (starts_on <= today); locking a newer batch is
+// the reset that supersedes it. `ends_on` is ignored entirely.
 export function findCurrentBatch(
   batches: BatchRowLike[],
   todayIso: string,
 ): BatchRowLike | null {
-  return (
-    batches.find((b) => b.starts_on <= todayIso && todayIso <= b.ends_on) ??
-    null
+  const started = batches.filter((b) => b.starts_on <= todayIso);
+  if (started.length === 0) return null;
+  return started.reduce((latest, b) =>
+    b.starts_on > latest.starts_on ? b : latest,
   );
 }
 

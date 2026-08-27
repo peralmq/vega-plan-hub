@@ -17,6 +17,9 @@ describe("toISODate", () => {
   });
 });
 
+// Open-ended batches (directive Pelle 2026-08-27 evening): batches never
+// expire by date — the latest-started one is active until a newer batch
+// supersedes it. `ends_on` must be completely irrelevant to selection.
 describe("findCurrentBatch", () => {
   const batches: BatchRowLike[] = [
     { id: "past", starts_on: "2026-08-01", ends_on: "2026-08-10" },
@@ -24,15 +27,27 @@ describe("findCurrentBatch", () => {
     { id: "future", starts_on: "2026-09-01", ends_on: "2026-09-05" },
   ];
 
-  it("returns the batch whose range covers today", () => {
-    expect(findCurrentBatch(batches, "2026-08-27")).toEqual(batches[1]);
+  it("returns the latest-started batch, not the date-range match", () => {
+    expect(findCurrentBatch(batches, "2026-08-27")?.id).toBe("active");
   });
-  it("matches on the boundary dates (inclusive)", () => {
+  it("keeps a batch active after its planned ends_on has passed", () => {
+    // 2026-08-31 is past "active"'s ends_on — the uncooked dishes are
+    // exactly why the batch must still be there.
+    expect(findCurrentBatch(batches, "2026-08-31")?.id).toBe("active");
+  });
+  it("a newer batch supersedes the older one the day it starts", () => {
+    expect(findCurrentBatch(batches, "2026-09-01")?.id).toBe("future");
+  });
+  it("matches on the start date itself (inclusive)", () => {
     expect(findCurrentBatch(batches, "2026-08-20")?.id).toBe("active");
-    expect(findCurrentBatch(batches, "2026-08-30")?.id).toBe("active");
   });
-  it("returns null when no batch covers today", () => {
-    expect(findCurrentBatch(batches, "2026-08-15")).toBeNull();
+  it("ignores ends_on entirely — selection works without it", () => {
+    expect(
+      findCurrentBatch([{ id: "open", starts_on: "2026-08-20" }], "2026-08-27")?.id,
+    ).toBe("open");
+  });
+  it("returns null before any batch has started", () => {
+    expect(findCurrentBatch(batches, "2026-07-15")).toBeNull();
   });
   it("returns null for an empty list", () => {
     expect(findCurrentBatch([], "2026-08-27")).toBeNull();

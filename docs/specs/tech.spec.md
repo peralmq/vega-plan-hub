@@ -99,6 +99,12 @@ points, binding for P4 work:
   and add a `cooked_on` stamp set when a dish is picked, or
   equivalent) is a change to the approved §1 set and must be
   confirmed at the p4-12 dispatch gate before migrating.
+  **Open-ended batches** (directive Pelle 2026-08-27, evening): the
+  active batch is the one with the latest `starts_on` ≤ today — never
+  selected or expired by `ends_on`, which stays in the schema as a
+  chat-side sizing hint only (no migration; the web reads and shows
+  start + cooked count only). A batch ends by being finished (all
+  cooked) or superseded by a newer batch.
 - **Auth**: the bot authenticates as the (single, shared) household
   user with RLS active — the service-role key is not used. Senders are
   gated by the `telegram_accounts` allow-list; attribution stamps

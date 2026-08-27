@@ -77,8 +77,8 @@ export default function ShoppingSummary() {
       })
       .join('\n');
 
-    const rangeLabel = currentBatch ? `${currentBatch.startsOn} → ${currentBatch.endsOn}` : '';
-    navigator.clipboard.writeText(`Shopping List for ${rangeLabel}\n\n${text}`);
+    const batchLabel = currentBatch ? `the batch started ${currentBatch.startsOn}` : '';
+    navigator.clipboard.writeText(`Shopping List for ${batchLabel}\n\n${text}`);
     toast({
       title: "Copied! 📋",
       description: "Shopping list copied to clipboard.",
@@ -127,7 +127,7 @@ export default function ShoppingSummary() {
         <Card className="p-6 mb-6 bg-primary text-primary-foreground text-center print:hidden">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Package className="h-6 w-6" />
-            <h2 className="text-xl font-bold">Batch {currentBatch.startsOn} → {currentBatch.endsOn}</h2>
+            <h2 className="text-xl font-bold">Batch started {currentBatch.startsOn}</h2>
           </div>
           <p>Here's your shopping list for the active batch.</p>
         </Card>

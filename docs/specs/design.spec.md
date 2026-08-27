@@ -49,9 +49,16 @@ flowchart LR
 - **Pool over calendar** (directive Pelle 2026-08-27): a plan batch is
   a *pool* of meals with counts ("these dishes are in this plan"), not
   per-day assignments. The household picks each day's dish from the
-  remaining pool when they decide to cook; dates appear only as the
-  batch's covered range. This supersedes the weekday-slot model below
-  wherever the two conflict; the web adoption is `p4-12`.
+  remaining pool when they decide to cook. **A batch has a start but no
+  end** (directive Pelle 2026-08-27, evening — reverses the same-day
+  "covered range" wording): nobody knows when the last dishes get
+  cooked, so a batch never expires by date. It ends only by being
+  *finished* (every dish cooked) or *superseded* (a newer batch starts
+  — the reset). The UI shows the start date and the cooked count,
+  never an end date; the drafting ritual in chat may still use a
+  horizon ("planera 5 dagar") to size the pool, but that horizon is a
+  sizing hint, not a deadline. This supersedes the weekday-slot model
+  below wherever the two conflict; the web adoption is `p4-12`.
 - All routes except `/welcome` require auth; unknown routes redirect to
   `/`, logged-out users to `/welcome`.
 

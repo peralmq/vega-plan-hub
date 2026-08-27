@@ -19,7 +19,6 @@ export interface PoolMeal extends PoolEntry {
 export interface BatchPool {
   id: string;
   startsOn: string;
-  endsOn: string;
   meals: PoolMeal[];
 }
 
@@ -50,10 +49,14 @@ export function useBatchPool() {
     try {
       const today = toISODate(new Date());
 
+      // Open-ended batches (design.spec "Pool over calendar"): no date
+      // filter — a batch with uncooked dishes must never fall out of view
+      // because a planned end passed. Selection is purely "latest started"
+      // (findCurrentBatch); the table is household-scale, so fetching all
+      // rows is fine.
       const { data: batchRows, error: batchError } = await supabase
         .from('plan_batches')
-        .select('id, starts_on, ends_on')
-        .gte('ends_on', today)
+        .select('id, starts_on')
         .order('starts_on', { ascending: true });
       if (batchError) throw batchError;
 
@@ -83,7 +86,7 @@ export function useBatchPool() {
           ...entry,
           recipe: allRecipes.find((r) => r.id === entry.recipeId),
         }));
-        return { id: batch.id, startsOn: batch.starts_on, endsOn: batch.ends_on, meals };
+        return { id: batch.id, startsOn: batch.starts_on, meals };
       };
 
       setCurrentBatch(toBatchPool(current));

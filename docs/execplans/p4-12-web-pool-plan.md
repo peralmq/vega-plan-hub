@@ -97,12 +97,19 @@ entries without forking. The p4-11 deep-link contract (`?recipe=` +
   and the hand-extended `src/integrations/supabase/types.ts` are the
   deliverable; live application + `supabase gen types` regeneration
   against the real project is a human follow-up.
-- "Active batch" = the `plan_batches` row whose `[starts_on, ends_on]`
-  covers today; "next batch" = the soonest batch starting after today.
-  This mirrors the retired current/next-*week* window as a
-  current/next-*batch* window (`findCurrentBatch`/`findNextBatch`,
-  `src/lib/planPool.ts`). Overlap resolution stays p4-03's problem
-  (non-goal here).
+- ~~"Active batch" = the `plan_batches` row whose `[starts_on, ends_on]`
+  covers today~~ — **REVERSED same day** (directive Pelle 2026-08-27
+  evening, screenshot feedback on the "Batch A → B" strip): batches are
+  **open-ended**. Nobody knows when the last dishes get cooked, so a
+  batch never expires by date; it ends by being finished (all cooked)
+  or superseded by a newer batch. New rule: active = latest
+  `starts_on` <= today, `ends_on` ignored entirely (kept in schema as a
+  chat-side sizing hint — no migration). All three pages now show
+  "Batch started <date> · n/m cooked"; the hook's `gte(ends_on)` fetch
+  filter is gone so an over-run batch can't fall out of view. "Next
+  batch" (starts after today) semantics unchanged. Spec-first: both
+  design.spec "Pool over calendar" and tech.spec "Pool model" amended
+  in the same change set.
 - Plan Mode's edit target is the *active* batch only. The hook also
   fetches `nextBatch` (satisfies the "current-and-next" data-layer
   requirement in Steps) but no page renders it yet — editing or
@@ -230,3 +237,13 @@ the Live Progress/Verification bullets.
   re-run on any fresh migration pass (crashing on the duplicate
   `cooked_on` column), so the duplicate was removed — the Lovable file
   is the canonical applied record.
+
+- 2026-08-27 (open-ended reversal): `./harness check` green (31 plans);
+  `./harness e2e` 22/22 green; planPool selection suite rewritten —
+  now proves a batch stays active past its planned `ends_on`, that a
+  newer batch supersedes on its start day, and that selection works on
+  rows with no `ends_on` at all. Mock-auth browser check: strip renders
+  "Batch started 2026-08-26 · 1/5 cooked". Chat-side surfaces
+  (menu card's "25 aug–31 aug · N dagar", the lock ritual's horizon)
+  still show a range — that is drafting/sizing language owned by
+  p4-03/p4-10, flagged to the human rather than changed here.
