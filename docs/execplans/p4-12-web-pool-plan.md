@@ -222,3 +222,11 @@ the deliverable; `src/integrations/supabase/types.ts` was hand-
 extended (not machine-generated) to match. Live application and
 `supabase gen types` regeneration are the human's follow-up, alongside
 the Live Progress/Verification bullets.
+
+- 2026-08-27, post-apply: Lovable ran the migration and recorded it as
+  `supabase/migrations/20260827064928_79127d6f-c46e-49c9-924c-64c9cdd466de.sql`
+  (byte-identical DDL, its own timestamp). Our original
+  `20260827120000_p4_12_pool_model.sql` sorted *after* it and would
+  re-run on any fresh migration pass (crashing on the duplicate
+  `cooked_on` column), so the duplicate was removed — the Lovable file
+  is the canonical applied record.
