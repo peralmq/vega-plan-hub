@@ -9,6 +9,7 @@
 // production `npm run build` for the mock module's sentinel string.
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { brokeredPreviewStorage } from './previewAuthStorage';
 import { createMockClient } from '@/mocks/mockClient';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -27,7 +28,7 @@ export const supabase = (
     ? createMockClient()
     : createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
         auth: {
-          storage: localStorage,
+          storage: brokeredPreviewStorage(),
           persistSession: true,
           autoRefreshToken: true,
         }
