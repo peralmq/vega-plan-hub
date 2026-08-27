@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { execSync } from "node:child_process";
@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
     {
       name: "version-json",
-      apply: "build" as const,
+      apply: "build",
       generateBundle() {
         this.emitFile({
           type: "asset",
@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => ({
           source: JSON.stringify({ sha: commit.sha, commitTime: commit.iso }),
         });
       },
-    },
+    } as Plugin,
   ].filter(Boolean),
   resolve: {
     alias: {
