@@ -15,4 +15,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The unit suite renders the menu-card PDF through Playwright chromium
+      # (bot/menuPdf.ts, p4-10) — the browser is a gate dependency now, not
+      # just an e2e one. Cached by playwright version to keep runs fast.
+      - id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      - run: npx playwright install --with-deps chromium
       - run: ./harness check
