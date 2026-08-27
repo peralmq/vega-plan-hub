@@ -2,7 +2,7 @@
 id: p4-02-capture-bot
 title: "Buy milk" end-to-end — the capture bot on the chosen transport
 phase: P4
-status: in-progress
+status: done
 depends_on: [p4-01-schema-rolling-plan]
 ---
 
@@ -48,7 +48,11 @@ contract: r1-conversation-scripts.md Scripts 1–2 + design.spec.md
 - [x] Intent parser (rules + fallback) with fixture tests in harness
 - [x] Allow-list gate + attribution + add/show/check tools
 - [x] Reaction confirmations; clarify flow for unknown items
-- [ ] Live smoke with both household partners
+- [x] (2026-08-27) Live smoke with both household partners — Pelle's
+      traffic evidenced in the 2026-08-15 queue probe; Saga's usage
+      attested by Pelle in chat 2026-08-27 ("Saga has used it") after
+      ~2 weeks of live household operation (p4-08/p4-09 shipped on
+      this runtime in the interim)
 
 ## Steps
 
@@ -150,4 +154,8 @@ schema or data changes): 7 rows total, 7 processed, 0 unprocessed,
 both-partner smoke remains the only open item. M1 consumer confirmed
 running (`npm run bot`, deployment checkout at f79bfa6).
 
-(live smoke with both partners still pending — see Steps 5)
+**2026-08-27 (close-out):** both-partner smoke closed on Pelle's chat
+attestation that Saga has used the bot successfully, on top of two
+weeks of continuous live operation since round 1 (recipe notes and
+recipe edits shipped and live-smoked on this same runtime, p4-08/
+p4-09). Plan `done`; p4-03 unblocked.

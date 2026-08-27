@@ -279,7 +279,7 @@ plan draft?)?
 | --- | --- | --- | --- |
 | A.1 | Group chat, DMs, or both? | ☐ | |
 | A.2 | Free text vs. buttons — where does each win? | ◐ directive: emoji-reaction confirmations preferred (2026-07-31) | verify silent-resolution comfort in dry-run |
-| A.3 | Rolling batches confirmed (2026-07-31 directive). Runs-low trigger? Default X? Both must approve lock? | ◐ | week-by-week ruled out; open sub-questions remain |
+| A.3 | Rolling batches confirmed (2026-07-31 directive). Runs-low trigger? Default X? Both must approve lock? | ✅ 2026-08-27 | Default horizon **5 days** (`[Next 5 days]` first — Pelle directive; first production batch is 5 days incl. one 🍱 meal prep). **One partner's lock suffices** (orchestrator default, Pelle chose not to object when asked): the lock is celebrated + announced so the other partner can still swap (Script 6). Batches are **pools, not calendars** (design.spec "Pool over calendar", 2026-08-27) — Script 5's per-day draft lines are superseded; the draft is a meal list with counts. Runs-low trigger: still open, deferred to p4-05 (proactive pulse) where it belongs. |
 | A.4 | One-tap clarify acceptable? Silent-guess threshold? | ☐ | |
 | A.5 | In-store check-off: chat, Mini App, or web? | ☐ | |
 | A.6 | Which proactive pings survive week one? | ☐ | |
