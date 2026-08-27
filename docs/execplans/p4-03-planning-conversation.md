@@ -157,6 +157,26 @@ to `cooked_on = today` (fallback: the remaining pool).
 - Live: the household plans and locks a real batch; the web Shopping
   Summary shows the same list the chat announced.
 
+7. **Storkok = the same recipe twice in the pool** (directive Pelle
+   2026-08-27, semantics chosen by the orchestrator default and adopted
+   here). It is the existing 🍱 meal-prep pair: cook once, the second
+   entry is the leftovers night, and Cook Mode already renders duplicate
+   entries sensibly. Deliberately **not** the servings multiplier, which
+   stays family-size — the shared aggregation doubles the shopping list
+   either way, but only the pair reads as "two dinners" in the pool, in
+   the ×2 badge, and in the batch's day count. One concept, three
+   surfaces: chat verbs ("storkok på dalen"), the entry menu's
+   [🍱 Gör till storkok], and Plan Mode's 🍱 Storkok toggle.
+8. **Candidate rotation is derived from a round number in
+   `callback_data`** (2026-08-27), not from process memory: `draftForRound(n)`
+   re-derives rounds 0…n-1 and excludes their union, so 🎲 walks the shelf
+   and a restart mid-conversation replays the same rotation. The swap
+   picker pages the same way (`p:x:<i>:<page>`, wrapping), which is what
+   makes all 30 dishes reachable from a keyboard that can only show four.
+   Where a re-render carries no round of its own (after a swap or a
+   storkok toggle), the next round is derived from a hash of the pool —
+   still stateless, and it moves whenever the pool does.
+
 ## Evidence
 
 **2026-08-27 (implementation):**
@@ -254,6 +274,52 @@ flow went silent: no options.
   values). This also discharges the residual p4-10 recorded in `9be2dfe`.
 - `./harness check`: green (lint 8/8 — baseline unchanged, **326 tests
   in 17 files**, build, tsc bot, tsc compare, plans 31, recipes 30).
+
+**2026-08-27 (live-feedback round 2 — after the household's first real
+lock, "Det funkade bra!"):** three items from Pelle, all shipped.
+
+- **Swap variety (defect).** "jag verkade inte kunna välja mellan alla
+  recept, de kom tillbaka samma typ 5 rätter om och om igen." Two causes,
+  both fixed: the picker always showed the *top 3* of one fixed ranking,
+  and a reroll excluded only the draft it replaced, so round 3 could serve
+  round 1's dishes back. Now: `candidatePage` walks the ranking four at a
+  time behind [Fler förslag ➡️] and wraps; `draftForRound(n)` excludes
+  every dish rounds 0…n-1 offered and restarts the rotation rather than
+  running dry. Evidence over the real corpus: 7 consecutive 5-day rerolls
+  with **zero repeats, 28 of 30 dishes offered**; 8 pages of the picker
+  offer ≥20 distinct dishes and never one already in the pool.
+- **Free-text swap** now reaches any dish by fuzzy Swedish title —
+  definite forms ("moussakan"), one word of a long title ("pyttipanna",
+  "sushirullar"), or the id, via the shared `matchCandidates` (extracted
+  to `swedishTerms.ts` to avoid a botActions↔planConversation cycle). New
+  rules claim "byt X mot Y" (naming the victim, so no follow-up question),
+  "byt till Y", and the weekday forms the R3 fixtures pin — zero model
+  calls. Naming half of a 🍱 pair is genuinely ambiguous and still asks.
+- **Why the live draft had 5 distinct dishes and no 🍱 pair:** not the
+  proposer. Pinned by test over the real corpus — *every* round of a
+  5-day draft carries exactly one pair (4 distinct dishes in 5 entries).
+  A swap onto one half of the pair dissolves it, which is what happened
+  live; storkok is now the way back.
+- **Storkok in chat**: rules-layer verbs ("storkok på dalen", "gör dalen
+  till storkok", "storkoka moussakan", "ta bort storkok på dalen"),
+  ordered *before* `remove_item` so "ta bort storkok…" cannot walk off to
+  the shopping list, and opted out by a leading shopping verb ("köp
+  storkoksgryta" stays groceries). New intent `plan_set_storkok` with a
+  slot spec and a classifier line; every phrasing we know is
+  rules-claimed, so the LLM path for it is unexercised in practice — no
+  fixture rerun was possible on this machine (no Ollama), recorded as the
+  one contract risk of this round. Fixtures 83 → **92**, 4 new
+  MUST_BE_RULED entries.
+- **Storkok in the app**: a 🍱 Storkok toggle on every Plan Mode pool
+  card, driven by the pure `planStorkokToggle` helper (adds a twin entry
+  inheriting the dish's multiplier; removing takes an *uncooked* twin, so
+  a night already cooked is never deleted).
+- `./harness check` green (lint 8/8 — baseline unchanged, **380 unit
+  tests in 19 files**, build, tsc bot, tsc compare, plans 31, recipes 30).
+  `./harness e2e`: **22 passed**, including the new "🍱 Storkok toggles a
+  dish into a pair and back" spec (toggle → 3 dishes + ×2 badge → still
+  1× portions → survives the round trip into Shopping Summary → toggle
+  back).
 
 **Not done here (human):** the live bullet — this checkout has no
 `bot/.env` and the live smoke is the household's. Deploy is `git pull` +

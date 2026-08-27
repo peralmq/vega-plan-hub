@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  planStorkokToggle,
   toISODate,
   findCurrentBatch,
   findNextBatch,
@@ -105,5 +106,49 @@ describe("groupPoolByRecipe (the 🍱 meal-prep badge)", () => {
   });
   it("returns an empty list for an empty pool", () => {
     expect(groupPoolByRecipe([])).toEqual([]);
+  });
+});
+
+// live-feedback round 2 (2026-08-27): "jag skulle vilja kunna säga att en
+// eller fler rätter ska vara storkok (x2)". Storkok = the same recipe twice
+// in the pool, the concept the 🍱 ×2 badge already renders — deliberately NOT
+// the servings multiplier, which stays family-size.
+describe("planStorkokToggle (🍱 Storkok, one tap)", () => {
+  const pool = (): PoolEntry[] => [
+    { id: "a", recipeId: "chana-dal", servingsMultiplier: 1.5, cookedOn: null },
+    { id: "b", recipeId: "mapo-tofu", servingsMultiplier: 1, cookedOn: null },
+  ];
+
+  it("adds a twin entry, inheriting the dish's own multiplier", () => {
+    expect(planStorkokToggle(pool(), "chana-dal")).toEqual({
+      action: "add",
+      recipeId: "chana-dal",
+      servingsMultiplier: 1.5,
+    });
+  });
+
+  it("removes one entry of a pair, never both", () => {
+    const paired = [
+      ...pool(),
+      { id: "c", recipeId: "chana-dal", servingsMultiplier: 1.5, cookedOn: null },
+    ];
+    expect(planStorkokToggle(paired, "chana-dal")).toEqual({ action: "remove", entryId: "c" });
+  });
+
+  it("spares an already-cooked night and takes the uncooked twin", () => {
+    const paired: PoolEntry[] = [
+      { id: "a", recipeId: "chana-dal", servingsMultiplier: 1, cookedOn: "2026-08-27" },
+      { id: "c", recipeId: "chana-dal", servingsMultiplier: 1, cookedOn: null },
+    ];
+    expect(planStorkokToggle(paired, "chana-dal")).toEqual({ action: "remove", entryId: "c" });
+  });
+
+  it("refuses when both halves are already cooked, and when the dish is absent", () => {
+    const cooked: PoolEntry[] = [
+      { id: "a", recipeId: "chana-dal", servingsMultiplier: 1, cookedOn: "2026-08-26" },
+      { id: "c", recipeId: "chana-dal", servingsMultiplier: 1, cookedOn: "2026-08-27" },
+    ];
+    expect(planStorkokToggle(cooked, "chana-dal")).toBeNull();
+    expect(planStorkokToggle(pool(), "nope")).toBeNull();
   });
 });

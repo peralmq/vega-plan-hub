@@ -64,6 +64,14 @@ with the item count and a ~SEK estimate. One partner's lock is enough
 (r1 A.3); the other can still swap afterwards, which regenerates the
 list while keeping every already-ticked row.
 
+Edits reach the **whole** library: the swap picker pages through it with
+[Fler förslag ➡️], 🎲 Ny dragning rotates round by round (excluding every
+dish earlier rounds offered), and free text is the escape hatch a keyboard
+can never be — "byt dalen mot pyttipanna", "byt till mapo tofu". Say
+"storkok på dalen" (or tap 🍱 Gör till storkok) to make a dish a big batch:
+the same recipe twice in the pool, cook once and eat twice — never a bigger
+servings multiplier, which stays family-size.
+
 No extra prerequisites: it reuses `RECIPE_REPO_DIR` for the recipe
 library (same checkout, same parser as the web app) and the schema is
 p4-01 + the p4-12 pool delta. The draft lives in `planned_meals`

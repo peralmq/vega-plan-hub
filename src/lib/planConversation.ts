@@ -22,13 +22,17 @@ import type { ParsedUtterance } from "./intentParser";
 import {
   DEFAULT_HORIZON_DAYS,
   HORIZON_CHOICES,
+  MAX_REROLL_ROUND,
   addDays,
+  candidatePage,
   clampHorizon,
   daysUntilWeekday,
-  proposeDraft,
+  draftForRound,
+  pageCount,
   scoreRecipe,
   type DraftEntry,
 } from "./planDraft";
+import { matchCandidates } from "./swedishTerms";
 import {
   estimateBatchCostSEK,
   generateShoppingItems,
@@ -78,6 +82,8 @@ export interface PlanStore {
     patch: { recipe_id?: string; servings_multiplier?: number },
   ): Promise<void>;
   deleteEntry(id: string): Promise<void>;
+  /** Add one pool entry — how a storkok pair is made (same recipe twice). */
+  insertEntry(entry: DraftEntry, batchId: string | null): Promise<void>;
   lockBatch(
     range: BatchRange,
     entryIds: string[],
@@ -121,11 +127,13 @@ export interface PlanContext {
 export type PlanEvent =
   | { kind: "start" }
   | { kind: "draft"; horizonDays: number }
-  | { kind: "reroll" }
+  | { kind: "reroll"; round: number }
   | { kind: "edit_menu" }
-  | { kind: "pick_entry"; index: number }
+  | { kind: "pick_entry"; index: number; page: number }
   | { kind: "swap"; index: number; recipeId: string }
-  | { kind: "swap_query"; recipeQuery: string }
+  | { kind: "swap_query"; recipeQuery: string; targetQuery?: string }
+  | { kind: "storkok"; index: number; on: boolean }
+  | { kind: "storkok_query"; on: boolean; targetQuery?: string }
   | { kind: "multiplier"; index: number; multiplier: number }
   | { kind: "multiplier_query"; multiplier: number }
   | { kind: "remove"; index: number }
@@ -139,10 +147,11 @@ export const PLAN_CALLBACK_PREFIX = "p:";
 export function encodePlanCallback(event: PlanEvent): string {
   switch (event.kind) {
     case "draft": return `p:h:${event.horizonDays}`;
-    case "reroll": return "p:r";
+    case "reroll": return `p:r:${event.round}`;
     case "edit_menu": return "p:e";
-    case "pick_entry": return `p:x:${event.index}`;
+    case "pick_entry": return `p:x:${event.index}:${event.page}`;
     case "swap": return `p:s:${event.index}:${event.recipeId}`;
+    case "storkok": return `p:k:${event.index}:${event.on ? 1 : 0}`;
     case "multiplier": return `p:m:${event.index}:${event.multiplier}`;
     case "remove": return `p:rm:${event.index}`;
     case "lock": return "p:l";
@@ -164,11 +173,23 @@ export function parsePlanCallback(data: string | null | undefined): PlanEvent | 
       const days = int(a ?? "");
       return days == null ? null : { kind: "draft", horizonDays: clampHorizon(days) };
     }
-    case "r": return { kind: "reroll" };
+    case "r": {
+      // A keyboard from before the rotation landed carries a bare "p:r".
+      const round = int(a ?? "");
+      return { kind: "reroll", round: Math.min(MAX_REROLL_ROUND, round ?? 1) };
+    }
     case "e": return { kind: "edit_menu" };
     case "x": {
       const i = int(a ?? "");
-      return i == null ? null : { kind: "pick_entry", index: i };
+      const page = int(rest[0] ?? "");
+      return i == null ? null : { kind: "pick_entry", index: i, page: page ?? 0 };
+    }
+    case "k": {
+      const i = int(a ?? "");
+      const on = rest[0];
+      return i == null || (on !== "0" && on !== "1")
+        ? null
+        : { kind: "storkok", index: i, on: on === "1" };
     }
     case "s": {
       const i = int(a ?? "");
@@ -218,8 +239,18 @@ export function planEventFromParse(
     }
     case "plan_set_day":
       return parse.recipe_query
-        ? { kind: "swap_query", recipeQuery: parse.recipe_query }
+        ? {
+            kind: "swap_query",
+            recipeQuery: parse.recipe_query,
+            ...(parse.target_query ? { targetQuery: parse.target_query } : {}),
+          }
         : { kind: "edit_menu" };
+    case "plan_set_storkok":
+      return {
+        kind: "storkok_query",
+        on: parse.on !== false,
+        ...(parse.recipe_query ? { targetQuery: parse.recipe_query } : {}),
+      };
     case "plan_set_multiplier":
       return parse.multiplier && parse.multiplier > 0
         ? { kind: "multiplier_query", multiplier: parse.multiplier }
@@ -314,6 +345,15 @@ const T = {
     doubleBtn: "💪 Dubbla portioner",
     singleBtn: "🍽 Vanliga portioner",
     removeBtn: "🗑 Ta bort",
+    morePicksBtn: "Fler förslag ➡️",
+    storkokOnBtn: "🍱 Gör till storkok",
+    storkokOffBtn: "🍱 Ta bort storkok",
+    storkokOn: (title: string) => `🍱 ${title} blir storkok — samma rätt två gånger i potten.`,
+    storkokOff: (title: string) => `🍽 ${title} är tillbaka som en middag.`,
+    storkokAlready: (title: string) => `🍱 ${title} är redan storkok.`,
+    storkokNot: (title: string) => `🍽 ${title} var inget storkok.`,
+    whichEntryStorkok: (on: boolean) =>
+      on ? "🍱 Vilken rätt ska bli storkok?" : "🍽 Vilken rätt ska sluta vara storkok?",
     noDraft: "🤔 Inget utkast på gång — säg \"planera de närmsta dagarna\" så drar jag ett förslag 🌱",
     noRecipe: (q: string) => `🤷 Hittar ingen rätt som matchar "${q}".`,
     whichEntrySwap: (title: string) => `🔁 Vilken rätt ska bytas mot ${title}?`,
@@ -356,6 +396,15 @@ const T = {
     doubleBtn: "💪 Double portions",
     singleBtn: "🍽 Normal portions",
     removeBtn: "🗑 Remove",
+    morePicksBtn: "More ideas ➡️",
+    storkokOnBtn: "🍱 Make it a big batch",
+    storkokOffBtn: "🍱 Undo big batch",
+    storkokOn: (title: string) => `🍱 ${title} is a big batch — the same dish twice in the pool.`,
+    storkokOff: (title: string) => `🍽 ${title} is back to one dinner.`,
+    storkokAlready: (title: string) => `🍱 ${title} already is a big batch.`,
+    storkokNot: (title: string) => `🍽 ${title} was not a big batch.`,
+    whichEntryStorkok: (on: boolean) =>
+      on ? "🍱 Which dish becomes a big batch?" : "🍽 Which dish stops being a big batch?",
     noDraft: '🤔 No draft going — say "plan the next few days" and I\'ll pitch one 🌱',
     noRecipe: (q: string) => `🤷 No dish matching "${q}".`,
     whichEntrySwap: (title: string) => `🔁 Which dish should become ${title}?`,
@@ -454,12 +503,37 @@ export function renderDraft(
   return [T[lang].draftHeader(entries.length), ...lines, "", T[lang].draftHint].join("\n");
 }
 
-function draftButtons(entries: PoolRow[], lang: Lang): PlanButton[][] {
+// FNV-1a → a small stable number. Used to pick the next reroll round when the
+// draft is re-rendered by something that carries no round of its own (a swap,
+// a storkok toggle): the pool has changed, so the rotation should move too,
+// and deriving it from the pool keeps that decision stateless.
+function stableHash(text: string): number {
+  let h = 0x811c9dc5;
+  for (const ch of text) {
+    h ^= ch.codePointAt(0)!;
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h;
+}
+
+export function nextRerollRound(entries: PoolRow[], shownRound?: number): number {
+  if (shownRound != null) return Math.min(MAX_REROLL_ROUND, shownRound + 1);
+  const pool = entries.map((e) => e.recipe_id).sort().join(",");
+  return 1 + (stableHash(pool) % 8);
+}
+
+function draftButtons(entries: PoolRow[], lang: Lang, round?: number): PlanButton[][] {
   return [
     [{ text: T[lang].lockBtn(entries.length), callback_data: encodePlanCallback({ kind: "lock" }) }],
     [
       { text: T[lang].editBtn, callback_data: encodePlanCallback({ kind: "edit_menu" }) },
-      { text: T[lang].rerollBtn, callback_data: encodePlanCallback({ kind: "reroll" }) },
+      {
+        text: T[lang].rerollBtn,
+        callback_data: encodePlanCallback({
+          kind: "reroll",
+          round: nextRerollRound(entries, round),
+        }),
+      },
     ],
   ];
 }
@@ -487,8 +561,14 @@ async function showDraft(
   chat: PlanChat,
   ctx: PlanContext,
   entries: PoolRow[],
+  round?: number,
 ): Promise<void> {
-  await say(chat, ctx, renderDraft(entries, store.recipes(), ctx.lang), draftButtons(entries, ctx.lang));
+  await say(
+    chat,
+    ctx,
+    renderDraft(entries, store.recipes(), ctx.lang),
+    draftButtons(entries, ctx.lang, round),
+  );
 }
 
 // The pool being edited: the open draft when there is one, otherwise the
@@ -511,23 +591,25 @@ async function makeDraft(
   chat: PlanChat,
   ctx: PlanContext,
   horizonDays: number,
-  exclude: string[] = [],
+  round: number,
 ): Promise<void> {
   const [ratings, lastCooked] = await Promise.all([store.ratings(), store.lastCooked()]);
   const horizon = clampHorizon(horizonDays);
-  const entries = proposeDraft({
-    recipes: store.recipes().map((r) => ({ id: r.id, title: r.title, tags: r.tags })),
-    ratings,
-    lastCooked,
-    horizonDays: horizon,
-    todayIso: ctx.todayIso,
-    // Deterministic per day + horizon; a reroll folds in what it is replacing,
-    // so "🎲 Ny dragning" is reproducible AND genuinely different.
-    seed: `${ctx.todayIso}:${horizon}:${exclude.join(",")}`,
-    exclude,
-  });
+  // Deterministic per day + horizon + ROUND, and round n excludes every dish
+  // rounds 0…n-1 offered — so 🎲 walks the shelf instead of circling the same
+  // handful (live feedback 2026-08-27).
+  const entries = draftForRound(
+    {
+      recipes: store.recipes().map((r) => ({ id: r.id, title: r.title, tags: r.tags })),
+      ratings,
+      lastCooked,
+      horizonDays: horizon,
+      todayIso: ctx.todayIso,
+    },
+    round,
+  );
   await store.replaceDraft(entries);
-  await showDraft(store, chat, ctx, await store.loadDraft());
+  await showDraft(store, chat, ctx, await store.loadDraft(), round);
 }
 
 // After any pool change: an unlocked draft just re-renders; a locked batch
@@ -575,13 +657,18 @@ function toBatchMeals(store: PlanStore, entries: PoolRow[]): BatchMeal[] {
   return meals;
 }
 
-// Swap candidates for one entry: the best-scoring dishes not already in the
-// pool, ranked by the same heuristic the proposer uses.
-async function swapCandidates(
+// How many dishes one page of the swap picker offers. Four keeps the keyboard
+// thumb-sized; the pager below reaches the rest of the library.
+export const SWAP_PAGE_SIZE = 4;
+
+// Every dish not already in the pool, in one deterministic order (the same
+// heuristic the proposer uses). The picker shows a PAGE of this and wraps, so
+// [Fler förslag ➡️] eventually offers all 30 — the live complaint was that it
+// kept serving the same handful (2026-08-27).
+async function rankedSwapCandidates(
   store: PlanStore,
   ctx: PlanContext,
   entries: PoolRow[],
-  limit = 3,
 ): Promise<ParsedRecipe[]> {
   const [ratings, lastCooked] = await Promise.all([store.ratings(), store.lastCooked()]);
   const inPool = new Set(entries.map((e) => e.recipe_id));
@@ -596,23 +683,62 @@ async function swapCandidates(
       ),
     }))
     .sort((a, b) => b.score - a.score || a.recipe.id.localeCompare(b.recipe.id))
-    .slice(0, limit)
     .map((c) => c.recipe);
 }
 
+// Which pool entries a spoken dish name refers to ("byt DALEN mot …"), by the
+// same Swedish definite-form matching the shopping list uses.
+export function matchPoolEntries(
+  entries: PoolRow[],
+  recipes: ParsedRecipe[],
+  query: string,
+): number[] {
+  const wanted = findRecipeByQuery(recipes, query);
+  const hits: number[] = [];
+  entries.forEach((entry, index) => {
+    if (wanted && entry.recipe_id === wanted.id) hits.push(index);
+  });
+  return hits;
+}
+
+// Free text is the escape hatch a 30-dish keyboard can never be, so this has
+// to catch how the household actually names dishes: definite forms
+// ("moussakan"), one word out of a long Swedish title ("pyttipanna",
+// "sushirullar"), or the id. Candidates are tried widest-first and the
+// shortest matching title wins, so "dal" lands on "Chana Dal" and not on a
+// five-word dish that merely contains the word.
 export function findRecipeByQuery(
   recipes: ParsedRecipe[],
   query: string,
 ): ParsedRecipe | null {
-  const q = query.trim().toLowerCase();
-  if (!q) return null;
-  const matches = recipes.filter(
-    (r) => r.title.toLowerCase().includes(q) || r.id.includes(q.replace(/\s+/g, "-")),
+  const raw = query.trim().toLowerCase().replace(/[.!?]+$/, "");
+  if (!raw) return null;
+  const shortest = (matches: ParsedRecipe[]) =>
+    matches.length === 0
+      ? null
+      : matches.reduce((best, r) => (r.title.length < best.title.length ? r : best));
+
+  for (const candidate of matchCandidates(raw)) {
+    if (candidate.length < 3) continue;
+    const hit = shortest(
+      recipes.filter(
+        (r) =>
+          r.title.toLowerCase().includes(candidate) ||
+          r.id.includes(candidate.replace(/\s+/g, "-")),
+      ),
+    );
+    if (hit) return hit;
+  }
+  // Last resort: every word of the query has to appear somewhere in the title
+  // ("vegansk moussaka" → "Vegansk moussaka" even with the words reordered).
+  const words = raw.split(/\s+/).filter((w) => w.length >= 3);
+  if (words.length === 0) return null;
+  return shortest(
+    recipes.filter((r) => {
+      const title = r.title.toLowerCase();
+      return words.every((w) => matchCandidates(w).some((c) => title.includes(c)));
+    }),
   );
-  if (matches.length === 0) return null;
-  // Shortest title wins: "dal" should not resolve to a five-word dish when a
-  // plain "Chana Dal" is on the shelf.
-  return matches.reduce((best, r) => (r.title.length < best.title.length ? r : best));
 }
 
 export async function handlePlanEvent(
@@ -640,12 +766,12 @@ export async function handlePlanEvent(
     }
 
     case "draft":
-      return makeDraft(store, chat, ctx, event.horizonDays);
+      return makeDraft(store, chat, ctx, event.horizonDays, 0);
 
     case "reroll": {
       const draft = await store.loadDraft();
       const horizon = draft.length > 0 ? draft.length : DEFAULT_HORIZON_DAYS;
-      return makeDraft(store, chat, ctx, horizon, draft.map((e) => e.recipe_id));
+      return makeDraft(store, chat, ctx, horizon, event.round);
     }
 
     case "edit_menu": {
@@ -654,7 +780,7 @@ export async function handlePlanEvent(
       const buttons = target.entries.map((entry, index) => [
         {
           text: `${dishEmoji(recipeOf(store.recipes(), entry.recipe_id)?.tags ?? [])} ${titleOf(store.recipes(), entry.recipe_id)}`,
-          callback_data: encodePlanCallback({ kind: "pick_entry", index }),
+          callback_data: encodePlanCallback({ kind: "pick_entry", index, page: 0 }),
         },
       ]);
       buttons.push([{ text: T[lang].backBtn, callback_data: encodePlanCallback({ kind: "cancel" }) }]);
@@ -666,14 +792,40 @@ export async function handlePlanEvent(
       const target = await editTarget(store, ctx);
       const entry = target?.entries[event.index];
       if (!target || !entry) return say(chat, ctx, T[lang].noDraft);
-      const candidates = await swapCandidates(store, ctx, target.entries);
-      const buttons: PlanButton[][] = candidates.map((recipe) => [
+      const ranked = await rankedSwapCandidates(store, ctx, target.entries);
+      const page = Math.max(0, event.page);
+      const buttons: PlanButton[][] = candidatePage(ranked, page, SWAP_PAGE_SIZE).map((recipe) => [
         {
           text: T[lang].swapTo(recipe.title),
           callback_data: encodePlanCallback({
             kind: "swap",
             index: event.index,
             recipeId: recipe.id,
+          }),
+        },
+      ]);
+      // The pager is what makes the whole library reachable from a keyboard.
+      if (pageCount(ranked.length, SWAP_PAGE_SIZE) > 1) {
+        buttons.push([
+          {
+            text: T[lang].morePicksBtn,
+            callback_data: encodePlanCallback({
+              kind: "pick_entry",
+              index: event.index,
+              page: page + 1,
+            }),
+          },
+        ]);
+      }
+      const isStorkok =
+        target.entries.filter((e) => e.recipe_id === entry.recipe_id).length > 1;
+      buttons.push([
+        {
+          text: isStorkok ? T[lang].storkokOffBtn : T[lang].storkokOnBtn,
+          callback_data: encodePlanCallback({
+            kind: "storkok",
+            index: event.index,
+            on: !isStorkok,
           }),
         },
       ]);
@@ -702,6 +854,69 @@ export async function handlePlanEvent(
       return;
     }
 
+    // Storkok (directive Pelle 2026-08-27) = the SAME RECIPE TWICE in the
+    // pool: cook once, the second entry is the leftovers night. Deliberately
+    // not the servings multiplier, which stays family-size — the shared
+    // aggregation doubles the shopping list either way, but only the pair
+    // reads as "two dinners" in Cook Mode and the 🍱 ×2 badge.
+    case "storkok": {
+      const target = await editTarget(store, ctx);
+      const entry = target?.entries[event.index];
+      if (!target || !entry) return say(chat, ctx, T[lang].noDraft);
+      const siblings = target.entries.filter((e) => e.recipe_id === entry.recipe_id);
+      const title = titleOf(store.recipes(), entry.recipe_id);
+      let headline: string;
+      if (event.on) {
+        if (siblings.length > 1) headline = T[lang].storkokAlready(title);
+        else {
+          await store.insertEntry(
+            { recipeId: entry.recipe_id, servingsMultiplier: entry.servings_multiplier },
+            target.batchId,
+          );
+          headline = T[lang].storkokOn(title);
+        }
+      } else if (siblings.length < 2) {
+        headline = T[lang].storkokNot(title);
+      } else {
+        await store.deleteEntry(siblings[siblings.length - 1].id);
+        headline = T[lang].storkokOff(title);
+      }
+      return afterPoolChange(store, chat, ctx, target, headline);
+    }
+
+    case "storkok_query": {
+      const target = await editTarget(store, ctx);
+      if (!target) return say(chat, ctx, T[lang].noDraft);
+      const hits = event.targetQuery
+        ? matchPoolEntries(target.entries, store.recipes(), event.targetQuery)
+        : [];
+      if (hits.length === 1) {
+        return handlePlanEvent(store, chat, ctx, {
+          kind: "storkok",
+          index: hits[0],
+          on: event.on,
+        });
+      }
+      // Ambiguous or unnamed: one tap per dish, never a guess.
+      const choices = hits.length > 1 ? hits : target.entries.map((_, i) => i);
+      const seen = new Set<string>();
+      const buttons: PlanButton[][] = [];
+      for (const index of choices) {
+        const recipeId = target.entries[index].recipe_id;
+        if (seen.has(recipeId)) continue;
+        seen.add(recipeId);
+        buttons.push([
+          {
+            text: titleOf(store.recipes(), recipeId),
+            callback_data: encodePlanCallback({ kind: "storkok", index, on: event.on }),
+          },
+        ]);
+      }
+      buttons.push([{ text: T[lang].backBtn, callback_data: encodePlanCallback({ kind: "cancel" }) }]);
+      await say(chat, ctx, T[lang].whichEntryStorkok(event.on), buttons);
+      return;
+    }
+
     case "swap": {
       const target = await editTarget(store, ctx);
       const entry = target?.entries[event.index];
@@ -722,10 +937,22 @@ export async function handlePlanEvent(
       if (!recipe) return say(chat, ctx, T[lang].noRecipe(event.recipeQuery));
       const target = await editTarget(store, ctx);
       if (!target) return say(chat, ctx, T[lang].noDraft);
+      // "byt DALEN mot pyttipanna" names the victim: no need to ask.
+      const named = event.targetQuery
+        ? matchPoolEntries(target.entries, store.recipes(), event.targetQuery)
+        : [];
+      if (named.length === 1) {
+        return handlePlanEvent(store, chat, ctx, {
+          kind: "swap",
+          index: named[0],
+          recipeId: recipe.id,
+        });
+      }
       // Pool model: no weekday says which entry to replace, so ask — one tap.
-      const buttons = target.entries.map((entry, index) => [
+      const choices = named.length > 1 ? named : target.entries.map((_, i) => i);
+      const buttons = choices.map((index) => [
         {
-          text: titleOf(store.recipes(), entry.recipe_id),
+          text: titleOf(store.recipes(), target.entries[index].recipe_id),
           callback_data: encodePlanCallback({ kind: "swap", index, recipeId: recipe.id }),
         },
       ]);

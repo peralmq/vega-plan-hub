@@ -103,6 +103,8 @@ const T = {
       "• ta bort <grej>\n" +
       "• nej, <grej> — rättar mitt senaste tillägg\n" +
       "• planera 5 dagar — utkast att pilla på, sen lås\n" +
+      "• byt <rätt> mot <rätt> — fritext funkar för alla recept\n" +
+      "• storkok på <rätt> — samma rätt två gånger i potten 🍱\n" +
       "• lås dagarna — låser utkastet + fixar inköpslistan 🔒",
     emptyList: "🛒 Listan är tom — snyggt! ✨",
     listHeader: (n: number) => `🛒 Inköpslista (${n}):`,
@@ -144,6 +146,8 @@ const T = {
       "• ta bort <thing>\n" +
       "• nej, <thing> — fix my last add\n" +
       "• plan the next 5 days — a draft to edit, then lock\n" +
+      "• byt <dish> mot <dish> — free text reaches every recipe\n" +
+      "• storkok på <dish> — the same dish twice in the pool 🍱\n" +
       "• lås dagarna / lock it in — locks it + builds the list 🔒",
     emptyList: "🛒 List is empty — nice! ✨",
     listHeader: (n: number) => `🛒 Shopping list (${n}):`,

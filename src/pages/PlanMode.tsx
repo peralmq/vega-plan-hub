@@ -21,7 +21,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useBatchPool, type PoolMeal } from "@/hooks/useBatchPool";
 import { ParsedRecipe } from "@/services/recipeLoader";
-import { groupPoolByRecipe } from "@/lib/planPool";
+import { groupPoolByRecipe, planStorkokToggle } from "@/lib/planPool";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
@@ -68,6 +68,27 @@ export default function PlanMode() {
       await removePoolEntry(entry.id);
     } catch {
       toast({ title: "Couldn't remove that dish", variant: "destructive" });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // 🍱 Storkok = the same dish twice in the pool (cook once, eat twice) —
+  // the meal-prep pair the badge already renders, and the same semantics the
+  // chat bot uses. Not the servings multiplier: that stays family-size.
+  const handleStorkok = async (entry: PoolMeal) => {
+    const plan = planStorkokToggle(pool, entry.recipeId);
+    if (!plan) return;
+    setBusyId(entry.id);
+    try {
+      if (plan.action === "add") {
+        await addPoolEntry(plan.recipeId, plan.servingsMultiplier);
+        toast({ title: "Storkok! 🍱", description: entry.recipe?.title });
+      } else {
+        await removePoolEntry(plan.entryId);
+      }
+    } catch {
+      toast({ title: "Couldn't change storkok", variant: "destructive" });
     } finally {
       setBusyId(null);
     }
@@ -180,6 +201,7 @@ export default function PlanMode() {
                     busy={busyId === entry.id}
                     onAdjust={(delta) => handleAdjust(entry, delta)}
                     onRemove={() => handleRemove(entry)}
+                    onStorkok={() => handleStorkok(entry)}
                   />
                 ))}
               </div>
@@ -251,12 +273,14 @@ function PoolCard({
   busy,
   onAdjust,
   onRemove,
+  onStorkok,
 }: {
   entry: PoolMeal;
   badgeCount: number;
   busy: boolean;
   onAdjust: (delta: number) => void;
   onRemove: () => void;
+  onStorkok: () => void;
 }) {
   const recipe = entry.recipe;
   const cooked = entry.cookedOn !== null;
@@ -315,6 +339,22 @@ function PoolCard({
                 </Button>
               </div>
             </div>
+          )}
+          {!cooked && (
+            <button
+              type="button"
+              aria-label={badgeCount > 1 ? "Undo storkok" : "Make it storkok"}
+              aria-pressed={badgeCount > 1}
+              onClick={onStorkok}
+              disabled={busy}
+              className={`mt-2 w-full rounded-full border px-3 py-1 text-xs transition-colors ${
+                badgeCount > 1
+                  ? "border-background bg-background text-foreground"
+                  : "border-white/40 text-white/90 hover:bg-white/15"
+              }`}
+            >
+              🍱 Storkok
+            </button>
           )}
         </div>
       </div>

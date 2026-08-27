@@ -83,6 +83,35 @@ export function partitionPool<T extends PoolEntry>(entries: T[]): PoolPartition<
   };
 }
 
+// Storkok (directive Pelle 2026-08-27, same semantics as the chat toggle):
+// a big batch is simply the SAME RECIPE TWICE in the pool — cook once, the
+// second entry is the leftovers night. Never the servings multiplier, which
+// stays family-size. This decides what one tap on 🍱 Storkok should do; the
+// caller performs the add/remove through the DB hook.
+export type StorkokAction =
+  | { action: "add"; recipeId: string; servingsMultiplier: number }
+  | { action: "remove"; entryId: string };
+
+export function planStorkokToggle<T extends PoolEntry>(
+  entries: T[],
+  recipeId: string,
+): StorkokAction | null {
+  const siblings = entries.filter((e) => e.recipeId === recipeId);
+  if (siblings.length === 0) return null;
+  if (siblings.length === 1) {
+    return {
+      action: "add",
+      recipeId,
+      servingsMultiplier: siblings[0].servingsMultiplier,
+    };
+  }
+  // Turning it off gives back an UNCOOKED entry when there is one: a night
+  // already cooked is history, not a plan, and must not be deleted.
+  const removable = siblings.filter((e) => e.cookedOn === null);
+  const doomed = removable.length > 0 ? removable[removable.length - 1] : null;
+  return doomed ? { action: "remove", entryId: doomed.id } : null;
+}
+
 export interface PoolGroup<T extends PoolEntry = PoolEntry> {
   recipeId: string;
   count: number;

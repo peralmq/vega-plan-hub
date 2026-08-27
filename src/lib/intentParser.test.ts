@@ -108,6 +108,12 @@ const MUST_BE_RULED = [
   "dags att planera igen",
   "planera 5 dagar",
   "lås dagarna",
+  // live-feedback round 2 (2026-08-27): storkok and the free-text swap are the
+  // household's own words for pool edits — no model call for either.
+  "storkok på dalen",
+  "ta bort storkok på dalen",
+  "byt dalen mot pyttipanna",
+  "byt till mapo tofu",
 ];
 
 describe("rules layer", () => {

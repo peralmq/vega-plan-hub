@@ -11,6 +11,7 @@ import {
   addDays,
   daysUntilWeekday,
   distinctDishCount,
+  draftForRound,
   mealPrepSuitability,
   proposeDraft,
   type DraftCandidate,
@@ -143,6 +144,38 @@ describe("proposeDraft", () => {
 
   it("returns nothing when the library is empty", () => {
     expect(proposeDraft({ ...base, recipes: [], horizonDays: 5 })).toEqual([]);
+  });
+
+  // live-feedback round 2 (2026-08-27): "de kom tillbaka samma typ 5 rätter om
+  // och om igen". Excluding only the draft being replaced let round 3 serve
+  // round 1's dishes again; a round number excludes every earlier round too.
+  it("rotates through the library across reroll rounds", () => {
+    const seen = new Set<string>();
+    // 10 recipes, 3 per round: three rounds fit before the shelf is spent.
+    for (let round = 0; round < 3; round++) {
+      const entries = draftForRound({ ...base, horizonDays: 3 }, round);
+      expect(entries).toHaveLength(3);
+      for (const entry of entries) {
+        expect(seen.has(entry.recipeId), `round ${round} repeats ${entry.recipeId}`).toBe(false);
+      }
+      for (const entry of entries) seen.add(entry.recipeId);
+    }
+    expect(seen.size).toBe(9);
+  });
+
+  it("starts the rotation over instead of running dry", () => {
+    const later = draftForRound({ ...base, horizonDays: 3 }, 6);
+    expect(later).toHaveLength(3);
+    expect(new Set(later.map((e) => e.recipeId)).size).toBe(3);
+  });
+
+  it("is deterministic per round — a restart mid-conversation replays it", () => {
+    expect(draftForRound({ ...base, horizonDays: 5 }, 2)).toEqual(
+      draftForRound({ ...base, horizonDays: 5 }, 2),
+    );
+    expect(draftForRound({ ...base, horizonDays: 5 }, 2)).not.toEqual(
+      draftForRound({ ...base, horizonDays: 5 }, 1),
+    );
   });
 
   it("can exclude dishes already in the pool (reroll keeps its promise)", () => {

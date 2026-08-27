@@ -98,6 +98,46 @@ test("a meal-prep pair (same dish twice) shows the 🍱 ×2 badge", async ({
   await expect(page.getByText("🍱 ×2").first()).toBeVisible();
 });
 
+// live-feedback round 2 (2026-08-27): "jag skulle vilja kunna säga att en
+// eller fler rätter ska vara storkok (x2)" — the same semantics as the chat
+// toggle: one more pool entry for the same dish, not a bigger multiplier.
+test("🍱 Storkok toggles a dish into a pair and back, in the app too", async ({
+  page,
+  mockDb,
+}) => {
+  await mockDb.login();
+  mockDb.seedActiveBatch([{ recipeId: "chana-dal" }, { recipeId: "palak-paneer" }]);
+
+  await page.goto("/plan");
+  await expect(page.getByText(/2 dishes in the pool/i)).toBeVisible();
+  await expect(page.getByText("🍱 ×2")).toHaveCount(0);
+
+  const dalCard = page
+    .locator("div.border-2.border-dashed", { hasText: /chana dal/i })
+    .first();
+  await dalCard.getByRole("button", { name: /make it storkok/i }).click();
+
+  await expect(page.getByText(/3 dishes in the pool/i)).toBeVisible();
+  await expect(page.getByText("🍱 ×2").first()).toBeVisible();
+  // portions are untouched — storkok is a count, not a multiplier
+  await expect(page.getByText("1×").first()).toBeVisible();
+
+  // …and the shopping list grows with it, through a real DB round-trip.
+  await page.getByRole("button", { name: /view shopping list/i }).click();
+  await expect(page.getByText("🍱 ×2").first()).toBeVisible();
+
+  // Back in Plan Mode the toggle undoes it.
+  await page.goBack();
+  await expect(page.getByText(/3 dishes in the pool/i)).toBeVisible();
+  await page
+    .locator("div.border-2.border-dashed", { hasText: /chana dal/i })
+    .first()
+    .getByRole("button", { name: /undo storkok/i })
+    .click();
+  await expect(page.getByText(/2 dishes in the pool/i)).toBeVisible();
+  await expect(page.getByText("🍱 ×2")).toHaveCount(0);
+});
+
 test("no active batch shows the playful empty state pointing at chat", async ({
   page,
   mockDb,

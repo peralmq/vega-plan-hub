@@ -173,6 +173,20 @@ export function makePlanStore(
       must(error, "update pool entry");
     },
 
+    // One more pool entry — the storkok pair (same recipe twice). A locked
+    // batch keeps its batch_id so the row belongs to that batch's pool.
+    async insertEntry(entry, batchId) {
+      const { error } = await supa.from("planned_meals").insert({
+        user_id: userId,
+        recipe_id: entry.recipeId,
+        servings_multiplier: entry.servingsMultiplier,
+        meal_date: null,
+        batch_id: batchId,
+        created_by: familyMemberId,
+      });
+      must(error, "insert pool entry");
+    },
+
     async deleteEntry(id) {
       const { error } = await supa
         .from("planned_meals")

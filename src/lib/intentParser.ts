@@ -12,7 +12,8 @@ import { interpretEdit } from "./recipeEdits";
 export const INTENTS = [
   "add_item", "remove_item", "check_item", "show_list", "correct_last",
   "set_preference", "query_tonight", "plan_draft", "plan_set_day",
-  "plan_set_multiplier", "plan_lock", "note_recipe", "chitchat",
+  "plan_set_multiplier", "plan_set_storkok", "plan_lock", "note_recipe",
+  "chitchat",
 ] as const;
 export type Intent = (typeof INTENTS)[number];
 
@@ -31,6 +32,10 @@ export interface ParsedUtterance {
   day_offset?: number;
   multiplier?: number;
   recipe_query?: string;
+  /** Which dish in the pool an edit is aimed at ("byt DALEN mot …"). */
+  target_query?: string;
+  /** plan_set_storkok: on = make it a pair, off = back to one dinner. */
+  on?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -56,6 +61,9 @@ plan_draft = start planning days ahead ("planera", with/without horizon)
 plan_set_day = change which DISH is cooked on a day ("byt DAG till DISH",
   "kör DISH på DAG istället")
 plan_set_multiplier = scale a day's portions ("dubbla portioner på DAG")
+plan_set_storkok = mark a planned dish as a big batch / "storkok" (cooked once,
+  eaten twice — the dish sits twice in the plan), or take that away. Only ever
+  for the word storkok/storkoka; portion talk is plan_set_multiplier.
 plan_lock = lock the drafted days ("lås dagarna/veckan", "lock it in")
 note_recipe = feedback/adjustment on a dish for next time ("mindre salt
   nästa gång")
@@ -133,6 +141,11 @@ fredag=friday lördag=saturday söndag=sunday). recipe_query: the dish.`,
 fredag=friday lördag=saturday söndag=sunday). multiplier: the integer factor ("dubbla" -> 2, "tre gånger" -> 3).`,
     schema: { day: { enum: DAYS }, multiplier: { type: "integer" } },
     required: ["day", "multiplier"],
+  },
+  plan_set_storkok: {
+    prompt: `Extract slots for plan_set_storkok. recipe_query: the dish it is about, if named. on: true to make it a storkok, false to remove it ("ta bort storkok" -> false).`,
+    schema: { recipe_query: { type: "string" }, on: { type: "boolean" } },
+    required: [],
   },
   plan_lock: null,
   note_recipe: {
@@ -262,6 +275,50 @@ export function parseWithRules(utterance: string): ParsedUtterance | null {
     return { intent: "correct_last", replacement: m[1].replace(/[.!?]+$/, "") };
   if ((m = text.match(/^(?:jag )?menade\s+(.+)$/i)))
     return { intent: "correct_last", replacement: m[1].replace(/[.!?]+$/, "") };
+
+  // plan_set_storkok (directive Pelle 2026-08-27): "storkok" is an unambiguous
+  // Swedish word with no shopping meaning, so the rules can own it outright —
+  // and they MUST run before remove_item, or "ta bort storkok på dalen" walks
+  // off to the shopping list. Never collides with the p4-09 edit verbs either:
+  // those are dubbla/halvera/…, never storkok.
+  // A leading shopping verb opts the whole utterance out, same rule the p4-09
+  // edit verbs follow ("köp storkoksgryta" is groceries, not planning).
+  if (/\bstorkok/i.test(low) && !/^(?:köp|kop|buy|get|handla|vi behöver|vi behover|we need)\b/i.test(low)) {
+    const off = /\b(ta bort|inget|inte|slopa|skippa|sluta med)\b/i.test(low);
+    const parse: ParsedUtterance = { intent: "plan_set_storkok", on: !off };
+    const dish =
+      low.match(/storkok(?:a|et|s)?\s+(?:på|av|för)\s+(.+)$/i) ??
+      low.match(/^(?:gör|kör|ha)\s+(.+?)\s+(?:till|som)\s+(?:ett\s+)?storkok/i) ??
+      low.match(/^(.+?)\s+(?:ska|skall)\s+(?:vara|bli)\s+(?:ett\s+)?storkok/i) ??
+      low.match(/^storkoka\s+(.+)$/i);
+    if (dish) parse.recipe_query = dish[1].trim().replace(/[.!?]+$/, "");
+    return parse;
+  }
+
+  // plan_set_day as a POOL swap (live feedback 2026-08-27: free text is the
+  // escape hatch a 30-dish keyboard can never be). "byt X mot Y" names both
+  // sides; the weekday forms keep their `day` slot because the R3 fixtures
+  // pin it, but the pool ignores it — see planEventFromParse.
+  if ((m = text.match(/^byt(?:\s+ut)?\s+(.+?)\s+mot\s+(.+?)(?:\s+istället)?\s*$/i))) {
+    const parse: ParsedUtterance = {
+      intent: "plan_set_day",
+      recipe_query: m[2].replace(/[.!?]+$/, ""),
+    };
+    const day = DAY_MAP[m[1].toLowerCase()];
+    if (day) parse.day = day;
+    else parse.target_query = m[1];
+    return parse;
+  }
+  if ((m = text.match(/^byt\s+till\s+(.+?)(?:\s+istället)?\s*$/i)))
+    return { intent: "plan_set_day", recipe_query: m[1].replace(/[.!?]+$/, "") };
+  if (
+    (m = text.match(
+      new RegExp(`^(?:byt|change)\\s+(${SWEDISH_DAY}|${DAYS.join("|")})(?:en)?\\s+(?:till|to)\\s+(.+?)(?:\\s+istället)?\\s*$`, "i"),
+    ))
+  ) {
+    const day = DAY_MAP[m[1].toLowerCase()] ?? m[1].toLowerCase();
+    return { intent: "plan_set_day", day, recipe_query: m[2].replace(/[.!?]+$/, "") };
+  }
 
   // remove_item — including the negation traps, BEFORE any add pattern.
   if ((m = text.match(/^ta bort\s+(.+?)(?:\s+från listan)?\s*$/i)))

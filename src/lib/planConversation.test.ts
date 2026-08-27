@@ -9,6 +9,7 @@ import {
   cookModeBaseUrl,
   encodePlanCallback,
   findOverlappingBatch,
+  findRecipeByQuery,
   formatRange,
   handlePlanEvent,
   nextBatchRange,
@@ -20,6 +21,7 @@ import {
   type PlanStore,
 } from "./planConversation";
 import { parseRecipeMarkdown, type ParsedRecipe } from "./recipeMarkdown";
+import { draftForRound } from "./planDraft";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -86,6 +88,14 @@ function makeStore(seed: { batches?: Array<{ id: string; starts_on: string; ends
     },
     deleteEntry: async (id) => {
       pool.splice(pool.findIndex((r) => r.id === id), 1);
+    },
+    insertEntry: async (entry, batchId) => {
+      pool.push({
+        id: `pm-${nextId++}`,
+        recipe_id: entry.recipeId,
+        servings_multiplier: entry.servingsMultiplier,
+        batch_id: batchId,
+      });
     },
     lockBatch: async (range, entryIds, generated) => {
       const id = `batch-${batches.length + 1}`;
@@ -177,12 +187,14 @@ const ctx = (over: Partial<{ messageId: number }> = {}) => ({
 describe("callback vocabulary", () => {
   const roundTrip: PlanEvent[] = [
     { kind: "draft", horizonDays: 5 },
-    { kind: "reroll" },
+    { kind: "reroll", round: 3 },
     { kind: "edit_menu" },
-    { kind: "pick_entry", index: 3 },
+    { kind: "pick_entry", index: 3, page: 2 },
     { kind: "swap", index: 3, recipeId: "saffron-scented-lentil-stew-with-potatoes" },
     { kind: "multiplier", index: 2, multiplier: 2 },
     { kind: "remove", index: 1 },
+    { kind: "storkok", index: 4, on: true },
+    { kind: "storkok", index: 0, on: false },
     { kind: "lock" },
     { kind: "show_list" },
     { kind: "diff", accepted: true },
@@ -233,6 +245,24 @@ describe("intent → event (pool reinterpretation of the p4-02 slots)", () => {
         "2026-08-27",
       ),
     ).toEqual({ kind: "swap_query", recipeQuery: "tacos" });
+  });
+
+  it("reads the storkok verbs as a pool-count toggle, not a multiplier", () => {
+    expect(
+      planEventFromParse({ intent: "plan_set_storkok", recipe_query: "dalen" }, "2026-08-27"),
+    ).toEqual({ kind: "storkok_query", on: true, targetQuery: "dalen" });
+    expect(
+      planEventFromParse({ intent: "plan_set_storkok", on: false }, "2026-08-27"),
+    ).toEqual({ kind: "storkok_query", on: false });
+  });
+
+  it("carries the named victim of a free-text swap", () => {
+    expect(
+      planEventFromParse(
+        { intent: "plan_set_day", recipe_query: "pyttipanna", target_query: "dalen" },
+        "2026-08-27",
+      ),
+    ).toEqual({ kind: "swap_query", recipeQuery: "pyttipanna", targetQuery: "dalen" });
   });
 
   it("reads plan_set_multiplier as a per-dish portion change", () => {
@@ -327,8 +357,8 @@ describe("Script 5 replay — tap + text, one message edited in place", () => {
 
     // tap [✏️ Ändra] → [rätt] → [byt till …]
     await handlePlanEvent(store, chat, ctx({ messageId: 101 }), { kind: "edit_menu" });
-    expect(last().buttons).toContain("p:x:0");
-    await handlePlanEvent(store, chat, ctx({ messageId: 101 }), { kind: "pick_entry", index: 0 });
+    expect(last().buttons).toContain("p:x:0:0");
+    await handlePlanEvent(store, chat, ctx({ messageId: 101 }), { kind: "pick_entry", index: 0, page: 0 });
     const swapButton = last().buttons.find((b) => b.startsWith("p:s:0:"))!;
     expect(swapButton).toBeDefined();
     const swappedIn = swapButton.slice("p:s:0:".length);
@@ -394,7 +424,7 @@ describe("Script 5 replay — tap + text, one message edited in place", () => {
     const { chat } = makeChat();
     await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 5 });
     const before = store.pool.map((r) => r.recipe_id);
-    await handlePlanEvent(store, chat, ctx(), { kind: "reroll" });
+    await handlePlanEvent(store, chat, ctx(), { kind: "reroll", round: 1 });
     const after = store.pool.map((r) => r.recipe_id);
     expect(after).toHaveLength(5);
     expect(after).not.toEqual(before);
@@ -483,6 +513,7 @@ describe("live-20260827 replay: two edit rounds in one draft", () => {
       await handlePlanEvent(store, probe, ctx({ messageId: 101 }), {
         kind: "pick_entry",
         index,
+        page: 0,
       });
       const menu = calls[calls.length - 1];
       expect(
@@ -490,6 +521,188 @@ describe("live-20260827 replay: two edit rounds in one draft", () => {
         `entry ${index} must offer swaps`,
       ).toBeGreaterThan(0);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Live feedback round 2 (2026-08-27), after the household's first real lock.
+
+describe("swap-candidate variety", () => {
+  it("pages through the whole library, wrapping rather than dead-ending", async () => {
+    const store = makeStore();
+    const { chat, calls } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 5 });
+    const offered = new Set<string>();
+    const pages = 8;
+    for (let page = 0; page < pages; page++) {
+      await handlePlanEvent(store, chat, ctx({ messageId: 101 }), {
+        kind: "pick_entry",
+        index: 0,
+        page,
+      });
+      const menu = calls[calls.length - 1];
+      const swaps = menu.buttons.filter((b) => b.startsWith("p:s:0:"));
+      expect(swaps.length, `page ${page} must offer dishes`).toBeGreaterThan(0);
+      for (const b of swaps) offered.add(b.slice("p:s:0:".length));
+      expect(menu.buttons.some((b) => b.startsWith("p:x:0:")), "pager button").toBe(true);
+    }
+    // 30 recipes − 4 in the pool: eight pages of four must have shown far more
+    // than the same handful the household kept seeing.
+    expect(offered.size).toBeGreaterThanOrEqual(20);
+    // never offers a dish already in the pool
+    for (const id of offered) {
+      expect(store.pool.some((p) => p.recipe_id === id), id).toBe(false);
+    }
+  });
+
+  it("rerolls onto genuinely new dishes, round after round", async () => {
+    const store = makeStore();
+    const { chat, last } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 5 });
+    const seen = new Set(store.pool.map((r) => r.recipe_id));
+    for (let round = 1; round <= 4; round++) {
+      const button = last().buttons.find((b) => b.startsWith("p:r:"))!;
+      expect(button, `round ${round} needs a reroll button`).toBeDefined();
+      await handlePlanEvent(store, chat, ctx({ messageId: 101 }), parsePlanCallback(button)!);
+      for (const row of store.pool) {
+        expect(seen.has(row.recipe_id), `reroll ${round} repeats ${row.recipe_id}`).toBe(false);
+      }
+      for (const row of store.pool) seen.add(row.recipe_id);
+    }
+  });
+
+  it("every 5-day draft the real corpus produces carries exactly one 🍱 pair", () => {
+    // The live batch locked 5 DISTINCT dishes with no pair. The proposer is
+    // not the culprit — it pairs on every round; a swap onto one half of the
+    // pair is what dissolves it (which is why storkok is now toggleable).
+    for (let round = 0; round <= 6; round++) {
+      const entries = draftForRound(
+        {
+          recipes: RECIPES.map((r) => ({ id: r.id, title: r.title, tags: r.tags })),
+          ratings: new Map(),
+          lastCooked: new Map(),
+          horizonDays: 5,
+          todayIso: "2026-08-27",
+        },
+        round,
+      );
+      expect(entries).toHaveLength(5);
+      expect(new Set(entries.map((e) => e.recipeId)).size, `round ${round}`).toBe(4);
+    }
+  });
+});
+
+describe("free-text swap: the escape hatch a 30-dish keyboard can never be", () => {
+  it("resolves any dish by fuzzy Swedish title, definite forms included", () => {
+    expect(findRecipeByQuery(RECIPES, "mapo tofu")?.id).toBe("mapo-tofu");
+    expect(findRecipeByQuery(RECIPES, "pyttipanna")?.id).toBe("swedish-vegan-hash-with-tofu-egg");
+    expect(findRecipeByQuery(RECIPES, "moussakan")?.id).toBe("vegan-moussaka");
+    expect(findRecipeByQuery(RECIPES, "carbonara")?.id).toBe("vegan-carbonara-green-peas");
+    expect(findRecipeByQuery(RECIPES, "sushirullar")?.id).toBe("vegan-sushi-rolls");
+    expect(findRecipeByQuery(RECIPES, "flygande tallrik")).toBeNull();
+  });
+
+  it("swaps the named pool dish straight away when the text says which", async () => {
+    const store = makeStore();
+    const { chat } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 5 });
+    // a dish that is in the pool exactly once — naming half of a 🍱 pair is
+    // genuinely ambiguous and must ask instead (covered below)
+    const soloIndex = store.pool.findIndex(
+      (row, _i, all) => all.filter((r) => r.recipe_id === row.recipe_id).length === 1,
+    );
+    const victim = store.recipes().find((r) => r.id === store.pool[soloIndex].recipe_id)!;
+    await handlePlanEvent(store, chat, ctx(), {
+      kind: "swap_query",
+      recipeQuery: "mapo tofu",
+      targetQuery: victim.title,
+    });
+    expect(store.pool[soloIndex].recipe_id).toBe("mapo-tofu");
+  });
+
+  it("asks which entry when the text names only the new dish", async () => {
+    const store = makeStore();
+    const { chat, last } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 5 });
+    const before = store.pool.map((r) => r.recipe_id);
+    await handlePlanEvent(store, chat, ctx(), { kind: "swap_query", recipeQuery: "mapo tofu" });
+    expect(store.pool.map((r) => r.recipe_id)).toEqual(before);
+    expect(last().buttons.filter((b) => b.startsWith("p:s:"))).toHaveLength(5);
+  });
+});
+
+describe("storkok ×2 — the same dish twice in the pool, never a multiplier", () => {
+  it("adds a second entry and badges it 🍱 ×2, leaving portions family-size", async () => {
+    const store = makeStore();
+    const { chat, last } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 3 });
+    const target = store.pool[0].recipe_id;
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: true });
+
+    expect(store.pool.filter((r) => r.recipe_id === target)).toHaveLength(2);
+    expect(store.pool.every((r) => r.servings_multiplier === 1)).toBe(true);
+    expect(last().text).toContain("🍱 ×2");
+  });
+
+  it("is idempotent on, and removes exactly one entry off", async () => {
+    const store = makeStore();
+    const { chat } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 3 });
+    const target = store.pool[0].recipe_id;
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: true });
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: true });
+    expect(store.pool.filter((r) => r.recipe_id === target)).toHaveLength(2);
+
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: false });
+    expect(store.pool.filter((r) => r.recipe_id === target)).toHaveLength(1);
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: false });
+    expect(store.pool.filter((r) => r.recipe_id === target)).toHaveLength(1);
+  });
+
+  it("takes the dish by name from free text", async () => {
+    const store = makeStore();
+    const { chat } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 3 });
+    const title = titleFor(store.pool[1].recipe_id);
+    await handlePlanEvent(store, chat, ctx(), {
+      kind: "storkok_query",
+      targetQuery: title,
+      on: true,
+    });
+    expect(store.pool.filter((r) => r.recipe_id === store.pool[1].recipe_id).length).toBe(2);
+  });
+
+  it("asks which dish when the text names none", async () => {
+    const store = makeStore();
+    const { chat, last } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 3 });
+    const before = store.pool.length;
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok_query", on: true });
+    expect(store.pool).toHaveLength(before);
+    expect(last().buttons.filter((b) => b.startsWith("p:k:"))).toHaveLength(3);
+  });
+
+  it("grows the shopping list of an already-locked batch", async () => {
+    const store = makeStore();
+    const { chat, last } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 3 });
+    await handlePlanEvent(store, chat, ctx(), { kind: "lock" });
+    const before = store.items.get("batch-1")!.map((r) => `${r.canonical_ingredient}:${r.quantity}`);
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: true });
+    const after = store.items.get("batch-1")!.map((r) => `${r.canonical_ingredient}:${r.quantity}`);
+    expect(after).not.toEqual(before);
+    expect(last().buttons).toContain("p:dy");
+  });
+
+  it("offers the toggle on the entry menu, both ways round", async () => {
+    const store = makeStore();
+    const { chat, last } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 3 });
+    await handlePlanEvent(store, chat, ctx({ messageId: 101 }), { kind: "pick_entry", index: 0, page: 0 });
+    expect(last().buttons).toContain("p:k:0:1");
+    await handlePlanEvent(store, chat, ctx(), { kind: "storkok", index: 0, on: true });
+    await handlePlanEvent(store, chat, ctx({ messageId: 101 }), { kind: "pick_entry", index: 0, page: 0 });
+    expect(last().buttons).toContain("p:k:0:0");
   });
 });
 

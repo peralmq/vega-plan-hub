@@ -154,6 +154,55 @@ export function scoreRecipe(
 
 // ---------------------------------------------------------------------------
 
+// Reroll rotation (live feedback 2026-08-27: "de kom tillbaka samma typ 5
+// rätter om och om igen"). A reroll used to exclude only the draft it was
+// replacing, so round 3 could serve round 1's dishes back. A ROUND NUMBER —
+// carried in the button's callback_data, never in process memory — makes the
+// whole history derivable: round n re-derives rounds 0…n-1 and excludes their
+// union, so consecutive rerolls walk the shelf instead of circling. When the
+// library can no longer fill a draft, the rotation starts over rather than
+// handing back a short one.
+export const MAX_REROLL_ROUND = 32;
+
+export function draftForRound(
+  base: Omit<ProposeDraftInput, "seed" | "exclude">,
+  round: number,
+): DraftEntry[] {
+  const target = Math.max(0, Math.min(MAX_REROLL_ROUND, Math.floor(round)));
+  const wanted = clampHorizon(base.horizonDays);
+  const offered = new Set<string>();
+  let entries: DraftEntry[] = [];
+  for (let r = 0; r <= target; r++) {
+    const seed = `${base.todayIso}:${wanted}:r${r}`;
+    entries = proposeDraft({ ...base, seed, exclude: [...offered] });
+    if (entries.length < wanted) {
+      offered.clear();
+      entries = proposeDraft({ ...base, seed, exclude: [] });
+    }
+    for (const entry of entries) offered.add(entry.recipeId);
+  }
+  return entries;
+}
+
+// Swap candidates, paged (live feedback 2026-08-27: the picker kept offering
+// the same handful, and a keyboard can never list 30 dishes). One deterministic
+// ranking of everything not already in the pool, walked a page at a time and
+// wrapping at the end, so [Fler förslag ➡️] eventually reaches every dish.
+export function candidatePage(
+  ranked: DraftCandidate[],
+  page: number,
+  size: number,
+): DraftCandidate[] {
+  if (ranked.length === 0) return [];
+  const width = Math.min(size, ranked.length);
+  const start = ((page * width) % ranked.length + ranked.length) % ranked.length;
+  return Array.from({ length: width }, (_, i) => ranked[(start + i) % ranked.length]);
+}
+
+export function pageCount(total: number, size: number): number {
+  return total === 0 ? 0 : Math.ceil(total / Math.min(size, total));
+}
+
 export function proposeDraft(input: ProposeDraftInput): DraftEntry[] {
   const excluded = new Set(input.exclude ?? []);
   const ranked = input.recipes

@@ -178,16 +178,16 @@ describe("live-20260827 replay through the bot seam", () => {
     expect(draft.buttons).toContain("p:l");
     expect(fake.db.planned_meals).toHaveLength(5);
 
-    expect((await tap("p:e")).buttons).toContain("p:x:3");
-    const entryMenu = await tap("p:x:3");
+    expect((await tap("p:e")).buttons).toContain("p:x:3:0");
+    const entryMenu = await tap("p:x:3:0");
     const swap = entryMenu.buttons!.find((b) => b.startsWith("p:s:3:"))!;
     expect(swap).toBeDefined();
     await tap(swap);
 
     // …and the second round, which went silent live.
     const menuAgain = await tap("p:e");
-    expect(menuAgain.buttons).toContain("p:x:0");
-    const entryZero = await tap("p:x:0");
+    expect(menuAgain.buttons).toContain("p:x:0:0");
+    const entryZero = await tap("p:x:0:0");
     expect(entryZero.buttons!.some((b) => b.startsWith("p:s:0:"))).toBe(true);
     expect(entryZero.buttons).toContain("p:rm:0");
 
@@ -208,6 +208,77 @@ describe("live-20260827 replay through the bot seam", () => {
     for (const table of ["planned_meals", "plan_batches", "shopping_list_items"]) {
       for (const row of fake.db[table]) expect(row.user_id, table).toBe(USER);
     }
+  });
+
+  // live-feedback round 2 (2026-08-27), through the real adapter: the picker
+  // must reach past the same handful, and storkok must write a second row.
+  it("pages the swap picker through new dishes on every tap", async () => {
+    const { calls, tg } = makeTelegram();
+    const supa = makeFakeSupabase(emptyDb()) as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    const deps = repo();
+    await handleCallback(supa, tg, callbackRow("p:h:5"), states, deps);
+
+    const offered = new Set<string>();
+    for (let page = 0; page < 6; page++) {
+      await handleCallback(supa, tg, callbackRow(`p:x:0:${page}`), states, deps);
+      const menu = calls.filter((c) => c.method === "edit").pop()!;
+      for (const b of menu.buttons!.filter((x) => x.startsWith("p:s:0:"))) {
+        offered.add(b.slice("p:s:0:".length));
+      }
+      expect(menu.buttons!.some((b) => b.startsWith("p:x:0:")), `page ${page} pager`).toBe(true);
+    }
+    expect(offered.size).toBeGreaterThanOrEqual(16);
+  });
+
+  it("storkok writes a second pool row and keeps the multiplier alone", async () => {
+    const { calls, tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    const deps = repo();
+    await handleCallback(supa, tg, callbackRow("p:h:5"), states, deps);
+    const before = fake.db.planned_meals.length;
+    // index 0 is half of the draft's own 🍱 pair — already a storkok, so the
+    // toggle must be a no-op there and the test aims at a solo dish instead.
+    await handleCallback(supa, tg, callbackRow("p:k:0:1"), states, deps);
+    expect(fake.db.planned_meals).toHaveLength(before);
+    const solo = fake.db.planned_meals.findIndex(
+      (row, _i, all) => all.filter((r) => r.recipe_id === row.recipe_id).length === 1,
+    );
+
+    await handleCallback(supa, tg, callbackRow(`p:k:${solo}:1`), states, deps);
+    expect(fake.db.planned_meals).toHaveLength(before + 1);
+    expect(fake.db.planned_meals.every((r) => r.servings_multiplier === 1)).toBe(true);
+    expect(fake.db.planned_meals.every((r) => r.meal_date === null)).toBe(true);
+    expect(calls.filter((c) => c.method === "edit").pop()!.text).toContain("🍱");
+
+    await handleCallback(supa, tg, callbackRow(`p:k:${solo}:0`), states, deps);
+    expect(fake.db.planned_meals).toHaveLength(before);
+  });
+
+  it("takes storkok from free text, by dish name", async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    const deps = repo();
+    await handleCallback(supa, tg, callbackRow("p:h:5"), states, deps);
+    const before = fake.db.planned_meals.length;
+    const soloRow = fake.db.planned_meals.find(
+      (row, _i, all) => all.filter((r) => r.recipe_id === row.recipe_id).length === 1,
+    )!;
+    const title = deps.library().find((r) => r.id === soloRow.recipe_id)!.title;
+
+    await handleMessage(
+      supa,
+      tg,
+      messageRow(`storkok på ${title}`),
+      { intent: "plan_set_storkok", recipe_query: title, on: true },
+      states,
+      deps,
+    );
+    expect(fake.db.planned_meals.length).toBeGreaterThan(before);
   });
 
   it("locks the draft into a batch with a generated list", async () => {

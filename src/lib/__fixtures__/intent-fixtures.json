@@ -727,5 +727,80 @@
       "horizon": "5"
     },
     "set": "p4-03"
+  },
+  {
+    "utterance": "storkok på dalen",
+    "expect": {
+      "intent": "plan_set_storkok",
+      "recipe_query": "dalen"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "gör dalen till storkok",
+    "expect": {
+      "intent": "plan_set_storkok",
+      "recipe_query": "dalen"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "storkoka moussakan",
+    "expect": {
+      "intent": "plan_set_storkok",
+      "recipe_query": "moussakan"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "ta bort storkok på dalen",
+    "expect": {
+      "intent": "plan_set_storkok",
+      "recipe_query": "dalen"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "jag vill ha storkok",
+    "expect": {
+      "intent": "plan_set_storkok"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "köp storkoksgryta",
+    "expect": {
+      "intent": "add_item",
+      "items": [
+        "storkoksgryta"
+      ]
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "byt dalen mot pyttipanna",
+    "expect": {
+      "intent": "plan_set_day",
+      "recipe_query": "pyttipanna",
+      "target_query": "dalen"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "byt till mapo tofu",
+    "expect": {
+      "intent": "plan_set_day",
+      "recipe_query": "mapo tofu"
+    },
+    "set": "p4-03-r2"
+  },
+  {
+    "utterance": "byt ut carbonaran mot tacos",
+    "expect": {
+      "intent": "plan_set_day",
+      "recipe_query": "tacos",
+      "target_query": "carbonaran"
+    },
+    "set": "p4-03-r2"
   }
 ]
