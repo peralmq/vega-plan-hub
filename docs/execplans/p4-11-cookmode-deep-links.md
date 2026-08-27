@@ -1,14 +1,14 @@
 ---
 id: p4-11-cookmode-deep-links
-title: Cook Mode deep links — ?recipe=<id>&x=<multiplier> opens the dish, scaled
+title: Cook Mode deep links — ?recipe=<id>&scale=<multiplier> opens the dish, scaled
 phase: P4
-status: in-progress
+status: done
 depends_on: [p3-01-kreuzberg-redesign]
 ---
 
 ## Goal
 
-`https://peralmq.github.io/vega-plan-hub/?recipe=mapo-tofu&x=2` opens
+`https://peralmq.github.io/vega-plan-hub/?recipe=mapo-tofu&scale=2` opens
 Cook Mode with Mapo Tofu selected and ×2 scaling applied. This is the
 link target contract the Telegram surfaces need (r1 Script 4's
 "[🍳 Cook mode] deep-links with tonight's scaling applied", and every
@@ -44,10 +44,18 @@ contract in the same change set (directive Pelle 2026-08-27).
       (unknown id, bad multiplier, no param)
 - [x] (2026-08-27) Auth round-trip preserves the query (e2e)
 - [x] (2026-08-27) design.spec Cook Mode row extended with the contract
-- [ ] Live: link from a phone opens the scaled recipe on Pages — **not
-      done**; requires a deployed Pages build + a phone, which this
-      implementer session cannot perform. Leaving `status: in-progress`
-      for a human to run this check and flip to `done`.
+- [x] (2026-08-27) Live: link from a phone opens the scaled recipe on
+      Pages — verified by Pelle (Fredagsmys Tacos via deep link,
+      screenshot in chat; Google OAuth round-trip carried the query,
+      so the allowlist risk below did not materialize)
+- [x] (2026-08-27) Phone-test feedback round: `?x` renamed `?scale`
+      (semantic, Pelle directive); ± stepper writes the multiplier
+      back to `?scale` (history replace; guarded so the pre-apply
+      interim default never clobbers the link's own value — caught by
+      e2e); double-tap zoom on rapid ± taps fixed via
+      `touch-action: manipulation` on buttons; stepper icon buttons
+      gained aria-labels (design.spec accessibility floor); e2e grown
+      to cover the write-back (20/20 green)
 
 ## Steps
 
@@ -62,7 +70,7 @@ contract in the same change set (directive Pelle 2026-08-27).
 
 - `./harness check` passes; new tests cover unknown id, clamped `x`,
   param-less default, and query survival across the auth redirect.
-- Live on Pages: `?recipe=<id>&x=2` from a phone (logged out, then
+- Live on Pages: `?recipe=<id>&scale=2` from a phone (logged out, then
   logging in) ends on the scaled recipe.
 
 ## Evidence
@@ -95,7 +103,7 @@ contract in the same change set (directive Pelle 2026-08-27).
   targets (GitHub Pages direct-Supabase branch and the Lovable broker
   branch), so the query preserved onto `/welcome` by `ProtectedRoute`
   comes back with the user after the Google round trip.
-- `e2e/cook-mode-deep-link.spec.ts` (new) — 6 tests: `?recipe&x` scales
+- `e2e/cook-mode-deep-link.spec.ts` (new) — 6 tests: `?recipe&scale` scales
   and overrides the day pick; `?recipe` alone defaults to the active
   plan's multiplier when the recipe is planned, else 1×; unknown id →
   toast + fallback to today's normal pick; bad `?x` → default multiplier,
@@ -103,7 +111,7 @@ contract in the same change set (directive Pelle 2026-08-27).
   query intact → simulated login + reload → `AuthRoute` bounces back to
   `/` with query intact → recipe shown scaled).
 - `docs/specs/design.spec.md` — Cook Mode row in the Screens table
-  gained a "deep-linkable via `?recipe=&x=`" note; a new "Cook Mode deep
+  gained a "deep-linkable via `?recipe=&scale=`" note; a new "Cook Mode deep
   links" paragraph after the table spells out the full contract (id
   resolution + fallback, multiplier clamp range and default, no new
   route, query survives the `/welcome`/login round trip).
@@ -170,7 +178,7 @@ check: OK
 
 ### Not done: live Pages verification
 
-The plan's Verification bullet "Live on Pages: `?recipe=<id>&x=2` from a
+The plan's Verification bullet "Live on Pages: `?recipe=<id>&scale=2` from a
 phone (logged out, then logging in) ends on the scaled recipe" requires a
 deployed GitHub Pages build and a physical phone — not available to this
 implementer session. `status` is left `in-progress`; a human should run
@@ -182,13 +190,13 @@ this check against the deployed site and flip to `done`.
   configured outside this repo. `signInWithGoogle` now appends a query
   string to `redirectTo`/`redirect_uri`; if Supabase's redirect-URL
   allowlist for this project matches by exact string rather than by
-  prefix, appending `?recipe=...&x=...` could be rejected by Supabase at
+  prefix, appending `?recipe=...&scale=...` could be rejected by Supabase at
   OAuth-initiation time. This can only be confirmed live (the unticked
   Verification bullet above) and is the main risk this change carries
   into that live check.
 - Supabase's own OAuth callback params (e.g. a PKCE `?code=...`) get
   appended to whatever `redirectTo` we pass; this hasn't been observed
-  live, so there's a small chance of a `?code=...&recipe=...&x=...`
+  live, so there's a small chance of a `?code=...&recipe=...&scale=...`
   malformed-query edge case if Supabase doesn't merge query strings
   cleanly. Also only observable live.
 - The deep-linked recipe permanently overrides the day-based pick for the

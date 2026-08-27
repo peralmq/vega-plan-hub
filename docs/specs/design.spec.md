@@ -49,7 +49,7 @@ flowchart LR
 | Screen | Purpose | Key elements |
 | --- | --- | --- |
 | Landing (`/welcome`) | Sell the app, sign in/up | Hero, value props, auth entry |
-| Cook Mode (`/`) | Cook tonight's meal | Tonight's pick from the batch pool (choose-from-remaining picker; already-cooked entries shown as done); servings stepper (multiplier ±); scaled ingredient list; step-by-step instructions; link out to original recipe; batch overview navigation; deep-linkable via `?recipe=&x=` (below) |
+| Cook Mode (`/`) | Cook tonight's meal | Tonight's pick from the batch pool (choose-from-remaining picker; already-cooked entries shown as done); servings stepper (multiplier ±); scaled ingredient list; step-by-step instructions; link out to original recipe; batch overview navigation; deep-linkable via `?recipe=&scale=` (below) |
 | Plan Mode (`/plan`) | Build the active batch | The batch's meal pool as a list (dish × count, 🍱 meal-prep badge); recipe picker from the library; servings multiplier per meal; clear/reset; hand-off to summary |
 | Shopping Summary (`/summary`) | Shop the week | Aggregated, normalized, scaled ingredient list with checkboxes; SEK estimates; print and copy-to-clipboard actions; back to plan |
 | Account (`/account`) | Household settings | Profile, family members (for ratings/tastes), sign out |
@@ -59,15 +59,20 @@ recipe id>` opens Cook Mode with that recipe selected, bypassing the day
 picker — the link target contract for the Telegram bot's "🍳 Cook mode"
 button and every per-meal link in the p4-10 menu card/PDF. An unknown id
 falls back to the normal tonight-first view plus a friendly 🤷 toast —
-never a crash. `?x=<float>` sets the servings multiplier, clamped to the
+never a crash. `?scale=<float>` (renamed from `?x`, Pelle 2026-08-27 —
+semantic beats short) sets the servings multiplier, clamped to the
 app's allowed range (0.5×–4×, matching Plan Mode's stepper); absent, it
-defaults to the recipe's multiplier in the active (current-week) plan when
-the recipe is in it, else 1×. No new route: query params on the existing
-`/`, since the base URL serves `index.html` directly (no Pages 404 trick
-needed). The query string survives the `/welcome` auth redirect and the
-Google sign-in round trip, so the link works for logged-out visitors too —
-they land on `/welcome?recipe=&x=`, sign in, and return to the same
-deep-linked, scaled recipe.
+defaults to the recipe's multiplier in the active batch's pool when
+the recipe is in it, else 1×. While a deep-linked recipe is shown, the
+± stepper writes the current multiplier back to `?scale=` (history
+`replace`, never push), so the address bar is always a shareable link
+to exactly what's on screen; pool picks don't write `?recipe` — only
+real deep links live in the URL. No new route: query params on the
+existing `/`, since the base URL serves `index.html` directly (no Pages
+404 trick needed). The query string survives the `/welcome` auth
+redirect and the Google sign-in round trip, so the link works for
+logged-out visitors too — they land on `/welcome?recipe=&scale=`, sign
+in, and return to the same deep-linked, scaled recipe.
 
 ## Interaction rules
 

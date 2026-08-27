@@ -191,4 +191,12 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Rapid taps on steppers (servings ±) must not trigger the mobile
+     browser's double-tap page zoom — the "menu zoomed itself" bug from
+     the p4-11 phone test (Pelle 2026-08-27). Pinch zoom stays enabled. */
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+  }
 }

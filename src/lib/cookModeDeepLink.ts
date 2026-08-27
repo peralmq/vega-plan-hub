@@ -1,6 +1,6 @@
 import type { ParsedRecipe } from "@/services/recipeLoader";
 
-// p4-11: Cook Mode deep-link contract — `/?recipe=<markdown recipe id>&x=<multiplier>`
+// p4-11: Cook Mode deep-link contract — `/?recipe=<markdown recipe id>&scale=<multiplier>`
 // (design.spec.md, Cook Mode). Pure parsing/resolution helpers, unit-tested
 // independently of the CookMode component's day-selection state machine.
 
@@ -27,17 +27,17 @@ export function findDeepLinkRecipe(
 }
 
 /**
- * Resolve `?x=<multiplier>`. A present, finite value is clamped to the app's
+ * Resolve `?scale=<multiplier>`. A present, finite value is clamped to the app's
  * allowed range. An absent or unparseable ("bad") value falls back to
  * `defaultMultiplier` — the caller computes that as the planned meal's own
  * multiplier when the recipe is in the active plan, else 1.
  */
 export function resolveServingsMultiplier(
-  xParam: string | null,
+  scaleParam: string | null,
   defaultMultiplier: number,
 ): number {
-  if (xParam === null || xParam.trim() === "") return defaultMultiplier;
-  const parsed = Number(xParam);
+  if (scaleParam === null || scaleParam.trim() === "") return defaultMultiplier;
+  const parsed = Number(scaleParam);
   if (!Number.isFinite(parsed)) return defaultMultiplier;
   return clampServingsMultiplier(parsed);
 }

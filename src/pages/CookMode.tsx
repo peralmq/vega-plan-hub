@@ -35,7 +35,7 @@ export default function CookMode() {
   const { user, signOut } = useAuth();
   const { currentBatch, loading, allRecipes, cookPoolEntry, uncookPoolEntry } = useBatchPool();
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [targetServings, setTargetServings] = useState<number | null>(null);
   const [viewEntryId, setViewEntryId] = useState<string | null>(null);
@@ -62,13 +62,13 @@ export default function CookMode() {
     () => findDeepLinkRecipe(allRecipes, deepLinkRecipeId),
     [allRecipes, deepLinkRecipeId],
   );
-  // `?x=<multiplier>`: absent/bad -> the recipe's own multiplier in the
+  // `?scale=<multiplier>`: absent/bad -> the recipe's own multiplier in the
   // active batch's pool when it's in there, else 1.
   const deepLinkMultiplier = useMemo(() => {
     const plannedMultiplier = deepLinkRecipe
       ? pool.find(m => m.recipeId === deepLinkRecipe.id)?.servingsMultiplier
       : undefined;
-    return resolveServingsMultiplier(searchParams.get('x'), plannedMultiplier ?? 1);
+    return resolveServingsMultiplier(searchParams.get('scale'), plannedMultiplier ?? 1);
   }, [deepLinkRecipe, searchParams, pool]);
 
   const selectedRecipe = deepLinkRecipe ?? selectedPoolEntry?.recipe;
@@ -106,6 +106,23 @@ export default function CookMode() {
     deepLinkAppliedRef.current = true;
     setTargetServings(Math.round(deepLinkRecipe.servings * deepLinkMultiplier));
   }, [loading, deepLinkRecipe, deepLinkMultiplier]);
+
+  // Keep the URL shareable while deep-linked: +/- adjustments write the
+  // current multiplier back to `?scale=` (replace, not push — the stepper
+  // must not pollute browser history). Only active when a `?recipe` deep
+  // link is what's being viewed, so pool picks don't masquerade as links.
+  useEffect(() => {
+    // Wait for the apply effect above: before it runs, targetServings holds
+    // an interim default that must not clobber the link's own ?scale.
+    if (!deepLinkRecipe || !targetServings || !deepLinkAppliedRef.current) return;
+    const multiplier =
+      Math.round((targetServings / deepLinkRecipe.servings) * 100) / 100;
+    const next = new URLSearchParams(searchParams);
+    next.set('scale', String(multiplier));
+    if (next.toString() !== searchParams.toString()) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [deepLinkRecipe, targetServings, searchParams, setSearchParams]);
 
   const scaledIngredients = useMemo(() => {
     if (!selectedRecipe || !targetServings) return [];
@@ -294,6 +311,7 @@ export default function CookMode() {
                       className="h-8 w-8 rounded-full"
                       onClick={() => adjustServings(-1)}
                       disabled={currentServings <= 1}
+                      aria-label="Decrease servings"
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
@@ -304,6 +322,7 @@ export default function CookMode() {
                       className="h-8 w-8 rounded-full"
                       onClick={() => adjustServings(1)}
                       disabled={currentServings >= 20}
+                      aria-label="Increase servings"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>

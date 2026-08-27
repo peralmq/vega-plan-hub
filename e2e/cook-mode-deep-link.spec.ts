@@ -1,6 +1,6 @@
 import { test, expect } from "./support/mockDb";
 
-// p4-11: `/?recipe=<id>&x=<multiplier>` opens Cook Mode with that recipe
+// p4-11: `/?recipe=<id>&scale=<multiplier>` opens Cook Mode with that recipe
 // selected and scaled (design.spec.md, Cook Mode deep links). This is the
 // link target contract for the Telegram bot's Cook Mode button and the
 // p4-10 menu card/PDF. p4-12 moved Cook Mode onto the batch pool, but the
@@ -10,7 +10,7 @@ import { test, expect } from "./support/mockDb";
 const MAPO_TOFU = "mapo-tofu";
 const MAPO_TOFU_TITLE = /mapo tofu/i;
 
-test("deep link with ?x opens the recipe scaled, overriding the pool picker", async ({
+test("deep link with ?scale opens the recipe scaled, overriding the pool picker", async ({
   page,
   mockDb,
 }) => {
@@ -19,16 +19,22 @@ test("deep link with ?x opens the recipe scaled, overriding the pool picker", as
   // overrides the picker rather than just happening to match it.
   mockDb.seedActiveBatch([{ recipeId: "chana-dal" }]);
 
-  await page.goto(`/?recipe=${MAPO_TOFU}&x=2`);
+  await page.goto(`/?recipe=${MAPO_TOFU}&scale=2`);
 
   await expect(
     page.getByRole("heading", { name: MAPO_TOFU_TITLE }),
   ).toBeVisible();
   // Mapo Tofu is a 4-serving recipe; ×2 -> 8.
   await expect(page.getByText("8 servings")).toBeVisible();
+
+  // The ± stepper writes the multiplier back to ?scale (shareable URL,
+  // design.spec "Cook Mode deep links"): 8 -> 9 servings on a 4-serving
+  // recipe is ×2.25.
+  await page.getByRole("button", { name: "Increase servings" }).click();
+  await expect(page).toHaveURL(/\?recipe=mapo-tofu&scale=2\.25$/);
 });
 
-test("deep link without ?x defaults to the recipe's multiplier in the active batch's pool", async ({
+test("deep link without ?scale defaults to the recipe's multiplier in the active batch's pool", async ({
   page,
   mockDb,
 }) => {
@@ -46,7 +52,7 @@ test("deep link without ?x defaults to the recipe's multiplier in the active bat
   await expect(page.getByText("12 servings")).toBeVisible();
 });
 
-test("deep link without ?x defaults to 1x when the recipe isn't in the active batch", async ({
+test("deep link without ?scale defaults to 1x when the recipe isn't in the active batch", async ({
   page,
   mockDb,
 }) => {
@@ -74,12 +80,12 @@ test("unknown recipe id falls back to the normal pool picker with a friendly toa
   await expect(page.getByRole("heading", { name: /chana dal/i })).toBeVisible();
 });
 
-test("a bad ?x value falls back to the default multiplier instead of crashing", async ({
+test("a bad ?scale value falls back to the default multiplier instead of crashing", async ({
   page,
   mockDb,
 }) => {
   await mockDb.login();
-  await page.goto(`/?recipe=${MAPO_TOFU}&x=not-a-number`);
+  await page.goto(`/?recipe=${MAPO_TOFU}&scale=not-a-number`);
 
   await expect(
     page.getByRole("heading", { name: MAPO_TOFU_TITLE }),
@@ -92,8 +98,8 @@ test("the query survives the ProtectedRoute -> /welcome -> login round trip", as
   mockDb,
 }) => {
   // Logged out: the deep link redirects to /welcome, query intact.
-  await page.goto(`/?recipe=${MAPO_TOFU}&x=2`);
-  await expect(page).toHaveURL(/\/welcome\?recipe=mapo-tofu&x=2$/);
+  await page.goto(`/?recipe=${MAPO_TOFU}&scale=2`);
+  await expect(page).toHaveURL(/\/welcome\?recipe=mapo-tofu&scale=2$/);
   await expect(
     page.getByRole("button", { name: /sign in with google/i }),
   ).toBeVisible();
@@ -106,7 +112,7 @@ test("the query survives the ProtectedRoute -> /welcome -> login round trip", as
   await mockDb.login();
   await page.reload();
 
-  await expect(page).toHaveURL(/\/\?recipe=mapo-tofu&x=2$/);
+  await expect(page).toHaveURL(/\/\?recipe=mapo-tofu&scale=2$/);
   await expect(
     page.getByRole("heading", { name: MAPO_TOFU_TITLE }),
   ).toBeVisible();

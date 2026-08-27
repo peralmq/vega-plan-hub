@@ -16,7 +16,7 @@ HTML-formatted menu message — the batch's meal *pool* as a list
 (design.spec "Pool over calendar": no weekday lines), bold titles,
 ⏰ cook time, the 🍱 ×2 meal-prep badge, quirky per-dish emojis, and
 the compassion footer in Swedish. **Every dish title is a link** into that meal's Cook Mode —
-`https://peralmq.github.io/vega-plan-hub/?recipe=<id>&x=<multiplier>`
+`https://peralmq.github.io/vega-plan-hub/?recipe=<id>&scale=<multiplier>`
 (contract: p4-11) — in both deliverables: the chat menu message
 (HTML `<a>` per line) and the **menu PDF** (directive Pelle
 2026-08-27), a design-token-styled card rendered via Playwright
@@ -88,7 +88,7 @@ list with counts, per the pool model, not a day-by-day schedule):
 1. Menu builder as pure logic beside the p4-03 state machine: input
    locked batch + recipes + base URL, output
    `{album: [...], chatHtml: "...", pdfHtml: "..."}` with every dish
-   title wrapping its `?recipe=<id>&x=<multiplier>` link. Swedish
+   title wrapping its `?recipe=<id>&scale=<multiplier>` link. Swedish
    date-range formatting; pool entries collapse by recipe (🍱 ×2
    badge), never duplicate lines; album has one photo per distinct
    dish.
