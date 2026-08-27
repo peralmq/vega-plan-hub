@@ -30,6 +30,13 @@ const ALLOWED_TAGS = [
   "Weekend Project", "Weeknight",
 ];
 
+// Lint warning ceiling (docs/execplans/p1-06-lint-warning-baseline.md).
+// Ratchet, same policy as the grandfathered exceptions in
+// eslint.config.js: this number may only shrink, never grow. Lower it
+// whenever a warning gets fixed; never raise it to paper over a dirty
+// tree.
+const LINT_WARNING_BASELINE = 8;
+
 // Required body sections, in this order (docs/specs/harness.spec.md,
 // ExecPlans). Optional sections (Decision Log, Surprises & Discoveries,
 // Idempotence & Recovery) may appear anywhere after Goal.
@@ -327,11 +334,42 @@ function checkDeps() {
   console.log(`OK (${Object.keys(wanted).length} deps present)`);
 }
 
+// eslint exits non-zero on lint *errors* but zero on warnings-only runs, so
+// a plain execSync pass/fail step never catches a rising warning count
+// (the gap this closes, docs/execplans/p1-06-lint-warning-baseline.md).
+// Errors still fail fast via the thrown exception; warnings are compared
+// against the ratcheted LINT_WARNING_BASELINE above.
+function checkLint() {
+  let output = "";
+  try {
+    output = execSync("npx eslint .", {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"],
+    }).toString();
+  } catch (e) {
+    console.log("FAIL");
+    process.stdout.write(e.stdout?.toString() ?? "");
+    process.stderr.write(e.stderr?.toString() ?? "");
+    fail("failing command: npm run lint (eslint errors)");
+  }
+  const m = output.match(/(\d+) problems? \((\d+) errors?, (\d+) warnings?\)/);
+  const warnings = m ? Number(m[3]) : 0;
+  if (warnings > LINT_WARNING_BASELINE) {
+    console.log("FAIL");
+    process.stdout.write(output);
+    fail(
+      `lint warnings: ${warnings} exceeds baseline ${LINT_WARNING_BASELINE} (LINT_WARNING_BASELINE in ./harness, docs/execplans/p1-06-lint-warning-baseline.md) — fix the new warning(s); the baseline may only shrink, never grow`,
+    );
+  }
+  console.log(`OK (${warnings}/${LINT_WARNING_BASELINE} warnings)`);
+}
+
 function check() {
   process.stdout.write("check: deps ... ");
   checkDeps();
+  process.stdout.write("check: npm run lint ... ");
+  checkLint();
   const steps = [
-    ["npm run lint", "npm run lint --silent"],
     ["npm test", "npm test --silent"],
     ["npm run build", "npm run build --silent"],
     // vite build never typechecks bot/ (the M1 consumer, p4-02) — tsc does.
