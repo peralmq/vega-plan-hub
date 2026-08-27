@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { resolveAssetSrc } from "./resolveAssetSrc";
 
 // Shared fallback path for every recipe image render (Cook Mode, the pool
 // picker, Plan Mode). recipe-format.spec now requires a non-empty
@@ -9,7 +10,8 @@ import { useCallback } from "react";
 // deterministic; see docs/execplans/p4-13-recipe-images.md Non-goals).
 // This component is the single place that swaps a broken image for
 // public/placeholder.svg so no page ever renders a broken-image icon.
-const PLACEHOLDER_SRC = "/placeholder.svg";
+// Resolved against Vite's base so it loads under the Pages subpath too.
+const PLACEHOLDER_SRC = resolveAssetSrc("/placeholder.svg", import.meta.env.BASE_URL);
 
 type RecipeImageProps = React.ImgHTMLAttributes<HTMLImageElement>;
 
@@ -26,5 +28,8 @@ export function RecipeImage({ onError, src, ...rest }: RecipeImageProps) {
     [onError],
   );
 
-  return <img src={src || PLACEHOLDER_SRC} onError={handleError} {...rest} />;
+  const resolvedSrc = src
+    ? resolveAssetSrc(src, import.meta.env.BASE_URL)
+    : PLACEHOLDER_SRC;
+  return <img src={resolvedSrc} onError={handleError} {...rest} />;
 }

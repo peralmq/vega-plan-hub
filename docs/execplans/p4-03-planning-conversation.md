@@ -2,7 +2,7 @@
 id: p4-03-planning-conversation
 title: The rolling planning conversation — draft, edit, lock a batch
 phase: P4
-status: in-progress
+status: done
 depends_on: [p4-02-capture-bot]
 ---
 
@@ -76,8 +76,16 @@ to `cooked_on = today` (fallback: the remaining pool).
 - [x] Lock → batch + list generation (shared lib), SEK estimate
       (2026-08-27)
 - [x] Swap-with-diff; checked-state preservation (2026-08-27)
-- [ ] Live batch planned + locked by the household (human-only: no
-      bot/.env in the implementer's checkout)
+- [x] (2026-08-27) Live batch planned + locked by the household —
+      Pelle, screenshots in chat: "Jag vill planera de närmaste fem
+      dagarna" → draft → pool edits ("Det funkade bra! Jag kunde
+      ändra i listan av valda maträtter") → 🔒 Låst! tors 27/8 → mån
+      31/8, 5 middagar, 🛒 59 varor ~1475 kr, and the locked pool
+      rendering in the web Plan Mode (2026-08-27 → 2026-08-31, 5
+      dishes). Live feedback logged as follow-ups: swap-candidate
+      variety (same ~5 dishes recur), storkok ×2 in chat + app,
+      Plan Mode polish + the /recipes base-path image bug (fixed
+      same day in the web).
 
 ## Decision Log
 
