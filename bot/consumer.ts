@@ -22,6 +22,7 @@ import {
 import {
   loadIngredientSynonyms,
   loadRecipeIndex,
+  loadRecipeLibrary,
   publishRecipeEdit,
   publishRecipeNote,
   readRecipe,
@@ -37,6 +38,9 @@ const states: StateMap = new Map();
 // tools.ts stays git-free.
 const notes: RecipeRepoDeps = {
   index: () => loadRecipeIndex(cfg.recipeRepoDir),
+  // p4-03: the same checkout, the same parser — the planning conversation's
+  // recipe library (shared loader, no build-time mirror).
+  library: () => loadRecipeLibrary(cfg.recipeRepoDir),
   synonyms: () => loadIngredientSynonyms(cfg.recipeRepoDir),
   read: (recipeId) => readRecipe(cfg.recipeRepoDir, recipeId),
   publishNote: (recipeId, noteLine) =>
@@ -58,7 +62,7 @@ supa.auth.onAuthStateChange((event) => {
 async function processRow(row: InboxRow): Promise<void> {
   const t0 = performance.now();
   if (row.kind === "callback_query") {
-    await handleCallback(tg, row, states, notes);
+    await handleCallback(supa, tg, row, states, notes);
     console.log(`[row ${row.id}] callback "${row.text}" ${Math.round(performance.now() - t0)}ms`);
     return;
   }

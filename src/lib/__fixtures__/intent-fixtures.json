@@ -696,5 +696,36 @@
       "note": "double garlic"
     },
     "set": "p4-09-rules"
+  },
+  {
+    "utterance": "planera 5 dagar",
+    "expect": {
+      "intent": "plan_draft",
+      "horizon": "5"
+    },
+    "set": "p4-03"
+  },
+  {
+    "utterance": "planera de närmsta 3 dagarna",
+    "expect": {
+      "intent": "plan_draft",
+      "horizon": "3"
+    },
+    "set": "p4-03"
+  },
+  {
+    "utterance": "dags att planera",
+    "expect": {
+      "intent": "plan_draft"
+    },
+    "set": "p4-03"
+  },
+  {
+    "utterance": "plan the next 5 days",
+    "expect": {
+      "intent": "plan_draft",
+      "horizon": "5"
+    },
+    "set": "p4-03"
   }
 ]

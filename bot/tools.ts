@@ -9,9 +9,18 @@ import {
   type BotAction,
   type InsertItemAction,
   type NoteRecipeAction,
+  type PlanAction,
   matchCandidates,
   planActions,
 } from "../src/lib/botActions";
+import {
+  handlePlanEvent,
+  parsePlanCallback,
+  type PlanEvent,
+  type PlanSession,
+} from "../src/lib/planConversation";
+import type { ParsedRecipe } from "../src/lib/recipeMarkdown";
+import { makePlanChat, makePlanStore } from "./planning";
 import { currentPreferenceMap } from "../src/lib/productPreferences";
 import { normalizeIngredientName } from "../src/lib/ingredientNormalization";
 import {
@@ -35,6 +44,8 @@ import { REACTIONS, TelegramApi } from "./telegram";
 // that touches files or git, and only from the note_yes callback below.
 export interface RecipeRepoDeps {
   index(): RecipeIndexEntry[];
+  /** The full parsed corpus (p4-03: shared loader over the same checkout). */
+  library(): ParsedRecipe[];
   synonyms(): SynonymEntry[];
   read(recipeId: string): string;
   publishNote(recipeId: string, noteLine: string): Promise<{ committed: boolean; pushed: boolean }>;
@@ -72,6 +83,10 @@ export interface ChatState {
   // (same restart semantics as lastInsert): after a restart the callback
   // says "skicka igen" instead of publishing something stale.
   pendingChange?: PendingChange;
+  // The planning conversation carries NO state here — the draft is in
+  // planned_meals and every tap re-derives from it (p4-03). The one crumb is
+  // the unanswered Script 6 diff question, with the same "ask again" fallback.
+  plan?: PlanSession;
 }
 export type StateMap = Map<number, ChatState>;
 
@@ -87,7 +102,8 @@ const T = {
       "• bocka av <grej>\n" +
       "• ta bort <grej>\n" +
       "• nej, <grej> — rättar mitt senaste tillägg\n" +
-      "Planeringssnack kommer i nästa uppdatering 🚧",
+      "• planera 5 dagar — utkast att pilla på, sen lås\n" +
+      "• lås dagarna — låser utkastet + fixar inköpslistan 🔒",
     emptyList: "🛒 Listan är tom — snyggt! ✨",
     listHeader: (n: number) => `🛒 Inköpslista (${n}):`,
     nothingMatching: (term: string) => `🤷 Inget på listan som matchar "${term}".`,
@@ -100,7 +116,7 @@ const T = {
     corrected: (item: string) => `✏️ ${item} ska det va — utbytt på listan.`,
     nothingToCorrect: "🤔 Inget färskt av dig att rätta — köp den rätta?",
     unsupported:
-      "🚧 Jag kan bara list-grejer än så länge (köp / visa listan / bocka av). Planeringssnack kommer snart 🌱",
+      "🚧 Det där kan jag inte än (preferenser, \"vad blir det ikväll\") — men listor och planering fixar jag: köp / visa listan / planera 5 dagar 🌱",
     cbRemember: "🌱 Att komma ihåg stapelvaror lär jag mig i nästa uppdatering — noterat i själen!",
     cbOnce: "👍 Bara denna gång, då.",
     noteWhich:
@@ -127,7 +143,8 @@ const T = {
       "• bocka av/check <thing>\n" +
       "• ta bort <thing>\n" +
       "• nej, <thing> — fix my last add\n" +
-      "Planning chat comes in the next update 🚧",
+      "• plan the next 5 days — a draft to edit, then lock\n" +
+      "• lås dagarna / lock it in — locks it + builds the list 🔒",
     emptyList: "🛒 List is empty — nice! ✨",
     listHeader: (n: number) => `🛒 Shopping list (${n}):`,
     nothingMatching: (term: string) => `🤷 Nothing on the list matching "${term}".`,
@@ -140,7 +157,7 @@ const T = {
     corrected: (item: string) => `✏️ ${item} it is — swapped on the list.`,
     nothingToCorrect: "🤔 Nothing recent of yours to correct — köp the right one?",
     unsupported:
-      "🚧 I only do list stuff so far (köp / visa listan / bocka av). Planning chat is the next update 🌱",
+      "🚧 Can't do that one yet (preferences, \"what's for dinner\") — lists and planning I can: köp / visa listan / plan the next 5 days 🌱",
     cbRemember: "🌱 I'll learn to remember staples in the next update — noted in spirit!",
     cbOnce: "👍 Just this once then.",
     noteWhich:
@@ -173,8 +190,15 @@ async function loadPreferences(
   return currentPreferenceMap(data ?? []);
 }
 
-// Note target resolution: a dish named in the message wins; otherwise the
-// meal planned for today (planned_meals is unique per user + meal_date).
+// Note target resolution: a dish named in the message wins; otherwise what was
+// COOKED today.
+//
+// p4-12 residual, fixed here (p4-03): this used to look for
+// `meal_date = today`, which pool writes never set — the note-tonight shortcut
+// silently found nothing once the pool migration went live. In the pool model
+// the picked dish is stamped `cooked_on`; when nothing is stamped yet, a pool
+// with exactly one meal left is unambiguous enough to take. Anything else
+// still asks (T.noteWhich) rather than guessing.
 async function resolveNoteRecipe(
   supa: SupabaseClient,
   row: InboxRow,
@@ -182,14 +206,38 @@ async function resolveNoteRecipe(
 ): Promise<RecipeIndexEntry | null> {
   const named = matchRecipeTitle(row.text ?? "", index);
   if (named) return named;
-  const { data } = await supa
+  const byId = (recipeId: string | undefined) =>
+    (recipeId ? index.find((r) => r.id === recipeId) : undefined) ?? null;
+
+  const { data: cooked } = await supa
     .from("planned_meals")
     .select("recipe_id")
     .eq("user_id", row.user_id)
-    .eq("meal_date", localIsoDate())
-    .maybeSingle();
-  if (!data?.recipe_id) return null;
-  return index.find((r) => r.id === data.recipe_id) ?? null;
+    .eq("cooked_on", localIsoDate())
+    .order("id")
+    .limit(1);
+  const cookedToday = (cooked ?? [])[0] as { recipe_id: string } | undefined;
+  if (cookedToday) return byId(cookedToday.recipe_id);
+
+  const today = localIsoDate();
+  const { data: batches } = await supa
+    .from("plan_batches")
+    .select("id")
+    .eq("user_id", row.user_id)
+    .lte("starts_on", today)
+    .gte("ends_on", today)
+    .limit(1);
+  const batchId = (batches ?? [])[0] as { id: string } | undefined;
+  if (!batchId) return null;
+  const { data: remaining } = await supa
+    .from("planned_meals")
+    .select("recipe_id")
+    .eq("user_id", row.user_id)
+    .eq("batch_id", batchId.id)
+    .is("cooked_on", null);
+  const rows = (remaining ?? []) as Array<{ recipe_id: string }>;
+  const distinct = [...new Set(rows.map((r) => r.recipe_id))];
+  return distinct.length === 1 ? byId(distinct[0]) : null;
 }
 
 async function familyMemberName(
@@ -286,7 +334,7 @@ export async function handleMessage(
 
   const lang = detectLanguage(row.text ?? "");
   const preferences = await loadPreferences(supa, row.user_id);
-  const actions = planActions(parse, preferences);
+  const actions = planActions(parse, preferences, localIsoDate());
   const inserts = actions.filter((a): a is InsertItemAction => a.type === "insert_item");
   if (inserts.length > 0) await executeInserts(supa, tg, row, inserts, state, lang);
 
@@ -357,6 +405,40 @@ async function prepareRecipeChange(
   ]]);
 }
 
+// The planning conversation's single entry point (p4-03). Everything it needs
+// is re-derived from the DB by the store, so a message and a button press are
+// handled by the exact same call — the only difference is `messageId`, which
+// makes the reply edit the tapped message in place instead of stacking a new
+// one (design.spec "Chat voice").
+async function runPlanEvent(
+  supa: SupabaseClient,
+  tg: TelegramApi,
+  row: InboxRow,
+  state: ChatState,
+  lang: Lang,
+  event: PlanEvent,
+  notes: RecipeRepoDeps | undefined,
+  messageId?: number,
+): Promise<void> {
+  if (!notes) {
+    await tg.sendMessage(row.chat_id, T[lang].unsupported);
+    return;
+  }
+  state.plan ??= {};
+  const store = makePlanStore(
+    supa,
+    { userId: row.user_id, familyMemberId: row.family_member_id },
+    notes.library(),
+  );
+  await handlePlanEvent(store, makePlanChat(tg, row.chat_id), {
+    lang,
+    todayIso: localIsoDate(),
+    familyMemberId: row.family_member_id,
+    session: state.plan,
+    ...(messageId != null ? { messageId } : {}),
+  }, event);
+}
+
 async function executeOne(
   supa: SupabaseClient,
   tg: TelegramApi,
@@ -373,6 +455,9 @@ async function executeOne(
 
     case "note_recipe":
       return prepareRecipeChange(supa, tg, row, action, state, lang, notes);
+
+    case "plan":
+      return runPlanEvent(supa, tg, row, state, lang, (action as PlanAction).event, notes);
 
     case "check_items": {
       for (const term of action.terms) {
@@ -483,6 +568,7 @@ async function executeOne(
 }
 
 export async function handleCallback(
+  supa: SupabaseClient,
   tg: TelegramApi,
   row: InboxRow,
   states: StateMap,
@@ -493,6 +579,17 @@ export async function handleCallback(
   if (row.message_id == null) return;
   // Callback data carries no language, so replies follow the household
   // default (Swedish).
+
+  // p4-03: every planning tap. The event is re-executed against fresh DB
+  // state, so a press that arrives after a restart (or after the partner
+  // changed the draft) acts on what is actually there.
+  const planEvent = parsePlanCallback(row.text);
+  if (planEvent) {
+    const state = states.get(row.chat_id) ?? {};
+    states.set(row.chat_id, state);
+    await runPlanEvent(supa, tg, row, state, "sv", planEvent, notes, row.message_id);
+    return;
+  }
 
   // p4-08/p4-09: the ONLY place a repo write can start — and only when the
   // pending change from this process's confirm question is still around.

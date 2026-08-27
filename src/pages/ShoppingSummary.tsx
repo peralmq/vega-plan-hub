@@ -15,11 +15,10 @@ import {
 } from "lucide-react";
 import { useBatchPool } from "@/hooks/useBatchPool";
 import { useProductPreferences } from "@/hooks/useProductPreferences";
-import { ParsedRecipe, ParsedIngredient } from "@/services/recipeLoader";
+import { ParsedRecipe } from "@/services/recipeLoader";
 import { groupPoolByRecipe } from "@/lib/planPool";
-import { aggregateIngredients, formatAggregatedIngredient } from "@/lib/ingredientNormalization";
-import { applyPreferredNames } from "@/lib/productPreferences";
-import { scaleIngredients } from "@/lib/ingredientScaling";
+import { formatAggregatedIngredient } from "@/lib/ingredientNormalization";
+import { aggregateBatchIngredients } from "@/lib/planShopping";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
@@ -49,24 +48,13 @@ export default function ShoppingSummary() {
 
   const recipes = mealsWithMultipliers.map(m => m.recipe);
 
-  const aggregatedIngredients = useMemo(() => {
-    const allIngredients: Array<{ ingredient: ParsedIngredient; recipeName: string }> = [];
-
-    mealsWithMultipliers.forEach(({ recipe, servingsMultiplier }) => {
-      if (!recipe.ingredients) return;
-
-      const targetServings = Math.round(recipe.servings * servingsMultiplier);
-      const scaledIngredients = scaleIngredients(recipe.ingredients, recipe.servings, targetServings);
-
-      scaledIngredients.forEach(ing => {
-        allIngredients.push({ ingredient: ing, recipeName: recipe.title });
-      });
-    });
-
-    // "mjölk" shows as the household's currently preferred product when a
-    // preference row exists (p4-01 read path; the table ships empty).
-    return applyPreferredNames(aggregateIngredients(allIngredients), preferences);
-  }, [mealsWithMultipliers, preferences]);
+  // Scale per pool entry → normalize/aggregate → resolve the household's
+  // preferred product names. Shared with the bot's lock path (p4-03), so the
+  // list the chat announces and this screen are the same list by construction.
+  const aggregatedIngredients = useMemo(
+    () => aggregateBatchIngredients(mealsWithMultipliers, preferences),
+    [mealsWithMultipliers, preferences],
+  );
 
   const toggleItem = (key: string) => {
     setCheckedItems(prev => {

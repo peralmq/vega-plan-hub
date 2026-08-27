@@ -7,6 +7,8 @@
 
 import type { ParsedUtterance } from "./intentParser";
 import { normalizeIngredientName } from "./ingredientNormalization";
+import { planEventFromParse, type PlanEvent } from "./planConversation";
+import { localIsoDate } from "./recipeNotes";
 
 export interface InsertItemAction {
   type: "insert_item";
@@ -24,6 +26,10 @@ export interface ShowListAction { type: "show_list"; query?: string }
 // The repo-write path (p4-08): planning only carries the extracted note —
 // recipe resolution, human confirmation, and the git tool live in bot/.
 export interface NoteRecipeAction { type: "note_recipe"; note: string }
+// The planning conversation (p4-03): planning never writes the shopping list
+// or the repo directly — it hands one event to the state machine, which owns
+// every pool/batch write behind its own confirm-and-lock flow.
+export interface PlanAction { type: "plan"; event: PlanEvent }
 export interface UnsupportedAction { type: "unsupported"; intent: string }
 export interface NoopAction { type: "noop" }
 
@@ -34,21 +40,25 @@ export type BotAction =
   | CorrectLastAction
   | ShowListAction
   | NoteRecipeAction
+  | PlanAction
   | UnsupportedAction
   | NoopAction;
 
 const WRITE_ACTIONS = new Set(["insert_item", "check_items", "remove_items", "correct_last", "note_recipe"]);
 
+// "Write" here means the shopping list and the recipe repo — the surfaces the
+// r4 §4 T2 must-not-act guarantee is about. Planning has its own gate (a draft
+// is editable and only [✅ Lås] creates a batch), so it is deliberately not in
+// this set; the invariant it must satisfy is that it never touches the list.
 export function isWriteAction(action: BotAction): boolean {
   return WRITE_ACTIONS.has(action.type);
 }
 
-// Intents the capture bot deliberately does not act on yet (planning,
-// preference learning, proactive flows — later P4 plans). They get a short
-// "not yet" reply from the consumer, never a data write.
+// Intents the capture bot deliberately does not act on yet (preference
+// learning, proactive flows — later P4 plans). They get a short "not yet"
+// reply from the consumer, never a data write.
 const UNSUPPORTED: ReadonlySet<string> = new Set([
-  "set_preference", "query_tonight", "plan_draft", "plan_set_day",
-  "plan_set_multiplier", "plan_lock",
+  "set_preference", "query_tonight",
 ]);
 
 // Check-off and removal match by ilike against what's on the list, but
@@ -77,6 +87,7 @@ export function matchCandidates(term: string): string[] {
 export function planActions(
   parse: ParsedUtterance,
   preferences: Map<string, string>,
+  todayIso: string = localIsoDate(),
 ): BotAction[] {
   switch (parse.intent) {
     case "add_item": {
@@ -109,6 +120,13 @@ export function planActions(
       return parse.note?.trim()
         ? [{ type: "note_recipe", note: parse.note.trim() }]
         : [{ type: "noop" }];
+    case "plan_draft":
+    case "plan_set_day":
+    case "plan_set_multiplier":
+    case "plan_lock": {
+      const event = planEventFromParse(parse, todayIso);
+      return event ? [{ type: "plan", event }] : [{ type: "noop" }];
+    }
     case "chitchat":
       return [{ type: "noop" }];
     default:

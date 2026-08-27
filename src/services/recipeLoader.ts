@@ -1,33 +1,25 @@
-// Ingredient interface for structured parsing
-export interface ParsedIngredient {
-  quantity: string;
-  unit: string;
-  key: string;
-  ingredient: string;
-  notes: string;
-}
+// The web app's recipe library: Vite bundles every markdown file in the
+// corpus at build time and hands it to the SHARED parser in
+// src/lib/recipeMarkdown.ts (extracted by p4-03 so the bot can run the exact
+// same parsing over an fs read — see that module's header). This file keeps
+// the Vite-only half (`import.meta.glob`) and re-exports the parser so every
+// existing `@/services/recipeLoader` import keeps working unchanged.
 
-export interface ParsedRecipe {
-  id: string;
-  title: string;
-  description?: string;
-  image: string;
-  url?: string;
-  cookTime: number;
-  servings: number;
-  difficulty: "Easy" | "Medium" | "Hard";
-  tags: string[];
-  theme: string;
-  ingredients: ParsedIngredient[];
-  instructions: string[];
-  notes?: string[];
-  nutritionInfo?: {
-    calories?: number;
-    protein?: number;
-    carbs?: number;
-    fat?: number;
-  };
-}
+import { parseRecipeMarkdown } from '@/lib/recipeMarkdown';
+
+export type {
+  ParsedIngredient,
+  ParsedRecipe,
+  RecipeFrontmatter,
+} from '@/lib/recipeMarkdown';
+export {
+  parseFrontmatter,
+  parseIngredients,
+  parseInstructions,
+  parseRecipeMarkdown,
+} from '@/lib/recipeMarkdown';
+
+import type { ParsedRecipe } from '@/lib/recipeMarkdown';
 
 // Import all recipe markdown files using Vite's glob import
 const recipeModules = import.meta.glob('/src/data/recipes/*.md', {
@@ -35,237 +27,6 @@ const recipeModules = import.meta.glob('/src/data/recipes/*.md', {
   import: 'default',
   eager: true,
 });
-
-interface RecipeFrontmatter {
-  id: string;
-  title: string;
-  imageUrl: string;
-  url?: string;
-  cookTime: number;
-  servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  tags: string[];
-}
-
-/**
- * Parse YAML frontmatter from markdown content
- */
-export function parseFrontmatter(content: string): {
-  frontmatter: RecipeFrontmatter | null;
-  body: string;
-} {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-
-  if (!frontmatterMatch) {
-    return { frontmatter: null, body: content };
-  }
-
-  const [, frontmatterStr, body] = frontmatterMatch;
-
-  try {
-    // Simple YAML parser for our known format
-    const frontmatter: Record<string, unknown> = {};
-    const lines = frontmatterStr.split('\n');
-
-    for (const line of lines) {
-      const colonIndex = line.indexOf(':');
-      if (colonIndex === -1) continue;
-
-      const key = line.slice(0, colonIndex).trim();
-      let value = line.slice(colonIndex + 1).trim();
-
-      // Handle quoted strings
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
-        value = value.slice(1, -1);
-      }
-
-      // Handle arrays (simple format: ["tag1", "tag2"])
-      if (value.startsWith('[') && value.endsWith(']')) {
-        const arrayContent = value.slice(1, -1);
-        frontmatter[key] = arrayContent
-          .split(',')
-          .map((item) => {
-            const trimmed = item.trim();
-            if (
-              (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-              (trimmed.startsWith("'") && trimmed.endsWith("'"))
-            ) {
-              return trimmed.slice(1, -1);
-            }
-            return trimmed;
-          })
-          .filter(Boolean);
-      }
-      // Handle numbers
-      else if (!isNaN(Number(value)) && value !== '') {
-        frontmatter[key] = Number(value);
-      }
-      // Handle strings
-      else {
-        frontmatter[key] = value;
-      }
-    }
-
-    return {
-      frontmatter: frontmatter as unknown as RecipeFrontmatter,
-      body,
-    };
-  } catch {
-    console.error('Failed to parse frontmatter');
-    return { frontmatter: null, body: content };
-  }
-}
-
-/**
- * Parse ingredients from markdown body
- * Handles markdown table format
- */
-export function parseIngredients(body: string): ParsedIngredient[] {
-  const ingredientsMatch = body.match(
-    /## Ingredients\n\n([\s\S]*?)(?=\n## |$)/,
-  );
-  if (!ingredientsMatch) return [];
-
-  const section = ingredientsMatch[1];
-  const lines = section
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean);
-  // Find table header
-  const headerIdx = lines.findIndex((l) => l.startsWith('|'));
-  if (headerIdx === -1 || lines.length < headerIdx + 2) return [];
-  // Parse rows
-  const rows: ParsedIngredient[] = [];
-  for (let i = headerIdx + 2; i < lines.length; i++) {
-    const row = lines[i];
-    if (!row.startsWith('|')) break;
-    const cols = row.split('|').map((s) => s.trim());
-    if (cols.length < 5) continue;
-    rows.push({
-      quantity: cols[1] || '',
-      unit: cols[2] || '',
-      key: cols[3] || '',
-      ingredient: cols[4] || '',
-      notes: cols[5] || '',
-    });
-  }
-  return rows;
-}
-
-/**
- * Parse instructions from markdown body
- */
-export function parseInstructions(body: string): string[] {
-  const instructionsMatch = body.match(
-    /## Instructions\n\n([\s\S]*?)(?=\n## |$)/,
-  );
-  if (!instructionsMatch) return [];
-
-  const instructionsSection = instructionsMatch[1];
-  const instructions: string[] = [];
-
-  // Match numbered list items
-  const lines = instructionsSection.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    // Match numbered items like "1. Step one"
-    const match = trimmed.match(/^\d+\.\s*(.+)$/);
-    if (match) {
-      instructions.push(match[1]);
-    }
-  }
-
-  return instructions;
-}
-
-/**
- * Parse notes from markdown body
- */
-function parseNotes(body: string): string[] {
-  const notesMatch = body.match(/## Notes\n\n([\s\S]*?)(?=\n## |$)/);
-  if (!notesMatch) return [];
-
-  const notesSection = notesMatch[1];
-  const notes: string[] = [];
-
-  const lines = notesSection.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('-')) {
-      notes.push(trimmed.slice(1).trim());
-    }
-  }
-
-  return notes;
-}
-
-/**
- * Derive theme from tags
- */
-function deriveTheme(tags: string[]): string {
-  const themeMap: Record<string, string> = {
-    Indian: 'Indian Cuisine',
-    Chinese: 'Asian Fusion',
-    Sichuan: 'Asian Fusion',
-    Thai: 'Asian Fusion',
-    Lebanese: 'Middle Eastern',
-    'Middle Eastern': 'Middle Eastern',
-    Mediterranean: 'Mediterranean',
-    Baskien: 'Mediterranean',
-    'Comfort Food': 'Comfort Food',
-    Soup: 'Comfort Food',
-    Stew: 'Comfort Food',
-    Curry: 'Indian Cuisine',
-    Dal: 'Indian Cuisine',
-    Spicy: 'Spicy Heat',
-  };
-
-  for (const tag of tags) {
-    if (themeMap[tag]) {
-      return themeMap[tag];
-    }
-  }
-
-  return 'Vegan Favorites';
-}
-
-/**
- * Parse a single recipe markdown file
- */
-export function parseRecipeMarkdown(
-  content: string,
-  filename: string,
-): ParsedRecipe | null {
-  const { frontmatter, body } = parseFrontmatter(content);
-
-  if (!frontmatter) {
-    console.warn(`Failed to parse frontmatter for ${filename}`);
-    return null;
-  }
-
-  const ingredients = parseIngredients(body);
-  const instructions = parseInstructions(body);
-  const notes = parseNotes(body);
-  const theme = deriveTheme(frontmatter.tags || []);
-
-  return {
-    id: frontmatter.id,
-    title: frontmatter.title,
-    image: frontmatter.imageUrl,
-    url: frontmatter.url,
-    cookTime: frontmatter.cookTime,
-    servings: frontmatter.servings,
-    difficulty: frontmatter.difficulty,
-    tags: frontmatter.tags || [],
-    theme,
-    ingredients,
-    instructions,
-    notes,
-  };
-}
 
 /**
  * Load all recipes from markdown files

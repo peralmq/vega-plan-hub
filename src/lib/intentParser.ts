@@ -300,6 +300,26 @@ export function parseWithRules(utterance: string): ParsedUtterance | null {
   if (/^(lås (dagarna|veckan)|lock it in)\s*!?$/i.test(low))
     return { intent: "plan_lock" };
 
+  // plan_draft (p4-03): Script 5's entry phrase should never wait on a model.
+  // "planera"/"plan the next…" claims the utterance unless it is negated or
+  // led by a shopping verb ("köp planeringskalender" is shopping). The horizon
+  // slot takes either a weekday ("fram till söndag") or a day COUNT ("5
+  // dagar", "the next 3 days") — the pool model counts meals, not weekdays,
+  // so a number is the more honest slot and planEventFromParse reads both.
+  if (
+    !/\binte\b|\bdon'?t\b/i.test(low) &&
+    !/^(?:köp|kop|buy|get|handla)\b/i.test(low) &&
+    (/\bplanera\b/i.test(low) || /\bplan (?:the |our )?(?:next|coming)\b/i.test(low))
+  ) {
+    const parse: ParsedUtterance = { intent: "plan_draft" };
+    const dayMatch = low.match(new RegExp(`\\b(?:fram till|till|until|through)\\s+(?:på\\s+)?(${SWEDISH_DAY}|${DAYS.join("|")})\\b`, "i"));
+    const countMatch = low.match(/\b(\d+)\s*(?:dagar|dagarna|days)\b/i);
+    if (dayMatch) parse.horizon = DAY_MAP[dayMatch[1].toLowerCase()] ?? dayMatch[1].toLowerCase();
+    else if (countMatch) parse.horizon = countMatch[1];
+    else if (/\b(veckan|week)\b/i.test(low)) parse.horizon = "7";
+    return parse;
+  }
+
   // note_recipe via the structured-edit verbs (p4-09, added after the
   // 2026-08-24 live miss: without a "nästa gång" cue the LLM filed
   // "dubbla vitlöken i mapo tofun" under planning). Confident verbs

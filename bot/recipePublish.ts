@@ -6,9 +6,9 @@
 // leaves the working tree exactly as found.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { appendRecipeNote, type RecipeIndexEntry } from "../src/lib/recipeNotes";
+import { appendRecipeNote } from "../src/lib/recipeNotes";
 import { applyEdit, type EditIntent, type SynonymEntry } from "../src/lib/recipeEdits";
 
 const run = promisify(execFile);
@@ -18,21 +18,9 @@ const run = promisify(execFile);
 const RECIPE_ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const RECIPES_DIR = "src/data/recipes";
 
-// The bot can't use the app's recipeLoader (import.meta.glob is
-// Vite-only), so titles come from a line-oriented read of the same
-// frontmatter shape the hand-rolled parsers already rely on.
-export function loadRecipeIndex(repoDir: string): RecipeIndexEntry[] {
-  const dir = join(repoDir, RECIPES_DIR);
-  const entries: RecipeIndexEntry[] = [];
-  for (const file of readdirSync(dir)) {
-    if (!file.endsWith(".md") || file === "README.md") continue;
-    const id = file.slice(0, -3);
-    const m = readFileSync(join(dir, file), "utf8").match(/^title:\s*(.+)$/m);
-    const title = m ? m[1].trim().replace(/^["']|["']$/g, "") : id;
-    entries.push({ id, title });
-  }
-  return entries;
-}
+// Recipe titles/library come from bot/recipeLibrary.ts (p4-03): the shared
+// parser over an fs read, replacing this file's earlier frontmatter regex.
+export { loadRecipeIndex, loadRecipeLibrary } from "./recipeLibrary";
 
 // The ingredients reference doubles as the Swedish→table-key bridge for
 // edit-term matching ("vitlök" → garlic). fs-read like the index: tsx has

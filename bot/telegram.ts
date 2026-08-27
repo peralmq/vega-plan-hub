@@ -12,9 +12,12 @@ export const REACTIONS = {
   love: "❤",
 } as const;
 
+// Either a callback button or a link button (the p4-03 lock announcement's
+// "🖨 Öppna i appen" points at the Cook Mode deep-link base).
 export interface InlineButton {
   text: string;
-  callback_data: string;
+  callback_data?: string;
+  url?: string;
 }
 
 export class TelegramApi {
@@ -56,8 +59,21 @@ export class TelegramApi {
     });
   }
 
-  editMessageText(chatId: number, messageId: number, text: string): Promise<unknown> {
-    return this.call("editMessageText", { chat_id: chatId, message_id: messageId, text });
+  // Buttons are part of the edit: a multi-step flow that edits one message in
+  // place (design.spec "Chat voice") must be able to replace the keyboard too,
+  // and an omitted reply_markup would leave the previous step's buttons live.
+  editMessageText(
+    chatId: number,
+    messageId: number,
+    text: string,
+    buttons?: InlineButton[][],
+  ): Promise<unknown> {
+    return this.call("editMessageText", {
+      chat_id: chatId,
+      message_id: messageId,
+      text,
+      reply_markup: { inline_keyboard: buttons ?? [] },
+    });
   }
 
   answerCallbackQuery(callbackQueryId: string): Promise<unknown> {

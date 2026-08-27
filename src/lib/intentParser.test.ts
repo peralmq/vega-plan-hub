@@ -101,6 +101,13 @@ const MUST_BE_RULED = [
   "Visa mig vad som ska köpas",
   "vad ska köpas?",
   "Köp havremjölk",
+  // p4-03: Script 5's entry phrase — the planning ritual must start instantly,
+  // not after a model round trip.
+  "kan vi planera de närmsta dagarna?",
+  "planera fram till söndag",
+  "dags att planera igen",
+  "planera 5 dagar",
+  "lås dagarna",
 ];
 
 describe("rules layer", () => {
@@ -157,10 +164,30 @@ describe("must-not-act guarantees (r4 §4 T2 / p4-02 verification)", () => {
     expect(actions.some((a) => a.type === "insert_item")).toBe(false);
   });
 
-  it("unsupported intents (planning etc.) plan zero write actions", () => {
-    for (const intent of ["set_preference", "plan_lock", "plan_draft"] as const) {
+  it("still-unsupported intents plan zero write actions", () => {
+    for (const intent of ["set_preference", "query_tonight"] as const) {
       const actions = planActions({ intent }, prefs);
       expect(actions.some(isWriteAction), intent).toBe(false);
+    }
+  });
+
+  // p4-03: the planning intents graduated from UNSUPPORTED to the
+  // conversation state machine. They must still never touch the shopping list
+  // or the recipe repo — a plan action carries ONE event, and only the [✅ Lås]
+  // event inside that machine ever writes a batch.
+  it("planning intents plan a conversation event, never a list/repo write", () => {
+    const planning: ParsedUtterance[] = [
+      { intent: "plan_draft" },
+      { intent: "plan_draft", horizon: "sunday" },
+      { intent: "plan_set_day", day: "thursday", recipe_query: "tacos" },
+      { intent: "plan_set_multiplier", day: "sunday", multiplier: 2 },
+      { intent: "plan_lock" },
+    ];
+    for (const parse of planning) {
+      const actions = planActions(parse, prefs, "2026-08-27");
+      expect(actions.some(isWriteAction), parse.intent).toBe(false);
+      expect(actions).toHaveLength(1);
+      expect(actions[0].type, parse.intent).toBe("plan");
     }
   });
 

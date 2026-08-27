@@ -52,6 +52,24 @@ Extra prerequisites beyond p4-02:
 First smoke: set `RECIPE_PUSH=0`, send a note, press [Ja, spara],
 inspect the local commit; then unset and go live.
 
+## Planning conversation (p4-03)
+
+"planera 5 dagar" (or "kan vi planera de närmsta dagarna?" → tap a
+horizon) → a **pool draft**: a list of dishes with counts, one of them a
+🍱 ×2 meal prep, no day assignments. Edit it by tap (`✏️ Ändra` → dish →
+swap / portions / remove) or by text ("byt X till tacos", "dubbla
+portioner"), then `✅ Lås N dagar` writes the `plan_batches` row, stamps
+the pool, and generates the batch's `shopping_list_items` — announced
+with the item count and a ~SEK estimate. One partner's lock is enough
+(r1 A.3); the other can still swap afterwards, which regenerates the
+list while keeping every already-ticked row.
+
+No extra prerequisites: it reuses `RECIPE_REPO_DIR` for the recipe
+library (same checkout, same parser as the web app) and the schema is
+p4-01 + the p4-12 pool delta. The draft lives in `planned_meals`
+(`batch_id IS NULL AND meal_date IS NULL`), so restarting this process
+mid-conversation loses nothing — the next tap picks up where it was.
+
 ## Run
 
 ```
