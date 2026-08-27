@@ -598,11 +598,11 @@ export async function handleCallback(
     const pending = state?.pendingChange;
     if (state) delete state.pendingChange;
     if (row.text === "note_no") {
-      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteSkipped);
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteSkipped, []);
       return;
     }
     if (!pending || !notes) {
-      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteGone);
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteGone, []);
       return;
     }
     try {
@@ -614,18 +614,32 @@ export async function handleCallback(
         row.chat_id,
         row.message_id,
         result.pushed ? T.sv.cbNoteSaved(pending.title) : T.sv.cbNoteCommitted(pending.title),
+        [],
       );
     } catch (err) {
       const reason = String(err instanceof Error ? err.message : err).slice(0, 200);
-      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteFailed(reason));
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbNoteFailed(reason), []);
     }
     return;
   }
 
   // v1 stub (p4-02 scope): [Yes, remember] is acknowledged but writes
   // nothing — preference LEARNING lands in p4-04.
-  const text = row.text === "remember" ? T.sv.cbRemember : T.sv.cbOnce;
-  await tg.editMessageText(row.chat_id, row.message_id, text);
+  if (row.text === "remember" || row.text === "once") {
+    const text = row.text === "remember" ? T.sv.cbRemember : T.sv.cbOnce;
+    await tg.editMessageText(row.chat_id, row.message_id, text, []);
+    return;
+  }
+
+  // Anything else is a button this build does not know: a keyboard left over
+  // from an older deploy, or a newer one. Answering the callback (above) is
+  // the whole response — NEVER an edit. This used to be a catch-all that
+  // rewrote the message to the preference stub and, after p4-03 started
+  // sending reply_markup on every edit, stripped its buttons with it: that is
+  // exactly what a stale parallel consumer did to the live planning flow on
+  // 2026-08-27 (p4-03 Evidence), and the same shape would do it to us on any
+  // future deploy skew.
+  console.warn(`[callback] ignoring unknown callback_data ${JSON.stringify(row.text)}`);
 }
 
 export function helpText(sourceText: string): string {

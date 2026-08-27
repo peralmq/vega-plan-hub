@@ -15,6 +15,7 @@ import {
   parsePlanCallback,
   planEventFromParse,
   renderDraft,
+  type PlanButton,
   type PlanEvent,
   type PlanStore,
 } from "./planConversation";
@@ -161,6 +162,9 @@ function makeChat() {
     },
   };
 }
+
+const titleFor = (recipeId: string): string =>
+  RECIPES.find((r) => r.id === recipeId)?.title ?? recipeId;
 
 const ctx = (over: Partial<{ messageId: number }> = {}) => ({
   lang: "sv" as const,
@@ -395,6 +399,97 @@ describe("Script 5 replay — tap + text, one message edited in place", () => {
     expect(after).toHaveLength(5);
     expect(after).not.toEqual(before);
     for (const id of after) expect(before).not.toContain(id);
+  });
+});
+
+// A Bot API mock with Telegram's real failure mode: editMessageText is
+// REJECTED ("message is not modified") when both text and keyboard equal what
+// the message already shows. The bot swallows telegram errors by design (a
+// failed reaction must never poison the queue row), so that rejection reaches
+// the household as a tap that does nothing at all — exactly the live symptom
+// this suite has to be able to catch.
+function makeStrictChat() {
+  const displayed = new Map<number, string>();
+  const rejected: Array<{ messageId: number; text: string }> = [];
+  const base = makeChat();
+  return {
+    ...base,
+    rejected,
+    chat: {
+      send: async (text: string, buttons?: PlanButton[][]) => {
+        const id = (await base.chat.send(text, buttons)) as number;
+        displayed.set(id, JSON.stringify([text, buttons ?? []]));
+        return id;
+      },
+      edit: async (messageId: number, text: string, buttons?: PlanButton[][]) => {
+        const next = JSON.stringify([text, buttons ?? []]);
+        if (displayed.get(messageId) === next) {
+          rejected.push({ messageId, text });
+          return; // Telegram: 400 "message is not modified" — nothing changes
+        }
+        displayed.set(messageId, next);
+        await base.chat.edit(messageId, text, buttons);
+      },
+    },
+  };
+}
+
+// The exact callback sequence from the 2026-08-27 live smoke, replayed against
+// the real corpus. Pelle's second edit round ("p:e" → "p:x:0") produced no
+// visible response in Telegram.
+describe("live-20260827 replay: two edit rounds in one draft", () => {
+  it("shows a fresh, non-identical message for every tap", async () => {
+    const store = makeStore();
+    const strict = makeStrictChat();
+    const chat = strict.chat;
+    const MSG = 101;
+
+    await handlePlanEvent(store, chat, ctx(), { kind: "start" });
+    for (const data of ["p:h:5", "p:e", "p:x:3"]) {
+      await handlePlanEvent(store, chat, ctx({ messageId: MSG }), parsePlanCallback(data)!);
+    }
+    await handlePlanEvent(store, chat, ctx({ messageId: MSG }), {
+      kind: "swap",
+      index: 3,
+      recipeId: "vegan-meatballs-creamed-macaroni",
+    });
+    expect(store.pool[3].recipe_id).toBe("vegan-meatballs-creamed-macaroni");
+
+    // ...and now the SECOND round, which is where the live flow went quiet.
+    const beforeSecondRound = strict.calls.length;
+    await handlePlanEvent(store, chat, ctx({ messageId: MSG }), parsePlanCallback("p:e")!);
+    expect(strict.calls.length, "the [✏️ Ändra] tap must render something").toBe(
+      beforeSecondRound + 1,
+    );
+    await handlePlanEvent(store, chat, ctx({ messageId: MSG }), parsePlanCallback("p:x:0")!);
+    expect(strict.calls.length, "the entry tap must render something").toBe(
+      beforeSecondRound + 2,
+    );
+
+    const menu = strict.last();
+    expect(menu.text).toContain(titleFor(store.pool[0].recipe_id));
+    expect(menu.buttons.some((b) => b.startsWith("p:s:0:"))).toBe(true);
+    expect(menu.buttons).toContain("p:m:0:2");
+    expect(menu.buttons).toContain("p:rm:0");
+    expect(strict.rejected, "no tap may be a no-op edit").toEqual([]);
+  });
+
+  it("offers a swap candidate for every entry, including duplicated ones", async () => {
+    const store = makeStore();
+    const { chat } = makeChat();
+    await handlePlanEvent(store, chat, ctx(), { kind: "draft", horizonDays: 5 });
+    const { chat: probe, calls } = makeChat();
+    for (let index = 0; index < store.pool.length; index++) {
+      await handlePlanEvent(store, probe, ctx({ messageId: 101 }), {
+        kind: "pick_entry",
+        index,
+      });
+      const menu = calls[calls.length - 1];
+      expect(
+        menu.buttons.filter((b) => b.startsWith(`p:s:${index}:`)).length,
+        `entry ${index} must offer swaps`,
+      ).toBeGreaterThan(0);
+    }
   });
 });
 

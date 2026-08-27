@@ -13,6 +13,9 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "compare/**/*.test.ts"],
+    // bot/** joined 2026-08-27: the p4-03 live smoke found a bug that lived
+    // entirely in the bot seam (callback routing + the Supabase adapter),
+    // where no src/** test could ever see it.
+    include: ["src/**/*.test.ts", "compare/**/*.test.ts", "bot/**/*.test.ts"],
   },
 });

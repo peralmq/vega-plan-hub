@@ -471,10 +471,13 @@ async function say(
   chat: PlanChat,
   ctx: PlanContext,
   text: string,
-  buttons?: PlanButton[][],
+  buttons: PlanButton[][] = [],
 ): Promise<void> {
   // Multi-step flows edit ONE message in place (design.spec "Chat voice").
   // A free-text turn has no message of ours to edit, so it starts a new one.
+  // The default `[]` is deliberate and always passed on: a step that ends the
+  // flow ("👍 Då kör vi.") must take the previous step's buttons with it,
+  // rather than leaving a live keyboard on a finished conversation.
   if (ctx.messageId != null) await chat.edit(ctx.messageId, text, buttons);
   else await chat.send(text, buttons);
 }

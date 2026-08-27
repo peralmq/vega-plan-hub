@@ -47,7 +47,7 @@ export class TelegramApi {
     return this.call("sendMessage", {
       chat_id: chatId,
       text,
-      ...(buttons ? { reply_markup: { inline_keyboard: buttons } } : {}),
+      ...(buttons?.length ? { reply_markup: { inline_keyboard: buttons } } : {}),
     });
   }
 
@@ -59,9 +59,11 @@ export class TelegramApi {
     });
   }
 
-  // Buttons are part of the edit: a multi-step flow that edits one message in
-  // place (design.spec "Chat voice") must be able to replace the keyboard too,
-  // and an omitted reply_markup would leave the previous step's buttons live.
+  // Editing the text and replacing the keyboard are SEPARATE intents:
+  // `buttons` present (including `[]`, which clears) rewrites the keyboard,
+  // `buttons` omitted leaves whatever the message already shows. p4-03 first
+  // sent `inline_keyboard: []` unconditionally, which turned every text-only
+  // edit into a silent keyboard wipe — see that plan's live-20260827 evidence.
   editMessageText(
     chatId: number,
     messageId: number,
@@ -72,7 +74,7 @@ export class TelegramApi {
       chat_id: chatId,
       message_id: messageId,
       text,
-      reply_markup: { inline_keyboard: buttons ?? [] },
+      ...(buttons ? { reply_markup: { inline_keyboard: buttons } } : {}),
     });
   }
 

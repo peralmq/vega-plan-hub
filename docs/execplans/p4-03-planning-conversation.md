@@ -191,6 +191,62 @@ to `cooked_on = today` (fallback: the remaining pool).
   remaining pool when it is unambiguous (single distinct dish), and still
   asks otherwise.
 
+**2026-08-27 (live smoke triage — one exoneration, one real latent bug):**
+
+Live sequence (new-code bot's own log, no exceptions): row 11
+`intent=plan_draft source=rules` → row 12 `p:h:5` (draft rendered, 5
+entries) → 13 `p:e` → 14 `p:x:3` → 15 `p:s:3:vegan-meatballs-creamed-
+macaroni` (swap visibly worked) → 16 `p:e` → 17 `p:x:0`, after which the
+flow went silent: no options.
+
+- **The conversation logic is exonerated.** That exact tap sequence
+  replays clean, twice: `src/lib/planConversation.test.ts`
+  ("live-20260827 replay: two edit rounds in one draft") against the
+  in-memory store, and `bot/tools.test.ts` ("live-20260827 replay through
+  the bot seam") against the *real* Supabase adapter. Every step renders
+  a different message with a non-empty keyboard, the second round's
+  `p:x:0` included. The replay mock was made strict for this: it models
+  Telegram rejecting an edit whose text+markup equal what the message
+  already shows ("message is not modified"), since the bot swallows
+  telegram errors by design and that rejection would reach the household
+  as a dead tap. No rejection occurs.
+- **Root cause of the silence: a destructive catch-all in
+  `handleCallback`.** Its last statement rewrote the message to the
+  p4-02 preference stub for *any* callback_data it did not recognise.
+  The stale pre-p4-03 consumer that was draining the same queue in
+  parallel knows none of the `p:*` callbacks, so for rows 16/17 it
+  overwrote the planning message with "👍 Bara denna gång, då." — which
+  is also the source of the duplicate stub replies. Killing that process
+  fixed the household's symptom.
+- **The same shape was live in current code, and p4-03 had made it
+  worse** — a real bug, not just the stale process's: `editMessageText`
+  had started sending `reply_markup` unconditionally, so that catch-all
+  no longer merely rewrote the text, it *stripped the keyboard*. Any
+  deploy skew (a keyboard from an older build, a callback from a newer
+  one) would have reproduced the live failure with a single consumer
+  running. Fixed both halves: unknown callback_data is now answered and
+  ignored (never edited), and `editMessageText` treats an omitted
+  `buttons` as "leave the keyboard alone" while `[]` explicitly clears
+  it — so text edits and keyboard replacement are separate intents.
+  Terminal messages (note confirm/cancel, the preference stub, the
+  planning flow's closing lines) pass `[]` on purpose.
+- Regression tests, red against the pre-fix code (verified by reverting
+  `bot/tools.ts`: 2 failures, then restored): unknown callback_data
+  produces zero edits; `remember`/`once` still acknowledge and clear
+  their keyboard; and the **one-inbound → bounded-outbound invariant**
+  for `plan_draft` — exactly one outbound message, never carrying the
+  "🚧 not yet" stub, for both the horizon-stated and horizon-asked
+  paths, plus one message + one `answerCallbackQuery` per planning tap.
+- Harness gap this closed (AGENTS.md self-improvement rule): the bug
+  lived entirely in the bot seam, where no `src/**` test could reach it.
+  `vitest.config.ts` include grew `bot/**/*.test.ts`, and the p4-03
+  scratchpad adapter smoke is now the committed `bot/tools.test.ts` +
+  `bot/fakeSupabase.ts` (a strict in-memory postgrest double that throws
+  on unknown tables, non-column select expressions and undefined insert
+  values). This also discharges the residual p4-10 recorded in `9be2dfe`.
+- `./harness check`: green (lint 8/8 — baseline unchanged, **326 tests
+  in 17 files**, build, tsc bot, tsc compare, plans 31, recipes 30).
+
 **Not done here (human):** the live bullet — this checkout has no
 `bot/.env` and the live smoke is the household's. Deploy is `git pull` +
 bot restart; no new env, no new credentials, no new migration.
