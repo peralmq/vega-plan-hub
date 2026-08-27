@@ -1,6 +1,6 @@
 ---
 id: "vegan-moussaka"
-title: "Vegan Moussaka"
+title: "Vegansk moussaka"
 imageUrl: "https://rainbowplantlife.com/wp-content/uploads/2022/10/Moussaka-cover-1-of-1.jpg"
 url: "https://rainbowplantlife.com/vegan-moussaka/"
 cookTime: 135
@@ -11,48 +11,48 @@ tags: ["Greek", "Casserole", "Comfort Food", "Vegan", "Batch", "Weekend Project"
 
 ## Ingredients
 
-| quantity | unit | key               | ingredient                          | notes                          |
-|----------|------|-------------------|-------------------------------------|--------------------------------|
-| 700      | g    | eggplant          | eggplant, thinly sliced             | salt 30 min, pat dry           |
-| 900      | g    | potatoes          | firm potatoes, sliced ~8 mm         | e.g. Yukon gold type           |
-| 1.2      | dl   | olive-oil         | olive oil                           | divided (veg + sauce)          |
-| 2.5      | tsp  | oregano           | dried oregano                       | divided                        |
-| 7        |      | garlic            | garlic cloves                       | 3 grated (veg), 4 minced (sauce) |
-| 1        |      | onion             | yellow onion, chopped               |                                |
-| 1        |      | cinnamon-stick    | cinnamon stick                      |                                |
-| 1        | tbsp | thyme             | fresh thyme leaves                  |                                |
-| 0.5      | tsp  | chili-flakes      | red pepper flakes                   | optional                       |
-| 3        | tbsp | tomato-paste      | tomato paste                        |                                |
-| 400      | g    | vegan-mince       | vegan ground mince                  |                                |
-| 225      | g    | mushrooms         | cremini mushrooms, finely chopped   |                                |
-| 0.8      | dl   | red-wine          | dry red wine                        | vegan                          |
-| 800      | g    | crushed-tomatoes  | canned crushed tomatoes             |                                |
-| 1        |      | bay-leaf          | bay leaf                            |                                |
-| 1        |      | fresh-herbs       | handful fresh basil or parsley      | chopped, plus more to garnish  |
-| 140      | g    | cashews           | raw cashews                         | soaked (or boiled 15 min)      |
-| 4.2      | dl   | water             | water                               | for the bechamel               |
-| 0.5      | tsp  | nutmeg            | ground nutmeg                       |                                |
-| 0.5      | tsp  | garlic-powder     | garlic powder                       |                                |
-| 40       | g    | nutritional-yeast | nutritional yeast                   |                                |
-| 56       | g    | vegan-butter      | vegan butter                        |                                |
-| 42       | g    | flour             | all-purpose flour                   |                                |
-| 0.5      | dl   | panko             | panko breadcrumbs                   | optional topping               |
-|          |      | salt              | salt                                | to taste throughout            |
-|          |      | black-pepper      | black pepper                        | to taste                       |
+| quantity | unit | key               | ingredient          | notes                             |
+|----------|------|-------------------|------------------------|--------------------------------------|
+| 700      | g    | eggplant          | aubergine, tunt skivad   | salta 30 min, klappa torr          |
+| 900      | g    | potatoes          | fasta potatisar, skivade ~8 mm | t.ex. mjölig potatis av fast typ |
+| 1.2      | dl   | olive-oil         | olivolja                        | delad (grönsaker + sås)           |
+| 2.5      | tsp  | oregano           | torkad oregano                    | delad                              |
+| 7        |      | garlic            | vitlöksklyftor                      | 3 rivna (grönsaker), 4 finhackade (sås) |
+| 1        |      | onion             | gul lök, hackad                       |                                    |
+| 1        |      | cinnamon-stick    | kanelstång                              |                                    |
+| 1        | tbsp | thyme             | färska timjanblad                         |                                    |
+| 0.5      | tsp  | chili-flakes      | röda chiliflakes                            | valfritt                          |
+| 3        | tbsp | tomato-paste      | tomatpuré                                     |                                    |
+| 400      | g    | vegan-mince       | vegansk malen färs                              |                                    |
+| 225      | g    | mushrooms         | kastanjechampinjoner, finhackade                  |                                    |
+| 0.8      | dl   | red-wine          | torrt rödvin                                        | veganskt                          |
+| 800      | g    | crushed-tomatoes  | krossade tomater på burk                              |                                    |
+| 1        |      | bay-leaf          | lagerblad                                               |                                    |
+| 1        |      | fresh-herbs       | en näve färsk basilika eller persilja                    | hackad, plus mer till garnering  |
+| 140      | g    | cashews           | råa cashewnötter                                           | blötlagda (eller kokta 15 min)   |
+| 4.2      | dl   | water             | vatten                                                       | till béchamelsåsen                |
+| 0.5      | tsp  | nutmeg            | malen muskot                                                   |                                    |
+| 0.5      | tsp  | garlic-powder     | vitlökspulver                                                     |                                    |
+| 40       | g    | nutritional-yeast | jästflingor                                                         |                                    |
+| 56       | g    | vegan-butter      | veganskt smör                                                        |                                    |
+| 42       | g    | flour             | vetemjöl                                                               |                                    |
+| 0.5      | dl   | panko             | panko-ströbröd                                                          | valfri topping                    |
+|          |      | salt              | salt                                                                      | efter smak genomgående            |
+|          |      | black-pepper      | svartpeppar                                                                | efter smak                        |
 
 ## Instructions
 
-1. Salt the eggplant slices in a colander and rest 30 minutes, then pat dry. Meanwhile heat the oven to 220°C.
-2. Toss the potato slices with 2 tbsp oil, 1.5 tsp oregano, salt and pepper on one sheet pan; toss the eggplant with the grated garlic, remaining oregano, pepper and 4 tbsp oil on another. Roast both ~30 minutes until tender and lightly browned.
-3. For the sauce: heat 2 tbsp oil in a deep pan, cook the onion 8–10 minutes until golden. Add minced garlic, cinnamon stick, thyme, cloves-pinch, chili flakes and tomato paste; cook 2 minutes.
-4. Add the vegan mince and brown 2–3 minutes, then the mushrooms for another few minutes. Deglaze with the red wine and cook until the alcohol smell is gone.
-5. Add crushed tomatoes, salt, pepper and the bay leaf. Simmer 8–10 minutes until thick. Remove cinnamon stick and bay leaf, stir in the fresh herbs, season to taste.
-6. For the bechamel: blend the soaked cashews with the water, nutmeg, garlic powder, nutritional yeast and salt until completely smooth. Melt the vegan butter in a saucepan, whisk in the flour to a roux, then gradually whisk in the cashew cream until very thick and creamy.
-7. Assemble in a greased ~23×33 cm dish at 200°C: potatoes → half the sauce → eggplant → remaining sauce → bechamel spread to the edges. Top with panko, a drizzle of olive oil and flaky salt.
-8. Bake uncovered ~35 minutes until the bechamel browns lightly. Rest at least 30 minutes before slicing (it sets as it cools). Garnish with fresh herbs and serve. 🍆✨
+1. Salta auberginskivorna i ett durkslag och låt vila i 30 minuter, klappa sedan torra. Värm under tiden ugnen till 220°C.
+2. Blanda potatisskivorna med 2 msk olja, 1,5 tsk oregano, salt och peppar på en plåt; blanda auberginen med den rivna vitlöken, resterande oregano, peppar och 4 msk olja på en annan. Rosta båda i cirka 30 minuter tills de är möra och lätt brynta.
+3. Till såsen: hetta upp 2 msk olja i en djup panna, koka löken i 8–10 minuter tills den är gyllene. Tillsätt finhackad vitlök, kanelstång, timjan, en nypa nejlika, chiliflakes och tomatpuré; koka i 2 minuter.
+4. Tillsätt den veganska färsen och bryn i 2–3 minuter, tillsätt sedan svampen för några minuter till. Löskoka med rödvinet och koka tills alkoholdoften försvunnit.
+5. Tillsätt krossade tomater, salt, peppar och lagerbladet. Låt sjuda i 8–10 minuter tills det tjocknat. Ta bort kanelstången och lagerbladet, rör ner de färska örterna, smaka av.
+6. Till béchamelsåsen: mixa de blötlagda cashewnötterna med vattnet, muskoten, vitlökspulvret, jästflingorna och saltet tills det är helt slätt. Smält det veganska smöret i en kastrull, vispa ner mjölet till en redning, vispa sedan gradvis ner cashewgrädden tills den är mycket tjock och krämig.
+7. Varva i en smord form på ~23×33 cm vid 200°C: potatis → halva såsen → aubergine → resten av såsen → béchamelsås utbredd ända till kanterna. Toppa med panko, en skvätt olivolja och flingsalt.
+8. Grädda utan lock i cirka 35 minuter tills béchamelsåsen fått lite färg. Låt vila i minst 30 minuter innan uppskärning (den stelnar när den svalnar). Garnera med färska örter och servera. 🍆✨
 
 ## Notes
 
-- Excellent batch dish: 8 portions, and it reheats and freezes well — even better the next day.
-- Don't skimp on oil for the eggplant; it dries out without a thorough coating.
-- The bechamel can be made ahead — thin it with a splash of water when storing so it stays spreadable.
+- Utmärkt rätt för matlådor: 8 portioner, och den blir bra av uppvärmning och går att frysa — ännu bättre dagen efter.
+- Snåla inte med oljan till auberginen; den torkar ut utan ett ordentligt oljelager.
+- Béchamelsåsen kan göras i förväg — späd ut den med en skvätt vatten vid förvaring så att den håller sig bredbar.

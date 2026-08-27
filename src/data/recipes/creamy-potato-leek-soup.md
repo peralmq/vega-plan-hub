@@ -1,6 +1,6 @@
 ---
 id: "creamy-potato-leek-soup"
-title: "Creamy Vegan Potato & Leek Soup"
+title: "Krämig potatis- och purjolökssoppa"
 imageUrl: "/recipes/creamy-potato-leek-soup.jpg"
 url: "https://liveslowrunfar.com/recept/kramig-vegansk-potatis-och-purjolokssoppa/"
 cookTime: 30
@@ -11,33 +11,33 @@ tags: ["Swedish", "Soup", "Vegan", "Family", "Budget", "Weeknight"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                        | notes                          |
-|----------|------|-----------------|-----------------------------------|--------------------------------|
-| 1        | kg   | potatoes        | potatoes, peeled and diced        | 10–12 medium                   |
-| 2        |      | leek            | leeks, rinsed and sliced          | use white and green parts      |
-| 1        |      | garlic          | garlic clove                      |                                |
-| 1        | tbsp | thyme           | dried thyme                       |                                |
-| 2        |      | bouillon        | vegetable bouillon cubes          |                                |
-| 2.5      | dl   | white-beans     | cooked white beans, rinsed        | for the bean cream             |
-| 2        | dl   | oat-milk        | oat milk                          | for the bean cream             |
-| 1        | tbsp | vinegar         | white wine vinegar                |                                |
-| 2        | tbsp | rapeseed-oil    | rapeseed oil                      |                                |
-| 12       | dl   | water           | water                             | enough to barely cover         |
-|          |      | salt            | salt                              |                                |
-|          |      | black-pepper    | black pepper                      |                                |
+| quantity | unit | key             | ingredient                    | notes                          |
+|----------|------|-----------------|---------------------------------|----------------------------------|
+| 1        | kg   | potatoes        | potatis, skalad och tärnad      | 10–12 medelstora                 |
+| 2        |      | leek            | purjolök, sköljd och skivad     | använd både den vita och gröna delen |
+| 1        |      | garlic          | vitlöksklyfta                    |                                   |
+| 1        | tbsp | thyme           | torkad timjan                    |                                   |
+| 2        |      | bouillon        | grönsaksbuljongtärningar         |                                   |
+| 2.5      | dl   | white-beans     | kokta vita bönor, sköljda        | till bönkrämen                    |
+| 2        | dl   | oat-milk        | havremjölk                        | till bönkrämen                    |
+| 1        | tbsp | vinegar         | vitvinsvinäger                    |                                   |
+| 2        | tbsp | rapeseed-oil    | rapsolja                          |                                   |
+| 12       | dl   | water           | vatten                            | precis så mycket att det täcker   |
+|          |      | salt            | salt                              |                                   |
+|          |      | black-pepper    | svartpeppar                        |                                   |
 
 ## Instructions
 
-1. Peel and dice the potatoes. Rinse the leeks thoroughly and slice them — both the white and green parts go in.
-2. Heat the oil in a large pot over medium heat. Sauté the potatoes and leeks with ½ tsp salt for a couple of minutes, then add the garlic and thyme and sauté briefly.
-3. Add the water (enough to barely cover) and the bouillon cubes. Bring to a boil, then simmer about 15 minutes until the potatoes are tender.
-4. Meanwhile, make the bean cream: blend the white beans with the oat milk until completely smooth.
-5. Pour the bean cream into the soup and blend the whole pot until silky smooth. Stir in the vinegar and season with black pepper; taste and adjust the salt.
-6. Serve hot with your favorite crunchy topping — croutons, kale chips, toasted breadcrumbs, or roasted seeds. 🥔🥣
+1. Skala och tärna potatisen. Skölj purjolöken noga och skiva den — både den vita och gröna delen används.
+2. Hetta upp oljan i en stor kastrull på medelvärme. Fräs potatisen och purjolöken med ½ tsk salt i ett par minuter, tillsätt sedan vitlöken och timjanen och fräs kort.
+3. Tillsätt vattnet (precis så mycket att det täcker) och buljongtärningarna. Koka upp och låt sedan sjuda cirka 15 minuter tills potatisen är mör.
+4. Gör under tiden bönkrämen: mixa de vita bönorna med havremjölken tills den är helt slät.
+5. Häll bönkrämen i soppan och mixa hela grytan tills den är silkeslen. Rör ner vinägern och smaka av med svartpeppar; smaka av och justera saltet.
+6. Servera varm med din favorittopping för lite knaprighet — krutonger, grönkålschips, rostat ströbröd eller rostade frön. 🥔🥣
 
 ## Notes
 
-- Translated from liveslowrunfar.com's "Krämig vegansk potatis- och purjolökssoppa".
-- The blended white-bean "cream" is the trick: it makes the soup rich and adds protein with no coconut or soy.
-- Big-batch friendly: 4–6 hearty portions from one pot, and it freezes well — a splash of oat milk when reheating brings the creaminess back.
-- Naturally mild and kid-friendly; the vinegar splash at the end lifts the whole pot, so don't skip it.
+- Baserad på liveslowrunfar.com:s recept "Krämig vegansk potatis- och purjolökssoppa".
+- Den mixade "grädden" av vita bönor är knepet: den gör soppan fyllig och tillför protein utan kokos eller soja.
+- Bra för storkok: 4–6 rejäla portioner från en gryta, och den fryser bra — en skvätt havremjölk vid uppvärmning tar tillbaka krämigheten.
+- Naturligt mild och barnvänlig; vinägerskvätten på slutet lyfter hela grytan, så hoppa inte över den.

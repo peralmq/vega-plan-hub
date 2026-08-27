@@ -1,6 +1,6 @@
 ---
 id: "baked-vegan-feta-pasta"
-title: "Baked Vegan Feta Pasta"
+title: "Ugnsbakad vegansk fetapasta"
 imageUrl: "https://www.theedgyveg.com/wp-content/uploads/2021/07/DSC00392WEB-e1627403400765.jpg"
 url: "https://www.theedgyveg.com/2021/07/27/vegan-feta-pasta-recipe/"
 cookTime: 40
@@ -11,31 +11,31 @@ tags: ["Italian", "Pasta", "Family", "Vegan", "Dinner", "Weeknight"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                       | notes                                  |
-|----------|------|-----------------|----------------------------------|----------------------------------------|
-| 200      | g    | vegan-feta      | vegan feta block                 | e.g. Violife; homemade option in Notes |
-| 400      | g    | pasta           | penne, rigatoni or rotini        |                                        |
-| 500      | g    | cherry-tomatoes | cherry tomatoes                  |                                        |
-| 0.5      | dl   | olive-oil       | olive oil                        |                                        |
-| 4        |      | garlic          | garlic cloves, sliced            |                                        |
-| 1        | tbsp | italian-herbs   | dried Italian herbs              | or oregano + basil                     |
-| 1        |      | spinach         | big handful spinach or basil     | stirred in at the end                  |
-|          |      | chili-flakes    | red chili flakes                 | optional — in the dish or at the table |
-|          |      | salt            | salt                             | to taste                               |
-|          |      | black-pepper    | black pepper                     | to taste                               |
+| quantity | unit | key             | ingredient                       | notes                                     |
+|----------|------|-----------------|-----------------------------------|--------------------------------------------|
+| 200      | g    | vegan-feta      | vegansk fetaost                  | t.ex. Violife; hemmagjort alternativ i Anteckningar |
+| 400      | g    | pasta           | penne, rigatoni eller rotini     |                                             |
+| 500      | g    | cherry-tomatoes | körsbärstomater                  |                                             |
+| 0.5      | dl   | olive-oil       | olivolja                         |                                             |
+| 4        |      | garlic          | vitlöksklyftor, skivade          |                                             |
+| 1        | tbsp | italian-herbs   | torkade italienska örtkryddor    | eller oregano + basilika                   |
+| 1        |      | spinach         | en stor näve spenat eller basilika | vänds i på slutet                        |
+|          |      | chili-flakes    | röd chiliflakes                  | valfritt — i formen eller vid bordet       |
+|          |      | salt            | salt                             | efter smak                                 |
+|          |      | black-pepper    | svartpeppar                      | efter smak                                 |
 
 ## Instructions
 
-1. Heat the oven to 200°C. Place the vegan feta block in the middle of a baking dish and scatter the cherry tomatoes and sliced garlic around it.
-2. Drizzle everything with the olive oil, sprinkle over the Italian herbs, salt and pepper (add the optional chili flakes now for a spicier batch, or save them for the table). Turn the tomatoes to coat and flip the feta once so it's oiled on both sides.
-3. Bake 30–35 minutes until the tomatoes burst and the feta is soft and golden at the edges.
-4. Meanwhile, cook the pasta in salted water until al dente. Reserve about 1 dl of the pasta water before draining.
-5. Mash the baked feta and burst tomatoes together in the dish, adding a splash of pasta water to loosen it into a creamy sauce.
-6. Add the pasta and the spinach (or basil) and toss until everything is coated, adding more pasta water as needed. Season, top with black pepper, and serve straight from the dish. 🍅✨
+1. Värm ugnen till 200°C. Lägg fetaosten mitt i en ugnsform och sprid körsbärstomaterna och den skivade vitlöken runt om.
+2. Ringla över olivoljan, strö över de italienska örtkryddorna, salt och peppar (tillsätt chiliflakesen nu om du vill ha det starkare, eller spara dem till bordet). Vänd tomaterna så de täcks av oljan och vänd fetan en gång så den blir oljig på båda sidor.
+3. Grädda 30–35 minuter tills tomaterna spricker och fetan är mjuk och gyllene i kanterna.
+4. Koka under tiden pastan i saltat vatten tills den är al dente. Spara ca 1 dl pastavatten innan du häller av.
+5. Mosa den ugnsbakade fetan och de spruckna tomaterna tillsammans i formen och tillsätt en skvätt pastavatten för att få en krämig sås.
+6. Tillsätt pastan och spenaten (eller basilikan) och blanda tills allt är täckt, tillsätt mer pastavatten vid behov. Smaka av, toppa med svartpeppar och servera direkt ur formen. 🍅✨
 
 ## Notes
 
-- Merged from two takes on the viral TikTok bake: theedgyveg.com (store-bought feta method, garlic + herb seasoning, pasta-water technique) and plantyou.com (spinach/basil stir-in, homemade feta, timings).
-- Homemade feta option (from plantyou): blend 350 g extra-firm tofu, 65 g cashews, 2 tbsp apple cider vinegar, 1 tbsp nutritional yeast, 1 tsp garlic powder and 1 tsp salt until smooth, and scoop that into the center of the dish instead of the block.
-- Kid-friendly: naturally mild — the chili flakes are optional, in the dish or at the table.
-- One dish + one pot, and it scales to a bigger baking dish for batch cooking; leftovers reheat well with a splash of water.
+- Sammanslagen av två varianter på den virala TikTok-bakningen: theedgyveg.com (metod med köpt feta, vitlök + örtkryddning, pastavattens-tekniken) och plantyou.com (spenat/basilika vänds i, hemmagjord feta, tider).
+- Hemmagjort feta-alternativ (från plantyou): mixa 350 g extra fast tofu, 65 g cashewnötter, 2 msk äppelcidervinäger, 1 msk jästflingor, 1 tsk vitlökspulver och 1 tsk salt tills det är slätt, och klicka i det mitt i formen istället för fetabiten.
+- Barnvänlig: naturligt mild — chiliflakesen är valfria, i formen eller vid bordet.
+- En form + en kastrull, och det går att skala upp till en större ugnsform för matlagning i stora satser; rester värms fint upp igen med en skvätt vatten.

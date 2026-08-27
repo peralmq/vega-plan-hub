@@ -1,6 +1,6 @@
 ---
 id: "vegan-meatballs-creamed-macaroni"
-title: "Vegan Meatballs with Creamed Macaroni & Citrus Spinach"
+title: "Veganska köttbullar med stuvade makaroner och citrusspenat"
 imageUrl: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=1200"
 cookTime: 45
 servings: 4
@@ -10,31 +10,31 @@ tags: ["Swedish", "Comfort Food", "Family", "Vegan", "Pasta", "Dinner"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                  | notes                                |
-|----------|------|-----------------|-----------------------------|--------------------------------------|
-| 400      | g    | vegan-meatballs | vegan meatballs             | e.g. Anamma or Hälsans Kök           |
-| 2        | tbsp | margarine       | dairy-free margarine        | 1 for frying, 1 for the stuvning     |
-| 400      | g    | macaroni        | macaroni                    |                                      |
-| 2        | tbsp | flour           | all-purpose flour           | for the stuvning                     |
-| 6        | dl   | oat-milk        | oat milk                    | for the stuvning                     |
-| 0.25     | tsp  | nutmeg          | ground nutmeg               |                                      |
-|          |      | salt            | salt                        | to taste                             |
-|          |      | white-pepper    | white pepper                | to taste                             |
-| 200      | g    | spinach         | fresh spinach               |                                      |
-| 1        |      | lemon           | lemon, zest and juice       | for the spinach 🍋                   |
-| 2        | tbsp | olive-oil       | olive oil                   | for the spinach                      |
+| quantity | unit | key             | ingredient       | notes                                |
+|----------|------|-----------------|---------------------| --------------------------------------|
+| 400      | g    | vegan-meatballs | veganska köttbullar    | t.ex. Anamma eller Hälsans Kök       |
+| 2        | tbsp | margarine       | mjölkfritt margarin      | 1 till stekning, 1 till stuvningen   |
+| 400      | g    | macaroni        | makaroner                  |                                      |
+| 2        | tbsp | flour           | vetemjöl                     | till stuvningen                      |
+| 6        | dl   | oat-milk        | havremjölk                     | till stuvningen                      |
+| 0.25     | tsp  | nutmeg          | malen muskot                     |                                      |
+|          |      | salt            | salt                               | efter smak                           |
+|          |      | white-pepper    | vitpeppar                            | efter smak                           |
+| 200      | g    | spinach         | färsk spenat                          |                                      |
+| 1        |      | lemon           | citron, skal och saft                  | till spenaten 🍋                     |
+| 2        | tbsp | olive-oil       | olivolja                                | till spenaten                        |
 
 ## Instructions
 
-1. Cook the macaroni in well-salted water until just al dente (a minute under the package time — it finishes in the stuvning). Drain and set aside.
-2. In the same pot, melt 1 tbsp margarine over medium heat, whisk in the flour, and cook 1 minute without coloring. Whisk in the oat milk a little at a time until smooth.
-3. Simmer the sauce 3–4 minutes until it coats a spoon, then season with nutmeg, salt, and white pepper. Fold the macaroni back in and keep warm over low heat — that's stuvade makaroner. 🍝
-4. Meanwhile, fry the meatballs in the remaining margarine over medium-high heat, rolling them around until browned all over and hot through, 6–8 minutes.
-5. Citrus spinach: in a big bowl, whisk the lemon zest, half the lemon juice, olive oil, and a pinch of salt. Add the spinach and toss just before serving — it should stay fresh and barely dressed. 💚
-6. Serve meatballs and creamed macaroni side by side with a bright pile of citrus spinach. Squeeze over extra lemon at the table. ✨
+1. Koka makaronerna i rejält saltat vatten tills de precis är al dente (en minut kortare än förpackningens tid — de blir klara i stuvningen). Häll av och lägg åt sidan.
+2. Smält 1 msk margarin i samma kastrull på medelvärme, vispa ner mjölet och koka i 1 minut utan att det tar färg. Vispa ner havremjölken lite i taget tills den är slät.
+3. Låt såsen sjuda 3–4 minuter tills den täcker en sked, smaka sedan av med muskot, salt och vitpeppar. Vänd ner makaronerna igen och håll varmt på låg värme — det är stuvade makaroner. 🍝
+4. Stek under tiden köttbullarna i det resterande margarinet på medelhög-hög värme, rulla runt dem tills de är bruna runt om och genomvarma, 6–8 minuter.
+5. Citrusspenat: vispa ihop citronskalet, hälften av citronsaften, olivoljan och en nypa salt i en stor skål. Tillsätt spenaten och vänd runt precis innan servering — den ska vara fräsch och bara lätt klädd. 💚
+6. Servera köttbullar och stuvade makaroner sida vid sida med en frisk hög citrusspenat. Pressa över extra citron vid bordet. ✨
 
 ## Notes
 
-- The stuvning thickens as it stands — loosen it with a splash of oat milk when reheating.
-- The raw citrus spinach is the point: its acidity cuts the creamy macaroni. If the crowd insists, wilt it in the pan for 30 seconds instead, but dress it the same way.
-- Kid classic in every Swedish home — this version just swaps the dairy and the meat, nothing else.
+- Stuvningen tjocknar när den står — lösgör den med en skvätt havremjölk vid uppvärmning.
+- Den råa citrusspenaten är hela poängen: syran skär genom de krämiga makaronerna. Om sällskapet insisterar kan du vissna den i pannan i 30 sekunder istället, men klä den på samma sätt.
+- En barnklassiker i varje svenskt hem — den här versionen byter bara ut mejeriprodukterna och köttet, inget annat.

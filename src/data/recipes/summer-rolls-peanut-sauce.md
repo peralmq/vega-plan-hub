@@ -1,6 +1,6 @@
 ---
 id: "summer-rolls-peanut-sauce"
-title: "Summer Rolls with Peanut Sauce"
+title: "Sommarrullar med jordnötssås"
 imageUrl: "https://images.unsplash.com/photo-1553163147-622ab57be1c7?w=1200"
 cookTime: 40
 servings: 4
@@ -10,38 +10,38 @@ tags: ["Vietnamese", "Asian", "Fresh", "Family", "Vegan", "Summer"]
 
 ## Ingredients
 
-| quantity | unit | key           | ingredient                     | notes                                |
-|----------|------|---------------|--------------------------------|--------------------------------------|
-| 12       |      | rice-paper    | rice paper sheets              | plus a few spares for torn ones      |
-| 100      | g    | rice-noodles  | thin rice noodles (vermicelli) |                                      |
-| 2        |      | carrot        | carrots, cut into matchsticks  |                                      |
-| 0.5      |      | cucumber      | cucumber, cut into matchsticks | seeds scraped out                    |
-| 1        |      | red-pepper    | red bell pepper, thin strips   |                                      |
-| 1        |      | avocado       | avocado, thin slices           |                                      |
-| 8        |      | lettuce       | soft lettuce leaves            | halved, ribs removed                 |
-| 1        |      | mint          | fresh mint, leaves picked      | a good handful 🌱                    |
-| 1        |      | cilantro      | fresh cilantro, leaves picked  | a good handful                       |
-| 1        | dl   | peanut-butter | peanut butter                  | smooth, for the sauce 🥜             |
-| 2        | tbsp | soy-sauce     | soy sauce                      | for the sauce                        |
-| 1        | tbsp | maple-syrup   | maple syrup or sugar           | for the sauce                        |
-| 1        |      | lime          | lime, juiced                   | for the sauce; wedges to serve       |
-| 1        |      | garlic        | garlic clove, finely grated    | for the sauce                        |
-| 1        | dl   | water         | warm water                     | for thinning the sauce               |
-| 1        | tbsp | sriracha      | sriracha                       | optional, on the side                |
-| 2        | tbsp | peanuts       | roasted salted peanuts, chopped| optional garnish                     |
+| quantity | unit | key           | ingredient                    | notes                             |
+|----------|------|---------------|---------------------------------|--------------------------------------|
+| 12       |      | rice-paper    | risbladspapper                   | plus några extra för trasiga        |
+| 100      | g    | rice-noodles  | tunna risnudlar (vermicelli)     |                                      |
+| 2        |      | carrot        | morötter, skurna i tändstickor    |                                      |
+| 0.5      |      | cucumber      | gurka, skuren i tändstickor       | kärnorna urskrapade                 |
+| 1        |      | red-pepper    | röd paprika, tunna strimlor       |                                      |
+| 1        |      | avocado       | avokado, tunt skivad              |                                      |
+| 8        |      | lettuce       | mjuka salladsblad                 | halverade, med bladnerven bortskuren |
+| 1        |      | mint          | färsk mynta                       | plockade blad, en rejäl näve 🌱     |
+| 1        |      | cilantro      | färsk koriander                   | plockade blad, en rejäl näve        |
+| 1        | dl   | peanut-butter | jordnötssmör                      | slätt, till såsen 🥜                |
+| 2        | tbsp | soy-sauce     | sojasås                           | till såsen                          |
+| 1        | tbsp | maple-syrup   | lönnsirap eller socker            | till såsen                          |
+| 1        |      | lime          | lime, saften                      | till såsen; klyftor att servera med |
+| 1        |      | garlic        | vitlöksklyfta, finriven            | till såsen                          |
+| 1        | dl   | water         | varmt vatten                       | för att späda ut såsen              |
+| 1        | tbsp | sriracha      | sriracha                           | valfritt, vid sidan                 |
+| 2        | tbsp | peanuts       | rostade saltade jordnötter, hackade | valfri garnering                   |
 
 ## Instructions
 
-1. Cook the rice noodles according to the package, rinse under cold water, and drain well. Snip them shorter with scissors — it makes rolling much easier.
-2. Make the peanut sauce: whisk the peanut butter with the soy sauce, maple syrup, lime juice, garlic, and warm water until smooth and dippable. Keep it mild; the sriracha bottle lives on the table. 🥜
-3. Prep the filling bar: carrots, cucumber, bell pepper, avocado, lettuce, mint, and cilantro, all lined up on a board.
-4. Fill a large shallow dish with lukewarm water. Dip one rice paper sheet for about 5–10 seconds — it should still feel slightly firm; it keeps softening as you roll.
-5. Lay the sheet on a damp cutting board. On the lower third, layer a piece of lettuce, a small tangle of noodles, a few veggie sticks, avocado, and a couple of herb leaves. Less is more — overstuffed rolls burst.
-6. Fold the bottom edge over the filling, fold in the sides, and roll up snugly like a tiny burrito. Set seam-side down under a damp towel and repeat. 🌯
-7. Serve the rolls whole or halved with the peanut sauce, lime wedges, chopped peanuts, and sriracha for the grown-ups. 🌱✨
+1. Koka risnudlarna enligt förpackningen, skölj under kallt vatten och låt rinna av ordentligt. Klipp dem kortare med en sax — det gör rullningen mycket enklare.
+2. Gör jordnötssåsen: vispa ihop jordnötssmöret med sojasåsen, lönnsirapen, limejuicen, vitlöken och det varma vattnet tills den är slät och dippbar. Håll den mild; srirachaflaskan bor på bordet. 🥜
+3. Förbered fyllnings-baren: morötter, gurka, paprika, avokado, sallad, mynta och koriander, alla uppradade på en skärbräda.
+4. Fyll en stor, låg skål med ljummet vatten. Doppa ett risbladspapper i cirka 5–10 sekunder — det ska fortfarande kännas lite fast; det fortsätter mjukna medan du rullar.
+5. Lägg bladet på en fuktig skärbräda. På den nedre tredjedelen, lägg ett salladsblad, en liten trassel nudlar, några grönsaksstavar, avokado och några örtblad. Mindre är mer — överfyllda rullar spricker.
+6. Vik den nedre kanten över fyllningen, vik in sidorna och rulla ihop tätt som en liten burrito. Lägg med sömmen nedåt under en fuktig handduk och upprepa. 🌯
+7. Servera rullarna hela eller halverade med jordnötssåsen, limeklyftor, hackade jordnötter och sriracha för de vuxna. 🌱✨
 
 ## Notes
 
-- Rolling is the fun part — put the filling bar on the table and let everyone roll their own; wonky rolls taste identical.
-- Make-ahead: rolls keep 3–4 hours in the fridge under a damp towel and plastic wrap, not touching each other (they glue together). The sauce keeps a week.
-- Swap in whatever is crisp and in the fridge: mango, red cabbage, or leftover crispy tofu strips are all excellent.
+- Rullningen är det roliga — ställ fram fyllnings-baren på bordet och låt alla rulla sina egna; skeva rullar smakar likadant.
+- Förbered i förväg: rullarna håller sig 3–4 timmar i kylen under en fuktig handduk och plastfolie, utan att röra varandra (de fastnar annars i varandra). Såsen håller en vecka.
+- Byt ut mot vad som helst knaprigt du har i kylen: mango, rödkål eller rester av frasiga tofuremsor är alla utmärkta.

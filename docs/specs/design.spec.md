@@ -18,6 +18,17 @@ harmed"; the footer motto "cooked with compassion · for the animals,
 the planet & each other 🐾🌍💚" on every main screen). Serious utility
 underneath: the quirk never gets in the way of planning or shopping.
 Copy is in English; prices and units are Swedish (SEK, metric).
+**Recipe content is Swedish-first** (directive Pelle 2026-08-27,
+[p4-14-swedish-recipe-corpus](../execplans/p4-14-swedish-recipe-corpus.md)):
+every recipe in `src/data/recipes/` — title (where a Swedish name is
+natural; established international dish names like "Mapo Tofu" and
+"Chana Dal" stay as-is), ingredient display names, instructions, and
+notes — is written in Swedish. App chrome (buttons, headers, empty
+states, toasts) stays English for now — a separate decision, not yet
+made. Machine identity (recipe `id` slugs, ingredient `key` values,
+frontmatter field names, the controlled English tag vocabulary in
+[recipe-format.spec.md](recipe-format.spec.md)) is unaffected by
+recipe content language.
 **Dark and light mode are both first-class** — every screen must work
 in each, toggled via the ☀️/🌙 pill present in every header.
 

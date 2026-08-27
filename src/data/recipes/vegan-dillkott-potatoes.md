@@ -1,6 +1,6 @@
 ---
 id: "vegan-dillkott-potatoes"
-title: "Vegan Dillkött with Potatoes"
+title: "Vegansk dillkött med potatis"
 imageUrl: "https://images.unsplash.com/photo-1547592180-85f173990554?w=1200"
 cookTime: 45
 servings: 4
@@ -10,34 +10,34 @@ tags: ["Swedish", "Comfort Food", "Stew", "Family", "Vegan", "Dinner"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                      | notes                                  |
-|----------|------|-----------------|---------------------------------|----------------------------------------|
-| 400      | g    | soy-chunks      | soy chunks (rehydrated weight)  | about 150 g dry — or oumph pieces      |
-| 5        | dl   | vegetable-broth | vegetable broth                 | for rehydrating + the sauce            |
-| 1        |      | bay-leaf        | bay leaf                        |                                        |
-| 4        |      | allspice        | whole allspice berries          | kryddpeppar                            |
-| 800      | g    | potatoes        | potatoes                        | firm, even-sized                       |
-| 2        | tbsp | margarine       | dairy-free margarine            | for the roux                           |
-| 3        | tbsp | flour           | all-purpose flour               | for the roux                           |
-| 2        | dl   | oat-cream       | oat cream                       |                                        |
-| 1.5      | tbsp | attika          | ättika (12 % distilled vinegar) | or 3 tbsp white wine vinegar           |
-| 1.5      | tbsp | sugar           | sugar                           |                                        |
-| 1        | dl   | dill            | fresh dill, chopped             | stems saved for the broth 🌿           |
-|          |      | salt            | salt                            | to taste                               |
-|          |      | white-pepper    | white pepper                    | to taste                               |
+| quantity | unit | key             | ingredient           | notes                             |
+|----------|------|-----------------|------------------------|--------------------------------------|
+| 400      | g    | soy-chunks      | sojabitar (rehydrerad vikt) | cirka 150 g torra — eller oumph-bitar |
+| 5        | dl   | vegetable-broth | grönsaksbuljong          | för återfuktning + såsen            |
+| 1        |      | bay-leaf        | lagerblad                  |                                      |
+| 4        |      | allspice        | hela kryddpepparkorn        |                                     |
+| 800      | g    | potatoes        | potatis                      | fasta, jämnstora                    |
+| 2        | tbsp | margarine       | mjölkfritt margarin            | till redningen                      |
+| 3        | tbsp | flour           | vetemjöl                        | till redningen                      |
+| 2        | dl   | oat-cream       | havregrädde                      |                                      |
+| 1.5      | tbsp | attika          | ättika, 12 %                       | eller 3 msk vitvinsvinäger          |
+| 1.5      | tbsp | sugar           | socker                              |                                      |
+| 1        | dl   | dill            | färsk dill, hackad                   | stjälkarna sparas till buljongen 🌿 |
+|          |      | salt            | salt                                  | efter smak                          |
+|          |      | white-pepper    | vitpeppar                              | efter smak                          |
 
 ## Instructions
 
-1. Bring the broth to a simmer with the bay leaf, allspice, and the dill stems. Add the dry soy chunks and simmer 10 minutes until plump and savory. (Oumph: skip the soak, just thaw and brown it in a little margarine instead.) Scoop out the chunks and strain and save the broth — it's the sauce base.
-2. Meanwhile, boil the potatoes in salted water until tender, 20–25 minutes.
-3. Melt the margarine in the same pot, whisk in the flour, and cook 1 minute. Whisk in 4 dl of the saved broth a little at a time, then the oat cream. Simmer 5 minutes until silky.
-4. Now the signature move — season the sauce tangy-sweet: stir in the ättika and sugar, then taste. It should make your mouth water first and land soft and sweet after; adjust half a spoon at a time until it does. ⚖️
-5. Return the chunks to the sauce and simmer gently 5 minutes so they soak up the flavor. Season with salt and white pepper.
-6. Off the heat, stir in the chopped dill — it stays greenest that way. Save a pinch for the top. 🌿
-7. Serve over the boiled potatoes, dill on top. Old-school Swedish husmanskost, no cow required. 🥔✨
+1. Låt buljongen sjuda med lagerbladet, kryddpepparn och dillstjälkarna. Tillsätt de torra sojabitarna och låt sjuda i 10 minuter tills de blivit fylliga och smakrika. (Oumph: hoppa över blötläggningen, tina bara och bryn i lite margarin istället.) Skeda upp bitarna, sila och spara buljongen — den är basen för såsen.
+2. Koka under tiden potatisen i saltat vatten tills den är mör, 20–25 minuter.
+3. Smält margarinet i samma gryta, vispa ner mjölet och koka i 1 minut. Vispa ner 4 dl av den sparade buljongen lite i taget, och sedan havregrädden. Låt sjuda i 5 minuter tills den är silkeslen.
+4. Nu kommer det avgörande greppet — smaka av såsen sötsurt: rör ner ättikan och sockret, smaka sedan. Den ska först få det att vattnas i munnen och sedan landa mjukt och sött; justera en halv sked i taget tills den gör det. ⚖️
+5. Lägg tillbaka bitarna i såsen och låt sjuda försiktigt i 5 minuter så att de suger åt sig smaken. Smaka av med salt och vitpeppar.
+6. Dra av från värmen och rör ner den hackade dillen — den håller sig grönast så. Spara en nypa till toppen. 🌿
+7. Servera över den kokta potatisen, dill på toppen. Klassisk svensk husmanskost, helt utan ko. 🥔✨
 
 ## Notes
 
-- The tangy-sweet balance (sötsur) is the whole dish — everyone's grandma tuned it differently, so taste as you go and trust your mouth over the measurements.
-- Kid note: it reads like a mild creamy stew; the vinegar mellows completely into the sauce.
-- Even better the next day, and it freezes well — the dill fades though, so refresh with a little fresh dill after reheating.
+- Den sötsura balansen är hela rätten — allas mormor gjorde den lite olika, så smaka dig fram och lita på munnen mer än måtten.
+- Barnnotering: den upplevs som en mild, krämig gryta; vinägern mjuknar helt in i såsen.
+- Ännu bättre dagen efter, och den fryser bra — dillen tappar dock lite av smaken, så fräscha upp med lite färsk dill efter uppvärmning.

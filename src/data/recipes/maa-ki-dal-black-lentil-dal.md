@@ -1,6 +1,6 @@
 ---
 id: "maa-ki-dal-black-lentil-dal"
-title: "Maa Ki Dal – Black Lentil Dal"
+title: "Maa Ki Dal – svart linsdal"
 imageUrl: "https://indianenough.se/wp-content/uploads/2022/02/maakidal2-1400x680.jpg"
 url: "https://indianenough.se/maa-ki-dal-svart-linsdal/"
 cookTime: 75
@@ -11,43 +11,43 @@ tags: ["Indian", "Dal", "Lentil", "Vegan", "Comfort Food"]
 
 ## Ingredients
 
-| quantity | unit | key              | ingredient           | notes                              |
-| -------- | ---- | ---------------- | -------------------- | ---------------------------------- |
-| 2.5      | dl   | urad-dal         | whole black urad dal | about 200 g, or beluga lentils     |
-| 8        | dl   | water            | water                |                                    |
-| 1        | st   | onion            | onion                | finely chopped                     |
-| 3        | st   | garlic           | garlic cloves        | pressed                            |
-| 1        | tbsp | ginger           | fresh ginger         | grated                             |
-| 2        | st   | tomato           | tomatoes             | chopped (or 2 dl crushed tomatoes) |
-| 2        | tbsp | tomato-paste     | tomato paste         |                                    |
-| 0.5      | tsp  | cumin-powder     | ground cumin         |                                    |
-| 0.5      | tsp  | ground-coriander | ground coriander     |                                    |
-| 1        | tsp  | chili-powder     | chili powder         |                                    |
-| 0.5      | tsp  | garam-masala     | garam masala         |                                    |
-| 1        | tsp  | salt             | salt                 |                                    |
+| quantity | unit | key              | ingredient                | notes                              |
+| -------- | ---- | ---------------- | --------------------------- | ------------------------------------ |
+| 2.5      | dl   | urad-dal         | hela svarta urad dal-linser | cirka 200 g, eller belugalinser      |
+| 8        | dl   | water            | vatten                       |                                       |
+| 1        | st   | onion            | gul lök                      | finhackad                            |
+| 3        | st   | garlic           | vitlöksklyftor               | pressade                             |
+| 1        | tbsp | ginger           | färsk ingefära                | riven                                 |
+| 2        | st   | tomato           | tomater                       | hackade (eller 2 dl krossade tomater)|
+| 2        | tbsp | tomato-paste     | tomatpuré                     |                                       |
+| 0.5      | tsp  | cumin-powder     | malen spiskummin              |                                       |
+| 0.5      | tsp  | ground-coriander | malen koriander               |                                       |
+| 1        | tsp  | chili-powder     | chilipulver                   |                                       |
+| 0.5      | tsp  | garam-masala     | garam masala                  |                                       |
+| 1        | tsp  | salt             | salt                          |                                       |
 
-### For serving
+### Att servera med
 
-| quantity | unit | key          | ingredient                  | notes         |
-| -------- | ---- | ------------ | --------------------------- | ------------- |
-| 1        | tbsp | neutral-oil  | neutral oil                 |               |
-| 0.5      | tsp  | cumin-seed   | whole cumin seeds           |               |
-| 1        | st   | onion        | onion                       | thinly sliced |
-|          |      | rice-or-roti | Cooked rice or roti/chapati | 🍚            |
+| quantity | unit | key          | ingredient              | notes         |
+| -------- | ---- | ------------ | -------------------------- | -------------- |
+| 1        | tbsp | neutral-oil  | neutral olja                |                |
+| 0.5      | tsp  | cumin-seed   | hela kumminfrön             |                |
+| 1        | st   | onion        | gul lök                     | tunt skivad    |
+|          |      | rice-or-roti | Kokt ris eller roti/chapati | 🍚            |
 
 ## Instructions
 
-1. Rinse the urad dal and soak in water for 8 hours or overnight.
-2. Drain and add the lentils to a pot with 8 dl water. Bring to a boil, then simmer covered for about 1 hour, or until the lentils are very soft.
-3. In a blender, combine the chopped onion, garlic, ginger, tomatoes, and tomato paste. Blend until smooth.
-4. Add the purée to the cooked lentils along with ground cumin, coriander, chili powder, garam masala, and salt. Simmer for 5 minutes.
-5. For the topping: Heat oil in a frying pan, fry cumin seeds until fragrant, then add the sliced onion and cook until soft and golden.
-6. Spoon the fried onion and cumin over the dal.
-7. Serve hot with rice or roti/chapati. Enjoy! 🥄✨
+1. Skölj urad dal-linserna och blötlägg i vatten i 8 timmar eller över natten.
+2. Häll av och lägg linserna i en kastrull med 8 dl vatten. Koka upp och låt sedan sjuda med lock i cirka 1 timme, eller tills linserna är väldigt mjuka.
+3. Mixa den hackade löken, vitlöken, ingefäran, tomaterna och tomatpurén i en mixer tills det är slätt.
+4. Tillsätt puréen i de kokta linserna tillsammans med malen spiskummin, koriander, chilipulver, garam masala och salt. Låt sjuda i 5 minuter.
+5. Till toppingen: Hetta upp olja i en stekpanna, stek kumminfröna tills de doftar, tillsätt sedan den skivade löken och stek tills den är mjuk och gyllene.
+6. Skeda den stekta löken och kumminet över dalen.
+7. Servera varm med ris eller roti/chapati. Smaklig måltid! 🥄✨
 
 ## Notes
 
-- Urad dal gives the creamiest result, but beluga lentils can be used as a substitute.
-- Soaking the lentils is essential for the right texture.
-- Adjust chili to taste for more or less heat.
-- This dal is naturally vegan and perfect for cozy meals!
+- Urad dal ger det krämigaste resultatet, men belugalinser kan användas som ersättning.
+- Att blötlägga linserna är avgörande för rätt konsistens.
+- Justera chilimängden efter smak för mer eller mindre hetta.
+- Den här dalen är naturligt vegansk och perfekt för mysiga måltider!

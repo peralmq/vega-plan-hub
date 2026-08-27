@@ -1,6 +1,6 @@
 ---
 id: "deluxe-aglio-e-olio"
-title: "Deluxe Aglio e Olio Pasta"
+title: "Lyxig aglio e olio-pasta"
 imageUrl: "https://javligtgott.se/wp-content/uploads/2025/04/2I2A6177.jpg"
 url: "https://javligtgott.se/recept/pasta-aglio-e-olio-delux/"
 cookTime: 25
@@ -11,31 +11,31 @@ tags: ["Italian", "Pasta", "Lunch", "Dinner", "Quick", "Vegan", "Luxury"]
 
 ## Ingredients
 
-| quantity | unit | key            | ingredient                        | notes               |
-| -------- | ---- | -------------- | --------------------------------- | ------------------- |
-| 12       |      | garlic         | garlic cloves                     |                     |
-| 1        | dl   | vegan-butter   | vegan butter                      | Eleplant or similar |
-| 1        |      | lemon          | zest and juice of 1 lemon         |                     |
-| 1.5      | tbsp | chili-oil      | chili oil                         |                     |
-| 1        | dl   | parsley        | fresh parsley, chopped            |                     |
-| 1        | dl   | vegan-parmesan | cashew parmesan or vegan parmesan |                     |
-| 500      | g    | spaghetti      | spaghetti                         |                     |
-|          |      | salt           | salt                              | to taste            |
+| quantity | unit | key            | ingredient                    | notes                 |
+| -------- | ---- | -------------- | -------------------------------| ----------------------- |
+| 12       |      | garlic         | vitlöksklyftor                 |                          |
+| 1        | dl   | vegan-butter   | veganskt smör                  | Eleplant eller liknande  |
+| 1        |      | lemon          | skal och saft från 1 citron     |                          |
+| 1.5      | tbsp | chili-oil      | chiliolja                       |                          |
+| 1        | dl   | parsley        | färsk persilja, hackad          |                          |
+| 1        | dl   | vegan-parmesan | cashewparmesan eller vegansk parmesan |                   |
+| 500      | g    | spaghetti      | spaghetti                       |                          |
+|          |      | salt           | salt                            | efter smak               |
 
 ## Instructions
 
-1. Peel and slice all the garlic. Finely chop the parsley. Bring a large pot of salted water to a boil for the pasta.
-2. In a large skillet, melt the vegan butter over low-medium heat. Add the garlic and sauté gently for a few minutes until softened but not browned.
-3. Meanwhile, add the pasta to the boiling water and cook until about 80–85% done (firm al dente).
-4. When the garlic is soft, add the chili oil, lemon zest, and most of the lemon juice (reserve a little for finishing). Sauté briefly to combine flavors.
-5. Add 1–2 dl of pasta water to the skillet and let it simmer, reducing slightly to create a silky sauce.
-6. Transfer the nearly cooked pasta directly from the pot to the skillet. Add the parsley and a bit more pasta water. Let the pasta finish cooking in the skillet, absorbing the flavors.
-7. When the pasta is perfectly al dente, add the vegan parmesan and the remaining lemon juice. Toss well, adding more pasta water if needed for a creamy consistency.
-8. Serve immediately, topped with extra parsley and parmesan if desired. Buon appetito! 🍋🌱
+1. Skala och skiva all vitlök. Finhacka persiljan. Koka upp en stor kastrull med saltat vatten till pastan.
+2. Smält det veganska smöret i en stor stekpanna på låg-medelvärme. Tillsätt vitlöken och fräs försiktigt i några minuter tills den mjuknat men inte fått färg.
+3. Lägg under tiden pastan i det kokande vattnet och koka tills den är ungefär 80–85 % klar (fast al dente).
+4. När vitlöken är mjuk, tillsätt chiliolja, citronskal och det mesta av citronsaften (spara lite till avslutningen). Fräs kort för att blanda smakerna.
+5. Tillsätt 1–2 dl pastavatten i stekpannan och låt det sjuda och reducera lite för att skapa en silkeslen sås.
+6. Flytta den nästan färdigkokta pastan direkt från kastrullen till stekpannan. Tillsätt persiljan och lite mer pastavatten. Låt pastan bli klar i stekpannan och suga åt sig smakerna.
+7. När pastan är perfekt al dente, tillsätt den veganska parmesanen och den resterande citronsaften. Blanda väl, tillsätt mer pastavatten vid behov för en krämig konsistens.
+8. Servera direkt, toppad med extra persilja och parmesan om du vill. Buon appetito! 🍋🌱
 
 ## Notes
 
-- Cashew parmesan can be swapped for any vegan parmesan or nutritional yeast.
-- Adjust chili oil to taste for more or less heat.
-- Eleplant is a Swedish plant-based butter; use any vegan butter as a substitute.
-- This dish is quick, luxurious, and perfect for weeknights!
+- Cashewparmesan kan bytas ut mot valfri vegansk parmesan eller jästflingor.
+- Justera mängden chiliolja efter smak för mer eller mindre hetta.
+- Eleplant är ett svenskt växtbaserat smör; använd valfritt veganskt smör som ersättning.
+- Den här rätten är snabb, lyxig och perfekt för vardagskvällar!

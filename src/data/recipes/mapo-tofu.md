@@ -11,44 +11,44 @@ tags: ["Sichuan", "Chinese", "Spicy", "Vegan", "Tofu"]
 
 ## Ingredients
 
-| quantity | unit | key            | ingredient                       | notes                                                 |
-| -------- | ---- | -------------- | -------------------------------- | ----------------------------------------------------- |
-| 450      | g    | tofu           | soft tofu                        | Szechuan tender tofu, cut into 2 cm cubes             |
-| 2        | tbsp | vegetable-oil  | vegetable oil                    | divided                                               |
-| 1.5      | tbsp | doubanjiang    | doubanjiang                      | Sichuan broad bean chili paste, roughly chopped       |
-| 0.5      | tbsp | douchi         | fermented black beans            | douchi, roughly chopped                               |
-| 1        | tbsp | chili-flakes   | chili flakes or powder           | optional, for extra heat                              |
-| 400      | ml   | water          | water or vegetable broth         |                                                       |
-| 1        | tbsp | soy-sauce      | light soy sauce                  |                                                       |
-| 1        | tsp  | sugar          | sugar                            | optional, to reduce spiciness                         |
-| 2        | st   | scallion-white | scallion whites                  | finely chopped                                        |
-| 4        | st   | scallion-green | garlic greens or scallion greens | finely chopped                                        |
-| 2        | st   | garlic         | garlic cloves                    | finely chopped                                        |
-| 1        | tsp  | ginger         | fresh ginger                     | finely minced, optional                               |
-| 0.5      | tbsp | sichuan-pepper | Sichuan peppercorns              | freshly ground, to taste                              |
-| 1        | tbsp | cornstarch     | cornstarch                       |                                                       |
-| 2.5      | tbsp | water          | water                            | for starch slurry                                     |
-| 0.5      | tsp  | salt           | salt                             | to taste                                              |
-| 0.5      | tbsp | sesame-oil     | sesame oil                       |                                                       |
-|          |      | rice           | Steamed rice                     | to serve, 🍚                                          |
-| 100      | g    | mushrooms      | mushrooms                        | vegan option, shiitake or king oyster, finely chopped |
+| quantity | unit | key            | ingredient                          | notes                                          |
+| -------- | ---- | -------------- | -------------------------------------| ------------------------------------------------ |
+| 450      | g    | tofu           | mjuk tofu                            | Szechuan-mör tofu, skuren i 2 cm kuber           |
+| 2        | tbsp | vegetable-oil  | vegetabilisk olja                    | delad                                            |
+| 1.5      | tbsp | doubanjiang    | doubanjiang                          | Sichuan chilibönpasta, grovhackad                |
+| 0.5      | tbsp | douchi         | fermenterade svarta bönor            | douchi, grovhackade                              |
+| 1        | tbsp | chili-flakes   | chiliflakes eller chilipulver         | valfritt, för extra hetta                        |
+| 400      | ml   | water          | vatten eller grönsaksbuljong          |                                                   |
+| 1        | tbsp | soy-sauce      | ljus sojasås                          |                                                   |
+| 1        | tsp  | sugar          | socker                                | valfritt, för att dämpa hettan                   |
+| 2        | st   | scallion-white | salladslökens vita del                | finhackad                                        |
+| 4        | st   | scallion-green | vitlöksblast eller salladslökens gröna del | finhackad                                   |
+| 2        | st   | garlic         | vitlöksklyftor                        | finhackade                                       |
+| 1        | tsp  | ginger         | färsk ingefära                        | finhackad, valfritt                              |
+| 0.5      | tbsp | sichuan-pepper | sichuanpeppar                         | nymalen, efter smak                              |
+| 1        | tbsp | cornstarch     | majsstärkelse                         |                                                   |
+| 2.5      | tbsp | water          | vatten                                | till stärkelseslammet                            |
+| 0.5      | tsp  | salt           | salt                                  | efter smak                                       |
+| 0.5      | tbsp | sesame-oil     | sesamolja                             |                                                   |
+|          |      | rice           | Ångat ris                             | att servera med, 🍚                              |
+| 100      | g    | mushrooms      | svamp                                 | veganskt alternativ, shiitake eller kung oyster, finhackad |
 
 ## Instructions
 
-1. Cut tofu into cubes. Bring a large pot of water to a boil, add a pinch of salt, and gently blanch tofu for 1 minute. Drain and set aside.
-2. (If using mushrooms) Sauté chopped mushrooms in 1 tbsp oil until browned. Remove and set aside.
-3. Heat 1 tbsp oil in a wok or large pan over medium-low heat. Add doubanjiang and fry for 1 minute until fragrant and red.
-4. Add fermented black beans, garlic, scallion whites, and ginger (if using). Stir-fry for 30 seconds until aromatic. Add chili flakes if desired.
-5. Pour in water or broth. Add soy sauce and sugar. Bring to a boil.
-6. Add tofu cubes (and mushrooms, if using). Simmer gently for 6–8 minutes, letting the tofu absorb the flavors. Avoid stirring too much to keep tofu intact.
-7. Mix cornstarch with 2.5 tbsp water to make a slurry. Slowly add half to the simmering pot, gently push to mix, then add the rest. Simmer until the sauce thickens.
-8. Taste and add salt if needed. Drizzle with sesame oil and sprinkle with ground Sichuan peppercorns.
-9. Garnish with garlic greens or scallion greens. Serve hot with steamed rice. 🍚🌶️
+1. Skär tofun i kuber. Koka upp en stor kastrull med vatten, tillsätt en nypa salt och blanchera tofun försiktigt i 1 minut. Häll av och lägg åt sidan.
+2. (Om du använder svamp) Fräs den hackade svampen i 1 msk olja tills den brynts. Ta upp och lägg åt sidan.
+3. Hetta upp 1 msk olja i en wok eller stor stekpanna på medellåg värme. Tillsätt doubanjiang och stek i 1 minut tills det doftar och blivit rött.
+4. Tillsätt de fermenterade svarta bönorna, vitlöken, salladslökens vita del och ingefäran (om du använder). Woka i 30 sekunder tills det doftar. Tillsätt chiliflakes om du vill.
+5. Häll i vatten eller buljong. Tillsätt sojasås och socker. Koka upp.
+6. Tillsätt tofukuberna (och svampen, om du använder den). Låt sjuda försiktigt i 6–8 minuter så att tofun suger åt sig smakerna. Undvik att röra för mycket så att tofun hålls hel.
+7. Blanda majsstärkelsen med 2,5 msk vatten till ett slam. Tillsätt hälften långsamt i den sjudande grytan, rör försiktigt om, tillsätt sedan resten. Låt sjuda tills såsen tjocknar.
+8. Smaka av och tillsätt salt vid behov. Ringla över sesamolja och strö över malen sichuanpeppar.
+9. Garnera med vitlöksblast eller salladslökens gröna del. Servera varm med ångat ris. 🍚🌶️
 
 ## Notes
 
-- For authentic flavor, use both doubanjiang and douchi (fermented black beans).
-- For a vegan version, skip the meat and use mushrooms for umami.
-- Adjust chili and Sichuan pepper to your spice preference.
-- Blanching tofu helps it stay tender and less likely to break.
-- Mapo tofu is best enjoyed fresh and hot!
+- För autentisk smak, använd både doubanjiang och douchi (fermenterade svarta bönor).
+- För en vegansk version, hoppa över köttet och använd svamp för umami.
+- Justera chili och sichuanpeppar efter din önskade styrka.
+- Att blanchera tofun hjälper den att hålla sig mör och bli mindre benägen att gå sönder.
+- Mapo tofu smakar bäst nygjord och varm!

@@ -1,6 +1,6 @@
 ---
 id: "vegan-beluga-bolognese"
-title: "Vegan Beluga Bolognese"
+title: "Vegansk belugabolognese"
 imageUrl: "https://undertian.com/wp-content/uploads/2018/05/IMG_4878-654x654.jpg"
 url: "https://undertian.com/recept/vegansk-belugabolognese/"
 cookTime: 40
@@ -11,37 +11,37 @@ tags: ["Pasta", "Vegan", "Budget", "Meal Prep", "Swedish"]
 
 ## Ingredients
 
-| quantity | unit | key            | ingredient                    | notes    |
-| -------- | ---- | -------------- | ----------------------------- | -------- |
-| 1        |      | onion          | yellow onion                  |          |
-| 2        |      | garlic         | garlic cloves                 |          |
-| 1        | tbsp | paprika        | paprika powder                |          |
-| 2        | dl   | beluga-lentils | dried beluga lentils          |          |
-| 1        | tbsp | tomato-paste   | tomato paste                  |          |
-| 4        | dl   | crushed-tomato | crushed tomatoes              |          |
-| 1        |      | veg-bouillon   | vegetable bouillon cube       |          |
-| 2        | dl   | water          | water                         |          |
-| 1        |      | parsnip        | parsnip                       |          |
-| 2        | tbsp | frozen-herbs   | frozen herbs (basil, parsley) |          |
-| 1        | krm  | sambal-oelek   | sambal oelek or chili flakes  |          |
-| 2        | dl   | oat-cream      | oat cream                     |          |
-|          |      | salt           | salt                          | to taste |
-|          |      | black-pepper   | black pepper                  | to taste |
-| 4        | port | pasta          | pasta                         | to serve |
+| quantity | unit | key            | ingredient          | notes    |
+| -------- | ---- | -------------- | ---------------------| -------- |
+| 1        |      | onion          | gul lök               |          |
+| 2        |      | garlic         | vitlöksklyftor         |          |
+| 1        | tbsp | paprika        | paprikapulver           |          |
+| 2        | dl   | beluga-lentils | torkade belugalinser     |          |
+| 1        | tbsp | tomato-paste   | tomatpuré                 |          |
+| 4        | dl   | crushed-tomato | krossade tomater           |          |
+| 1        |      | veg-bouillon   | grönsaksbuljongtärning      |          |
+| 2        | dl   | water          | vatten                       |          |
+| 1        |      | parsnip        | palsternacka                  |          |
+| 2        | tbsp | frozen-herbs   | frysta örter (basilika, persilja) |     |
+| 1        | krm  | sambal-oelek   | sambal oelek eller chiliflakes |     |
+| 2        | dl   | oat-cream      | havregrädde                     |          |
+|          |      | salt           | salt                             | efter smak |
+|          |      | black-pepper   | svartpeppar                       | efter smak |
+| 4        | port | pasta          | pasta                              | att servera med |
 
 ## Instructions
 
-1. Finely chop the onion and garlic. Heat a pan and sauté the onion in oil over medium heat until soft. Add paprika powder and sauté briefly.
-2. Rinse the lentils and add to the pan. Stir, then add tomato paste. Pour in crushed tomatoes, crumble in bouillon, and add water. Let simmer over medium heat.
-3. Peel and dice the parsnip, add to the sauce after about 10 minutes. Add the herbs and sambal oelek/chili flakes.
-4. Boil water and cook the pasta.
-5. The sauce is ready when the lentils are soft but still have some bite, about 25 minutes total. Stir in oat cream at the end and heat through. Season with salt and pepper.
-6. Serve with pasta. 🍝✨
+1. Finhacka löken och vitlöken. Hetta upp en stekpanna och fräs löken i olja på medelvärme tills den mjuknat. Tillsätt paprikapulver och fräs kort.
+2. Skölj linserna och tillsätt dem i pannan. Rör om, tillsätt sedan tomatpurén. Häll i de krossade tomaterna, smula i buljongtärningen och tillsätt vatten. Låt sjuda på medelvärme.
+3. Skala och tärna palsternackan, tillsätt i såsen efter cirka 10 minuter. Tillsätt örterna och sambal oelek/chiliflakes.
+4. Koka upp vatten och koka pastan.
+5. Såsen är klar när linserna är mjuka men fortfarande har lite tuggmotstånd, cirka 25 minuter totalt. Rör ner havregrädden på slutet och värm igenom. Smaka av med salt och peppar.
+6. Servera med pasta. 🍝✨
 
 ## Notes
 
-- Perfect for meal prep! 🥗
-- The sauce also works for gratin, pie, or lasagna.
-- Vary with other root vegetables or lentils.
-- Add more water if it gets too dry.
-- Top with fresh herbs or vegan cheese when serving.
+- Perfekt för matlådor! 🥗
+- Såsen fungerar också till gratäng, pajer eller lasagne.
+- Variera med andra rotfrukter eller linser.
+- Tillsätt mer vatten om den blir för torr.
+- Toppa med färska örter eller vegansk ost vid servering.

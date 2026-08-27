@@ -1,6 +1,6 @@
 ---
 id: "indian-garlic-dal"
-title: "Indian Garlic Dal"
+title: "Indisk vitlöksdal"
 imageUrl: "https://indianenough.se/wp-content/uploads/2021/11/vitloksdal1-1400x680.jpg"
 url: "https://indianenough.se/indisk-vitloksdal/"
 cookTime: 30
@@ -11,43 +11,43 @@ tags: ["Indian", "Dal", "Garlic", "Vegan", "Comfort Food"]
 
 ## Ingredients
 
-| quantity | unit | key          | ingredient        | notes                           |
-| -------- | ---- | ------------ | ----------------- | ------------------------------- |
-| 3        | dl   | moong-dal    | moong dal         | split mung beans or red lentils |
-| 0.5      | tsp  | turmeric     | turmeric          |                                 |
-| 10       | dl   | water        | water             |                                 |
-| 1        | tbsp | neutral-oil  | neutral oil       |                                 |
-| 1        | tsp  | cumin-seed   | whole cumin seeds |                                 |
-| 1        | st   | onion        | onion             | finely chopped                  |
-| 6–10     | st   | garlic       | garlic cloves     | finely chopped                  |
-| 0.5      | tsp  | chili-powder | chili powder      |                                 |
+| quantity | unit | key          | ingredient        | notes                             |
+| -------- | ---- | ------------ | ------------------ | ----------------------------------- |
+| 3        | dl   | moong-dal    | moong dal           | delade mungbönor eller röda linser |
+| 0.5      | tsp  | turmeric     | gurkmeja            |                                     |
+| 10       | dl   | water        | vatten              |                                     |
+| 1        | tbsp | neutral-oil  | neutral olja        |                                     |
+| 1        | tsp  | cumin-seed   | hela kumminfrön     |                                     |
+| 1        | st   | onion        | gul lök             | finhackad                          |
+| 6–10     | st   | garlic       | vitlöksklyftor      | finhackade                         |
+| 0.5      | tsp  | chili-powder | chilipulver         |                                     |
 
-### Tadka (tempering)
+### Tadka (temperering)
 
-| quantity | unit | key             | ingredient          | notes         |
-| -------- | ---- | --------------- | ------------------- | ------------- |
-| 1        | tbsp | neutral-oil     | neutral oil         |               |
-| 0.5      | tsp  | mustard-seed    | brown mustard seeds |               |
-| 4–6      | st   | garlic          | garlic cloves       | thinly sliced |
-| 1        | st   | dried-red-chili | dried red chili     | whole         |
+| quantity | unit | key             | ingredient           | notes         |
+| -------- | ---- | --------------- | --------------------- | -------------- |
+| 1        | tbsp | neutral-oil     | neutral olja           |                |
+| 0.5      | tsp  | mustard-seed    | bruna senapsfrön       |                |
+| 4–6      | st   | garlic          | vitlöksklyftor         | tunt skivade   |
+| 1        | st   | dried-red-chili | torkad röd chili       | hel            |
 
-### To serve
+### Att servera med
 
-| quantity | unit | key  | ingredient          | notes    |
+| quantity | unit | key  | ingredient        | notes    |
 | -------- | ---- | ---- | ------------------- | -------- |
-|          |      | rice | Cooked basmati rice | 🍚       |
-|          |      | roti | Roti or chapati     | optional |
+|          |      | rice | Kokt basmatiris      | 🍚       |
+|          |      | roti | Roti eller chapati   | valfritt |
 
 ## Instructions
 
-1. Rinse the lentils and add to a pot with turmeric and water. Bring to a boil, then simmer covered for 15 minutes until the lentils are soft.
-2. Heat oil in a frying pan, fry cumin seeds until fragrant. Add onion and garlic, sauté for a few minutes until the onion softens and starts to color. Add chili powder, then stir in the cooked lentils.
-3. For the tadka: Heat oil in a small pan, fry mustard seeds until they start to pop. Add sliced garlic and dried chili, fry until the garlic is golden.
-4. Pour the tadka over the dal. Serve hot with rice or roti/chapati. 🥣✨
+1. Skölj linserna och lägg dem i en kastrull med gurkmeja och vatten. Koka upp och låt sedan sjuda med lock i 15 minuter tills linserna är mjuka.
+2. Hetta upp olja i en stekpanna och stek kumminfröna tills de doftar. Tillsätt lök och vitlök, fräs i några minuter tills löken mjuknar och börjar få färg. Tillsätt chilipulver och rör sedan ner de kokta linserna.
+3. Till tadkan: Hetta upp olja i en liten stekpanna och stek senapsfröna tills de börjar poppa. Tillsätt den skivade vitlöken och den torkade chilin, stek tills vitlöken är gyllene.
+4. Häll tadkan över dalen. Servera varm med ris eller roti/chapati. 🥣✨
 
 ## Notes
 
-- Use more or less garlic to taste – this dal is for garlic lovers!
-- Moong dal gives a mild, creamy result; red lentils work well too.
-- For extra richness, add a knob of vegan butter before serving.
-- This dal is naturally vegan and perfect for cozy meals.
+- Använd mer eller mindre vitlök efter smak – den här dalen är till för vitlöksälskare!
+- Moong dal ger ett milt, krämigt resultat; röda linser fungerar också bra.
+- För extra fyllighet, tillsätt en klick veganskt smör innan servering.
+- Den här dalen är naturligt vegansk och perfekt för mysiga måltider.

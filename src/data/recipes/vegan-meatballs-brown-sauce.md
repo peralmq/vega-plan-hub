@@ -1,6 +1,6 @@
 ---
 id: "vegan-meatballs-brown-sauce"
-title: "Vegan Meatballs with Boiled Potatoes & Brown Sauce"
+title: "Veganska köttbullar med kokt potatis och brunsås"
 imageUrl: "/recipes/vegan-meatballs-brown-sauce.jpg"
 cookTime: 60
 servings: 4
@@ -10,39 +10,39 @@ tags: ["Swedish", "Comfort Food", "Family", "Vegan", "Dinner"]
 
 ## Ingredients
 
-| quantity | unit | key             | ingredient                     | notes                                    |
-|----------|------|-----------------|--------------------------------|------------------------------------------|
-| 1        |      | cucumber        | large fresh cucumber           | the pressgurka starts here 🥒            |
-| 0.5      | tsp  | salt            | salt                           | for pressing the cucumber                |
-| 2        | tbsp | attika          | ättika (12 % distilled vinegar)| for the pressgurka brine                 |
-| 1        | dl   | water           | water                          | for the pressgurka brine                 |
-| 3        | tbsp | sugar           | sugar                          | for the pressgurka brine                 |
-|          |      | white-pepper    | white pepper                   | a pinch, for the brine                   |
-| 1        |      | parsley         | small handful parsley, chopped | for the pressgurka                       |
-| 800      | g    | potatoes        | potatoes                       | firm, even-sized                         |
-| 2        | tbsp | plant-butter    | plant-based butter             | the brunsås starts here                  |
-| 1        | tbsp | flour           | all-purpose flour              | for the brunsås                          |
-| 3.5      | dl   | plant-cream     | plant-based cream              | for the brunsås                          |
-| 1        | dl   | lingonberry-jam | lingonberry jam                | divided: 1.5 tsp in the brunsås, rest to serve 🫐 |
-| 1.5      | tsp  | soy-sauce       | Chinese soy sauce              | for the brunsås color and depth          |
-| 0.5      |      | bouillon-cube   | vegetable bouillon cube        | for the brunsås                          |
-|          |      | black-pepper    | salt and black pepper          | to taste, for the brunsås                |
-| 400      | g    | vegan-meatballs | vegan meatballs                | e.g. Anamma or Hälsans Kök               |
-| 1        | tbsp | margarine       | dairy-free margarine           | for frying the meatballs                 |
+| quantity | unit | key             | ingredient          | notes                                    |
+|----------|------|-----------------|-----------------------|---------------------------------------------|
+| 1        |      | cucumber        | stor färsk gurka        | pressgurkan börjar här 🥒                  |
+| 0.5      | tsp  | salt            | salt                      | för att pressa gurkan                     |
+| 2        | tbsp | attika          | ättika, 12 %                | till pressgurkans lag                     |
+| 1        | dl   | water           | vatten                        | till pressgurkans lag                     |
+| 3        | tbsp | sugar           | socker                          | till pressgurkans lag                     |
+|          |      | white-pepper    | vitpeppar                        | en nypa, till laken                        |
+| 1        |      | parsley         | en liten näve persilja, hackad     | till pressgurkan                          |
+| 800      | g    | potatoes        | potatis                              | fasta, jämnstora                          |
+| 2        | tbsp | plant-butter    | växtbaserat smör                       | brunsåsen börjar här                      |
+| 1        | tbsp | flour           | vetemjöl                                | till brunsåsen                            |
+| 3.5      | dl   | plant-cream     | växtbaserad grädde                       | till brunsåsen                            |
+| 1        | dl   | lingonberry-jam | lingonsylt                                | delad: 1,5 tsk i brunsåsen, resten att servera med 🫐 |
+| 1.5      | tsp  | soy-sauce       | kinesisk sojasås                            | för brunsåsens färg och djup              |
+| 0.5      |      | bouillon-cube   | grönsaksbuljongtärning                        | till brunsåsen                            |
+|          |      | black-pepper    | salt och svartpeppar                           | efter smak, till brunsåsen                |
+| 400      | g    | vegan-meatballs | veganska köttbullar                              | t.ex. Anamma eller Hälsans Kök            |
+| 1        | tbsp | margarine       | mjölkfritt margarin                                | för att steka köttbullarna                |
 
 ## Instructions
 
-1. Start the pressgurka: slice the cucumber paper-thin (cheese slicer or mandoline). Spread the slices on a plate, salt them, press another plate tightly on top with a weight, and leave 30–40 minutes until the liquid releases. 🥒
-2. Whisk the ättika, water, sugar, and a pinch of white pepper until the sugar dissolves. Drain the pressed cucumber, mix the slices and parsley into the brine, and refrigerate in a clean jar for at least an hour (start-of-cooking timing works out).
-3. Peel the potatoes if you like and boil them in salted water until tender, 20–25 minutes.
-4. Brunsås: melt the plant butter in a saucepan and stir in the flour. When it starts to thicken, add the plant cream and stir until smooth.
-5. Add the lingonberry jam, soy sauce, bouillon cube, and a pinch each of salt and pepper; bring to a boil, then let simmer until the sauce has thickened. Taste and adjust salt and pepper. 🥣
-6. Fry the meatballs in margarine over medium-high heat, rolling them around until browned and hot through, 6–8 minutes. Tip them into the sauce or serve them alongside.
-7. Serve: meatballs, boiled potatoes, brunsås, a spoonful of lingonberry jam, and the pressgurka. The full Swedish classic. 🥔🫐✨
+1. Börja med pressgurkan: skiva gurkan pappersunt (osthyvel eller mandolin). Bred ut skivorna på en tallrik, salta dem, pressa en annan tallrik tätt ovanpå med en tyngd, och låt stå 30–40 minuter tills vätskan släpper. 🥒
+2. Vispa ihop ättikan, vattnet, sockret och en nypa vitpeppar tills sockret löst sig. Häll av vätskan från den pressade gurkan, blanda skivorna och persiljan i laken, och ställ i kylen i en ren burk i minst en timme (bra att göra i början av matlagningen).
+3. Skala potatisen om du vill och koka den i saltat vatten tills den är mör, 20–25 minuter.
+4. Brunsås: smält det växtbaserade smöret i en kastrull och rör ner mjölet. När det börjar tjockna, tillsätt den växtbaserade grädden och rör tills det är slätt.
+5. Tillsätt lingonsylten, sojasåsen, buljongtärningen och en nypa vardera av salt och peppar; koka upp och låt sedan sjuda tills såsen tjocknat. Smaka av och justera salt och peppar. 🥣
+6. Stek köttbullarna i margarin på medelhög-hög värme, rulla runt dem tills de är bruna och genomvarma, 6–8 minuter. Vänd ner dem i såsen eller servera dem vid sidan om.
+7. Servera: köttbullar, kokt potatis, brunsås, en sked lingonsylt och pressgurkan. Den fullständiga svenska klassikern. 🥔🫐✨
 
 ## Notes
 
-- Brunsås translated and adapted from wondervegan.se (vegansk gräddsås/brunsås); pressgurka from the PRESSGURKA section at javligtgott.se — quantities kept as published, units converted.
-- Both condiments love a head start: pressgurka and brunsås can be made the day before. Loosen the reheated sauce with a splash of cream if it thickened overnight.
-- The teaspoon of lingon *in* the sauce is the secret — it rounds the salt without making it sweet.
-- Pressgurka keeps about a week in the fridge and is just as good on the inevitable meatball sandwich tomorrow.
+- Brunsåsen är anpassad från wondervegan.se (vegansk gräddsås/brunsås); pressgurkan är från PRESSGURKA-avsnittet på javligtgott.se — mängderna är desamma som i originalen, enheterna omräknade.
+- Båda tillbehören mår bra av att göras i förväg: pressgurka och brunsås kan göras dagen innan. Lösgör den uppvärmda såsen med en skvätt grädde om den tjocknat över natten.
+- Teskeden lingon *i* såsen är hemligheten — den rundar av saltet utan att göra det sött.
+- Pressgurka håller sig ungefär en vecka i kylen och är precis lika god på den oundvikliga köttbullsmackan dagen efter.

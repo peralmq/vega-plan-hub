@@ -1,6 +1,6 @@
 ---
 id: "vegan-sushi-rolls"
-title: "Vegan Sushi Rolls (Assorted)"
+title: "Veganska sushirullar (blandade)"
 imageUrl: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=1200"
 cookTime: 60
 servings: 4
@@ -10,38 +10,38 @@ tags: ["Japanese", "Asian", "Sushi", "Family", "Vegan", "Weekend Project"]
 
 ## Ingredients
 
-| quantity | unit | key           | ingredient                    | notes                                  |
-|----------|------|---------------|-------------------------------|----------------------------------------|
-| 4        | dl   | sushi-rice    | sushi rice                    |                                        |
-| 5        | dl   | water         | water                         | for cooking the rice                   |
-| 0.75     | dl   | rice-vinegar  | rice vinegar                  | for the seasoning                      |
-| 2        | tbsp | sugar         | sugar                         | for the seasoning                      |
-| 1        | tsp  | salt          | salt                          | for the seasoning                      |
-| 8        |      | nori          | nori sheets                   |                                        |
-| 1        |      | avocado       | avocado, thin slices          |                                        |
-| 0.5      |      | cucumber      | cucumber, thin sticks         | seeds scraped out                      |
-| 1        |      | carrot        | carrot, thin sticks           |                                        |
-| 150      | g    | smoked-tofu   | smoked tofu, thin sticks      |                                        |
-| 1        |      | mango         | ripe mango, thin slices       | for the inside-out rolls 🥭            |
-| 2        | tbsp | sesame-seeds  | sesame seeds                  | toasted, for the inside-out rolls      |
-| 1        | tbsp | vegan-mayo    | vegan mayonnaise              | optional, a thin stripe in any roll    |
-|          |      | soy-sauce     | soy sauce                     | to serve                               |
-|          |      | pickled-ginger| pickled ginger                | to serve                               |
-|          |      | wasabi        | wasabi                        | to serve, optional                     |
+| quantity | unit | key           | ingredient          | notes                                  |
+|----------|------|---------------|------------------------|-------------------------------------------|
+| 4        | dl   | sushi-rice    | sushiris                 |                                           |
+| 5        | dl   | water         | vatten                     | för att koka riset                      |
+| 0.75     | dl   | rice-vinegar  | risvinäger                   | till smaksättningen                     |
+| 2        | tbsp | sugar         | socker                         | till smaksättningen                     |
+| 1        | tsp  | salt          | salt                             | till smaksättningen                     |
+| 8        |      | nori          | norialger                          |                                          |
+| 1        |      | avocado       | avokado, tunt skivad                  |                                          |
+| 0.5      |      | cucumber      | gurka, tunna stavar                     | kärnorna urskrapade                     |
+| 1        |      | carrot        | morot, tunna stavar                       |                                          |
+| 150      | g    | smoked-tofu   | rökt tofu, tunna stavar                     |                                          |
+| 1        |      | mango         | mogen mango, tunt skivad                      | till de omvända rullarna 🥭             |
+| 2        | tbsp | sesame-seeds  | sesamfrön                                       | rostade, till de omvända rullarna       |
+| 1        | tbsp | vegan-mayo    | vegansk majonnäs                                  | valfritt, en tunn strimma i valfri rulle |
+|          |      | soy-sauce     | sojasås                                              | att servera med                         |
+|          |      | pickled-ginger| inlagd ingefära                                        | att servera med                         |
+|          |      | wasabi        | wasabi                                                   | att servera med, valfritt               |
 
 ## Instructions
 
-1. Rinse the rice in cold water until the water runs clear. Cook it with the 5 dl water: bring to a boil, then cover, lower the heat to minimum, and cook 12 minutes. Rest, covered, 10 minutes off the heat.
-2. Meanwhile, warm the rice vinegar with the sugar and salt until dissolved. Tip the rice into a wide bowl, pour the seasoning over, and fold it in gently with a cutting motion. Fan the rice (a magazine works) until it is glossy and just warm. 🍚
-3. Prep the fillings: avocado, cucumber, carrot, smoked tofu, and mango, all in thin sticks or slices.
-4. Classic maki: lay a nori sheet shiny-side down on a bamboo mat. With wet hands, press a thin, even layer of rice over it, leaving a 2 cm bare strip at the top. Lay a line of filling (avocado + cucumber, or tofu + carrot) across the middle, lift the near edge over the filling with the mat, and roll forward, squeezing gently as you go. Seal the bare strip with a dab of water.
-5. Inside-out rolls: cover the whole nori sheet with rice, sprinkle with sesame seeds, then flip it rice-side down onto plastic wrap on the mat. Lay mango + avocado along the middle and roll the same way — the rice ends up outside. ✨
-6. Hand rolls (kids' favorite): give everyone a half sheet of nori, let them smear on rice and pile in fillings, then roll into a cone. Zero technique required. 🍦
-7. Slice the rolls into 6–8 pieces with a sharp knife wiped with a wet cloth between cuts. Serve with soy sauce, pickled ginger, and wasabi. 🍣
+1. Skölj riset i kallt vatten tills vattnet är klart. Koka det med de 5 dl vattnet: koka upp, lägg sedan på lock, sänk värmen till lägsta läget och koka i 12 minuter. Låt vila med lock i 10 minuter utan värme.
+2. Värm under tiden risvinägern med sockret och saltet tills det löst sig. Häll riset i en bred skål, häll smaksättningen över, och vänd ner den försiktigt med en skärande rörelse. Fläkta riset (en tidning funkar) tills det är blankt och precis varmt. 🍚
+3. Förbered fyllningarna: avokado, gurka, morot, rökt tofu och mango, alla i tunna stavar eller skivor.
+4. Klassisk maki: lägg ett norialg blankt-sidan nedåt på en bambumatta. Med våta händer, tryck ut ett tunt, jämnt lager ris över den, lämna en 2 cm bar remsa längst upp. Lägg en rad fyllning (avokado + gurka, eller tofu + morot) tvärs över mitten, lyft den närmsta kanten över fyllningen med mattan, och rulla framåt, kläm försiktigt medan du rullar. Försegla den bara remsan med en klick vatten.
+5. Omvända rullar: täck hela norialget med ris, strö över sesamfrön, vänd sedan ris-sidan nedåt på plastfolie på mattan. Lägg mango + avokado längs mitten och rulla på samma sätt — riset hamnar utanpå. ✨
+6. Handrullar (barnens favorit): ge alla ett halvt norialg, låt dem breda på ris och lägga i fyllningar, och rulla sedan till en strut. Ingen teknik krävs. 🍦
+7. Skär rullarna i 6–8 bitar med en vass kniv avtorkad med en fuktig trasa mellan varje snitt. Servera med sojasås, inlagd ingefära och wasabi. 🍣
 
 ## Notes
 
-- The rice is the whole game: rinse well, don't skip the vinegar seasoning, and let it cool to warm before rolling — hot rice turns nori to chewing gum.
-- No bamboo mat? A kitchen towel inside a plastic bag rolls perfectly fine.
-- Make it a build-your-own night: put rice, nori, and fillings on the table and roll hand rolls together — faster than making maki for four, and more fun.
-- Leftover seasoned rice becomes tomorrow's poke-style bowl with the leftover fillings.
+- Riset är hela grejen: skölj noga, hoppa inte över vinägersmaksättningen, och låt det svalna till ljummet innan rullning — hett ris gör norialgen till tuggummi.
+- Ingen bambumatta? En kökshandduk i en plastpåse rullar precis lika bra.
+- Gör det till en bygg-din-egen-kväll: ställ fram ris, nori och fyllningar på bordet och rulla handrullar tillsammans — snabbare än att göra maki till fyra, och roligare.
+- Rester av smaksatt ris blir morgondagens poke-skål med resterande fyllningar.

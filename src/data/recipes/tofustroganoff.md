@@ -11,38 +11,38 @@ tags: ["Swedish", "Vegan", "Stroganoff", "Dinner", "Quick"]
 
 ## Ingredients
 
-| quantity | unit | key                | ingredient                | notes             |
-|----------|------|--------------------|----------------------------|-------------------|
-| 1        |      | onion              | yellow onion, large       |                   |
-| 2        |      | garlic             | garlic cloves              |                   |
-|          |      | oil                | neutral oil                 | for frying        |
-| 230      | g    | smoked-tofu        | smoked tofu                 |                   |
-| 4        | tbsp | tomato-paste       | tomato paste                 |                   |
-| 4        | dl   | plant-cream        | plant-based cream           |                   |
-| 4        | tbsp | sun-dried-tomatoes | sun-dried tomatoes, sliced  | preferably in oil |
-| 1        | dl   | vegetable-broth    | vegetable broth              |                   |
-| 1.5      | tsp  | paprika            | paprika powder                |                   |
-| 1        | tsp  | chili-flakes       | chili flakes                  | or sambal oelek   |
-| 1        | tbsp | dijon-mustard      | Dijon mustard                  |                   |
-| 2        | tsp  | sugar              | granulated sugar                |                   |
-| 15       | g    | margarine          | dairy-free margarine             |                   |
-|          |      | salt               | salt                              | to taste          |
-|          |      | black-pepper       | black pepper                       | to taste          |
-| 4        |      | rice               | jasmine rice                        | to serve, 🍚      |
-|          |      | parsley            | fresh parsley, chopped               | to serve, 🌱      |
+| quantity | unit | key                | ingredient           | notes             |
+|----------|------|--------------------|------------------------|---------------------|
+| 1        |      | onion              | gul lök, stor           |                     |
+| 2        |      | garlic             | vitlöksklyftor           |                     |
+|          |      | oil                | neutral olja             | för stekning         |
+| 230      | g    | smoked-tofu        | rökt tofu                 |                     |
+| 4        | tbsp | tomato-paste       | tomatpuré                 |                     |
+| 4        | dl   | plant-cream        | växtbaserad grädde         |                     |
+| 4        | tbsp | sun-dried-tomatoes | soltorkade tomater, skivade | gärna i olja       |
+| 1        | dl   | vegetable-broth    | grönsaksbuljong             |                     |
+| 1.5      | tsp  | paprika            | paprikapulver                |                     |
+| 1        | tsp  | chili-flakes       | chiliflakes                   | eller sambal oelek  |
+| 1        | tbsp | dijon-mustard      | dijonsenap                     |                     |
+| 2        | tsp  | sugar              | strösocker                      |                     |
+| 15       | g    | margarine          | mjölkfritt margarin              |                     |
+|          |      | salt               | salt                              | efter smak          |
+|          |      | black-pepper       | svartpeppar                        | efter smak          |
+| 4        |      | rice               | jasminris                           | att servera med, 🍚 |
+|          |      | parsley            | färsk persilja, hackad               | att servera med, 🌱 |
 
 ## Instructions
 
-1. Chop the onion and garlic. Sauté in oil in a pan until softened.
-2. Dice the smoked tofu and fry until golden.
-3. Add the tomato paste and fry for a few minutes until it darkens slightly.
-4. Pour in the plant-based cream, sun-dried tomatoes, broth, paprika powder, chili flakes, mustard, and sugar. Stir to combine.
-5. Add the margarine and let simmer for about 30 minutes until the sauce is creamy and rich. The longer it simmers, the better! Season with salt and pepper to taste.
-6. Meanwhile, cook the rice according to package instructions.
-7. Serve the stroganoff with rice and chopped fresh parsley. Enjoy! ✨
+1. Hacka löken och vitlöken. Fräs i olja i en stekpanna tills de mjuknat.
+2. Tärna den rökta tofun och stek tills den är gyllene.
+3. Tillsätt tomatpurén och stek i några minuter tills den mörknat något.
+4. Häll i den växtbaserade grädden, de soltorkade tomaterna, buljongen, paprikapulvret, chiliflakesen, senapen och sockret. Rör om.
+5. Tillsätt margarinet och låt sjuda i cirka 30 minuter tills såsen är krämig och fyllig. Ju längre den sjuder, desto bättre! Smaka av med salt och peppar.
+6. Koka under tiden riset enligt förpackningsanvisningarna.
+7. Servera stroganoffen med ris och hackad färsk persilja. Smaklig måltid! ✨
 
 ## Notes
 
-- Smoked tofu gives a wonderful depth, but regular firm tofu works too.
-- Adjust chili to your heat preference.
-- Great for meal prep and leftovers.
+- Rökt tofu ger ett härligt djup, men vanlig fast tofu fungerar också.
+- Justera chilimängden efter din önskade hetta.
+- Bra för matlådor och rester.

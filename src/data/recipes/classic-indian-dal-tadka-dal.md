@@ -1,6 +1,6 @@
 ---
 id: "classic-indian-dal-tadka-dal"
-title: "Classic Indian Dal – Tadka Dal"
+title: "Klassisk indisk dal – tadka dal"
 imageUrl: "https://indianenough.se/wp-content/uploads/2021/04/dal3-1400x680.jpg"
 url: "https://indianenough.se/klassisk-indisk-dal-tadka-dal/"
 cookTime: 35
@@ -14,59 +14,59 @@ tags: ["Indian", "Dal", "Mixed Lentils", "Vegan", "Comfort Food"]
 ### Dal
 
 | quantity | unit | key       | ingredient | notes             |
-| -------- | ---- | --------- | ---------- | ----------------- |
-| 0.5      | dl   | chana-dal | chana dal  | split chickpeas   |
-| 1.5      | dl   | toor-dal  | toor dal   | split pigeon peas |
-| 1        | dl   | moong-dal | moong dal  | split mung beans  |
-| 10       | dl   | water     | water      |                   |
-| 0.5      | tsp  | turmeric  | turmeric   |                   |
+| -------- | ---- | --------- | ---------- | ------------------ |
+| 0.5      | dl   | chana-dal | chana dal  | delade kikärtor     |
+| 1.5      | dl   | toor-dal  | toor dal   | delade duvärter     |
+| 1        | dl   | moong-dal | moong dal  | delade mungbönor    |
+| 10       | dl   | water     | vatten     |                     |
+| 0.5      | tsp  | turmeric  | gurkmeja   |                     |
 
-### Tadka (tempering)
+### Tadka (temperering)
 
 | quantity | unit | key              | ingredient        | notes                     |
-| -------- | ---- | ---------------- | ----------------- | ------------------------- |
-| 1        | tbsp | neutral-oil      | neutral oil       |                           |
-| 1        | tsp  | cumin-seed       | whole cumin seeds |                           |
-| 1        | st   | onion            | onion             | finely chopped            |
-| 3        | st   | garlic           | garlic cloves     | pressed                   |
-| 2        | tsp  | ginger           | fresh ginger      | grated                    |
-| 1        | st   | green-chili      | green chili       | finely chopped            |
-| 2        | st   | tomato           | tomatoes          | chopped (or 2 dl crushed) |
-| 0.5      | tsp  | ground-coriander | ground coriander  |                           |
-| 0.5      | tsp  | chili-powder     | chili powder      |                           |
-| 0.5      | tsp  | garam-masala     | garam masala      |                           |
-| 1        | tsp  | salt             | salt              |                           |
+| -------- | ---- | ---------------- | ----------------- | -------------------------- |
+| 1        | tbsp | neutral-oil      | neutral olja       |                             |
+| 1        | tsp  | cumin-seed       | hela kumminfrön    |                             |
+| 1        | st   | onion            | gul lök            | finhackad                  |
+| 3        | st   | garlic           | vitlöksklyftor     | pressade                   |
+| 2        | tsp  | ginger           | färsk ingefära     | riven                       |
+| 1        | st   | green-chili      | grön chili         | finhackad                  |
+| 2        | st   | tomato           | tomater            | hackade (eller 2 dl krossade) |
+| 0.5      | tsp  | ground-coriander | malen koriander     |                             |
+| 0.5      | tsp  | chili-powder     | chilipulver         |                             |
+| 0.5      | tsp  | garam-masala     | garam masala        |                             |
+| 1        | tsp  | salt             | salt                |                             |
 
-### Chaunk (final tempering)
+### Chaunk (sista temperering)
 
-| quantity | unit | key             | ingredient        | notes |
-| -------- | ---- | --------------- | ----------------- | ----- |
-| 1        | tbsp | neutral-oil     | neutral oil       |       |
-| 1        | tsp  | cumin-seed      | whole cumin seeds |       |
-| 2        | st   | dried-red-chili | dried red chilies |       |
-| pinch    |      | chili-powder    | chili powder      |       |
+| quantity | unit | key             | ingredient        | notes  |
+| -------- | ---- | --------------- | ----------------- | ------ |
+| 1        | tbsp | neutral-oil     | neutral olja        |        |
+| 1        | tsp  | cumin-seed      | hela kumminfrön     |        |
+| 2        | st   | dried-red-chili | torkade röda chilifrukter |  |
+| pinch    |      | chili-powder    | chilipulver          |        |
 
-### To serve
+### Att servera med
 
-| quantity | unit | key            | ingredient           | notes          |
-| -------- | ---- | -------------- | -------------------- | -------------- |
-|          |      | rice           | Cooked rice          | 🍚             |
-|          |      | roti           | Roti or chapati      | optional       |
-| 2        | tbsp | coriander-leaf | coriander (cilantro) | finely chopped |
+| quantity | unit | key            | ingredient      | notes          |
+| -------- | ---- | -------------- | ---------------- | --------------- |
+|          |      | rice           | Kokt ris          | 🍚             |
+|          |      | roti           | Roti eller chapati | valfritt       |
+| 2        | tbsp | coriander-leaf | koriander          | finhackad       |
 
 ## Instructions
 
-1. Rinse and soak the chana dal for 30–60 minutes. Rinse the other lentils well.
-2. Add chana dal, toor dal, moong dal, turmeric, and water to a pot. Bring to a boil, then simmer for 30 minutes until the chana dal is soft.
-3. For the tadka: Heat oil in a pan, fry cumin seeds until fragrant. Add onion, garlic, ginger, and green chili, sauté until the onion softens.
-4. Add tomatoes and cook until softened. Stir in ground coriander, chili powder, and garam masala.
-5. Mix the tadka into the cooked lentils. Season with salt.
-6. For the chaunk: Heat oil in a small pan, fry cumin seeds, dried chilies, and a pinch of chili powder until the cumin is fragrant. Pour over the dal and stir in.
-7. Serve hot with rice or roti/chapati, topped with fresh coriander (cilantro). 🥄✨
+1. Skölj och blötlägg chana dalen i 30–60 minuter. Skölj de andra linserna noga.
+2. Lägg chana dal, toor dal, moong dal, gurkmeja och vatten i en kastrull. Koka upp och låt sedan sjuda i 30 minuter tills chana dalen är mjuk.
+3. Till tadkan: Hetta upp olja i en stekpanna och stek kumminfröna tills de doftar. Tillsätt lök, vitlök, ingefära och grön chili, fräs tills löken mjuknar.
+4. Tillsätt tomaterna och koka tills de mjuknat. Rör ner malen koriander, chilipulver och garam masala.
+5. Blanda ner tadkan i de kokta linserna. Smaka av med salt.
+6. Till chaunken: Hetta upp olja i en liten stekpanna och stek kumminfrön, torkade chilifrukter och en nypa chilipulver tills kumminet doftar. Häll över dalen och rör ner.
+7. Servera varm med ris eller roti/chapati, toppad med färsk koriander. 🥄✨
 
 ## Notes
 
-- You can substitute all lentils for red lentils if needed.
-- Adjust chili to taste for more or less heat.
-- For extra richness, add a knob of vegan butter before serving.
-- This dal is naturally vegan and perfect for cozy meals!
+- Du kan byta ut alla linser mot röda linser vid behov.
+- Justera chilimängden efter smak för mer eller mindre hetta.
+- För extra fyllighet, tillsätt en klick veganskt smör innan servering.
+- Den här dalen är naturligt vegansk och perfekt för mysiga måltider!

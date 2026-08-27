@@ -1,6 +1,6 @@
 ---
 id: "masoor-dal"
-title: "Masoor Dal – Indian Red Lentil Dal"
+title: "Masoor Dal – indisk röd linsdal"
 imageUrl: "https://indianenough.se/wp-content/uploads/2021/04/masoor-dal-6-1400x680.jpg"
 url: "https://indianenough.se/rod-linsdal-masoor-dal/"
 cookTime: 30
@@ -11,36 +11,36 @@ tags: ["Indian", "Dal", "Red Lentil", "Vegan", "Comfort Food"]
 
 ## Ingredients
 
-| quantity | unit | key          | ingredient                    | notes            |
-| -------- | ---- | ------------ | ----------------------------- | ---------------- |
-| 3        | dl   | red-lentils  | red lentils (masoor dal)      |                  |
-| 8        | dl   | water        | water                         |                  |
-| 0.25     | tsp  | turmeric     | turmeric                      |                  |
-| 1        | tbsp | oil          | neutral oil                   | for tempering    |
-| 1        | tsp  | cumin-seeds  | whole cumin seeds             |                  |
-| 2        |      | chili        | dried red chilies             |                  |
-| 1        |      | onion        | onion, finely chopped         |                  |
-| 4        |      | garlic       | garlic cloves, finely chopped |                  |
-| 1        | tbsp | ginger       | fresh ginger, grated          |                  |
-| 2        |      | tomato       | tomatoes, finely chopped      | or ~2 dl crushed |
-| 1        | tsp  | chili-powder | chili powder                  |                  |
-| 1        | tsp  | coriander    | ground coriander              |                  |
-| 1        | tsp  | garam-masala | garam masala                  |                  |
-| 1        | tsp  | salt         | salt                          |                  |
-|          |      | rice         | cooked rice                   | to serve         |
-|          |      | roti         | roti or chapati               | optional         |
+| quantity | unit | key          | ingredient                | notes                  |
+| -------- | ---- | ------------ | ---------------------------| ------------------------ |
+| 3        | dl   | red-lentils  | röda linser (masoor dal)   |                          |
+| 8        | dl   | water        | vatten                     |                          |
+| 0.25     | tsp  | turmeric     | gurkmeja                   |                          |
+| 1        | tbsp | oil          | neutral olja                | för temperering          |
+| 1        | tsp  | cumin-seeds  | hela kumminfrön             |                          |
+| 2        |      | chili        | torkade röda chilifrukter   |                          |
+| 1        |      | onion        | gul lök, finhackad          |                          |
+| 4        |      | garlic       | vitlöksklyftor, finhackade  |                          |
+| 1        | tbsp | ginger       | färsk ingefära, riven       |                          |
+| 2        |      | tomato       | tomater, finhackade         | eller ca 2 dl krossade   |
+| 1        | tsp  | chili-powder | chilipulver                 |                          |
+| 1        | tsp  | coriander    | malen koriander             |                          |
+| 1        | tsp  | garam-masala | garam masala                |                          |
+| 1        | tsp  | salt         | salt                        |                          |
+|          |      | rice         | kokt ris                    | att servera med          |
+|          |      | roti         | roti eller chapati          | valfritt                 |
 
 ## Instructions
 
-1. Rinse the lentils and add to a pot with turmeric and water. Bring to a boil, then simmer covered for 15–20 minutes until the lentils are soft.
-2. For the tadka: Heat oil in a pan, fry cumin seeds and dried chilies until fragrant. Add onion, garlic, and ginger, sauté until the onion softens.
-3. Add tomatoes and cook until softened. Stir in chili powder, coriander, and garam masala.
-4. Mix the tadka into the cooked lentils and season with salt.
-5. Serve hot with rice or roti/chapati. 🥄✨
+1. Skölj linserna och lägg dem i en kastrull med gurkmeja och vatten. Koka upp och låt sedan sjuda med lock i 15–20 minuter tills linserna är mjuka.
+2. Till tadkan: Hetta upp olja i en stekpanna och stek kumminfrön och torkade chilifrukter tills de doftar. Tillsätt lök, vitlök och ingefära, fräs tills löken mjuknar.
+3. Tillsätt tomaterna och koka tills de mjuknat. Rör ner chilipulver, koriander och garam masala.
+4. Blanda ner tadkan i de kokta linserna och smaka av med salt.
+5. Servera varm med ris eller roti/chapati. 🥄✨
 
 ## Notes
 
-- Red lentils cook quickly and become creamy—perfect for dal.
-- Adjust chili to taste for more or less heat.
-- For extra richness, add a knob of vegan butter before serving.
-- This dal is naturally vegan and great for cozy meals!
+- Röda linser kokar snabbt och blir krämiga — perfekt för dal.
+- Justera chilimängden efter smak för mer eller mindre hetta.
+- För extra fyllighet, tillsätt en klick veganskt smör innan servering.
+- Den här dalen är naturligt vegansk och perfekt för mysiga måltider!
