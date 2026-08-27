@@ -1,0 +1,109 @@
+// Pure pool logic (p4-12, tech.spec.md "Pool model"): `planned_meals` rows
+// are batch pool entries, not date assignments — a meal prep is the same
+// `recipe_id` twice. This module has no Supabase/React dependency so the
+// batch-selection and cooked/remaining-partition rules are unit-testable in
+// isolation; `src/hooks/useBatchPool.ts` is the only caller.
+
+import { format } from "date-fns";
+
+export const toISODate = (d: Date): string => format(d, "yyyy-MM-dd");
+
+export interface BatchRowLike {
+  id: string;
+  starts_on: string; // yyyy-MM-dd
+  ends_on: string; // yyyy-MM-dd
+}
+
+// The batch whose covered range includes today (inclusive both ends). If
+// more than one somehow overlaps today, the first in array order wins —
+// overlap prevention is p4-03's lock-time concern, not this read path's.
+export function findCurrentBatch(
+  batches: BatchRowLike[],
+  todayIso: string,
+): BatchRowLike | null {
+  return (
+    batches.find((b) => b.starts_on <= todayIso && todayIso <= b.ends_on) ??
+    null
+  );
+}
+
+// The soonest batch that starts after today, excluding `excludeId` (the
+// current batch, if any) — mirrors the old current/next-week window over
+// the new arbitrary-range batches.
+export function findNextBatch(
+  batches: BatchRowLike[],
+  todayIso: string,
+  excludeId?: string,
+): BatchRowLike | null {
+  const upcoming = batches.filter(
+    (b) => b.id !== excludeId && b.starts_on > todayIso,
+  );
+  if (upcoming.length === 0) return null;
+  return upcoming.reduce((soonest, b) =>
+    b.starts_on < soonest.starts_on ? b : soonest,
+  );
+}
+
+export interface PoolEntryRowLike {
+  id: string;
+  recipe_id: string;
+  servings_multiplier: number | null;
+  cooked_on: string | null;
+}
+
+export interface PoolEntry {
+  id: string;
+  recipeId: string;
+  servingsMultiplier: number; // 1.0 = normal
+  cookedOn: string | null; // yyyy-MM-dd once picked/cooked; null while remaining
+}
+
+export function rowsToPoolEntries(rows: PoolEntryRowLike[]): PoolEntry[] {
+  return rows.map((row) => ({
+    id: row.id,
+    recipeId: row.recipe_id,
+    servingsMultiplier: row.servings_multiplier ?? 1,
+    cookedOn: row.cooked_on,
+  }));
+}
+
+export interface PoolPartition<T extends PoolEntry = PoolEntry> {
+  remaining: T[];
+  cooked: T[];
+}
+
+// Cooked/remaining split — the picker shows `remaining`; `cooked` entries
+// render as done (design.spec.md, Cook Mode). Generic over T so callers
+// that decorate PoolEntry (e.g. useBatchPool's PoolMeal, which adds the
+// resolved `recipe`) keep that shape through the split.
+export function partitionPool<T extends PoolEntry>(entries: T[]): PoolPartition<T> {
+  return {
+    remaining: entries.filter((e) => e.cookedOn === null),
+    cooked: entries.filter((e) => e.cookedOn !== null),
+  };
+}
+
+export interface PoolGroup<T extends PoolEntry = PoolEntry> {
+  recipeId: string;
+  count: number;
+  entries: T[];
+}
+
+// Groups same-recipe entries for the 🍱 ×N meal-prep badge (design.spec.md,
+// Plan Mode / Screens table) while keeping each entry individually
+// addressable (its own id, multiplier, cooked state).
+export function groupPoolByRecipe<T extends PoolEntry>(entries: T[]): PoolGroup<T>[] {
+  const order: string[] = [];
+  const map = new Map<string, T[]>();
+  for (const entry of entries) {
+    if (!map.has(entry.recipeId)) {
+      map.set(entry.recipeId, []);
+      order.push(entry.recipeId);
+    }
+    map.get(entry.recipeId)!.push(entry);
+  }
+  return order.map((recipeId) => {
+    const groupEntries = map.get(recipeId)!;
+    return { recipeId, count: groupEntries.length, entries: groupEntries };
+  });
+}

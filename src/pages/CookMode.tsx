@@ -3,95 +3,78 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { 
-  Clock, 
-  Users, 
-  CheckCircle2, 
-  ExternalLink, 
-  Minus, 
+import {
+  Clock,
+  Users,
+  CheckCircle2,
+  ExternalLink,
+  Minus,
   Plus,
-  Calendar,
   ChefHat,
   LogOut,
-  CalendarPlus,
-  ArrowRight,
+  Undo2,
+  Package,
   User,
-  Edit2
+  PartyPopper,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { useMealPlanDB } from "@/hooks/useMealPlanDB";
+import { useBatchPool, type PoolMeal } from "@/hooks/useBatchPool";
 import { convertIngredientToMetric } from "@/lib/ingredientNormalization";
-import { ParsedRecipe, loadAllRecipes } from "@/services/recipeLoader";
+import { toISODate, partitionPool, groupPoolByRecipe } from "@/lib/planPool";
 import { RecipeRatings } from "@/components/recipe/RecipeRatings";
 import { RecipeComments } from "@/components/recipe/RecipeComments";
-import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
 import { findDeepLinkRecipe, resolveServingsMultiplier } from "@/lib/cookModeDeepLink";
 
-const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
 export default function CookMode() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { 
-    currentWeekPlan, 
-    nextWeekPlan,
-    loading, 
-    hasCurrentWeekPlan, 
-    hasNextWeekPlan,
-    getRemainingMeals,
-    getRecipeForDay,
-    getTodayIndex,
-    getCurrentMonday,
-    saveCurrentWeekPlan,
-    saveNextWeekPlan,
-  } = useMealPlanDB();
-
-  const allRecipes = useMemo(() => loadAllRecipes(), []);
-  const todayIndex = getTodayIndex();
+  const { currentBatch, loading, allRecipes, cookPoolEntry, uncookPoolEntry } = useBatchPool();
 
   const [searchParams] = useSearchParams();
-  const [selectedDay, setSelectedDay] = useState<number>(todayIndex);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [targetServings, setTargetServings] = useState<number | null>(null);
-  const [editingDay, setEditingDay] = useState<number | null>(null);
-  const [viewingWeek, setViewingWeek] = useState<'current' | 'next'>('current');
+  const [viewEntryId, setViewEntryId] = useState<string | null>(null);
+  const [busyEntryId, setBusyEntryId] = useState<string | null>(null);
   const [deepLinkNotified, setDeepLinkNotified] = useState(false);
   const deepLinkAppliedRef = useRef(false);
 
-  const activePlan = viewingWeek === 'current' ? currentWeekPlan : nextWeekPlan;
+  const todayIso = toISODate(new Date());
+  const pool = useMemo(() => currentBatch?.meals ?? [], [currentBatch]);
+  const partition = useMemo(() => partitionPool(pool), [pool]);
+  const groups = useMemo(() => groupPoolByRecipe(pool), [pool]);
+  const groupCount = (recipeId: string) =>
+    groups.find((g) => g.recipeId === recipeId)?.count ?? 1;
 
-  const dayRecipe = viewingWeek === 'current'
-    ? getRecipeForDay(selectedDay)
-    : activePlan?.meals.find(m => m.dayOfWeek === selectedDay)?.recipe;
+  const cookedTodayEntry = partition.cooked.find((e) => e.cookedOn === todayIso);
+  const viewedEntry = viewEntryId ? pool.find((e) => e.id === viewEntryId) : undefined;
+  const selectedPoolEntry: PoolMeal | undefined = viewedEntry ?? cookedTodayEntry;
 
   // p4-11: `?recipe=<markdown recipe id>` deep-links straight to a recipe,
-  // overriding the day picker; an unknown id falls back to the normal
-  // tonight-first view plus a friendly toast (design.spec.md, Cook Mode).
+  // bypassing the pool picker entirely — an unknown id falls back to the
+  // normal picker view plus a friendly toast (design.spec.md, Cook Mode).
   const deepLinkRecipeId = searchParams.get('recipe');
   const deepLinkRecipe = useMemo(
     () => findDeepLinkRecipe(allRecipes, deepLinkRecipeId),
     [allRecipes, deepLinkRecipeId],
   );
   // `?x=<multiplier>`: absent/bad -> the recipe's own multiplier in the
-  // active (current-week) plan, else 1.
+  // active batch's pool when it's in there, else 1.
   const deepLinkMultiplier = useMemo(() => {
     const plannedMultiplier = deepLinkRecipe
-      ? currentWeekPlan?.meals.find(m => m.recipeId === deepLinkRecipe.id)?.servingsMultiplier
+      ? pool.find(m => m.recipeId === deepLinkRecipe.id)?.servingsMultiplier
       : undefined;
     return resolveServingsMultiplier(searchParams.get('x'), plannedMultiplier ?? 1);
-  }, [deepLinkRecipe, searchParams, currentWeekPlan]);
+  }, [deepLinkRecipe, searchParams, pool]);
 
-  const selectedRecipe = deepLinkRecipe ?? dayRecipe;
-
-  const usedRecipeIds = new Set(activePlan?.meals.map(m => m.recipeId) || []);
+  const selectedRecipe = deepLinkRecipe ?? selectedPoolEntry?.recipe;
 
   // Unknown ?recipe id: friendly toast, never a crash — falls through to the
-  // normal day-based Cook Mode view.
+  // normal pool picker.
   useEffect(() => {
     if (!deepLinkRecipeId || deepLinkRecipe || deepLinkNotified) return;
     toast({
@@ -101,21 +84,23 @@ export default function CookMode() {
     setDeepLinkNotified(true);
   }, [deepLinkRecipeId, deepLinkRecipe, deepLinkNotified]);
 
+  useEffect(() => {
+    setCompletedSteps([]);
+    setTargetServings(null);
+  }, [selectedRecipe?.id]);
+
   useMemo(() => {
-    if (selectedRecipe && targetServings === null) {
+    if (selectedRecipe && targetServings === null && !deepLinkRecipe && selectedPoolEntry) {
+      setTargetServings(Math.round(selectedRecipe.servings * selectedPoolEntry.servingsMultiplier));
+    } else if (selectedRecipe && targetServings === null && !selectedPoolEntry) {
       setTargetServings(selectedRecipe.servings);
     }
-  }, [selectedRecipe, targetServings]);
+  }, [selectedRecipe, targetServings, deepLinkRecipe, selectedPoolEntry]);
 
-  useMemo(() => {
-    setCompletedSteps([]);
-    setTargetServings(selectedRecipe?.servings || null);
-  }, [selectedDay]);
-
-  // Once the plan finishes loading (so the default × reflects real plan
+  // Once the plan finishes loading (so the default × reflects real pool
   // data, not a mid-fetch null), apply the deep link's servings once. A ref
   // guard keeps this from re-firing and stomping a manual +/- adjustment
-  // when the plan refetches for an unrelated reason.
+  // when the pool refetches for an unrelated reason.
   useEffect(() => {
     if (loading || !deepLinkRecipe || deepLinkAppliedRef.current) return;
     deepLinkAppliedRef.current = true;
@@ -125,7 +110,7 @@ export default function CookMode() {
   const scaledIngredients = useMemo(() => {
     if (!selectedRecipe || !targetServings) return [];
     const scaleFactor = targetServings / selectedRecipe.servings;
-    
+
     return selectedRecipe.ingredients.map(ing => {
       const originalQty = parseFloat(ing.quantity) || 0;
       const scaledQty = originalQty * scaleFactor;
@@ -138,8 +123,8 @@ export default function CookMode() {
   }, [selectedRecipe, targetServings]);
 
   const toggleStep = (stepIndex: number) => {
-    setCompletedSteps(prev => 
-      prev.includes(stepIndex) 
+    setCompletedSteps(prev =>
+      prev.includes(stepIndex)
         ? prev.filter(i => i !== stepIndex)
         : [...prev, stepIndex]
     );
@@ -151,37 +136,33 @@ export default function CookMode() {
     setTargetServings(newServings);
   };
 
-  const handleChangeMeal = async (recipe: ParsedRecipe) => {
-    if (editingDay === null || !activePlan) return;
-    
+  const handlePick = async (entry: PoolMeal) => {
+    setBusyEntryId(entry.id);
     try {
-      const mealsMap = new Map<number, { recipeId: string; servingsMultiplier: number }>();
-      activePlan.meals.forEach(meal => {
-        if (meal.dayOfWeek !== editingDay) {
-          mealsMap.set(meal.dayOfWeek, { 
-            recipeId: meal.recipeId, 
-            servingsMultiplier: meal.servingsMultiplier 
-          });
-        }
-      });
-      mealsMap.set(editingDay, { recipeId: recipe.id, servingsMultiplier: 1.0 });
-
-      if (viewingWeek === 'current') {
-        await saveCurrentWeekPlan(mealsMap);
-      } else {
-        await saveNextWeekPlan(mealsMap);
-      }
-
+      await cookPoolEntry(entry.id);
+      setViewEntryId(entry.id);
       toast({
-        title: "Meal updated! 🍽️",
-        description: `${DAY_NAMES[editingDay]}: ${recipe.title}`,
+        title: "Tonight's pick! 🍳",
+        description: `${entry.recipe?.title ?? entry.recipeId} is on the menu.`,
       });
-      setEditingDay(null);
-    } catch (error) {
-      toast({
-        title: "Error updating meal",
-        variant: "destructive",
-      });
+    } catch {
+      toast({ title: "Couldn't save your pick", variant: "destructive" });
+    } finally {
+      setBusyEntryId(null);
+    }
+  };
+
+  const handleUndo = async () => {
+    if (!selectedPoolEntry) return;
+    setBusyEntryId(selectedPoolEntry.id);
+    try {
+      await uncookPoolEntry(selectedPoolEntry.id);
+      setViewEntryId(null);
+      toast({ title: "Undone — back to the pool 🔄" });
+    } catch {
+      toast({ title: "Couldn't undo", variant: "destructive" });
+    } finally {
+      setBusyEntryId(null);
     }
   };
 
@@ -201,50 +182,30 @@ export default function CookMode() {
     );
   }
 
-  if (!hasCurrentWeekPlan() && !deepLinkRecipe) {
-    const remainingDays = 7 - todayIndex;
-    
+  if (!currentBatch && !deepLinkRecipe) {
     return (
       <div className="min-h-screen bg-muted/30">
         <Header user={user} onSignOut={handleSignOut} />
-        
+
         <div className="container py-20">
           <div className="max-w-xl mx-auto text-center">
             <Card className="p-8 border-2 border-dashed border-primary/20">
               <ChefHat className="h-16 w-16 mx-auto text-muted-foreground mb-6" />
-              <h2 className="text-2xl font-bold mb-4">No meals planned for this week</h2>
-              <p className="text-muted-foreground mb-6">
-                You have {remainingDays} day{remainingDays !== 1 ? 's' : ''} left this week (including today).
-                Plan your meals now or prepare for next week!
+              <h2 className="text-2xl font-bold mb-4">No active batch yet</h2>
+              <p className="text-muted-foreground mb-6 flex items-center justify-center gap-1 flex-wrap">
+                No active batch — plan one in chat <MessageCircle className="h-4 w-4 inline" /> 💬
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button 
-                  size="lg"
-                  onClick={() => navigate('/plan', { state: { planCurrentWeek: true } })}
-                  className="bg-primary text-primary-foreground rounded-full"
-                >
-                  <CalendarPlus className="h-5 w-5 mr-2" />
-                  Plan This Week
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  onClick={() => navigate('/plan')}
-                  className="rounded-xl"
-                >
-                  Plan Next Week
-                </Button>
-              </div>
             </Card>
           </div>
         </div>
+        <CompassionFooter />
       </div>
     );
   }
 
   const currentServings = targetServings || selectedRecipe?.servings || 4;
   const instructions = selectedRecipe?.instructions || [];
+  const canUndo = !deepLinkRecipe && selectedPoolEntry?.cookedOn === todayIso;
 
   const difficultyColors: Record<string, string> = {
     Easy: "bg-accent text-accent-foreground",
@@ -257,94 +218,35 @@ export default function CookMode() {
       <Header user={user} onSignOut={handleSignOut} />
 
       <div className="container py-6">
-        {/* Week Toggle */}
-        {hasNextWeekPlan() && (
-          <div className="flex gap-2 mb-4">
-            <Button
-              variant={viewingWeek === 'current' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => { setViewingWeek('current'); setSelectedDay(todayIndex); }}
-            >
-              This Week
-            </Button>
-            <Button
-              variant={viewingWeek === 'next' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => { setViewingWeek('next'); setSelectedDay(0); }}
-            >
-              Next Week
-            </Button>
-          </div>
+        {currentBatch && (
+          <BatchOverview
+            startsOn={currentBatch.startsOn}
+            endsOn={currentBatch.endsOn}
+            cookedCount={partition.cooked.length}
+            totalCount={pool.length}
+          />
         )}
 
-        {/* Day Selector */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">
-              {viewingWeek === 'current' ? "This Week's Meals" : "Next Week's Meals"}
-            </h2>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {DAY_NAMES.map((day, index) => {
-              const meal = activePlan?.meals.find(m => m.dayOfWeek === index);
-              const isToday = viewingWeek === 'current' && index === todayIndex;
-              const isSelected = index === selectedDay;
-              const hasMeal = !!meal;
-
-              return (
-                <div key={day} className="flex-shrink-0 relative group">
-                  <Button
-                    variant={isSelected ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => hasMeal && setSelectedDay(index)}
-                    disabled={!hasMeal}
-                    className={`min-w-[80px] ${
-                      isSelected 
-                        ? 'bg-foreground text-background border-foreground'
-                        : isToday 
-                          ? 'border-primary border-2' 
-                          : ''
-                    } ${!hasMeal ? 'opacity-50' : ''}`}
-                  >
-                    <div className="text-center">
-                      <div className="text-xs">{day.slice(0, 3)}</div>
-                      {hasMeal && <div className="text-lg">🍲</div>}
-                      {!hasMeal && <div className="text-lg opacity-50">-</div>}
-                    </div>
-                  </Button>
-                  {hasMeal && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -top-1 -right-1 h-5 w-5 bg-background border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => setEditingDay(index)}
-                    >
-                      <Edit2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Recipe Content */}
         {selectedRecipe ? (
           <div className="max-w-4xl mx-auto">
             {/* Recipe Header */}
             <div className="mb-8">
               <div className="relative rounded-2xl overflow-hidden mb-6">
-                <img 
-                  src={selectedRecipe.image} 
+                <img
+                  src={selectedRecipe.image}
                   alt={selectedRecipe.title}
                   className="w-full h-48 md:h-64 object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
-                  <Badge variant="secondary" className="mb-2">
-                    {deepLinkRecipe ? '🔗 Direct link' : `${DAY_NAMES[selectedDay]}'s Dinner`}
-                  </Badge>
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <Badge variant="secondary">
+                      {deepLinkRecipe ? '🔗 Direct link' : "Tonight's Dinner"}
+                    </Badge>
+                    {!deepLinkRecipe && groupCount(selectedRecipe.id) > 1 && (
+                      <Badge variant="secondary">🍱 ×{groupCount(selectedRecipe.id)}</Badge>
+                    )}
+                  </div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white mb-3">
                     {selectedRecipe.title}
                   </h1>
@@ -366,6 +268,14 @@ export default function CookMode() {
                   </div>
                 </div>
               </div>
+              {canUndo && (
+                <div className="flex justify-end">
+                  <Button variant="outline" size="sm" onClick={handleUndo} disabled={busyEntryId === selectedPoolEntry?.id}>
+                    <Undo2 className="h-4 w-4 mr-2" />
+                    Not tonight after all — undo
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Two Column Layout */}
@@ -373,14 +283,14 @@ export default function CookMode() {
               {/* Ingredients */}
               <Card className="p-6 h-fit lg:sticky lg:top-24">
                 <h2 className="text-xl font-bold mb-4 text-center">Ingredients 🛒</h2>
-                
+
                 {/* Servings Adjuster */}
                 <div className="flex items-center justify-center gap-4 mb-6 p-3 bg-muted/50 rounded-xl">
                   <span className="text-sm font-medium text-muted-foreground">Servings:</span>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-8 w-8 rounded-full"
                       onClick={() => adjustServings(-1)}
                       disabled={currentServings <= 1}
@@ -388,9 +298,9 @@ export default function CookMode() {
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="text-lg font-bold w-8 text-center">{currentServings}</span>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-8 w-8 rounded-full"
                       onClick={() => adjustServings(1)}
                       disabled={currentServings >= 20}
@@ -412,7 +322,7 @@ export default function CookMode() {
 
                 <div className="space-y-3">
                   {scaledIngredients.map((ingredient, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="flex items-center p-3 bg-muted/50 rounded-xl"
                     >
@@ -436,11 +346,11 @@ export default function CookMode() {
                 {instructions.length > 0 ? (
                   <>
                     {instructions.map((instruction, index) => (
-                      <Card 
+                      <Card
                         key={index}
                         className={`p-5 cursor-pointer transition-all duration-300 ${
-                          completedSteps.includes(index) 
-                            ? 'bg-primary/10 border-primary/50' 
+                          completedSteps.includes(index)
+                            ? 'bg-primary/10 border-primary/50'
                             : 'hover:shadow-md'
                         }`}
                         onClick={() => toggleStep(index)}
@@ -459,8 +369,8 @@ export default function CookMode() {
                           </div>
                           <div className="flex-1">
                             <p className={`leading-relaxed ${
-                              completedSteps.includes(index) 
-                                ? 'line-through text-muted-foreground' 
+                              completedSteps.includes(index)
+                                ? 'line-through text-muted-foreground'
                                 : ''
                             }`}>
                               {instruction}
@@ -469,7 +379,7 @@ export default function CookMode() {
                         </div>
                       </Card>
                     ))}
-                    
+
                     {completedSteps.length === instructions.length && instructions.length > 0 && (
                       <Card className="p-6 bg-primary text-primary-foreground text-center">
                         <h3 className="text-xl font-bold mb-2">🎉 Bon Appétit!</h3>
@@ -498,73 +408,131 @@ export default function CookMode() {
               </div>
             </div>
           </div>
+        ) : partition.remaining.length > 0 ? (
+          <PoolPicker
+            entries={partition.remaining}
+            groupCount={groupCount}
+            busyEntryId={busyEntryId}
+            onPick={handlePick}
+          />
         ) : (
           <Card className="p-8 text-center max-w-xl mx-auto">
-            <p className="text-muted-foreground">
-              No meal planned for {DAY_NAMES[selectedDay]}.
+            <PartyPopper className="h-12 w-12 mx-auto text-primary mb-4" />
+            <h2 className="text-xl font-bold mb-2">Everything's cooked! 🎉</h2>
+            <p className="text-muted-foreground mb-4">
+              The whole batch is done. Plan the next one in chat 💬, or peek at what you made:
             </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {partition.cooked.map(entry => (
+                <Card
+                  key={entry.id}
+                  className="p-3 cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => setViewEntryId(entry.id)}
+                >
+                  {entry.recipe?.image && (
+                    <img src={entry.recipe.image} alt={entry.recipe.title} className="w-full h-16 object-cover rounded-lg mb-2" />
+                  )}
+                  <div className="text-xs font-medium truncate">{entry.recipe?.title ?? entry.recipeId}</div>
+                </Card>
+              ))}
+            </div>
           </Card>
         )}
       </div>
-
-      {/* Edit Meal Modal */}
-      <Dialog open={editingDay !== null} onOpenChange={() => setEditingDay(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              Change meal for {editingDay !== null ? DAY_NAMES[editingDay] : ''}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-            {allRecipes
-              .filter(r => !usedRecipeIds.has(r.id) || (editingDay !== null && activePlan?.meals.find(m => m.dayOfWeek === editingDay)?.recipeId === r.id))
-              .map(recipe => (
-                <Card 
-                  key={recipe.id}
-                  className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
-                  onClick={() => handleChangeMeal(recipe)}
-                >
-                  <img 
-                    src={recipe.image} 
-                    alt={recipe.title}
-                    className="w-full h-24 object-cover rounded-lg mb-2"
-                  />
-                  <h4 className="font-bold text-sm truncate">{recipe.title}</h4>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {recipe.cookTime}min
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="h-3 w-3" /> {recipe.servings}
-                    </span>
-                  </div>
-                </Card>
-              ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Plan Next Week Nudge */}
-      {!hasNextWeekPlan() && viewingWeek === 'current' && (
-        <div className="fixed bottom-4 right-4">
-          <Button
-            onClick={() => navigate('/plan')}
-            className="bg-primary text-primary-foreground rounded-full"
-          >
-            <CalendarPlus className="h-4 w-4 mr-2" />
-            Plan Next Week
-          </Button>
-        </div>
-      )}
       <CompassionFooter />
+    </div>
+  );
+}
+
+function BatchOverview({
+  startsOn,
+  endsOn,
+  cookedCount,
+  totalCount,
+}: {
+  startsOn: string;
+  endsOn: string;
+  cookedCount: number;
+  totalCount: number;
+}) {
+  const navigate = useNavigate();
+  return (
+    <Card className="p-3 mb-6 flex items-center justify-between gap-3 flex-wrap bg-muted/50 border-dashed">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Package className="h-4 w-4 text-primary" />
+        <span>
+          Batch {startsOn} → {endsOn} · {cookedCount}/{totalCount} cooked
+        </span>
+      </div>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/plan')}>
+        Edit pool
+      </Button>
+    </Card>
+  );
+}
+
+function PoolPicker({
+  entries,
+  groupCount,
+  busyEntryId,
+  onPick,
+}: {
+  entries: PoolMeal[];
+  groupCount: (recipeId: string) => number;
+  busyEntryId: string | null;
+  onPick: (entry: PoolMeal) => void;
+}) {
+  return (
+    <div className="max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold mb-4 text-center">What's for dinner tonight? 🍽️</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {entries.map(entry => (
+          <Card
+            key={entry.id}
+            className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
+            onClick={() => onPick(entry)}
+          >
+            {entry.recipe?.image && (
+              <img
+                src={entry.recipe.image}
+                alt={entry.recipe.title}
+                className="w-full h-24 object-cover rounded-lg mb-2"
+              />
+            )}
+            <div className="flex items-start justify-between gap-1">
+              <h4 className="font-bold text-sm truncate">{entry.recipe?.title ?? entry.recipeId}</h4>
+              {groupCount(entry.recipeId) > 1 && (
+                <Badge variant="secondary" className="text-xs shrink-0">🍱 ×{groupCount(entry.recipeId)}</Badge>
+              )}
+            </div>
+            {entry.recipe && (
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> {entry.recipe.cookTime}min
+                </span>
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" /> {Math.round(entry.recipe.servings * entry.servingsMultiplier)}
+                </span>
+              </div>
+            )}
+            <Button
+              size="sm"
+              className="w-full mt-3 bg-primary text-primary-foreground rounded-full"
+              disabled={busyEntryId === entry.id}
+              onClick={(e) => { e.stopPropagation(); onPick(entry); }}
+            >
+              Cook this 🍳
+            </Button>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
 
 function Header({ user, onSignOut }: { user: SupabaseUser; onSignOut: () => void }) {
   const navigate = useNavigate();
-  
+
   return (
     <header className="bg-background shadow-sm sticky top-0 z-10">
       <div className="container py-4">
@@ -575,13 +543,13 @@ function Header({ user, onSignOut }: { user: SupabaseUser; onSignOut: () => void
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate('/plan')}>
-              <Calendar className="h-4 w-4 mr-2" />
+              <Package className="h-4 w-4 mr-2" />
               Plan
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/account')}>
               {user?.user_metadata?.avatar_url ? (
-                <img 
-                  src={user.user_metadata.avatar_url} 
+                <img
+                  src={user.user_metadata.avatar_url}
                   alt="Profile"
                   className="h-6 w-6 rounded-full"
                 />

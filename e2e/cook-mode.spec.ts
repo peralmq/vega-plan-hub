@@ -1,44 +1,81 @@
 import { test, expect } from "./support/mockDb";
 
-// Cook Mode is home: a signed-in user lands on tonight's meal (design.spec.md).
-// Portion scaling is always visible and updates the ingredient list immediately.
+// Cook Mode (p4-12): tonight's pick comes from the active batch's remaining
+// pool (design.spec.md). Picking a dish stamps it cooked for today and shows
+// its detail; portion scaling is always visible and updates the ingredient
+// list immediately; an undo lets you correct a same-day mistake.
 
 const CHANA_DAL = "chana-dal";
 const CHANA_DAL_TITLE = /chana dal/i;
 
-test("cook mode shows tonight's meal and scaling updates ingredients", async ({
+test("picking a dish from the pool shows its detail and scaling updates ingredients", async ({
   page,
   mockDb,
 }) => {
-  // Seed a meal for *today* so Cook Mode's tonight-first default has content,
-  // regardless of the day the suite runs.
   await mockDb.login();
-  mockDb.seedCurrentWeek([
-    { dayOfWeek: mockDb.todayDayOfWeek(), recipeId: CHANA_DAL },
-  ]);
+  mockDb.seedActiveBatch([{ recipeId: CHANA_DAL }]);
 
   await page.goto("/");
 
-  // Tonight's recipe is on screen.
-  await expect(
-    page.getByRole("heading", { name: CHANA_DAL_TITLE }),
-  ).toBeVisible();
+  // The picker shows the remaining pool.
+  await expect(page.getByText(/what's for dinner tonight/i)).toBeVisible();
+  await expect(page.getByRole("heading", { name: CHANA_DAL_TITLE })).toBeVisible();
 
-  // Chana Dal is a 4-serving recipe.
-  await expect(page.getByText("4 servings")).toBeVisible();
+  await page.getByRole("button", { name: /cook this/i }).click();
 
-  // Ingredient list before scaling.
+  // Picking swaps the picker for the recipe detail.
+  await expect(page.getByText(/tonight's pick/i).first()).toBeVisible();
+  await expect(page.getByText("4 servings")).toBeVisible(); // Chana Dal is 4-serving
+
   const ingredientsCard = page.locator(
     'div:has(> h2:has-text("Ingredients"))',
   );
   const list = ingredientsCard.locator(".space-y-3").first();
   const before = await list.innerText();
 
-  // Bump servings via the visible + stepper (the only lucide plus in Cook Mode).
   await page.locator("button:has(svg.lucide-plus)").first().click();
 
-  // Servings and the ingredient quantities both update immediately.
   await expect(page.getByText("5 servings")).toBeVisible();
   const after = await list.innerText();
   expect(after).not.toBe(before);
+});
+
+test("undo returns a same-day pick to the pool", async ({ page, mockDb }) => {
+  await mockDb.login();
+  mockDb.seedActiveBatch([
+    { recipeId: CHANA_DAL, cookedOn: mockDb.today() },
+  ]);
+
+  await page.goto("/");
+
+  // Already picked today: detail shows directly, with an undo action.
+  await expect(page.getByRole("heading", { name: CHANA_DAL_TITLE })).toBeVisible();
+  await page.getByRole("button", { name: /undo/i }).click();
+
+  // Back to the picker.
+  await expect(page.getByText(/what's for dinner tonight/i)).toBeVisible();
+});
+
+test("a fully-cooked batch shows the completion state", async ({ page, mockDb }) => {
+  await mockDb.login();
+  mockDb.seedActiveBatch([
+    { recipeId: CHANA_DAL, cookedOn: mockDb.isoDaysFromToday(-1) },
+  ]);
+
+  await page.goto("/");
+
+  await expect(page.getByText(/everything's cooked/i)).toBeVisible();
+  await expect(page.getByText(CHANA_DAL_TITLE).first()).toBeVisible();
+});
+
+test("no active batch shows the playful empty state pointing at chat", async ({
+  page,
+  mockDb,
+}) => {
+  await mockDb.login(); // no batch seeded at all
+
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: /no active batch yet/i })).toBeVisible();
+  await expect(page.getByText(/plan one in chat/i)).toBeVisible();
 });

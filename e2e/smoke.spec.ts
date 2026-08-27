@@ -36,9 +36,10 @@ test.describe("smoke: auth gating", () => {
     await mockDb.login();
     await page.goto("/this-route-does-not-exist");
     await expect(page).toHaveURL(`${new URL("/", page.url()).origin}/`);
-    // With no plan seeded, Cook Mode shows its empty state — but we are on "/".
+    // With no active batch seeded, Cook Mode shows its empty state — but we
+    // are on "/".
     await expect(
-      page.getByRole("heading", { name: /no meals planned for this week/i }),
+      page.getByRole("heading", { name: /no active batch yet/i }),
     ).toBeVisible();
   });
 });

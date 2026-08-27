@@ -3,21 +3,21 @@ import { test, expect } from "./support/mockDb";
 // p4-11: `/?recipe=<id>&x=<multiplier>` opens Cook Mode with that recipe
 // selected and scaled (design.spec.md, Cook Mode deep links). This is the
 // link target contract for the Telegram bot's Cook Mode button and the
-// p4-10 menu card/PDF.
+// p4-10 menu card/PDF. p4-12 moved Cook Mode onto the batch pool, but the
+// deep-link contract is unchanged: it opens a specific dish directly
+// regardless of pool state (design.spec.md, "Cook Mode deep links").
 
 const MAPO_TOFU = "mapo-tofu";
 const MAPO_TOFU_TITLE = /mapo tofu/i;
 
-test("deep link with ?x opens the recipe scaled, overriding the day pick", async ({
+test("deep link with ?x opens the recipe scaled, overriding the pool picker", async ({
   page,
   mockDb,
 }) => {
   await mockDb.login();
-  // A different meal on today so we can prove the deep link overrides the
-  // day-based pick rather than just happening to match it.
-  mockDb.seedCurrentWeek([
-    { dayOfWeek: mockDb.todayDayOfWeek(), recipeId: "chana-dal" },
-  ]);
+  // A different, unrelated pool entry so we can prove the deep link
+  // overrides the picker rather than just happening to match it.
+  mockDb.seedActiveBatch([{ recipeId: "chana-dal" }]);
 
   await page.goto(`/?recipe=${MAPO_TOFU}&x=2`);
 
@@ -28,13 +28,13 @@ test("deep link with ?x opens the recipe scaled, overriding the day pick", async
   await expect(page.getByText("8 servings")).toBeVisible();
 });
 
-test("deep link without ?x defaults to the recipe's multiplier in the active plan", async ({
+test("deep link without ?x defaults to the recipe's multiplier in the active batch's pool", async ({
   page,
   mockDb,
 }) => {
   await mockDb.login();
-  mockDb.seedCurrentWeek([
-    { dayOfWeek: mockDb.todayDayOfWeek(), recipeId: MAPO_TOFU, servingsMultiplier: 3 },
+  mockDb.seedActiveBatch([
+    { recipeId: MAPO_TOFU, servingsMultiplier: 3 },
   ]);
 
   await page.goto(`/?recipe=${MAPO_TOFU}`);
@@ -42,16 +42,16 @@ test("deep link without ?x defaults to the recipe's multiplier in the active pla
   await expect(
     page.getByRole("heading", { name: MAPO_TOFU_TITLE }),
   ).toBeVisible();
-  // 4-serving recipe × the planned 3x multiplier -> 12.
+  // 4-serving recipe × the pool's 3x multiplier -> 12.
   await expect(page.getByText("12 servings")).toBeVisible();
 });
 
-test("deep link without ?x defaults to 1x when the recipe isn't in the active plan", async ({
+test("deep link without ?x defaults to 1x when the recipe isn't in the active batch", async ({
   page,
   mockDb,
 }) => {
   await mockDb.login();
-  // No plan seeded at all — deep link still works and shows base servings.
+  // No batch seeded at all — deep link still works and shows base servings.
   await page.goto(`/?recipe=${MAPO_TOFU}`);
 
   await expect(
@@ -60,19 +60,17 @@ test("deep link without ?x defaults to 1x when the recipe isn't in the active pl
   await expect(page.getByText("4 servings")).toBeVisible();
 });
 
-test("unknown recipe id falls back to normal Cook Mode with a friendly toast, never a crash", async ({
+test("unknown recipe id falls back to the normal pool picker with a friendly toast, never a crash", async ({
   page,
   mockDb,
 }) => {
   await mockDb.login();
-  mockDb.seedCurrentWeek([
-    { dayOfWeek: mockDb.todayDayOfWeek(), recipeId: "chana-dal" },
-  ]);
+  mockDb.seedActiveBatch([{ recipeId: "chana-dal" }]);
 
   await page.goto("/?recipe=this-recipe-does-not-exist");
 
-  await expect(page.getByText(/couldn't find that recipe/i)).toBeVisible();
-  // Falls through to today's normal pick.
+  await expect(page.getByText(/couldn't find that recipe/i).first()).toBeVisible();
+  // Falls through to the normal pool picker.
   await expect(page.getByRole("heading", { name: /chana dal/i })).toBeVisible();
 });
 

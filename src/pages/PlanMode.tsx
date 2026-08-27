@@ -1,248 +1,87 @@
-import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { 
-  Calendar, 
-  ChefHat, 
-  LogOut, 
-  Plus, 
-  X, 
-  RotateCcw, 
-  Sparkles, 
+import {
+  ChefHat,
+  LogOut,
+  Plus,
+  X,
   ArrowRight,
   Clock,
   Users,
-  AlertCircle,
   Minus,
-  User
+  User,
+  MessageCircle,
+  ShoppingCart,
+  CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMealPlanDB } from "@/hooks/useMealPlanDB";
-import { ParsedRecipe, loadAllRecipes } from "@/services/recipeLoader";
+import { useBatchPool, type PoolMeal } from "@/hooks/useBatchPool";
+import { ParsedRecipe } from "@/services/recipeLoader";
+import { groupPoolByRecipe } from "@/lib/planPool";
 import { toast } from "@/hooks/use-toast";
-import { addWeeks, startOfWeek, format } from "date-fns";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
 
-const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-interface PlannedMeal {
-  recipe: ParsedRecipe;
-  servingsMultiplier: number;
-}
+const MIN_MULTIPLIER = 0.5;
+const MAX_MULTIPLIER = 4;
 
 export default function PlanMode() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, signOut } = useAuth();
-  const { 
-    hasNextWeekPlan, 
-    saveNextWeekPlan, 
-    saveCurrentWeekPlan,
-    loading, 
-    nextWeekPlan,
-    currentWeekPlan,
-    getTodayIndex,
-    getCurrentMonday,
-    getNextMonday,
-  } = useMealPlanDB();
-  
-  const allRecipes = useMemo(() => loadAllRecipes(), []);
-  
-  // Check if we're planning for current week (from navigation state)
-  const planCurrentWeek = location.state?.planCurrentWeek === true;
-  const todayIndex = getTodayIndex();
-  
-  // Which week are we planning for?
-  const targetMonday = planCurrentWeek ? getCurrentMonday() : getNextMonday();
-  const weekLabel = `Week of ${format(targetMonday, 'MMM d')}`;
-  const isCurrentWeek = planCurrentWeek;
-  
-  // For current week, only allow planning from today onwards
-  const minDayIndex = isCurrentWeek ? todayIndex : 0;
-  
-  // Initialize planned meals from existing plan (with multipliers)
-  const [plannedMeals, setPlannedMeals] = useState<Map<number, PlannedMeal>>(() => new Map());
-  const [selectingForDay, setSelectingForDay] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
-  
-  // Update planned meals when plan data loads
-  useEffect(() => {
-    const sourcePlan = isCurrentWeek ? currentWeekPlan : nextWeekPlan;
-    if (sourcePlan) {
-      const initial = new Map<number, PlannedMeal>();
-      sourcePlan.meals.forEach(meal => {
-        if (meal.recipe) {
-          initial.set(meal.dayOfWeek, {
-            recipe: meal.recipe,
-            servingsMultiplier: meal.servingsMultiplier ?? 1.0,
-          });
-        }
-      });
-      setPlannedMeals(initial);
-    }
-  }, [isCurrentWeek, currentWeekPlan, nextWeekPlan]);
+  const {
+    currentBatch,
+    loading,
+    allRecipes,
+    addPoolEntry,
+    updatePoolEntryMultiplier,
+    removePoolEntry,
+  } = useBatchPool();
 
-  // Stats - only count days from minDayIndex onwards for current week
-  const planableDays = 7 - minDayIndex;
-  const totalMeals = Array.from(plannedMeals.entries()).filter(([day]) => day >= minDayIndex).length;
-  const totalCookTime = Array.from(plannedMeals.entries())
-    .filter(([day]) => day >= minDayIndex)
-    .reduce((sum, [, m]) => sum + m.recipe.cookTime, 0);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Get used recipe IDs
-  const usedRecipeIds = new Set(Array.from(plannedMeals.values()).map(m => m.recipe.id));
+  const pool = useMemo(() => currentBatch?.meals ?? [], [currentBatch]);
+  const groups = useMemo(() => groupPoolByRecipe(pool), [pool]);
+  const groupCount = (recipeId: string) =>
+    groups.find(g => g.recipeId === recipeId)?.count ?? 1;
 
-  // Auto-fill remaining days
-  const handleAutoFill = () => {
-    const available = allRecipes.filter(r => !usedRecipeIds.has(r.id));
-    const newMeals = new Map(plannedMeals);
-    
-    let filled = 0;
-    for (let day = minDayIndex; day < 7; day++) {
-      if (!newMeals.has(day) && available.length > 0) {
-        // Pick a random recipe
-        const randomIndex = Math.floor(Math.random() * available.length);
-        const recipe = available.splice(randomIndex, 1)[0];
-        newMeals.set(day, { recipe, servingsMultiplier: 1.0 });
-        filled++;
-      }
-    }
+  const totalCookTime = pool.reduce((sum, m) => sum + (m.recipe?.cookTime ?? 0), 0);
 
-    setPlannedMeals(newMeals);
-    
-    if (filled > 0) {
-      toast({
-        title: `Filled ${filled} days! 🎲`,
-        description: "Unique recipes selected for variety.",
-      });
-    } else {
-      toast({
-        title: "Already full! 🎉",
-        description: `All ${planableDays} days are planned.`,
-      });
-    }
-  };
-
-  // Clear all (only clearable days)
-  const handleClear = () => {
-    const newMeals = new Map(plannedMeals);
-    for (let day = minDayIndex; day < 7; day++) {
-      newMeals.delete(day);
-    }
-    setPlannedMeals(newMeals);
-    toast({
-      title: "Plan cleared! 🧹",
-      description: "Ready to start fresh.",
-    });
-  };
-
-  // Add recipe to day
-  const handleSelectRecipe = (recipe: ParsedRecipe) => {
-    if (selectingForDay === null) return;
-    
-    setPlannedMeals(prev => {
-      const newMeals = new Map(prev);
-      newMeals.set(selectingForDay, { recipe, servingsMultiplier: 1.0 });
-      return newMeals;
-    });
-    
-    setSelectingForDay(null);
-    toast({
-      title: "Added! ✨",
-      description: `${recipe.title} on ${DAY_NAMES[selectingForDay]}.`,
-    });
-  };
-
-  // Adjust servings multiplier for a day
-  const handleAdjustMultiplier = (day: number, delta: number) => {
-    setPlannedMeals(prev => {
-      const meal = prev.get(day);
-      if (!meal) return prev;
-      const newMultiplier = Math.max(0.5, Math.min(4, meal.servingsMultiplier + delta));
-      const newMeals = new Map(prev);
-      newMeals.set(day, { ...meal, servingsMultiplier: newMultiplier });
-      return newMeals;
-    });
-  };
-
-  // Remove recipe from day
-  const handleRemove = (day: number) => {
-    setPlannedMeals(prev => {
-      const newMeals = new Map(prev);
-      newMeals.delete(day);
-      return newMeals;
-    });
-  };
-
-  // Swap two days
-  const handleSwap = (day1: number, day2: number) => {
-    setPlannedMeals(prev => {
-      const newMeals = new Map(prev);
-      const meal1 = prev.get(day1);
-      const meal2 = prev.get(day2);
-      
-      if (meal1 && meal2) {
-        newMeals.set(day1, meal2);
-        newMeals.set(day2, meal1);
-      } else if (meal1) {
-        newMeals.delete(day1);
-        newMeals.set(day2, meal1);
-      } else if (meal2) {
-        newMeals.set(day1, meal2);
-        newMeals.delete(day2);
-      }
-      
-      return newMeals;
-    });
-  };
-
-  // Save plan
-  const handleSave = async () => {
-    if (totalMeals === 0) {
-      toast({
-        title: "Add some meals first! 😅",
-        description: "Select at least one dinner before saving.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setSaving(true);
+  const handleAdd = async (recipe: ParsedRecipe) => {
+    setPickerOpen(false);
     try {
-      const mealsMap = new Map<number, { recipeId: string; servingsMultiplier: number }>();
-      plannedMeals.forEach((meal, day) => {
-        // Only include days from minDayIndex onwards for current week
-        if (day >= minDayIndex) {
-          mealsMap.set(day, { recipeId: meal.recipe.id, servingsMultiplier: meal.servingsMultiplier });
-        }
-      });
-      
-      if (isCurrentWeek) {
-        await saveCurrentWeekPlan(mealsMap);
-      } else {
-        await saveNextWeekPlan(mealsMap);
-      }
-      
-      navigate('/summary', { 
-        state: { 
-          meals: Array.from(plannedMeals.entries()).filter(([day]) => day >= minDayIndex),
-          isCurrentWeek 
-        } 
-      });
-    } catch (error) {
-      console.error('Error saving plan:', error);
-      toast({
-        title: "Error saving plan",
-        description: "Please try again.",
-        variant: "destructive",
-      });
+      await addPoolEntry(recipe.id, 1);
+      toast({ title: "Added to the pool! ✨", description: recipe.title });
+    } catch {
+      toast({ title: "Couldn't add that dish", variant: "destructive" });
+    }
+  };
+
+  const handleRemove = async (entry: PoolMeal) => {
+    setBusyId(entry.id);
+    try {
+      await removePoolEntry(entry.id);
+    } catch {
+      toast({ title: "Couldn't remove that dish", variant: "destructive" });
     } finally {
-      setSaving(false);
+      setBusyId(null);
+    }
+  };
+
+  const handleAdjust = async (entry: PoolMeal, delta: number) => {
+    const next = Math.max(MIN_MULTIPLIER, Math.min(MAX_MULTIPLIER, entry.servingsMultiplier + delta));
+    if (next === entry.servingsMultiplier) return;
+    setBusyId(entry.id);
+    try {
+      await updatePoolEntryMultiplier(entry.id, next);
+    } catch {
+      toast({ title: "Couldn't update servings", variant: "destructive" });
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -261,21 +100,31 @@ export default function PlanMode() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
       <header className="bg-background shadow-sm sticky top-0 z-10">
         <div className="container py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Calendar className="h-6 w-6 text-primary" />
+              <ShoppingCart className="h-6 w-6 text-primary" />
               <div>
                 <span className="text-lg font-bold">Plan Mode</span>
-                <span className="text-sm text-muted-foreground ml-2">{weekLabel}</span>
+                {currentBatch && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    {currentBatch.startsOn} → {currentBatch.endsOn}
+                  </span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
                 <ChefHat className="h-4 w-4 mr-2" />
                 Cook
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/account')}>
+                {user?.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="Profile" className="h-6 w-6 rounded-full" />
+                ) : (
+                  <User className="h-4 w-4" />
+                )}
               </Button>
               <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
@@ -287,237 +136,197 @@ export default function PlanMode() {
       </header>
 
       <div className="container py-6">
-        {/* Current week notice */}
-        {isCurrentWeek && (
-          <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-primary" />
-              <div>
-                <p className="font-medium">Planning for the rest of this week</p>
-                <p className="text-sm text-muted-foreground">
-                  Days before today ({DAY_NAMES.slice(0, todayIndex).join(', ') || 'none'}) are locked.
-                </p>
+        {!currentBatch ? (
+          <div className="max-w-xl mx-auto text-center">
+            <Card className="p-8 border-2 border-dashed border-primary/20">
+              <ShoppingCart className="h-16 w-16 mx-auto text-muted-foreground mb-6" />
+              <h2 className="text-2xl font-bold mb-4">No active batch yet</h2>
+              <p className="text-muted-foreground flex items-center justify-center gap-1 flex-wrap">
+                No active batch — plan one in chat <MessageCircle className="h-4 w-4 inline" /> 💬
+              </p>
+            </Card>
+          </div>
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <div className="flex gap-4 flex-wrap">
+                <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+                  {pool.length} dish{pool.length !== 1 ? 'es' : ''} in the pool
+                </Badge>
+                <Badge variant="outline">
+                  ⏱️ {totalCookTime} min total
+                </Badge>
               </div>
+              <Button size="sm" onClick={() => setPickerOpen(true)} className="bg-primary text-primary-foreground rounded-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add a dish
+              </Button>
             </div>
-          </Card>
-        )}
-        
-        {/* Stats */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex gap-4">
-            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
-              {totalMeals}/{planableDays} dinners planned
-            </Badge>
-            <Badge variant="outline">
-              ⏱️ {totalCookTime} min total
-            </Badge>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleClear}>
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Clear
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleAutoFill}>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Auto-Fill
-            </Button>
-          </div>
-        </div>
 
-        {/* Week Grid */}
-        <div className="grid md:grid-cols-7 gap-4 mb-8">
-          {DAY_NAMES.map((day, index) => {
-            const meal = plannedMeals.get(index);
-            const isPastDay = isCurrentWeek && index < minDayIndex;
-            
-            return (
-              <Card 
-                key={day} 
-                className={`p-4 border-2 border-dashed transition-all ${
-                  isPastDay ? 'opacity-50 bg-muted/50' : 'hover:border-primary/30'
-                }`}
-              >
-                <h3 className="font-bold text-sm text-primary mb-3 text-center">
-                  {day}
-                  {isCurrentWeek && index === todayIndex && (
-                    <Badge variant="outline" className="ml-1 text-xs">Today</Badge>
-                  )}
-                </h3>
-                
-                {isPastDay ? (
-                  <div className="h-32 flex items-center justify-center text-muted-foreground text-xs">
-                    Past
-                  </div>
-                ) : meal ? (
-                  <div className="relative group">
-                    <div className="bg-foreground text-background rounded-xl overflow-hidden">
-                      <img 
-                        src={meal.recipe.image} 
-                        alt={meal.recipe.title}
-                        className="w-full h-20 object-cover opacity-80"
-                      />
-                      <div className="p-3">
-                        <div className="font-bold text-sm truncate">{meal.recipe.title}</div>
-                        <div className="text-xs text-white/70 mt-1">
-                          ⏱️ {meal.recipe.cookTime}min
-                        </div>
-                        {/* Portion controls */}
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/20">
-                          <span className="text-xs text-white/80">
-                            <Users className="h-3 w-3 inline mr-1" />
-                            {Math.round(meal.recipe.servings * meal.servingsMultiplier)}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5 text-white hover:bg-white/20"
-                              onClick={(e) => { e.stopPropagation(); handleAdjustMultiplier(index, -0.5); }}
-                              disabled={meal.servingsMultiplier <= 0.5}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="text-xs font-medium w-6 text-center">
-                              {meal.servingsMultiplier === 1 ? '1×' : `${meal.servingsMultiplier}×`}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5 text-white hover:bg-white/20"
-                              onClick={(e) => { e.stopPropagation(); handleAdjustMultiplier(index, 0.5); }}
-                              disabled={meal.servingsMultiplier >= 4}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemove(index)}
-                      className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive hover:bg-destructive/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setSelectingForDay(index)}
-                    className="w-full h-32 border-2 border-dashed border-border/30 hover:border-primary/50 flex-col gap-2 rounded-xl"
-                  >
-                    <Plus className="h-6 w-6" />
-                    <span className="text-xs">Add Dinner</span>
-                  </Button>
-                )}
+            {/* Pool list */}
+            {pool.length === 0 ? (
+              <Card className="p-8 text-center text-muted-foreground border-2 border-dashed">
+                The pool is empty. Add a dish to get started! ✨
               </Card>
-            );
-          })}
-        </div>
-
-        {/* Aggregated Info */}
-        {totalMeals > 0 && (
-          <Card className="p-6 mb-8 bg-muted border-border">
-            <h3 className="font-bold mb-4">Week Summary</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-primary">{totalMeals}</div>
-                <div className="text-sm text-muted-foreground">Meals</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">{totalCookTime}</div>
-                <div className="text-sm text-muted-foreground">Total Minutes</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">
-                  {new Set(Array.from(plannedMeals.values()).flatMap(m => m.recipe.tags)).size}
-                </div>
-                <div className="text-sm text-muted-foreground">Cuisines</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">
-                  {Array.from(plannedMeals.values()).reduce((sum, m) => sum + m.recipe.ingredients.length, 0)}
-                </div>
-                <div className="text-sm text-muted-foreground">Ingredients</div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Save Button */}
-        <div className="text-center">
-          <Button 
-            size="lg" 
-            onClick={handleSave}
-            disabled={saving || totalMeals === 0}
-            className="bg-primary text-primary-foreground rounded-full transition-colors px-8"
-          >
-            {saving ? (
-              <>Saving...</>
             ) : (
-              <>
-                Save & Get Shopping List
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {pool.map(entry => (
+                  <PoolCard
+                    key={entry.id}
+                    entry={entry}
+                    badgeCount={groupCount(entry.recipeId)}
+                    busy={busyId === entry.id}
+                    onAdjust={(delta) => handleAdjust(entry, delta)}
+                    onRemove={() => handleRemove(entry)}
+                  />
+                ))}
+              </div>
             )}
-          </Button>
-        </div>
+
+            <div className="text-center">
+              <Button
+                size="lg"
+                onClick={() => navigate('/summary')}
+                disabled={pool.length === 0}
+                className="bg-primary text-primary-foreground rounded-full transition-colors px-8"
+              >
+                View Shopping List
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Recipe Selection Modal */}
-      <Dialog open={selectingForDay !== null} onOpenChange={() => setSelectingForDay(null)}>
+      {/* Recipe Picker Modal */}
+      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              Select dinner for {selectingForDay !== null ? DAY_NAMES[selectingForDay] : ''}
-            </DialogTitle>
+            <DialogTitle>Add a dish to the pool</DialogTitle>
           </DialogHeader>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-            {allRecipes
-              .filter(r => !usedRecipeIds.has(r.id))
-              .map(recipe => (
-                <Card 
-                  key={recipe.id}
-                  className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
-                  onClick={() => handleSelectRecipe(recipe)}
-                >
-                  <img 
-                    src={recipe.image} 
-                    alt={recipe.title}
-                    className="w-full h-24 object-cover rounded-lg mb-2"
-                  />
-                  <h4 className="font-bold text-sm truncate">{recipe.title}</h4>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {recipe.cookTime}min
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="h-3 w-3" /> {recipe.servings}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {recipe.tags.slice(0, 2).map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-xs px-2 py-0">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </Card>
-              ))}
-          </div>
 
-          {allRecipes.filter(r => !usedRecipeIds.has(r.id)).length === 0 && (
-            <p className="text-center text-muted-foreground py-8">
-              All recipes are already in your plan! 🎉
-            </p>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            {allRecipes.map(recipe => (
+              <Card
+                key={recipe.id}
+                className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
+                onClick={() => handleAdd(recipe)}
+              >
+                <img
+                  src={recipe.image}
+                  alt={recipe.title}
+                  className="w-full h-24 object-cover rounded-lg mb-2"
+                />
+                <h4 className="font-bold text-sm truncate">{recipe.title}</h4>
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> {recipe.cookTime}min
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="h-3 w-3" /> {recipe.servings}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {recipe.tags.slice(0, 2).map(tag => (
+                    <Badge key={tag} variant="secondary" className="text-xs px-2 py-0">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
       <CompassionFooter />
     </div>
+  );
+}
+
+function PoolCard({
+  entry,
+  badgeCount,
+  busy,
+  onAdjust,
+  onRemove,
+}: {
+  entry: PoolMeal;
+  badgeCount: number;
+  busy: boolean;
+  onAdjust: (delta: number) => void;
+  onRemove: () => void;
+}) {
+  const recipe = entry.recipe;
+  const cooked = entry.cookedOn !== null;
+
+  return (
+    <Card className={`p-4 border-2 border-dashed transition-all relative group ${cooked ? 'opacity-70' : 'hover:border-primary/30'}`}>
+      <div className="bg-foreground text-background rounded-xl overflow-hidden">
+        {recipe?.image && (
+          <img src={recipe.image} alt={recipe.title} className="w-full h-20 object-cover opacity-80" />
+        )}
+        <div className="p-3">
+          <div className="flex items-center gap-2">
+            <div className="font-bold text-sm truncate flex-1">{recipe?.title ?? entry.recipeId}</div>
+            {badgeCount > 1 && (
+              <Badge variant="secondary" className="text-xs shrink-0">🍱 ×{badgeCount}</Badge>
+            )}
+          </div>
+          {recipe && (
+            <div className="text-xs text-white/70 mt-1">
+              ⏱️ {recipe.cookTime}min
+            </div>
+          )}
+          {cooked ? (
+            <div className="flex items-center gap-1 mt-2 pt-2 border-t border-white/20 text-xs text-white/80">
+              <CheckCircle2 className="h-3 w-3" /> Cooked {entry.cookedOn}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/20">
+              <span className="text-xs text-white/80">
+                <Users className="h-3 w-3 inline mr-1" />
+                {recipe ? Math.round(recipe.servings * entry.servingsMultiplier) : ''}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Decrease servings"
+                  className="h-5 w-5 text-white hover:bg-white/20"
+                  onClick={() => onAdjust(-0.5)}
+                  disabled={busy || entry.servingsMultiplier <= MIN_MULTIPLIER}
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <span className="text-xs font-medium w-6 text-center">
+                  {entry.servingsMultiplier}×
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Increase servings"
+                  className="h-5 w-5 text-white hover:bg-white/20"
+                  onClick={() => onAdjust(0.5)}
+                  disabled={busy || entry.servingsMultiplier >= MAX_MULTIPLIER}
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-label="Remove from pool"
+        onClick={onRemove}
+        disabled={busy}
+        className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive hover:bg-destructive/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X className="h-3 w-3" />
+      </Button>
+    </Card>
   );
 }

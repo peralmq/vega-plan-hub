@@ -32,34 +32,44 @@ const TEST_USER = {
 // supabase-js uses `sb-${hostname.split(".")[0]}-auth-token`.
 const STORAGE_KEY = "sb-stub-auth-token";
 
-export interface SeedMeal {
-  dayOfWeek: number; // 0=Mon .. 6=Sun
+// p4-12: pool model (tech.spec.md "Pool model") — a plan_batches row covers
+// a date range; its planned_meals rows are pool entries (no meal_date; a
+// meal prep is the same recipeId twice), and `cookedOn` stamps a pick made
+// in Cook Mode.
+export interface SeedPoolMeal {
   recipeId: string;
   servingsMultiplier?: number;
+  cookedOn?: string | null;
 }
 
+interface PlanBatchRow {
+  id: string;
+  user_id: string;
+  starts_on: string; // yyyy-MM-dd
+  ends_on: string; // yyyy-MM-dd
+}
 interface PlannedMealRow {
   id: string;
   user_id: string;
-  meal_date: string; // yyyy-MM-dd
+  batch_id: string | null;
+  meal_date: string | null;
   recipe_id: string;
   servings_multiplier: number;
+  cooked_on: string | null;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const fmt = (d: Date) =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-// Monday of the week containing `base` (matches date-fns startOfWeek weekStartsOn:1).
-function mondayOf(base: Date): Date {
+function addDays(base: Date, n: number): Date {
   const d = new Date(base);
   d.setHours(0, 0, 0, 0);
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1) - day;
-  d.setDate(d.getDate() + diff);
+  d.setDate(d.getDate() + n);
   return d;
 }
 
 export class MockDb {
+  private planBatches: PlanBatchRow[] = [];
   private plannedMeals: PlannedMealRow[] = [];
   private familyMembers: unknown[] = [];
   private ratings: unknown[] = [];
@@ -75,18 +85,13 @@ export class MockDb {
     return `${prefix}-${++this.idc}`;
   }
 
-  currentMonday(): string {
-    return fmt(mondayOf(new Date()));
+  /** Today's date the app uses, as yyyy-MM-dd. */
+  today(): string {
+    return fmt(new Date());
   }
-  nextMonday(): string {
-    const d = mondayOf(new Date());
-    d.setDate(d.getDate() + 7);
-    return fmt(d);
-  }
-  /** Today's day index the app uses: 0=Mon .. 6=Sun. */
-  todayDayOfWeek(): number {
-    const j = new Date().getDay();
-    return j === 0 ? 6 : j - 1;
+  /** `n` days from today (negative = past), as yyyy-MM-dd. */
+  isoDaysFromToday(n: number): string {
+    return fmt(addDays(new Date(), n));
   }
 
   /** Register the network stubs. Call once (the fixture does this). */
@@ -127,28 +132,53 @@ export class MockDb {
     );
   }
 
-  seedCurrentWeek(meals: SeedMeal[]): this {
-    this.addPlan(this.currentMonday(), meals);
-    return this;
+  /**
+   * Seed the active batch (covers today by default) with pool entries.
+   * Returns the batch id.
+   */
+  seedActiveBatch(
+    meals: SeedPoolMeal[],
+    opts: { startsOn?: string; endsOn?: string } = {},
+  ): string {
+    return this.addBatch(
+      opts.startsOn ?? this.isoDaysFromToday(-1),
+      opts.endsOn ?? this.isoDaysFromToday(3),
+      meals,
+    );
   }
-  seedNextWeek(meals: SeedMeal[]): this {
-    this.addPlan(this.nextMonday(), meals);
-    return this;
+
+  /** Seed an upcoming batch (starts after today) — not the active one. */
+  seedNextBatch(
+    meals: SeedPoolMeal[],
+    opts: { startsOn?: string; endsOn?: string } = {},
+  ): string {
+    return this.addBatch(
+      opts.startsOn ?? this.isoDaysFromToday(4),
+      opts.endsOn ?? this.isoDaysFromToday(8),
+      meals,
+    );
   }
-  private addPlan(weekStart: string, meals: SeedMeal[]) {
-    // weekStart is a Monday; dayOfWeek 0..6 offsets to the calendar date
-    // (planned_meals is date-keyed since p4-01).
+
+  private addBatch(startsOn: string, endsOn: string, meals: SeedPoolMeal[]): string {
+    const batchId = this.nid("batch");
+    this.planBatches.push({
+      id: batchId,
+      user_id: TEST_USER.id,
+      starts_on: startsOn,
+      ends_on: endsOn,
+    });
     for (const m of meals) {
-      const d = new Date(`${weekStart}T00:00:00`);
-      d.setDate(d.getDate() + m.dayOfWeek);
       this.plannedMeals.push({
         id: this.nid("pm"),
         user_id: TEST_USER.id,
-        meal_date: fmt(d),
+        batch_id: batchId,
+        meal_date: null,
         recipe_id: m.recipeId,
         servings_multiplier: m.servingsMultiplier ?? 1,
+        cooked_on: m.cookedOn ?? null,
       });
     }
+    return batchId;
   }
 
   // --- PostgREST emulation -------------------------------------------------
@@ -179,51 +209,65 @@ export class MockDb {
       }
     }
 
-    if (table === "planned_meals") {
-      // Date-window filters arrive as repeated meal_date params:
-      // meal_date=gte.YYYY-MM-DD & meal_date=lte.YYYY-MM-DD.
-      const { gte, lte } = this.dateRange(params.getAll("meal_date"));
-      const inRange = (r: PlannedMealRow) =>
-        (!gte || r.meal_date >= gte) && (!lte || r.meal_date <= lte);
+    if (table === "plan_batches" && method === "GET") {
+      const gte = this.gteVal(params.getAll("ends_on"));
+      let rows = this.planBatches.filter((b) => !gte || b.ends_on >= gte);
+      const order = params.get("order");
+      if (order?.startsWith("starts_on")) {
+        const asc = !order.includes("desc");
+        rows = [...rows].sort((a, b) =>
+          asc
+            ? a.starts_on.localeCompare(b.starts_on)
+            : b.starts_on.localeCompare(a.starts_on),
+        );
+      }
+      return this.json(
+        route,
+        rows.map((b) => ({ id: b.id, starts_on: b.starts_on, ends_on: b.ends_on })),
+      );
+    }
 
+    if (table === "planned_meals") {
       if (method === "GET") {
+        const batchIds = this.inVals(params.get("batch_id"));
         const rows = this.plannedMeals
-          .filter(inRange)
+          .filter((r) => !batchIds || batchIds.includes(r.batch_id ?? ""))
           .map((r) => ({
             id: r.id,
-            meal_date: r.meal_date,
+            batch_id: r.batch_id,
             recipe_id: r.recipe_id,
             servings_multiplier: r.servings_multiplier,
-          }))
-          .sort((a, b) => a.meal_date.localeCompare(b.meal_date));
+            cooked_on: r.cooked_on,
+          }));
         return this.json(route, rows);
       }
-      if (method === "DELETE") {
-        const uid = this.eqVal(params.get("user_id"));
-        this.plannedMeals = this.plannedMeals.filter(
-          (r) => !(inRange(r) && (!uid || r.user_id === uid)),
-        );
-        return route.fulfill({ status: 204, body: "" });
-      }
       if (method === "POST") {
-        // Upsert on (user_id, meal_date) — postgrest sends on_conflict param.
         const rows = Array.isArray(body) ? body : [body];
         for (const r of rows as Array<Partial<PlannedMealRow>>) {
-          const userId = r.user_id ?? TEST_USER.id;
-          const mealDate = r.meal_date ?? "";
-          this.plannedMeals = this.plannedMeals.filter(
-            (existing) =>
-              !(existing.user_id === userId && existing.meal_date === mealDate),
-          );
           this.plannedMeals.push({
             id: this.nid("pm"),
-            user_id: userId,
-            meal_date: mealDate,
+            user_id: r.user_id ?? TEST_USER.id,
+            batch_id: r.batch_id ?? null,
+            meal_date: r.meal_date ?? null,
             recipe_id: r.recipe_id ?? "",
             servings_multiplier: r.servings_multiplier ?? 1,
+            cooked_on: r.cooked_on ?? null,
           });
         }
         return route.fulfill({ status: 201, body: "" });
+      }
+      if (method === "PATCH") {
+        const id = this.eqVal(params.get("id"));
+        const patch = (body ?? {}) as Partial<PlannedMealRow>;
+        this.plannedMeals = this.plannedMeals.map((r) =>
+          id && r.id === id ? { ...r, ...patch } : r,
+        );
+        return route.fulfill({ status: 204, body: "" });
+      }
+      if (method === "DELETE") {
+        const id = this.eqVal(params.get("id"));
+        this.plannedMeals = this.plannedMeals.filter((r) => r.id !== id);
+        return route.fulfill({ status: 204, body: "" });
       }
     }
 
@@ -243,18 +287,23 @@ export class MockDb {
     });
   }
 
-  private dateRange(values: string[]): { gte?: string; lte?: string } {
-    const range: { gte?: string; lte?: string } = {};
+  private gteVal(values: string[]): string | undefined {
     for (const v of values) {
-      const m = v.match(/^(gte|lte)\.(.*)$/s);
-      if (m) range[m[1] as "gte" | "lte"] = m[2];
+      const m = v.match(/^gte\.(.*)$/s);
+      if (m) return m[1];
     }
-    return range;
+    return undefined;
   }
   private eqVal(value: string | null): string | null {
     if (!value) return null;
     const m = value.match(/^eq\.(.*)$/s);
     return m ? m[1] : value;
+  }
+  private inVals(value: string | null): string[] | null {
+    if (!value) return null;
+    const m = value.match(/^in\.\((.*)\)$/s);
+    if (!m) return null;
+    return m[1].split(",").filter(Boolean);
   }
 }
 
