@@ -135,33 +135,30 @@ export type Database = {
       planned_meals: {
         Row: {
           batch_id: string | null
-          cooked_on: string | null
           created_at: string
           created_by: string | null
           id: string
-          meal_date: string | null
+          meal_date: string
           recipe_id: string
           servings_multiplier: number
           user_id: string
         }
         Insert: {
           batch_id?: string | null
-          cooked_on?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
-          meal_date?: string | null
+          meal_date: string
           recipe_id: string
           servings_multiplier?: number
           user_id: string
         }
         Update: {
           batch_id?: string | null
-          cooked_on?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
-          meal_date?: string | null
+          meal_date?: string
           recipe_id?: string
           servings_multiplier?: number
           user_id?: string
