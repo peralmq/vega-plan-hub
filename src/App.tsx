@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { MockModeBadge } from "@/mocks/MockModeBadge";
 import Landing from "./pages/Landing";
@@ -17,6 +17,7 @@ const queryClient = new QueryClient();
 // Protected route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -27,7 +28,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/welcome" replace />;
+    // p4-11: preserve deep-link query params (e.g. ?recipe=&x=) through the
+    // /welcome redirect, so signInWithGoogle can carry them into the OAuth
+    // redirectTo and the app lands back on the same deep link after login.
+    return <Navigate to={{ pathname: "/welcome", search: location.search }} replace />;
   }
 
   return <>{children}</>;
@@ -36,6 +40,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 // Auth route - redirect to home if already logged in
 function AuthRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -46,7 +51,8 @@ function AuthRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
+    // Mirrors ProtectedRoute: carry any preserved deep-link query back to "/".
+    return <Navigate to={{ pathname: "/", search: location.search }} replace />;
   }
 
   return <>{children}</>;

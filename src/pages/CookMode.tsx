@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,7 @@ import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
+import { findDeepLinkRecipe, resolveServingsMultiplier } from "@/lib/cookModeDeepLink";
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -52,20 +53,53 @@ export default function CookMode() {
 
   const allRecipes = useMemo(() => loadAllRecipes(), []);
   const todayIndex = getTodayIndex();
-  
+
+  const [searchParams] = useSearchParams();
   const [selectedDay, setSelectedDay] = useState<number>(todayIndex);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [targetServings, setTargetServings] = useState<number | null>(null);
   const [editingDay, setEditingDay] = useState<number | null>(null);
   const [viewingWeek, setViewingWeek] = useState<'current' | 'next'>('current');
+  const [deepLinkNotified, setDeepLinkNotified] = useState(false);
+  const deepLinkAppliedRef = useRef(false);
 
   const activePlan = viewingWeek === 'current' ? currentWeekPlan : nextWeekPlan;
 
-  const selectedRecipe = viewingWeek === 'current' 
-    ? getRecipeForDay(selectedDay) 
+  const dayRecipe = viewingWeek === 'current'
+    ? getRecipeForDay(selectedDay)
     : activePlan?.meals.find(m => m.dayOfWeek === selectedDay)?.recipe;
 
+  // p4-11: `?recipe=<markdown recipe id>` deep-links straight to a recipe,
+  // overriding the day picker; an unknown id falls back to the normal
+  // tonight-first view plus a friendly toast (design.spec.md, Cook Mode).
+  const deepLinkRecipeId = searchParams.get('recipe');
+  const deepLinkRecipe = useMemo(
+    () => findDeepLinkRecipe(allRecipes, deepLinkRecipeId),
+    [allRecipes, deepLinkRecipeId],
+  );
+  // `?x=<multiplier>`: absent/bad -> the recipe's own multiplier in the
+  // active (current-week) plan, else 1.
+  const deepLinkMultiplier = useMemo(() => {
+    const plannedMultiplier = deepLinkRecipe
+      ? currentWeekPlan?.meals.find(m => m.recipeId === deepLinkRecipe.id)?.servingsMultiplier
+      : undefined;
+    return resolveServingsMultiplier(searchParams.get('x'), plannedMultiplier ?? 1);
+  }, [deepLinkRecipe, searchParams, currentWeekPlan]);
+
+  const selectedRecipe = deepLinkRecipe ?? dayRecipe;
+
   const usedRecipeIds = new Set(activePlan?.meals.map(m => m.recipeId) || []);
+
+  // Unknown ?recipe id: friendly toast, never a crash — falls through to the
+  // normal day-based Cook Mode view.
+  useEffect(() => {
+    if (!deepLinkRecipeId || deepLinkRecipe || deepLinkNotified) return;
+    toast({
+      title: "🤷 Couldn't find that recipe",
+      description: `"${deepLinkRecipeId}" isn't in the recipe box — showing Cook Mode instead.`,
+    });
+    setDeepLinkNotified(true);
+  }, [deepLinkRecipeId, deepLinkRecipe, deepLinkNotified]);
 
   useMemo(() => {
     if (selectedRecipe && targetServings === null) {
@@ -77,6 +111,16 @@ export default function CookMode() {
     setCompletedSteps([]);
     setTargetServings(selectedRecipe?.servings || null);
   }, [selectedDay]);
+
+  // Once the plan finishes loading (so the default × reflects real plan
+  // data, not a mid-fetch null), apply the deep link's servings once. A ref
+  // guard keeps this from re-firing and stomping a manual +/- adjustment
+  // when the plan refetches for an unrelated reason.
+  useEffect(() => {
+    if (loading || !deepLinkRecipe || deepLinkAppliedRef.current) return;
+    deepLinkAppliedRef.current = true;
+    setTargetServings(Math.round(deepLinkRecipe.servings * deepLinkMultiplier));
+  }, [loading, deepLinkRecipe, deepLinkMultiplier]);
 
   const scaledIngredients = useMemo(() => {
     if (!selectedRecipe || !targetServings) return [];
@@ -157,7 +201,7 @@ export default function CookMode() {
     );
   }
 
-  if (!hasCurrentWeekPlan()) {
+  if (!hasCurrentWeekPlan() && !deepLinkRecipe) {
     const remainingDays = 7 - todayIndex;
     
     return (
@@ -299,7 +343,7 @@ export default function CookMode() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <Badge variant="secondary" className="mb-2">
-                    {DAY_NAMES[selectedDay]}'s Dinner
+                    {deepLinkRecipe ? '🔗 Direct link' : `${DAY_NAMES[selectedDay]}'s Dinner`}
                   </Badge>
                   <h1 className="text-2xl md:text-3xl font-bold text-white mb-3">
                     {selectedRecipe.title}

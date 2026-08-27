@@ -39,6 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    // p4-11: carry the current query string (e.g. ?recipe=&x= preserved onto
+    // /welcome by ProtectedRoute) through the OAuth round trip, so the app
+    // lands back on the same Cook Mode deep link after login.
+    const search = window.location.search;
+
     // Lovable's OAuth broker (/~oauth/*) only exists on Lovable hosting.
     // The GitHub Pages build is the only one with a non-"/" Vite base, so
     // that build signs in directly against Supabase, with a redirect that
@@ -47,14 +52,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + import.meta.env.BASE_URL,
+          redirectTo: window.location.origin + import.meta.env.BASE_URL + search,
         },
       });
       if (error) throw error;
       return;
     }
     const result = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: window.location.origin,
+      redirect_uri: window.location.origin + search,
     });
     if (result.error) throw result.error;
   };
