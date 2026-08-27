@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildMenuCard — 3-day batch, no meal prep > matches the chat HTML snapshot 1`] = `
+"🌱✨ <b>VECKANS MENY</b> ✨🌱
+3 dagar · 1/9–3/9 · 3 middagar
+
+🌶 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=mapo-tofu&amp;scale=1"><b>Mapo Tofu</b></a> ⏰ 20 min
+🍛 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=chana-dal&amp;scale=1"><b>Chana Dal</b></a> ⏰ 35 min
+🍝 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=baked-feta-pasta&amp;scale=1"><b>Baked Feta Pasta</b></a> ⏰ 30 min
+
+Ni väljer kvällens rätt när ni vill 😌
+🛒 10 varor · ~250 kr
+💻 Prisjämför: npm run compare -- --batch batch-456
+cooked with compassion · för djuren, planeten & varandra 🐾🌍💚"
+`;
+
+exports[`buildMenuCard — 5-day meal-prep batch > matches the PDF HTML snapshot 1`] = `
+"<!doctype html>
+<html lang="sv"><head><meta charset="utf-8" /><title>Veckans meny</title>
+<style>
+  :root {
+    --background: #FAF7F0; --foreground: #1A1A17; --card: #FFFEF9;
+    --border: #E4DFD2; --muted: #6B675C; --primary: #3D7A4E;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px; background: var(--background); color: var(--foreground);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  .sub { color: var(--muted); margin-bottom: 24px; }
+  ul.dishes { list-style: none; margin: 0; padding: 0; }
+  li.dish { display: flex; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  li.dish:last-child { border-bottom: none; }
+  .photo { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); }
+  .info a { color: var(--foreground); text-decoration: none; }
+  .info strong { font-size: 17px; }
+  .meta { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .hint { margin-top: 20px; font-size: 15px; }
+  .footer { margin-top: 24px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style></head>
+<body><div class="card">
+  <h1>🌱✨ Veckans meny ✨🌱</h1>
+  <div class="sub">5 dagar · 27/8–31/8 · 5 middagar</div>
+  <ul class="dishes"><li class="dish">
+        <img class="photo" src="https://peralmq.github.io/vega-plan-hub/recipes/mapo-tofu.webp" alt="" />
+        <div class="info">
+          <a href="https://peralmq.github.io/vega-plan-hub/?recipe=mapo-tofu&amp;scale=1">🌶 <strong>Mapo Tofu</strong></a>
+          <div class="meta">⏰ 20 min</div>
+        </div>
+      </li><li class="dish">
+        <img class="photo" src="https://peralmq.github.io/vega-plan-hub/recipes/chana-dal.jpg" alt="" />
+        <div class="info">
+          <a href="https://peralmq.github.io/vega-plan-hub/?recipe=chana-dal&amp;scale=1">🍛 <strong>Chana Dal</strong></a>
+          <div class="meta">⏰ 35 min · 🍱 ×2</div>
+        </div>
+      </li><li class="dish">
+        <img class="photo" src="https://example.com/tacos.jpg" alt="" />
+        <div class="info">
+          <a href="https://peralmq.github.io/vega-plan-hub/?recipe=fredagsmys-tacos&amp;scale=1">🌮 <strong>Fredagsmys-tacos</strong></a>
+          <div class="meta">⏰ 25 min</div>
+        </div>
+      </li><li class="dish">
+        <img class="photo" src="https://peralmq.github.io/vega-plan-hub/recipes/feta-pasta.jpg" alt="" />
+        <div class="info">
+          <a href="https://peralmq.github.io/vega-plan-hub/?recipe=baked-feta-pasta&amp;scale=1">🍝 <strong>Baked Feta Pasta</strong></a>
+          <div class="meta">⏰ 30 min</div>
+        </div>
+      </li></ul>
+  <div class="hint">Ni väljer kvällens rätt när ni vill 😌</div>
+  <div class="footer">🛒 19 varor · ~487 kr<br/>cooked with compassion · för djuren, planeten & varandra 🐾🌍💚</div>
+</div></body></html>"
+`;
+
+exports[`buildMenuCard — 5-day meal-prep batch > matches the chat HTML snapshot 1`] = `
+"🌱✨ <b>VECKANS MENY</b> ✨🌱
+5 dagar · 27/8–31/8 · 5 middagar
+
+🌶 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=mapo-tofu&amp;scale=1"><b>Mapo Tofu</b></a> ⏰ 20 min
+🍛 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=chana-dal&amp;scale=1"><b>Chana Dal</b></a> ⏰ 35 min · 🍱 ×2
+🌮 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=fredagsmys-tacos&amp;scale=1"><b>Fredagsmys-tacos</b></a> ⏰ 25 min
+🍝 <a href="https://peralmq.github.io/vega-plan-hub/?recipe=baked-feta-pasta&amp;scale=1"><b>Baked Feta Pasta</b></a> ⏰ 30 min
+
+Ni väljer kvällens rätt när ni vill 😌
+🛒 19 varor · ~487 kr
+💻 Prisjämför: npm run compare -- --batch batch-123
+cooked with compassion · för djuren, planeten & varandra 🐾🌍💚"
+`;

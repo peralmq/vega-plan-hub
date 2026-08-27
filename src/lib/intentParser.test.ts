@@ -114,6 +114,8 @@ const MUST_BE_RULED = [
   "ta bort storkok på dalen",
   "byt dalen mot pyttipanna",
   "byt till mapo tofu",
+  // p4-10: the menu card's on-demand re-send phrase.
+  "visa menyn",
 ];
 
 describe("rules layer", () => {

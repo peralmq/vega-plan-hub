@@ -20,6 +20,13 @@ export interface InlineButton {
   url?: string;
 }
 
+// p4-10: one photo in the menu card's album — an external imageUrl (or the
+// already-absolute placeholder), which Telegram fetches itself.
+export interface MediaGroupPhoto {
+  url: string;
+  caption?: string;
+}
+
 export class TelegramApi {
   private base: string;
 
@@ -43,12 +50,76 @@ export class TelegramApi {
     }
   }
 
-  sendMessage(chatId: number, text: string, buttons?: InlineButton[][]): Promise<unknown> {
+  // `parseMode` is opt-in (undefined = today's plain-text behavior for every
+  // existing caller); the p4-10 menu message is the first HTML sender, since
+  // Telegram never auto-detects markup.
+  sendMessage(
+    chatId: number,
+    text: string,
+    buttons?: InlineButton[][],
+    parseMode?: "HTML",
+  ): Promise<unknown> {
     return this.call("sendMessage", {
       chat_id: chatId,
       text,
+      ...(parseMode ? { parse_mode: parseMode } : {}),
       ...(buttons?.length ? { reply_markup: { inline_keyboard: buttons } } : {}),
     });
+  }
+
+  // p4-10: one dish photo, for the (batch has exactly one distinct dish)
+  // case — Telegram's sendMediaGroup rejects anything under 2 items, so
+  // the caller (bot/menu.ts) uses this instead of a 1-item album.
+  sendPhoto(chatId: number, url: string, caption?: string): Promise<unknown> {
+    return this.call("sendPhoto", {
+      chat_id: chatId,
+      photo: url,
+      ...(caption ? { caption } : {}),
+    });
+  }
+
+  // p4-10: the menu card's photo album — Telegram requires 2..10 items
+  // (the caller must not call this with 0 or 1; use sendPhoto for 1, skip
+  // for 0). src/lib/menuCard.ts's `buildMenuCard` already caps the upper
+  // end at 10.
+  sendMediaGroup(chatId: number, photos: MediaGroupPhoto[]): Promise<unknown> {
+    return this.call("sendMediaGroup", {
+      chat_id: chatId,
+      media: photos.map((p) => ({
+        type: "photo",
+        media: p.url,
+        ...(p.caption ? { caption: p.caption } : {}),
+      })),
+    });
+  }
+
+  // p4-10: the menu PDF is a local Buffer (Playwright's render output), not
+  // a URL — the one outbound call that needs a multipart body instead of
+  // `call()`'s JSON, so it's implemented separately with the same
+  // log-don't-throw failure shape.
+  async sendDocument(
+    chatId: number,
+    filename: string,
+    content: Buffer,
+    caption?: string,
+  ): Promise<unknown> {
+    try {
+      const form = new FormData();
+      form.append("chat_id", String(chatId));
+      if (caption) form.append("caption", caption);
+      form.append(
+        "document",
+        new Blob([new Uint8Array(content)], { type: "application/pdf" }),
+        filename,
+      );
+      const res = await fetch(`${this.base}/sendDocument`, { method: "POST", body: form });
+      const body = (await res.json()) as { ok: boolean; description?: string; result?: unknown };
+      if (!body.ok) console.error(`telegram sendDocument failed: ${body.description}`);
+      return body.result;
+    } catch (err) {
+      console.error("telegram sendDocument error:", err);
+      return undefined;
+    }
   }
 
   react(chatId: number, messageId: number, emoji: string): Promise<unknown> {

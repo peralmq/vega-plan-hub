@@ -52,12 +52,17 @@ already-checked-off rows are excluded (they're bought).
       annotation), fixture-tested — 2026-08-27.
 - [x] `--batch <id|latest>` wired through the standard pipeline incl.
       `--fill-cart` and `--record` — 2026-08-27.
-- [ ] p4-03 lock announcement includes the handoff command line —
-      **deferred out of this change set**: an agent was concurrently
-      working in the bot/ + src/lib planning code this step would touch
-      (`bot/planning.ts`'s `lockBatch`, the announcement text's source),
-      and this plan's footprint was scoped to `compare/**` only to avoid
-      collision. Lands with p4-10's announcement wiring instead.
+- [x] (2026-08-27) p4-03 lock announcement includes the handoff command
+      line — landed by
+      [p4-10-swedish-menu-card](p4-10-swedish-menu-card.md) (its Progress
+      note said the deferred step would land there): `src/lib/planConversation.ts`'s
+      "lock" case now prints `💻 Prisjämför: npm run compare -- --batch
+      <full batch id>` (a SHORT prefix was considered per the orchestrator's
+      instruction, but `compare/cli.ts`'s `--batch` matches ids exactly —
+      no prefix support in `compare/batchFetch.ts`'s `resolveBatchId` /
+      `fetchBatchRows` — so the full id is printed instead); the same line
+      also appears in the p4-10 menu card's chat-message footer. See that
+      plan's Evidence for the commit hash.
 - [ ] Live: a real locked batch price-matched and carted from a
       Claude Code session, human checks out — **left for the human**:
       no credentials exist in this checkout and none were sought (see

@@ -30,6 +30,11 @@ export interface NoteRecipeAction { type: "note_recipe"; note: string }
 // or the repo directly — it hands one event to the state machine, which owns
 // every pool/batch write behind its own confirm-and-lock flow.
 export interface PlanAction { type: "plan"; event: PlanEvent }
+// p4-10: re-send the Swedish menu card (album + HTML message + PDF) for the
+// locked batch — bot/tools.ts resolves which batch and does the sending
+// (Telegram album/document + the Playwright PDF render live outside this
+// pure module, same split as note_recipe's repo write).
+export interface ShowMenuAction { type: "show_menu" }
 export interface UnsupportedAction { type: "unsupported"; intent: string }
 export interface NoopAction { type: "noop" }
 
@@ -41,6 +46,7 @@ export type BotAction =
   | ShowListAction
   | NoteRecipeAction
   | PlanAction
+  | ShowMenuAction
   | UnsupportedAction
   | NoopAction;
 
@@ -111,6 +117,8 @@ export function planActions(
       const event = planEventFromParse(parse, todayIso);
       return event ? [{ type: "plan", event }] : [{ type: "noop" }];
     }
+    case "show_menu":
+      return [{ type: "show_menu" }];
     case "chitchat":
       return [{ type: "noop" }];
     default:

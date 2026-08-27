@@ -68,3 +68,13 @@ verdict input.
 
 Plan tools, preference learning, proactive sends (needs a scheduler
 decision), memory layer wiring — the trial is capture-only on purpose.
+
+## Amendments
+
+- **p4-10 (2026-08-27), menu PDF — Playwright chromium.** The Swedish
+  menu card's PDF (`bot/menuPdf.ts`, Playwright `page.pdf()`) needs a
+  cached chromium binary on the M1: `npx playwright install chromium`
+  (one-time; `@playwright/test` is already a project dependency, so no
+  new package). No new egress beyond what the download itself needs —
+  the render runs fully offline against local HTML once the binary is
+  cached.

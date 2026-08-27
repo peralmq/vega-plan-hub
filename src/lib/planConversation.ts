@@ -76,6 +76,11 @@ export interface PlanStore {
     todayIso: string,
   ): Promise<{ batch: LockedBatchRow; entries: PoolRow[] } | null>;
   loadLockedBatches(): Promise<LockedBatchRow[]>;
+  /** Pool entries for a SPECIFIC batch, regardless of whether it covers
+   * today — p4-10's menu card needs the just-locked batch even when an
+   * earlier batch is still current, and needs to re-render an older one
+   * on demand ("visa menyn"). */
+  loadBatchEntries(batchId: string): Promise<PoolRow[]>;
   replaceDraft(entries: DraftEntry[]): Promise<void>;
   updateEntry(
     id: string,
@@ -363,6 +368,8 @@ const T = {
     locked: (range: string, meals: number, preps: number) =>
       `🔒 Låst! ${range} — ${meals} middagar${preps ? `, varav ${preps} 🍱 meal prep` : ""}.`,
     lockedList: (items: number, sek: number) => `🛒 Inköpslista: ${items} varor, ~${sek} kr.`,
+    compareHandoff: (batchId: string) => `💻 Prisjämför: npm run compare -- --batch ${batchId}`,
+    menuBtn: "📋 Meny",
     showListBtn: "🛒 Visa listan",
     openWebBtn: "🖨 Öppna i appen",
     emptyList: "🛒 Listan är tom — snyggt! ✨",
@@ -414,6 +421,8 @@ const T = {
     locked: (range: string, meals: number, preps: number) =>
       `🔒 Locked! ${range} — ${meals} dinners${preps ? `, ${preps} of them 🍱 meal prep` : ""}.`,
     lockedList: (items: number, sek: number) => `🛒 Shopping list: ${items} items, ~${sek} kr.`,
+    compareHandoff: (batchId: string) => `💻 Compare prices: npm run compare -- --batch ${batchId}`,
+    menuBtn: "📋 Menu",
     showListBtn: "🛒 Show list",
     openWebBtn: "🖨 Open in the app",
     emptyList: "🛒 List is empty — nice! ✨",
@@ -1024,7 +1033,7 @@ export async function handlePlanEvent(
       const preferences = await store.preferences();
       const items = generateShoppingItems(toBatchMeals(store, draft), preferences);
       const sek = await store.estimateSek(items.map((i) => i.displayName));
-      await store.lockBatch(range, draft.map((e) => e.id), items);
+      const batchId = await store.lockBatch(range, draft.map((e) => e.id), items);
 
       const lines = poolLines(draft, store.recipes());
       const preps = lines.filter((l) => l.count > 1).length;
@@ -1033,12 +1042,22 @@ export async function handlePlanEvent(
         ...lines.map((l) => poolLineText(l, store.recipes())),
         "",
         T[lang].lockedList(items.length, sek),
+        // p5-05 deferred step 4 (lands here per that plan's Progress note):
+        // the price-compare handoff, full batch id — compare/cli.ts's
+        // --batch matches ids exactly, no prefix support.
+        T[lang].compareHandoff(batchId),
         COMPASSION,
       ].join("\n");
-      await say(chat, ctx, text, [[
-        { text: T[lang].showListBtn, callback_data: encodePlanCallback({ kind: "show_list" }) },
-        { text: T[lang].openWebBtn, url: cookModeUrl() },
-      ]]);
+      await say(chat, ctx, text, [
+        [
+          { text: T[lang].showListBtn, callback_data: encodePlanCallback({ kind: "show_list" }) },
+          { text: T[lang].openWebBtn, url: cookModeUrl() },
+        ],
+        // p4-10: re-sends the full menu card (album + HTML message + PDF) —
+        // routed in bot/tools.ts as a plain callback (never a "p:" event;
+        // the pure state machine here has no Telegram album/document port).
+        [{ text: T[lang].menuBtn, callback_data: "show_menu" }],
+      ]);
       return;
     }
 

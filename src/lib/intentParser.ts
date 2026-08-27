@@ -12,8 +12,8 @@ import { interpretEdit } from "./recipeEdits";
 export const INTENTS = [
   "add_item", "remove_item", "check_item", "show_list", "correct_last",
   "set_preference", "query_tonight", "plan_draft", "plan_set_day",
-  "plan_set_multiplier", "plan_set_storkok", "plan_lock", "note_recipe",
-  "chitchat",
+  "plan_set_multiplier", "plan_set_storkok", "plan_lock", "show_menu",
+  "note_recipe", "chitchat",
 ] as const;
 export type Intent = (typeof INTENTS)[number];
 
@@ -65,6 +65,8 @@ plan_set_storkok = mark a planned dish as a big batch / "storkok" (cooked once,
   eaten twice — the dish sits twice in the plan), or take that away. Only ever
   for the word storkok/storkoka; portion talk is plan_set_multiplier.
 plan_lock = lock the drafted days ("lås dagarna/veckan", "lock it in")
+show_menu = ask to see/resend the Swedish menu card for the locked batch
+  ("visa menyn", "show the menu")
 note_recipe = feedback/adjustment on a dish for next time ("mindre salt
   nästa gång")
 chitchat = greetings/thanks/banter, no action.
@@ -148,6 +150,7 @@ fredag=friday lördag=saturday söndag=sunday). multiplier: the integer factor (
     required: [],
   },
   plan_lock: null,
+  show_menu: null,
   note_recipe: {
     prompt: `Extract slots for note_recipe. note: the adjustment, concise ("mindre stark nästa gång bara" -> "mindre stark").`,
     schema: { note: { type: "string" } },
@@ -356,6 +359,12 @@ export function parseWithRules(utterance: string): ParsedUtterance | null {
   // plan_lock: exact ritual phrases only.
   if (/^(lås (dagarna|veckan)|lock it in)\s*!?$/i.test(low))
     return { intent: "plan_lock" };
+
+  // show_menu (p4-10): the Swedish menu card, re-sent on demand — "menyn"
+  // is unambiguous (never a shopping-list word), so this can run before
+  // show_list's own patterns with no collision risk.
+  if (/^(visa( mig)? menyn|vad (blir|är) veckans meny|show( me)?( the)? menu)\s*\??$/i.test(low))
+    return { intent: "show_menu" };
 
   // plan_draft (p4-03): Script 5's entry phrase should never wait on a model.
   // "planera"/"plan the next…" claims the utterance unless it is negated or

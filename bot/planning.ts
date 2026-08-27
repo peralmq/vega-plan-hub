@@ -142,6 +142,20 @@ export function makePlanStore(
       return (data ?? []) as LockedBatchRow[];
     },
 
+    // p4-10: a specific batch's pool, regardless of whether it covers today —
+    // same query shape as loadCurrentBatch's entries half, addressed by id.
+    async loadBatchEntries(batchId: string): Promise<PoolRow[]> {
+      const { data, error } = await supa
+        .from("planned_meals")
+        .select(POOL_COLUMNS)
+        .eq("user_id", userId)
+        .eq("batch_id", batchId)
+        .order("created_at")
+        .order("id");
+      must(error, "load batch entries");
+      return (data ?? []) as PoolRow[];
+    },
+
     async replaceDraft(entries: DraftEntry[]) {
       const { error: deleteError } = await supa
         .from("planned_meals")

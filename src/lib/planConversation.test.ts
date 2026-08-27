@@ -70,6 +70,7 @@ function makeStore(seed: { batches?: Array<{ id: string; starts_on: string; ends
       return { batch, entries: pool.filter((r) => r.batch_id === batch.id) };
     },
     loadLockedBatches: async () => batches,
+    loadBatchEntries: async (batchId: string) => pool.filter((r) => r.batch_id === batchId),
     replaceDraft: async (entries) => {
       for (let i = pool.length - 1; i >= 0; i--) if (pool[i].batch_id === null) pool.splice(i, 1);
       for (const e of entries) {

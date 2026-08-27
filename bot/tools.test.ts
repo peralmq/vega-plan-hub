@@ -19,10 +19,13 @@ const BOT_MESSAGE = 4242;
 const REPO = process.cwd();
 
 interface Call {
-  method: "send" | "edit" | "react" | "answer";
+  method: "send" | "edit" | "react" | "answer" | "media" | "document";
   text?: string;
   messageId?: number;
   buttons?: string[] | null;
+  parseMode?: string;
+  photoCount?: number;
+  filename?: string;
 }
 
 // Records what the household would actually see. `buttons: null` means the
@@ -32,8 +35,13 @@ function makeTelegram() {
   const labels = (buttons?: Array<Array<{ callback_data?: string; url?: string }>>) =>
     buttons ? buttons.flat().map((b) => b.callback_data ?? b.url ?? "?") : null;
   const api = {
-    sendMessage: async (_chat: number, text: string, buttons?: Parameters<typeof labels>[0]) => {
-      calls.push({ method: "send", text, buttons: labels(buttons) });
+    sendMessage: async (
+      _chat: number,
+      text: string,
+      buttons?: Parameters<typeof labels>[0],
+      parseMode?: string,
+    ) => {
+      calls.push({ method: "send", text, buttons: labels(buttons), parseMode });
       return { message_id: BOT_MESSAGE };
     },
     editMessageText: async (
@@ -49,6 +57,13 @@ function makeTelegram() {
     },
     answerCallbackQuery: async () => {
       calls.push({ method: "answer" });
+    },
+    // p4-10: the menu card's album + PDF document.
+    sendMediaGroup: async (_chat: number, photos: unknown[]) => {
+      calls.push({ method: "media", photoCount: photos.length });
+    },
+    sendDocument: async (_chat: number, filename: string) => {
+      calls.push({ method: "document", filename });
     },
   };
   return { calls, tg: api as unknown as TelegramApi };
@@ -297,5 +312,48 @@ describe("live-20260827 replay through the bot seam", () => {
     const locked = calls.filter((c) => c.method === "edit").pop()!;
     expect(locked.text).toContain("🔒");
     expect(locked.text).toContain("cooked with compassion");
+  });
+
+  // p4-10 Verification: "lock in the mocked p4-03 flow ends with album +
+  // menu message in order" — the lock announcement (edit) is immediately
+  // followed by the menu card's own send sequence.
+  it("locking sends the Swedish menu card — album, then HTML menu, then PDF", async () => {
+    const { calls, tg } = makeTelegram();
+    const supa = makeFakeSupabase(emptyDb()) as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    const deps = repo();
+    await handleCallback(supa, tg, callbackRow("p:h:5"), states, deps);
+    await handleCallback(supa, tg, callbackRow("p:l"), states, deps);
+
+    const after = calls.slice(calls.findIndex((c) => c.method === "edit" && c.text?.includes("🔒")));
+    expect(after.map((c) => c.method)).toEqual(["edit", "media", "send", "document"]);
+    expect(after[1].photoCount).toBeGreaterThan(0);
+    expect(after[2].parseMode).toBe("HTML");
+    expect(after[2].text).toContain("VECKANS MENY");
+    expect(after[2].buttons).toContain("p:sl"); // 🛒 Inköpslista reuses the p4-03 vocabulary
+    expect(after[3].filename).toBe("veckans-meny.pdf");
+  }, 30_000);
+
+  // The same live-feedback overlap guard as elsewhere: a lock that fails
+  // (nothing new committed) must never trigger a menu send.
+  it("does not send a menu when the lock is refused (overlap clash)", async () => {
+    const { calls, tg } = makeTelegram();
+    const seeded = emptyDb();
+    // Starts a couple of days OUT (does not cover today), so a fresh 5-day
+    // draft starting today collides with it instead of chaining after it —
+    // the same "does not jump over a batch further out" scenario as
+    // src/lib/planConversation.test.ts.
+    seeded.plan_batches = [
+      { id: "b1", user_id: USER, starts_on: "2026-08-29", ends_on: "2026-09-02" },
+    ];
+    const supa = makeFakeSupabase(seeded) as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    const deps = repo();
+    await handleCallback(supa, tg, callbackRow("p:h:5"), states, deps);
+    await handleCallback(supa, tg, callbackRow("p:l"), states, deps);
+
+    expect(calls.some((c) => c.method === "media" || c.method === "document")).toBe(false);
+    const refused = calls.filter((c) => c.method === "edit").pop()!;
+    expect(refused.text).toContain("🚧");
   });
 });

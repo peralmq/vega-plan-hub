@@ -21,6 +21,7 @@ import {
 } from "../src/lib/planConversation";
 import type { ParsedRecipe } from "../src/lib/recipeMarkdown";
 import { makePlanChat, makePlanStore } from "./planning";
+import { resolveMenuTarget, sendMenuCard } from "./menu";
 import { currentPreferenceMap } from "../src/lib/productPreferences";
 import { normalizeIngredientName } from "../src/lib/ingredientNormalization";
 import {
@@ -136,6 +137,7 @@ const T = {
     cbNoteGone: "🤔 Hittar ingen anteckning att spara — skicka den igen 🙏",
     cbNoteSkipped: "👍 Skippar anteckningen.",
     cbNoteFailed: (reason: string) => `😵 Kunde inte spara anteckningen: ${reason}`,
+    noMenu: "🤔 Ingen låst batch att visa ännu — lås några dagar först 🔒",
   },
   en: {
     help:
@@ -179,6 +181,7 @@ const T = {
     cbNoteGone: "🤔 No note waiting to be saved — send it again 🙏",
     cbNoteSkipped: "👍 Skipping the note.",
     cbNoteFailed: (reason: string) => `😵 Couldn't save the note: ${reason}`,
+    noMenu: "🤔 No locked batch to show yet — lock a few days first 🔒",
   },
 } satisfies Record<Lang, unknown>;
 
@@ -434,6 +437,14 @@ async function runPlanEvent(
     { userId: row.user_id, familyMemberId: row.family_member_id },
     notes.library(),
   );
+  // p4-10: "locking a batch ... sends the household a beautiful Swedish
+  // menu" — detected by RE-DERIVING from the DB (the stateless bias:
+  // handlePlanEvent stays a pure Promise<void>, no result plumbed back)
+  // rather than trusting that a "lock" event always succeeds — an overlap
+  // clash or an empty draft answers with a message and locks nothing, and
+  // must NOT trigger a menu send (there'd be nothing new to show, or worse,
+  // a stale older batch would get re-sent).
+  const countBefore = event.kind === "lock" ? (await store.loadLockedBatches()).length : -1;
   await handlePlanEvent(store, makePlanChat(tg, row.chat_id), {
     lang,
     todayIso: localIsoDate(),
@@ -441,6 +452,39 @@ async function runPlanEvent(
     session: state.plan,
     ...(messageId != null ? { messageId } : {}),
   }, event);
+  if (event.kind === "lock" && (await store.loadLockedBatches()).length > countBefore) {
+    const target = await resolveMenuTarget(store, localIsoDate());
+    if (target) await sendMenuCard(store, tg, row.chat_id, target);
+  }
+}
+
+// p4-10: "visa menyn" / [📋 Meny] — re-renders the menu card idempotently
+// from DB state (album + HTML message + PDF). Same entry point for both a
+// free-text ask (executeOne's "show_menu" case) and the button press
+// (handleCallback's plain "show_menu" callback, not "p:"-namespaced since
+// planConversation's pure state machine has no Telegram album/document port).
+async function runShowMenu(
+  supa: SupabaseClient,
+  tg: TelegramApi,
+  row: InboxRow,
+  lang: Lang,
+  notes: RecipeRepoDeps | undefined,
+): Promise<void> {
+  if (!notes) {
+    await tg.sendMessage(row.chat_id, T[lang].unsupported);
+    return;
+  }
+  const store = makePlanStore(
+    supa,
+    { userId: row.user_id, familyMemberId: row.family_member_id },
+    notes.library(),
+  );
+  const target = await resolveMenuTarget(store, localIsoDate());
+  if (!target) {
+    await tg.sendMessage(row.chat_id, T[lang].noMenu);
+    return;
+  }
+  await sendMenuCard(store, tg, row.chat_id, target);
 }
 
 async function executeOne(
@@ -459,6 +503,9 @@ async function executeOne(
 
     case "note_recipe":
       return prepareRecipeChange(supa, tg, row, action, state, lang, notes);
+
+    case "show_menu":
+      return runShowMenu(supa, tg, row, lang, notes);
 
     case "plan":
       return runPlanEvent(supa, tg, row, state, lang, (action as PlanAction).event, notes);
@@ -592,6 +639,14 @@ export async function handleCallback(
     const state = states.get(row.chat_id) ?? {};
     states.set(row.chat_id, state);
     await runPlanEvent(supa, tg, row, state, "sv", planEvent, notes, row.message_id);
+    return;
+  }
+
+  // p4-10: [📋 Meny] on the lock announcement (or a re-sent menu message) —
+  // a fresh delivery (album/message/PDF), never an edit-in-place, so it is
+  // deliberately outside the "p:"-namespaced vocabulary above.
+  if (row.text === "show_menu") {
+    await runShowMenu(supa, tg, row, "sv", notes);
     return;
   }
 
