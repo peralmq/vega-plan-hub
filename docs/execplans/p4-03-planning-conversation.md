@@ -36,10 +36,24 @@ bot path must reuse it, not fork it; recipe access per tech.spec.md
 "Chat assistant" (shared loader or build-time mirror — pick in step 1
 and record why).
 
+2026-08-27 directive (Pelle): the first production batch is **5 days
+including one meal prep**. Meal prep is modeled with no schema
+change: the same `recipe_id` planned on consecutive days (one
+`planned_meals` row per day, each with its own multiplier) — the
+shared aggregation then scales the shopping list correctly, and the
+cook-day is the first day of the span. The draft proposer must be
+able to propose one such span for horizons ≥ 4 days (suitability =
+a simple heuristic over tags — stews/dals/soups first; freely
+editable in the loop), and draft + lock announcements label the span
+🍱. Downstream extensions of the lock announcement: p4-10 (Swedish
+menu card) and p5-05 (batch → compare handoff).
+
 ## Progress
 
 - [ ] Recipe access mechanism chosen and recorded
 - [ ] Draft proposer + conversation state machine, unit-tested
+- [ ] Meal-prep span: propose (horizon ≥ 4), edit, 🍱 label, correct
+      list scaling via the shared aggregation lib
 - [ ] Lock → batch + list generation (shared lib), SEK estimate
 - [ ] Swap-with-diff; checked-state preservation
 - [ ] Live batch planned + locked by the household
