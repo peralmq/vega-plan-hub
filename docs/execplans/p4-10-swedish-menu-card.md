@@ -70,6 +70,12 @@ list with counts, per the pool model, not a day-by-day schedule):
     🛒 19 varor · ~487 kr
     cooked with compassion · för djuren, planeten & varandra 🐾🌍💚
 
+Inherited (p4-03 residual, 2026-08-27): `bot/planning.ts` has no
+committed test — vitest's include covers `src/**` + `compare/**`
+only. In this plan's change set: extend the include to
+`bot/**/*.test.ts` and port p4-03's fake-postgrest adapter smoke
+into a committed test, so new bot-side menu code lands tested too.
+
 ## Progress
 
 - [ ] Pure menu builder (batch → media group spec + chat HTML + PDF
