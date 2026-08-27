@@ -40,6 +40,13 @@ exists" — this plan is what makes that data exist).
 
 ## Context
 
+Inherited (p4-03 round 2, 2026-08-27): `plan_set_storkok` added a
+line to `CLASSIFY_PROMPT` + a slot spec, but the LLM-path fixture
+rerun couldn't happen off-M1 (no Ollama). Every known phrasing is
+rules-claimed, so the LLM path is unexercised in practice — rerun
+the two-stage fixture suite against qwen3:8b on the M1 as part of
+this plan's first eval pass.
+
 r3-runtime-model-bakeoff.md round 3: qwen3:8b + two-stage harness at
 95–96 % with all residual misses being context/schema issues; the
 honest eval ceiling is now real-usage data, which only this capture
