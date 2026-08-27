@@ -70,11 +70,12 @@ list with counts, per the pool model, not a day-by-day schedule):
     🛒 19 varor · ~487 kr
     cooked with compassion · för djuren, planeten & varandra 🐾🌍💚
 
-Inherited (p4-03 residual, 2026-08-27): `bot/planning.ts` has no
-committed test — vitest's include covers `src/**` + `compare/**`
-only. In this plan's change set: extend the include to
-`bot/**/*.test.ts` and port p4-03's fake-postgrest adapter smoke
-into a committed test, so new bot-side menu code lands tested too.
+~~Inherited (p4-03 residual, 2026-08-27): extend vitest include to
+`bot/**` and commit the adapter smoke~~ — **discharged same day** by
+the p4-03 live-triage commit (`4f36921`): vitest now includes
+`bot/**/*.test.ts`, and `bot/tools.test.ts` + `bot/fakeSupabase.ts`
+(strict postgrest double) are committed. New bot-side menu code in
+this plan simply lands with tests in that suite.
 
 ## Progress
 
