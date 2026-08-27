@@ -67,7 +67,7 @@ Required fields:
 | --- | --- | --- |
 | `id` | string | Kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`), unique across the corpus, and equal to the filename without `.md` (`chana-dal.md` → `id: "chana-dal"`). Used for lookups, URLs, and as the `daily_meals.recipe_id` foreign reference into the markdown corpus (see [tech.spec.md](tech.spec.md)). |
 | `title` | string | Non-empty. Human-readable recipe name. |
-| `imageUrl` | string | Key must be present; value may be the empty string (`imageUrl: ""`) when no image is available yet — one shipped recipe (`swedish-vegan-hash-with-tofu-egg`) does this. Otherwise a filename or absolute URL. |
+| `imageUrl` | string | Key must be present and non-empty (ratcheted 2026-08-27, [p4-13-recipe-images](../execplans/p4-13-recipe-images.md) — every recipe must render a picture). Either an absolute `https://` URL, or a root-relative path to a file in `public/recipes/` (e.g. `/recipes/some-dish.jpg`) served as a static asset. |
 | `cookTime` | integer | Present, parses as an integer, `> 0`. Minutes. |
 | `servings` | integer | Present, parses as an integer, `> 0`. |
 | `difficulty` | enum | One of `Easy`, `Medium`, `Hard` (case-sensitive). Only `Easy` and `Medium` appear in the corpus today; `Hard` is a valid value the loader's type allows and no shipped recipe currently exercises. |

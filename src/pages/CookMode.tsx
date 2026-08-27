@@ -28,6 +28,7 @@ import { RecipeComments } from "@/components/recipe/RecipeComments";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
+import { RecipeImage } from "@/components/recipe/RecipeImage";
 import { findDeepLinkRecipe, resolveServingsMultiplier } from "@/lib/cookModeDeepLink";
 
 export default function CookMode() {
@@ -249,7 +250,7 @@ export default function CookMode() {
             {/* Recipe Header */}
             <div className="mb-8">
               <div className="relative rounded-2xl overflow-hidden mb-6">
-                <img
+                <RecipeImage
                   src={selectedRecipe.image}
                   alt={selectedRecipe.title}
                   className="w-full h-48 md:h-64 object-cover"
@@ -449,7 +450,7 @@ export default function CookMode() {
                   onClick={() => setViewEntryId(entry.id)}
                 >
                   {entry.recipe?.image && (
-                    <img src={entry.recipe.image} alt={entry.recipe.title} className="w-full h-16 object-cover rounded-lg mb-2" />
+                    <RecipeImage src={entry.recipe.image} alt={entry.recipe.title} className="w-full h-16 object-cover rounded-lg mb-2" />
                   )}
                   <div className="text-xs font-medium truncate">{entry.recipe?.title ?? entry.recipeId}</div>
                 </Card>
@@ -512,7 +513,7 @@ function PoolPicker({
             onClick={() => onPick(entry)}
           >
             {entry.recipe?.image && (
-              <img
+              <RecipeImage
                 src={entry.recipe.image}
                 alt={entry.recipe.title}
                 className="w-full h-24 object-cover rounded-lg mb-2"

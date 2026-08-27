@@ -1,7 +1,7 @@
 ---
 id: "vegan-moussaka"
 title: "Vegan Moussaka"
-imageUrl: "https://rainbowplantlife.com/wp-content/uploads/2022/12/moussaka-cover-photo-1-of-1.jpg"
+imageUrl: "https://rainbowplantlife.com/wp-content/uploads/2022/10/Moussaka-cover-1-of-1.jpg"
 url: "https://rainbowplantlife.com/vegan-moussaka/"
 cookTime: 135
 servings: 8

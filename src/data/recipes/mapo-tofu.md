@@ -1,7 +1,7 @@
 ---
 id: "mapo-tofu"
 title: "Mapo Tofu"
-imageUrl: "https://www.chinasichuanfood.com/wp-content/uploads/2020/11/mapo-tofu-13.webp"
+imageUrl: "/recipes/mapo-tofu.webp"
 url: "https://www.chinasichuanfood.com/mapo-tofu-recipe/"
 cookTime: 20
 servings: 4

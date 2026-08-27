@@ -23,6 +23,7 @@ import { scaleIngredients } from "@/lib/ingredientScaling";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
+import { RecipeImage } from "@/components/recipe/RecipeImage";
 
 export default function ShoppingSummary() {
   const navigate = useNavigate();
@@ -214,7 +215,7 @@ export default function ShoppingSummary() {
               <div className="space-y-3">
                 {mealsWithMultipliers.map(({ recipe, servingsMultiplier }, index) => (
                   <div key={`${recipe.id}-${index}`} className="flex items-center gap-3">
-                    <img
+                    <RecipeImage
                       src={recipe.image}
                       alt={recipe.title}
                       className="w-12 h-12 rounded-lg object-cover"

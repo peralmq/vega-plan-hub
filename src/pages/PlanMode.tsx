@@ -25,6 +25,7 @@ import { groupPoolByRecipe } from "@/lib/planPool";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
+import { RecipeImage } from "@/components/recipe/RecipeImage";
 
 const MIN_MULTIPLIER = 0.5;
 const MAX_MULTIPLIER = 4;
@@ -213,7 +214,7 @@ export default function PlanMode() {
                 className="p-3 cursor-pointer transition-colors border border-dashed hover:border-primary"
                 onClick={() => handleAdd(recipe)}
               >
-                <img
+                <RecipeImage
                   src={recipe.image}
                   alt={recipe.title}
                   className="w-full h-24 object-cover rounded-lg mb-2"
@@ -264,7 +265,7 @@ function PoolCard({
     <Card className={`p-4 border-2 border-dashed transition-all relative group ${cooked ? 'opacity-70' : 'hover:border-primary/30'}`}>
       <div className="bg-foreground text-background rounded-xl overflow-hidden">
         {recipe?.image && (
-          <img src={recipe.image} alt={recipe.title} className="w-full h-20 object-cover opacity-80" />
+          <RecipeImage src={recipe.image} alt={recipe.title} className="w-full h-20 object-cover opacity-80" />
         )}
         <div className="p-3">
           <div className="flex items-center gap-2">

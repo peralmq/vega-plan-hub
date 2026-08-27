@@ -1,7 +1,7 @@
 ---
 id: "creamy-potato-leek-soup"
 title: "Creamy Vegan Potato & Leek Soup"
-imageUrl: "https://liveslowrunfar.com/wp-content/uploads/2020/02/Krämig-vegansk-potatis-och-purjolökssoppa-819x1024.jpg"
+imageUrl: "/recipes/creamy-potato-leek-soup.jpg"
 url: "https://liveslowrunfar.com/recept/kramig-vegansk-potatis-och-purjolokssoppa/"
 cookTime: 30
 servings: 6

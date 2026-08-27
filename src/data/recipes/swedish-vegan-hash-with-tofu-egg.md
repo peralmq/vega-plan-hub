@@ -1,7 +1,7 @@
 ---
 id: "swedish-vegan-hash-with-tofu-egg"
 title: "Swedish Vegan Hash with 'Eggy' Tofu and Classic Sides"
-imageUrl: ""
+imageUrl: "https://www.felix.se/wp-content/uploads/sites/117/2026/08/510003921.png"
 url: "https://www.felix.se/produkt/vegetarisk-krogarpytt/"
 cookTime: 20
 servings: 4

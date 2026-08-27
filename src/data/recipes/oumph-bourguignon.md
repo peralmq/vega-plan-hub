@@ -1,7 +1,7 @@
 ---
 id: "oumph-bourguignon"
 title: "Oumph Bourguignon"
-imageUrl: "https://images.unsplash.com/photo-1608500218807-b2b5d3b46c72?w=1200"
+imageUrl: "/recipes/oumph-bourguignon.jpg"
 cookTime: 75
 servings: 4
 difficulty: "Medium"

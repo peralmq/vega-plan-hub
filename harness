@@ -251,9 +251,13 @@ function validateRecipeFrontmatter(fm, file, filename) {
 
   if (!fm.title) fail(`${file}: frontmatter.title is required`);
 
-  if (fm.imageUrl === undefined) fail(`${file}: frontmatter.imageUrl is required (may be "")`);
+  if (fm.imageUrl === undefined) fail(`${file}: frontmatter.imageUrl is required`);
   if (typeof fm.imageUrl !== "string")
     fail(`${file}: frontmatter.imageUrl must be a string, got ${JSON.stringify(fm.imageUrl)}`);
+  if (fm.imageUrl === "")
+    fail(
+      `${file}: frontmatter.imageUrl must not be empty (p4-13-recipe-images: every recipe renders an image; see docs/specs/recipe-format.spec.md)`,
+    );
 
   if (!Number.isInteger(fm.cookTime) || fm.cookTime <= 0)
     fail(`${file}: frontmatter.cookTime must be a positive integer, got ${JSON.stringify(fm.cookTime)}`);

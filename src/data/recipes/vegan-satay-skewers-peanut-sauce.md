@@ -1,7 +1,7 @@
 ---
 id: "vegan-satay-skewers-peanut-sauce"
 title: "Vegan Satay Skewers with Peanut Sauce & Jasmine Rice"
-imageUrl: "https://www.cilantroandcitronella.com/wp-content/uploads/2017/06/vegetable-satay-3.jpg"
+imageUrl: "https://www.cilantroandcitronella.com/wp-content/uploads/2016/01/vegan-satay-image-5.jpg"
 url: "https://www.cilantroandcitronella.com/mixed-vegetable-satay-with-peanut-sauce/"
 cookTime: 60
 servings: 4

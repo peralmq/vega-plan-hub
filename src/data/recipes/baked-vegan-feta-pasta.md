@@ -1,7 +1,7 @@
 ---
 id: "baked-vegan-feta-pasta"
 title: "Baked Vegan Feta Pasta"
-imageUrl: "https://www.theedgyveg.com/wp-content/uploads/2021/07/Vegan-Feta-Pasta-12.jpg"
+imageUrl: "https://www.theedgyveg.com/wp-content/uploads/2021/07/DSC00392WEB-e1627403400765.jpg"
 url: "https://www.theedgyveg.com/2021/07/27/vegan-feta-pasta-recipe/"
 cookTime: 40
 servings: 4

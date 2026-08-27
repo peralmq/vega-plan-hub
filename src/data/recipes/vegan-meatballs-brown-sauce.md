@@ -1,7 +1,7 @@
 ---
 id: "vegan-meatballs-brown-sauce"
 title: "Vegan Meatballs with Boiled Potatoes & Brown Sauce"
-imageUrl: "https://javligtgott.se/wp-content/uploads/2021/12/IMG_8896-1024x683.jpg"
+imageUrl: "/recipes/vegan-meatballs-brown-sauce.jpg"
 cookTime: 60
 servings: 4
 difficulty: "Medium"

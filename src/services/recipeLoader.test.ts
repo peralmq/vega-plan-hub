@@ -41,10 +41,11 @@ describe('loadAllRecipes (integration over committed recipe files)', () => {
     for (const recipe of recipes) {
       expect(recipe.id, 'id').toBeTruthy();
       expect(recipe.title, `title for ${recipe.id}`).toBeTruthy();
-      // Not all recipes carry an image (e.g. swedish-vegan-hash-with-tofu-egg
-      // ships with imageUrl: "" in its frontmatter) — assert shape, not
-      // presence.
+      // Every recipe carries a non-empty image (ratcheted 2026-08-27,
+      // p4-13-recipe-images: no recipe ever renders imageless — also
+      // enforced by `./harness validate-recipe`, docs/specs/recipe-format.spec.md).
       expect(typeof recipe.image, `image for ${recipe.id}`).toBe('string');
+      expect(recipe.image, `image for ${recipe.id}`).toBeTruthy();
       expect(typeof recipe.cookTime, `cookTime for ${recipe.id}`).toBe('number');
       expect(recipe.cookTime, `cookTime for ${recipe.id}`).toBeGreaterThan(0);
       expect(typeof recipe.servings, `servings for ${recipe.id}`).toBe('number');
