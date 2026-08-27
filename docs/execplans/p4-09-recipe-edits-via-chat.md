@@ -34,6 +34,17 @@ recipe edits" (adopted 2026-08-24, Pelle in chat, same change set).
 
 ## Context
 
+Inherited risk (p4-14, 2026-08-27): the recipe corpus is now
+Swedish-first, but `src/data/ingredients/ingredients.json` (the
+sv→key bridge) and `ingredientNormalization`'s `INGREDIENT_ALIASES`
+still carry mostly-English display/synonym entries — live chat-edit
+matching against the Swedish ingredient display column is untested by
+the harness. Before this plan closes, re-run its live matching smoke
+against translated recipes and grow the Swedish synonym sets where
+matching misses (also consider msk/tsk aliases in
+`ingredientNormalization`'s unit tables, spec-first — see the p4-14
+Decision Log).
+
 Feedback origin: p4-08 Evidence (live smoke, 2026-08-24). Threat
 model unchanged from p4-08 (r4 §4 T2): the edit is computed by pure
 code from a rules-matched utterance; the confirm gate, validate-recipe
