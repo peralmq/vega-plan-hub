@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
     {
       name: "version-json",
-      apply: "build" as const,
+      apply: "build",
       generateBundle() {
         this.emitFile({
           type: "asset",
@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => ({
           source: JSON.stringify({ sha: commit.sha, commitTime: commit.iso }),
         });
       },
-    },
+    } as Plugin,
   ].filter(Boolean),
   resolve: {
     alias: {
