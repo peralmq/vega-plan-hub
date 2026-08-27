@@ -2,7 +2,7 @@
 id: p5-05-batch-compare-handoff
 title: Locked batch → compare handoff — price match + Mathem cart from a Claude Code session
 phase: P5
-status: todo
+status: in-progress
 depends_on: [p4-03-planning-conversation, p5-04-ica-login-history-seeds]
 ---
 
@@ -46,15 +46,22 @@ already-checked-off rows are excluded (they're bought).
 
 ## Progress
 
-- [ ] Credential/source decision recorded (share bot/.env vs. extend
-      compare/.env)
-- [ ] Batch → compare-list mapping (name, affinity, quantity
-      annotation), fixture-tested
-- [ ] `--batch <id|latest>` wired through the standard pipeline incl.
-      `--fill-cart` and `--record`
-- [ ] p4-03 lock announcement includes the handoff command line
+- [x] Credential/source decision recorded (share bot/.env vs. extend
+      compare/.env) — 2026-08-27, see Evidence: extend `compare/.env`.
+- [x] Batch → compare-list mapping (name, affinity, quantity
+      annotation), fixture-tested — 2026-08-27.
+- [x] `--batch <id|latest>` wired through the standard pipeline incl.
+      `--fill-cart` and `--record` — 2026-08-27.
+- [ ] p4-03 lock announcement includes the handoff command line —
+      **deferred out of this change set**: an agent was concurrently
+      working in the bot/ + src/lib planning code this step would touch
+      (`bot/planning.ts`'s `lockBatch`, the announcement text's source),
+      and this plan's footprint was scoped to `compare/**` only to avoid
+      collision. Lands with p4-10's announcement wiring instead.
 - [ ] Live: a real locked batch price-matched and carted from a
-      Claude Code session, human checks out
+      Claude Code session, human checks out — **left for the human**:
+      no credentials exist in this checkout and none were sought (see
+      Evidence). Status stays `in-progress` until this is done.
 
 ## Steps
 
@@ -88,4 +95,91 @@ already-checked-off rows are excluded (they're bought).
 
 ## Evidence
 
-(recorded during implementation)
+**Step 1 — credential source decision.** Extend `compare/.env` with
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `HOUSEHOLD_EMAIL`,
+`HOUSEHOLD_PASSWORD` (`compare/env.ts`'s `loadBatchEnv`/`hasBatchAuth`)
+— same key names as `bot/env.ts` so a value copies verbatim between the
+two files, but compare/ does **not** read `bot/.env` directly. Why:
+`docs/specs/tech.spec.md` ("Store integrations") already documents
+compare/'s credentials as living in `compare/.env`, "bot/.env pattern"
+— a same-shaped *sibling* file, not a shared one. `bot/` (a standing M1
+daemon) and `compare/` (an ad hoc human-run CLI) are different
+processes with different lifecycles; reading `bot/.env` from `compare/`
+would make `compare/` unusable standalone and would have required
+touching a directory this plan was explicitly scoped out of
+(orchestrator constraint: another agent was concurrently working in
+`bot/` + `src/lib` planning code — confirmed live via `git status` /
+file mtimes during this session, see below).
+
+**Step 2 — pure mapping, fixture-tested.** `compare/batchMap.ts`
+(`batchRowsToCompareList`, `storeAffinityFromProductName`,
+`formatQuantity`, `pickLatestBatch`) + `compare/batchMap.test.ts`.
+`product_preferences` has no store column, so store affinity is
+inferred from a store's own brand token appearing (whole-word) in the
+household's preferred product name (e.g. "ICA Havredryck" → `["ica"]`);
+no token match → `null` (unrestricted), the same convention a
+hand-written `--list` entry uses.
+
+```
+$ npx vitest run compare/
+ Test Files  2 passed (2)
+      Tests  21 passed (21)
+```
+
+Fixture coverage per Verification: affinity mapping (incl. a
+false-positive guard — "Icakupong"/"Coophallen" don't match), checked-off
+exclusion, empty batch, rows with no preference / a superseded
+preference, ad-hoc rows (no `canonical_ingredient`) falling back to
+`display_name`, quantity-annotation formatting, `pickLatestBatch`'s pure
+selection logic, and a "Dry" equivalence test: a batch built from
+`fixtures/compare-list.json`'s terms maps to the exact same `{term,
+stores}` list `parseListEntries` produces from that file directly.
+
+**Step 3 — `--batch <id|latest>` wired through the pipeline.**
+`compare/batchFetch.ts` (network I/O, evidence-only, same split as
+`stores.ts`/`mathem-mcp.ts`: `signInHousehold`, `resolveBatchId`,
+`fetchBatchRows`) + `compare/cli.ts` (`loadBatchList`, `--list`/`--batch`
+mutual exclusivity, quantity annotations threaded into `printHuman`,
+`printCartFill`, and the `--json` output as `batchAnnotations`).
+`--fill-cart`, `--record`, `--json`, `--day`/`--window` all read from the
+same `items: ListItem[]` the pipeline always used — nothing downstream
+of `loadBatchList`/`readList` changed.
+
+```
+$ npx tsc -p compare/tsconfig.json
+(no output — 0 errors)
+```
+
+**No live network calls or sign-in were attempted** — no credentials
+exist in this checkout (`compare/.env` has only the existing store
+credentials, no `SUPABASE_*`/`HOUSEHOLD_*` keys) and none were sought,
+per instruction. `batchFetch.ts` is untested code, same as every other
+network-I/O file in `compare/` (`stores.ts`, `mathem-mcp.ts`,
+`axfood.ts`, `ica-auth.ts`) — its contract is exercised only by
+`batchMap.ts`'s fixture tests plus the eventual live run.
+
+**Harness gate.**
+
+```
+$ ./harness check
+check: deps ... OK (73 deps present)
+check: npm run lint ... OK (8/8 warnings)
+check: npm test ... OK
+check: npm run build ... OK
+check: tsc bot ... OK
+check: tsc compare ... OK
+check: plans --validate ... plans validate: OK (31 plans)
+check: validate-recipe ... validate-recipe: OK (30 recipes)
+check: OK
+```
+
+Note: mid-implementation, a full `./harness check` run transiently
+failed 7 tests, all inside `src/lib/planConversation.ts(.test.ts)`,
+`src/lib/planDraft.ts`, `src/lib/botActions.ts`, and `bot/tools.test.ts`
+— files this plan never touched (`git status` confirmed 0 changes by
+this session to any of them; `stat` showed write timestamps seconds
+old, matching the orchestrator's stated concurrent-agent collision in
+`bot/` + `src/lib`). Re-running once that session's edits settled came
+back fully green (above), with `compare/**` unchanged throughout.
+
+**Commit:** recorded below after committing the scoped file set.

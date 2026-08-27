@@ -11,6 +11,20 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   [--fill-cart mathem] [--json]
 ```
 
+- **Batch handoff** (p5-05): `--batch <id|latest>` replaces `--list`
+  (mutually exclusive) — signs in as the household (`SUPABASE_URL`,
+  `SUPABASE_ANON_KEY`, `HOUSEHOLD_EMAIL`, `HOUSEHOLD_PASSWORD` in
+  `compare/.env`, mode 600, same key names as `bot/env.ts`), pulls the
+  given locked batch's (or `latest`'s) unchecked `shopping_list_items` +
+  `product_preferences`, and maps them into the list shape above before
+  running the exact same pipeline — `--fill-cart`, `--record`, `--json`,
+  `--day`/`--window` all work unchanged. Store affinity is inferred from
+  a store's own brand name showing up in the household's preferred
+  product (`compare/batchMap.ts`, e.g. "ICA Havredryck" → ICA only); no
+  match means any store, same as an unmarked `--list` entry. The
+  batch's quantity + unit print next to each matched line as a human
+  cue — cart-fill stays one unit per term (v1 non-goal), so adjust
+  quantities in the store's own cart before paying.
 - List file: JSON array of search terms or `{name}` objects. A
   `{name, stores: ["willys", "ica"]}` entry is a **store affinity**
   (p5-02): that item is only sourced at those stores — other stores

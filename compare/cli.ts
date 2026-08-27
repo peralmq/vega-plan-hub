@@ -49,10 +49,12 @@ import {
   type RotationSuggestion,
 } from "@/lib/storeRotation";
 import { AxfoodSession, type AxfoodSlot } from "./axfood";
+import { fetchBatchRows, resolveBatchId, signInHousehold } from "./batchFetch";
+import { batchRowsToCompareList } from "./batchMap";
 import { hasIcaAuth, IcaSession } from "./ica-auth";
 import { loadRotationHistory, recordRun } from "./rotation-state";
 import { cached } from "./cache";
-import { loadCompareEnv } from "./env";
+import { hasBatchAuth, loadBatchEnv, loadCompareEnv } from "./env";
 import {
   cartItemsTotal,
   getDeliverySlots,
@@ -450,14 +452,20 @@ async function fillMathemCart(comparison: StoreComparison): Promise<CartFillResu
   return { plan, cart };
 }
 
-function printCartFill({ plan, cart }: CartFillResult): void {
+function printCartFill({ plan, cart }: CartFillResult, annotations: Map<string, string>): void {
   if (cart === null) {
     console.log("🛒 Mathem cart-fill: nothing matched — cart untouched\n");
     return;
   }
   console.log(`🛒 Mathem cart filled — ${plan.ops.length} item(s) added:`);
   for (const op of plan.ops) {
-    console.log(`  ${op.quality === "weak" ? "⚠" : "✓"} ${op.term}: ${op.name} — ${fmtKr(op.price)}`);
+    const annotation = annotations.get(op.term);
+    // p5-05: cart-fill stays one-unit-per-term (product.spec non-goal) — the
+    // batch's actual quantity is printed here as the human's cue to adjust
+    // it in the cart before paying, never sent to the store as a quantity.
+    console.log(
+      `  ${op.quality === "weak" ? "⚠" : "✓"} ${op.term}: ${op.name} — ${fmtKr(op.price)}${annotation ? ` (batch qty: ${annotation})` : ""}`,
+    );
   }
   if (plan.skipped.length) console.log(`  ✗ not in cart (no match): ${plan.skipped.join(", ")}`);
   if (plan.weak > 0) {
@@ -507,6 +515,7 @@ function printHuman(
   reports: Record<string, StoreReport>,
   items: ListItem[],
   rotation: RotationSuggestion,
+  annotations: Map<string, string>,
   day?: string,
   window?: string,
 ) {
@@ -532,7 +541,10 @@ function printHuman(
       const line = item.product
         ? `${item.product.name} — ${fmtKr(item.product.price)}${item.seeded ? " ★ staple" : ""}${item.alternatives ? ` (+${item.alternatives} alternatives)` : ""}`
         : "no match";
-      console.log(`  ${mark} ${item.term}: ${line}`);
+      // p5-05 --batch: the shopping list's own quantity, printed as a cue —
+      // cart-fill is still one-unit-per-term (product.spec non-goal).
+      const annotation = annotations.get(item.term);
+      console.log(`  ${mark} ${item.term}: ${line}${annotation ? ` (batch qty: ${annotation})` : ""}`);
     }
     if (report.excluded.length) {
       console.log(`  ✂ not sourced here (affinity): ${report.excluded.join(", ")}`);
@@ -549,17 +561,56 @@ function printHuman(
   console.log();
 }
 
+const USAGE =
+  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--record <store>] [--json]";
+
+/**
+ * p5-05: `--batch` signs in as the household, pulls the locked batch's
+ * unchecked shopping_list_items + product_preferences, and maps them into
+ * the same ListItem shape a hand-written --list file produces
+ * (batchMap.ts, fixture-tested) — everything downstream of this function
+ * runs the standard pipeline unchanged. Returns the per-term quantity
+ * annotations separately so they can be printed for human review without
+ * ever crossing into what gets searched or matched.
+ */
+async function loadBatchList(batchArg: string): Promise<{ items: ListItem[]; annotations: Map<string, string> }> {
+  if (!hasBatchAuth()) {
+    console.error(
+      "--batch needs SUPABASE_URL, SUPABASE_ANON_KEY, HOUSEHOLD_EMAIL, HOUSEHOLD_PASSWORD in compare/.env — see compare/README.md",
+    );
+    process.exit(1);
+  }
+  const cfg = loadBatchEnv();
+  const supa = await signInHousehold(cfg);
+  const batchId = await resolveBatchId(supa, batchArg);
+  const { items: rows, preferences } = await fetchBatchRows(supa, batchId);
+  const mapped = batchRowsToCompareList(rows, preferences);
+  if (mapped.length === 0) {
+    console.error(`batch ${batchId}: no unchecked items to compare`);
+    process.exit(1);
+  }
+  const annotations = new Map<string, string>();
+  for (const entry of mapped) if (entry.annotation) annotations.set(entry.item.term, entry.annotation);
+  console.log(`📋 batch ${batchId}: ${mapped.length} item(s) to compare (npm run compare -- --batch ${batchId})`);
+  return { items: mapped.map((e) => e.item), annotations };
+}
+
 async function main() {
   loadCompareEnv();
   const args = parseArgs(process.argv.slice(2));
   const listPath = typeof args.list === "string" ? args.list : null;
-  if (!listPath) {
-    console.error(
-      "usage: npm run compare -- --list <file.json> [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--record <store>] [--json]",
-    );
+  const batchArg = typeof args.batch === "string" ? args.batch : null;
+  if (listPath && batchArg) {
+    console.error("--list and --batch are mutually exclusive");
     process.exit(1);
   }
-  const items = readList(listPath);
+  if (!listPath && !batchArg) {
+    console.error(USAGE);
+    process.exit(1);
+  }
+  const { items, annotations } = batchArg
+    ? await loadBatchList(batchArg)
+    : { items: readList(listPath!), annotations: new Map<string, string>() };
   const stores =
     typeof args.stores === "string" ? args.stores.split(",") : Object.keys(SEARCHERS);
   const unknown = stores.filter((s) => !SEARCHERS[s]);
@@ -644,6 +695,9 @@ async function main() {
           rotation,
           reports,
           cartFill,
+          // p5-05: batch quantities, keyed by term — the human's cue to
+          // adjust the (still one-unit-per-term) cart before paying.
+          batchAnnotations: annotations.size > 0 ? Object.fromEntries(annotations) : null,
         },
         null,
         2,
@@ -654,10 +708,11 @@ async function main() {
       reports,
       items,
       rotation,
+      annotations,
       typeof args.day === "string" ? args.day : undefined,
       typeof args.window === "string" ? args.window : undefined,
     );
-    if (cartFill) printCartFill(cartFill);
+    if (cartFill) printCartFill(cartFill, annotations);
   }
 }
 
