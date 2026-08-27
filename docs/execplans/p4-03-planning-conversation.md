@@ -54,6 +54,13 @@ the covered date range on `plan_batches`. Downstream extensions of
 the lock announcement: p4-10 (Swedish menu card) and p5-05 (batch →
 compare handoff).
 
+Inherited fix (p4-12 residual, 2026-08-27): `bot/tools.ts`
+`resolveNoteRecipe` still resolves "tonight's dish" via
+`planned_meals.meal_date = today`, which pool writes never set — the
+p4-08 note-tonight shortcut silently finds nothing once the pool
+migration is live. This plan's bot rework must move that resolution
+to `cooked_on = today` (fallback: the remaining pool).
+
 ## Progress
 
 - [ ] Recipe access mechanism chosen and recorded
