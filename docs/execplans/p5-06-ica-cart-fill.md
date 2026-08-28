@@ -149,3 +149,21 @@ is amended in the same change set.
   Lättsaltade chips ★, "vatten" → Kokosvatten ★, "mjölk" →
   barnmat med kokosmjölk ★) — flagged as follow-up work; the
   cart-ready human review is the safety net meanwhile.
+
+**2026-08-29 (top-up run — convergent fill verified live; WAF search
+posture recorded):**
+
+- Re-run next day (12h cache expired, all 59 terms re-searched):
+  every already-carted product skipped `⏭ left as-is` — zero
+  doubling, the convergent design working live — and 2 newly
+  matched items added (ketchup, vitpeppar). Cart at handoff:
+  **14 items, 411,28 kr**.
+- WAF finding: even after a >12h cool-down, ~50 of 59 searches were
+  challenged — this client fingerprint is being challenged
+  near-systematically now, while all authenticated cart
+  reads/writes pass untouched. Honest posture per polite-client
+  rule: no further automated search retries; the ICA_COOKIE hatch
+  (or manual carting in the shop, where the household is headed
+  anyway) covers the remaining terms. Most remaining unmatched
+  terms are recipe-style lines ("gul lök, finhackad") that need
+  the term-normalization improvements, not more search attempts.
