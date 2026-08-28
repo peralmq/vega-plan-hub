@@ -8,7 +8,7 @@ checkout, slot booking and payment always stay with the human.
 ```
 npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20] [--window 17-20] \
-  [--fill-cart mathem] [--json]
+  [--fill-cart mathem|ica] [--json]
 ```
 
 - **Batch handoff** (p5-05): `--batch <id|latest>` replaces `--list`
@@ -71,6 +71,20 @@ npm run compare -- --list fixtures/compare-list.json --zip 11251 \
   live search. Anonymous search stays the fallback without keys;
   ICA slot times remain at checkout (`npm run ica-probe` re-checks
   the endpoint map).
+- **ICA cart-fill** (p5-06): `--fill-cart ica` pushes the matched
+  basket into the household's handlaprivatkund cart (the site's own
+  apply-quantity op; quantities are deltas — negative removes) and
+  prints the cart URL for review. Unlike the Mathem fill, ICA's is
+  **convergent**: products already in the cart are skipped (`⏭` in
+  the printout), so re-running after a WAF cool-down finishes the
+  fill without doubling earlier adds. One unit per term; item totals
+  only — ICA adds delivery/fees at checkout. Products ICA refuses
+  (per-item 400) are reported `✗ shop manually` instead of sinking
+  the fill. Works with the login tier above, or with `ICA_COOKIE`
+  (a cookie header copied from a logged-in browser tab) — the
+  sanctioned fallback if the WAF challenges the write, since the
+  browser cookie carries the human-obtained WAF token. Checkout,
+  slot booking and payment always stay with the human.
 - Mathem: `npm run mathem-auth` runs the one-time OAuth (PKCE,
   loopback callback) against the **official Mathem MCP**; tokens in
   `compare/.mathem-oauth.json` (gitignored, mode 600, auto-refresh).

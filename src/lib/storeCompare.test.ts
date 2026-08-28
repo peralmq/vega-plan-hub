@@ -7,6 +7,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildComparison,
   cartPlan,
+  icaFillOps,
+  validateIcaCart,
   extractAxfood,
   extractCoop,
   extractIca,
@@ -24,6 +26,7 @@ import {
   validateMathemOrders,
 } from "./storeCompare";
 import axfoodOrders from "./__fixtures__/axfood-orders.json";
+import icaCartFixture from "./__fixtures__/ica-cart.json";
 import mathemOrders from "./__fixtures__/mathem-orders.json";
 import coopFixture from "./__fixtures__/store-search/coop.json";
 import hemkopFixture from "./__fixtures__/store-search/hemkop.json";
@@ -309,5 +312,67 @@ describe("buildComparison", () => {
       expect(cmp.matched + cmp.unmatched.length).toBe(TERMS.length);
       expect(cmp.matched).toBeGreaterThanOrEqual(TERMS.length - 1);
     }
+  });
+});
+
+describe("ICA cart readback (p5-06)", () => {
+  it("sums line quantities, reads the promo item total, and maps per-product quantities", () => {
+    const totals = validateIcaCart({
+      items: [
+        { productId: "aaa", quantity: 2 },
+        { productId: "bbb", quantity: 1 },
+      ],
+      totals: { itemPriceAfterPromos: { currency: "SEK", amount: "55.66" } },
+    });
+    expect(totals).toEqual({ itemCount: 3, total: 55.66, quantities: { aaa: 2, bbb: 1 } });
+  });
+
+  it("summarizes an empty cart as zero, not as an error", () => {
+    expect(
+      validateIcaCart({ items: [], totals: { itemPriceAfterPromos: { amount: "0.00" } } }),
+    ).toEqual({ itemCount: 0, total: 0, quantities: {} });
+  });
+
+  it("fails loudly when the envelope moves — never a phantom empty cart", () => {
+    expect(() => validateIcaCart({ cartId: "x" })).toThrow(/ICA cart shape moved/);
+    expect(() => validateIcaCart({ items: [], totals: {} })).toThrow(/ICA cart shape moved/);
+    // Lines missing productId/quantity are drift too — convergent fill
+    // depends on reading current quantities, so it must never guess.
+    expect(() =>
+      validateIcaCart({ items: [{}], totals: { itemPriceAfterPromos: { amount: 1 } } }),
+    ).toThrow(/ICA cart shape moved/);
+  });
+
+  it("accepts the committed live cart capture (scrubbed, 2026-08-28)", () => {
+    const totals = validateIcaCart(icaCartFixture);
+    expect(totals.itemCount).toBe(4); // qty 2 + 1 + 1
+    expect(totals.total).toBeCloseTo(406.55);
+    expect(totals.quantities["c4bb2d50-2b2a-4a73-a5d8-454b57dc6d4c"]).toBe(2);
+  });
+});
+
+describe("icaFillOps (p5-06)", () => {
+  const plan = {
+    ops: [
+      { term: "salt", productId: "aaa", name: "Salt", price: 10, quality: "good" as const, quantity: 1 },
+      { term: "salt igen", productId: "aaa", name: "Salt", price: 10, quality: "good" as const, quantity: 1 },
+      { term: "olja", productId: "bbb", name: "Olja", price: 30, quality: "good" as const, quantity: 1 },
+    ],
+    skipped: [],
+    weak: 0,
+  };
+
+  it("collapses duplicate products into one op with summed quantity (deltas stack)", () => {
+    const { ops } = icaFillOps(plan, {});
+    expect(ops).toEqual([
+      { productId: "aaa", quantity: 2 },
+      { productId: "bbb", quantity: 1 },
+    ]);
+  });
+
+  it("skips products already in the cart so re-runs converge instead of doubling", () => {
+    const { ops, alreadyInCart } = icaFillOps(plan, { bbb: 1 });
+    expect(ops).toEqual([{ productId: "aaa", quantity: 2 }]);
+    expect(alreadyInCart).toEqual(["bbb"]);
   });
 });

@@ -393,6 +393,78 @@ export function cartPlan(comparison: StoreComparison): CartPlan {
   };
 }
 
+/** What the household needs to know after an ICA cart write (p5-06):
+ * how many units the cart now holds, what the items cost, and the
+ * current quantity per product (apply-quantity SETS quantities, so
+ * additive fill must add on top of what is already in the cart). */
+export interface IcaCartTotals {
+  /** Sum of line quantities. */
+  itemCount: number;
+  /** Item total after promotions, kr — ICA adds any fees at checkout. */
+  total: number;
+  /** Current quantity per productId. */
+  quantities: Record<string, number>;
+}
+
+/**
+ * Validate + summarize the web_basket_ws v1 active-cart envelope
+ * (`items[]` with productId/quantity, `totals.itemPriceAfterPromos.amount`).
+ * Loud on drift, same policy as every other store envelope: an API move
+ * must fail visibly, never as a phantom empty cart.
+ */
+export function validateIcaCart(raw: unknown): IcaCartTotals {
+  const moved = (field: string, hint: string): Error =>
+    new Error(
+      `ICA cart shape moved (${field} ${hint}) — update compare/ica-auth.ts and src/lib/__fixtures__/ica-cart.json`,
+    );
+  const cart = raw as {
+    items?: { productId?: unknown; quantity?: unknown }[];
+    totals?: { itemPriceAfterPromos?: { amount?: unknown } };
+  };
+  if (!Array.isArray(cart?.items)) throw moved("items", "missing or not an array");
+  const amount = Number(cart?.totals?.itemPriceAfterPromos?.amount);
+  if (!Number.isFinite(amount)) {
+    throw moved("totals.itemPriceAfterPromos.amount", "missing or not numeric");
+  }
+  const quantities: Record<string, number> = {};
+  let itemCount = 0;
+  for (const line of cart.items) {
+    const quantity = Number(line?.quantity);
+    if (typeof line?.productId !== "string" || !Number.isFinite(quantity)) {
+      throw moved("items[].productId/quantity", "missing or wrong type");
+    }
+    quantities[line.productId] = quantity;
+    itemCount += quantity;
+  }
+  return { itemCount, total: amount, quantities };
+}
+
+/**
+ * Turn a cart plan into ICA apply-quantity ops against the cart's current
+ * state. apply-quantity quantities are DELTAS (duplicates stack), so:
+ * duplicate list rows matching the same product are collapsed into one op
+ * with the summed quantity (one unit per term, like the Mathem fill), and
+ * products already in the cart are skipped entirely — re-running the fill
+ * converges instead of doubling, which the retry-after-WAF-cool-down
+ * workflow depends on. The human bumps quantities in the shop.
+ */
+export function icaFillOps(
+  plan: CartPlan,
+  current: Record<string, number>,
+): { ops: { productId: string; quantity: number }[]; alreadyInCart: string[] } {
+  const wanted = new Map<string, number>();
+  for (const op of plan.ops) {
+    wanted.set(op.productId, (wanted.get(op.productId) ?? 0) + op.quantity);
+  }
+  const ops: { productId: string; quantity: number }[] = [];
+  const alreadyInCart: string[] = [];
+  for (const [productId, quantity] of wanted) {
+    if ((current[productId] ?? 0) > 0) alreadyInCart.push(productId);
+    else ops.push({ productId, quantity });
+  }
+  return { ops, alreadyInCart };
+}
+
 export function buildComparison(
   store: string,
   terms: string[],

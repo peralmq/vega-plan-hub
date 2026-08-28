@@ -170,7 +170,8 @@ Hemköp (authenticated Axfood REST), Coop (anonymous API), ICA
 (anonymous per-store search + **household login tier** — adopted by
 Pelle 2026-08-16 in chat, reversing the same-day gate default; the
 anonymous search leg stays the fallback whenever credentials are
-absent). **Purchase-history seeding** is in scope per store: the
+absent; cart-fill through the login tier adopted 2026-08-28, Pelle in
+chat, reversing p5-05's Mathem-only cart non-goal). **Purchase-history seeding** is in scope per store: the
 household's commonly-bought products (Mathem likely_to_buy, ICA
 favorites/"Återkommande", Axfood purchase history) may be read to
 pin real staples in the comparison — read-only, same credential

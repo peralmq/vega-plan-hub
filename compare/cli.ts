@@ -36,7 +36,9 @@ import {
   extractAxfood,
   extractIca,
   extractMathemMcp,
+  icaFillOps,
   mergeSeeds,
+  validateIcaCart,
   validateMathemOrders,
   type StoreComparison,
   type StoreProduct,
@@ -51,7 +53,7 @@ import {
 import { AxfoodSession, type AxfoodSlot } from "./axfood";
 import { fetchBatchRows, resolveBatchId, signInHousehold } from "./batchFetch";
 import { batchRowsToCompareList } from "./batchMap";
-import { hasIcaAuth, IcaSession } from "./ica-auth";
+import { hasIcaAuth, hasIcaCartAuth, IcaSession } from "./ica-auth";
 import { loadRotationHistory, recordRun } from "./rotation-state";
 import { cached } from "./cache";
 import { hasBatchAuth, loadBatchEnv, loadCompareEnv } from "./env";
@@ -433,8 +435,17 @@ async function runStore(
 const fmtKr = (n: number) => `${n.toFixed(2).replace(".", ",")} kr`;
 
 interface CartFillResult {
+  store: "mathem" | "ica";
   plan: ReturnType<typeof cartPlan>;
-  cart: Awaited<ReturnType<typeof manipulateCart>> | null;
+  /** Store-native cart readback (--json); null = nothing matched. */
+  cart: unknown;
+  /** Product ids the store refused to add (ICA per-item 400s). */
+  rejected?: string[];
+  /** Product ids skipped because the cart already holds them (ICA
+   * convergent fill — re-runs never double earlier adds). */
+  alreadyInCart?: string[];
+  /** The "→ cart now …" line for humans; null = nothing matched. */
+  summary: string | null;
 }
 
 /**
@@ -445,35 +456,88 @@ interface CartFillResult {
  */
 async function fillMathemCart(comparison: StoreComparison): Promise<CartFillResult> {
   const plan = cartPlan(comparison);
-  if (plan.ops.length === 0) return { plan, cart: null };
+  if (plan.ops.length === 0) return { store: "mathem", plan, cart: null, summary: null };
   const cart = await manipulateCart(
     plan.ops.map((o) => ({ productId: Number(o.productId), quantity: o.quantity })),
   );
-  return { plan, cart };
+  return {
+    store: "mathem",
+    plan,
+    cart,
+    summary: `cart now ${cart.productQuantityCount} item(s): items ${fmtKr(cartItemsTotal(cart))}, cart total ${fmtKr(Number(cart.totalGrossAmount))} incl. fees — review & checkout: ${cart.url}`,
+  };
 }
 
-function printCartFill({ plan, cart }: CartFillResult, annotations: Map<string, string>): void {
-  if (cart === null) {
-    console.log("🛒 Mathem cart-fill: nothing matched — cart untouched\n");
+/**
+ * Push the matched ICA basket into the household's handlaprivatkund cart
+ * (p5-06) — the site's own apply-quantity op, additive like Mathem's.
+ * Cart-ready only: ICA adds delivery/fees at checkout, which stays human.
+ */
+async function fillIcaCart(comparison: StoreComparison): Promise<CartFillResult> {
+  const plan = cartPlan(comparison);
+  if (plan.ops.length === 0) return { store: "ica", plan, cart: null, summary: null };
+  const session = new IcaSession(ICA_DEFAULT_STORE.accountId);
+  await session.ensureAny();
+  // Convergent fill: read the cart first, skip products already in it
+  // (icaFillOps) — re-running after a WAF cool-down finishes the fill
+  // without doubling what an earlier run already added.
+  const before = validateIcaCart(await session.activeCart());
+  const fill = icaFillOps(plan, before.quantities);
+  const { rejected } =
+    fill.ops.length > 0 ? await session.applyQuantities(fill.ops) : { rejected: [] as string[] };
+  // The write answers with an update envelope, not the cart — the
+  // active-cart GET is the readback of record.
+  const cart = await session.activeCart();
+  const totals = validateIcaCart(cart);
+  return {
+    store: "ica",
+    plan,
+    cart,
+    rejected,
+    alreadyInCart: fill.alreadyInCart,
+    summary: `cart now ${totals.itemCount} item(s): items ${fmtKr(totals.total)} — ICA adds any delivery/fees at checkout — review & checkout: https://handlaprivatkund.ica.se/stores/${ICA_DEFAULT_STORE.accountId}/cart`,
+  };
+}
+
+function printCartFill(
+  { store, plan, rejected, alreadyInCart, summary }: CartFillResult,
+  annotations: Map<string, string>,
+): void {
+  const label = store === "mathem" ? "Mathem" : "ICA";
+  if (summary === null) {
+    console.log(`🛒 ${label} cart-fill: nothing matched — cart untouched\n`);
     return;
   }
-  console.log(`🛒 Mathem cart filled — ${plan.ops.length} item(s) added:`);
+  const refused = new Set(rejected ?? []);
+  const kept = new Set(alreadyInCart ?? []);
+  const added = plan.ops.filter((o) => !refused.has(o.productId) && !kept.has(o.productId)).length;
+  console.log(`🛒 ${label} cart filled — ${added} item(s) added:`);
   for (const op of plan.ops) {
     const annotation = annotations.get(op.term);
     // p5-05: cart-fill stays one-unit-per-term (product.spec non-goal) — the
     // batch's actual quantity is printed here as the human's cue to adjust
     // it in the cart before paying, never sent to the store as a quantity.
+    const flag = refused.has(op.productId)
+      ? "✗"
+      : kept.has(op.productId)
+        ? "⏭"
+        : op.quality === "weak"
+          ? "⚠"
+          : "✓";
+    const suffix = refused.has(op.productId)
+      ? " — store refused the add, shop manually"
+      : kept.has(op.productId)
+        ? " — already in cart, left as-is"
+        : "";
     console.log(
-      `  ${op.quality === "weak" ? "⚠" : "✓"} ${op.term}: ${op.name} — ${fmtKr(op.price)}${annotation ? ` (batch qty: ${annotation})` : ""}`,
+      `  ${flag} ${op.term}: ${op.name} — ${fmtKr(op.price)}${annotation ? ` (batch qty: ${annotation})` : ""}${suffix}`,
     );
   }
   if (plan.skipped.length) console.log(`  ✗ not in cart (no match): ${plan.skipped.join(", ")}`);
   if (plan.weak > 0) {
     console.log(`  ⚠ ${plan.weak} weak match(es) went into the cart — swap them in the shop if wrong`);
   }
-  console.log(
-    `  → cart now ${cart.productQuantityCount} item(s): items ${fmtKr(cartItemsTotal(cart))}, cart total ${fmtKr(Number(cart.totalGrossAmount))} incl. fees — review & checkout: ${cart.url}\n`,
-  );
+  console.log(`  → ${summary}\n`);
 }
 
 const rankedStores = (reports: Record<string, StoreReport>) =>
@@ -562,7 +626,7 @@ function printHuman(
 }
 
 const USAGE =
-  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem] [--record <store>] [--json]";
+  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica] [--record <store>] [--json]";
 
 /**
  * p5-05: `--batch` signs in as the household, pulls the locked batch's
@@ -625,18 +689,24 @@ async function main() {
   const fillStore =
     typeof args["fill-cart"] === "string" ? args["fill-cart"] : args["fill-cart"] === true ? "mathem" : null;
   if (fillStore) {
-    if (fillStore !== "mathem") {
+    if (fillStore !== "mathem" && fillStore !== "ica") {
       console.error(
-        `--fill-cart ${fillStore}: only mathem is supported (official MCP); other stores need their account tiers (p5-01 step 2)`,
+        `--fill-cart ${fillStore}: mathem (official MCP) and ica (login tier, p5-06) are supported; other stores need their account tiers`,
       );
       process.exit(1);
     }
-    if (!stores.includes("mathem")) {
-      console.error("--fill-cart mathem requires mathem in --stores");
+    if (!stores.includes(fillStore)) {
+      console.error(`--fill-cart ${fillStore} requires ${fillStore} in --stores`);
       process.exit(1);
     }
-    if (!hasMathemAuth()) {
+    if (fillStore === "mathem" && !hasMathemAuth()) {
       console.error("--fill-cart mathem needs auth — run `npm run mathem-auth` first");
+      process.exit(1);
+    }
+    if (fillStore === "ica" && !hasIcaCartAuth()) {
+      console.error(
+        "--fill-cart ica needs ICA_PERSONNUMMER + ICA_PASSWORD (or ICA_COOKIE) in compare/.env",
+      );
       process.exit(1);
     }
   }
@@ -675,12 +745,12 @@ async function main() {
   );
 
   let cartFill: CartFillResult | null = null;
-  if (fillStore === "mathem") {
-    const comparison = reports.mathem?.comparison;
+  if (fillStore) {
+    const comparison = reports[fillStore]?.comparison;
     if (comparison) {
-      cartFill = await fillMathemCart(comparison);
+      cartFill = fillStore === "mathem" ? await fillMathemCart(comparison) : await fillIcaCart(comparison);
     } else {
-      console.error("cart-fill skipped: Mathem was unreachable — cart untouched");
+      console.error(`cart-fill skipped: ${fillStore} was unreachable — cart untouched`);
     }
   }
 

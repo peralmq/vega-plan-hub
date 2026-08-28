@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "productId": "c4bb2d50-2b2a-4a73-a5d8-454b57dc6d4c",
+      "quantity": 2,
+      "finalPrice": {
+        "currency": "SEK",
+        "amount": "31.18"
+      }
+    },
+    {
+      "productId": "6ae269be-4e37-4c96-b31e-896cff238457",
+      "quantity": 1,
+      "finalPrice": {
+        "currency": "SEK",
+        "amount": "31.18"
+      }
+    },
+    {
+      "productId": "145178ed-47ea-4cd2-8132-0070b7609e87",
+      "quantity": 1,
+      "finalPrice": {
+        "currency": "SEK",
+        "amount": "34.02"
+      }
+    }
+  ],
+  "totals": {
+    "display": {
+      "itemPriceAfterPromos": {
+        "currency": "SEK",
+        "amount": "406.55"
+      },
+      "taxation": "TAX_INCLUDED"
+    },
+    "itemPriceAfterPromos": {
+      "currency": "SEK",
+      "amount": "406.55"
+    },
+    "itemsRetailPrice": {
+      "currency": "SEK",
+      "amount": "406.55"
+    },
+    "savingsPrice": {
+      "currency": "SEK",
+      "amount": "0.00"
+    },
+    "taxation": "TAX_INCLUDED"
+  }
+}
