@@ -44,6 +44,20 @@ export class IcaSession {
     return jar;
   }
 
+  /** ICA_COOKIE comes from a human browser copy, so guard the one way that
+   * copy goes wrong in practice: a panel that elides the value mid-string
+   * leaves a "…" (or another char > 0xFF), which undici rejects with an
+   * unreadable ByteString TypeError deep inside Headers.set. */
+  private validateBrowserCookie(raw: string): string {
+    const bad = [...raw].findIndex((c) => c.codePointAt(0)! > 0xff);
+    if (bad < 0) return raw;
+    const truncated = raw.includes("…") ? " ('…' — the panel truncated the value)" : "";
+    throw new Error(
+      `ICA_COOKIE has a non-header character at index ${bad}${truncated} — copy the FULL value: ` +
+        "DevTools → Network → right-click the request → Copy → Copy as cURL, then take the cookie header from the paste",
+    );
+  }
+
   private storeCookies(url: URL, res: Response): void {
     for (const header of res.headers.getSetCookie?.() ?? []) {
       const pair = header.split(";")[0];
@@ -55,8 +69,9 @@ export class IcaSession {
   private async fetch(url: URL, init: RequestInit = {}): Promise<Response> {
     const headers = new Headers(init.headers);
     headers.set("user-agent", BROWSER_UA);
+    const raw = process.env.ICA_COOKIE;
     const browserCookie =
-      url.host === "handlaprivatkund.ica.se" ? process.env.ICA_COOKIE : undefined;
+      url.host === "handlaprivatkund.ica.se" && raw ? this.validateBrowserCookie(raw) : undefined;
     const cookies = this.jar(url.host);
     if (browserCookie) {
       headers.set("cookie", browserCookie);
