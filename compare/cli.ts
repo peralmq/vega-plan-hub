@@ -3,7 +3,7 @@
 // delivery-eligibility check. Cart-ready only — checkout, slot booking
 // and payment always stay with the human (non-goal by design).
 //
-//   npm run compare -- --list fixtures/compare-list.json [--zip 11251]
+//   npm run compare -- --list fixtures/compare-list.json [--zip 12038]
 //     [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20]
 //     [--window 17-20] [--fill-cart mathem] [--json]
 //
@@ -626,7 +626,7 @@ function printHuman(
 }
 
 const USAGE =
-  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip 11251] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica] [--record <store>] [--json]";
+  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip 12038] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica] [--record <store>] [--json]";
 
 /**
  * p5-05: `--batch` signs in as the household, pulls the locked batch's

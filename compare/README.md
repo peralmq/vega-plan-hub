@@ -6,7 +6,7 @@ price, match quality and delivery eligibility. Cart-ready only:
 checkout, slot booking and payment always stay with the human.
 
 ```
-npm run compare -- --list fixtures/compare-list.json --zip 11251 \
+npm run compare -- --list fixtures/compare-list.json --zip 12038 \
   [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20] [--window 17-20] \
   [--fill-cart mathem|ica] [--json]
 ```
