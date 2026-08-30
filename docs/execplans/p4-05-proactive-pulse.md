@@ -167,7 +167,83 @@ ping would otherwise fire:
 ✓ reports only future fire times when it arms just after midnight
 ```
 
-### Live deploy (recorded below at deploy time)
+### Live deploy — 2026-08-31, 00:33 CEST (household asleep)
+
+Deployed to the runtime checkout `~/Projects/vega-plan-hub` (a separate
+clone; the dev checkout is `~/Projects/peralmq/vega-plan-hub`). Fast-forward
+from the dev checkout directly — deliberately *not* a push to GitHub, which
+would also redeploy the public web app:
+
+```
+$ cd ~/Projects/vega-plan-hub
+$ git fetch /Users/pellefrank/Projects/peralmq/vega-plan-hub main && git merge --ff-only FETCH_HEAD
+$ git log --oneline -4
+09af113 p4-05: proactive pulse — runs-low nudge, tonight ping, one-tap ratings
+3151586 p4-06: NLU trace capture — …
+c460d84 p4-04: preference learning — Script 3 in production (in-progress)
+c6eb563 p5-09 filed: …
+$ git diff HEAD@{1} HEAD -- package.json   # scripts only — no dependency change, no npm install
+```
+
+The runtime was `npm run bot` in an interactive terminal (no launchd —
+p4-07 is still `todo`), which is the stale-consumer footgun: it would have
+kept running 845b6f4 forever. Killed and restarted detached, so it also
+survives the terminal closing:
+
+```
+$ kill 46349 46364           # npm run bot + its tsx child, both gone
+$ nohup npm run bot >> bot-consumer.log 2>&1 < /dev/null &   # cwd ~/Projects/vega-plan-hub
+```
+
+Boot log — **the new code is live** (`[pulse] armed` exists only in this
+commit), the chat resolved, and every next fire is in the future:
+
+```
+[auth] 2026-08-30T22:33:50.268Z INITIAL_SESSION
+[auth] 2026-08-30T22:33:50.918Z SIGNED_IN
+[boot] signed in as household user; model=qwen3:8b ollama=http://localhost:11434
+[boot] recipe notes: repo=/Users/pellefrank/Projects/vega-plan-hub push=on
+[boot] ollama reachable
+[realtime] SUBSCRIBED
+[pulse] armed chat=167811658 tick=60000ms next: runs_low@2026-08-31T15:00:00.000Z tonight@2026-08-31T14:00:00.000Z rating@2026-08-31T19:00:00.000Z
+[boot] draining; ctrl-c to stop
+```
+
+Armed at 00:33 CEST (22:33 UTC); the three next fires are 14:00 UTC
+(16:00 CEST tonight), 15:00 UTC (17:00 runs-low) and 19:00 UTC (21:00
+rating) — all later the same day, none "now". Re-read at 00:37 CEST, after
+several scheduler ticks:
+
+```
+$ grep -c "\[pulse\] sent" bot-consumer.log
+0
+$ pgrep -fl "bot/consumer.ts"
+24949 node …/node_modules/.bin/tsx bot/consumer.ts
+```
+
+**Zero sends**, log otherwise silent, consumer alive. Nothing reached the
+household chat; the first real ping happens on its own tomorrow afternoon.
+(During the night the tick is not merely send-free but query-free: the
+window check runs before any Supabase call.)
+
+Read-only state check at deploy time (no writes, nothing sent):
+
+```
+nlu_traces: ABSENT (PGRST205: Could not find the table 'public.nlu_traces' …)
+today=2026-08-31 batches=1 active=d6595503-… starts_on=2026-08-27
+pool=5 remaining=5 cookedToday=0
+recipe_ratings rows=0 · recipe_comments rows=0
+telegram_inbox: one chat only — 167811658, type=private, 29 rows
+```
+
+So tomorrow: the 16:00 tonight ping fires (5 dishes left in the pool), the
+17:00 runs-low nudge does **not** (5 > 1), and the 21:00 rating prompt does
+**not** unless something gets stamped `cooked_on` — the rationing working as
+designed on day one. The household uses a single private chat with the bot
+(no group has ever reached the queue), which is what `resolvePulseChatId`
+picked; A.1 is still an unfilled verdict row, and this is live evidence for
+it. `nlu_traces` is confirmed absent live (p4-06 degrades log-and-continue;
+no crash observed at boot).
 
 ### Week one (pending)
 
