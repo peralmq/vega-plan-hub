@@ -167,3 +167,20 @@ posture recorded):**
   anyway) covers the remaining terms. Most remaining unmatched
   terms are recipe-style lines ("gul lök, finhackad") that need
   the term-normalization improvements, not more search attempts.
+
+**2026-08-30 (shop run on request — convergent posture unchanged):**
+
+- `--batch latest` still resolves to d6595503 (open-ended batch,
+  p4-12). Cache expired, all 59 terms re-searched: 10 matched, and
+  the convergent fill skipped all 9 already-carted products `⏭`
+  (zero doubling again) and added 1 new item (olivolja, staple
+  seed). Cart at handoff: **15 items, 495,18 kr**,
+  `handlaprivatkund.ica.se/stores/1003418/cart`.
+- WAF posture identical to 2026-08-29: ~49 of 59 searches
+  challenged while every authenticated cart read/write passed. No
+  automated retries per the polite-client rule; ICA_COOKIE or
+  in-shop manual carting remains the coverage for the rest.
+- Known matcher residual still visible in the cart (staple pins:
+  "salt" → chips, "vatten" → kokosvatten, "mjölk" → barnmat) —
+  human review before checkout is still the safety net; the
+  term-normalization follow-up remains open.
