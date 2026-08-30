@@ -34,10 +34,9 @@ list the household edits is the list the shop run fills:
 
 ## Non-goals
 
-- No web-page editing UI. ShoppingSummary.tsx stays derived-only this
-  plan (its local-only checkboxes and missing ad-hoc rows are a known
-  adjacent gap vs product.spec's "check-off shared live" — separate
-  plan if wanted). Chat remains the editing surface.
+- No web-page editing UI in this plan — that is p5-09
+  (web /summary reads/writes shopping_list_items; directive Pelle
+  2026-08-30), which depends on this plan's tombstone semantics.
 - Not the app-swap staleness bug (web swaps don't regenerate the locked
   batch's rows) — already filed separately (p5-06 evidence 2026-08-30).
 - No matcher/term-normalization work (p5-06 residual, separate).
