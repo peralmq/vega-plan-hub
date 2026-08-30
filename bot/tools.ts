@@ -22,7 +22,13 @@ import {
 import type { ParsedRecipe } from "../src/lib/recipeMarkdown";
 import { makePlanChat, makePlanStore } from "./planning";
 import { resolveMenuTarget, sendMenuCard } from "./menu";
-import { currentPreferenceMap } from "../src/lib/productPreferences";
+import {
+  currentPreferenceMap,
+  formatSinceMonth,
+  planSupersede,
+  planUndo,
+  type PreferenceRow,
+} from "../src/lib/productPreferences";
 import { normalizeIngredientName } from "../src/lib/ingredientNormalization";
 import {
   formatNoteLine,
@@ -79,11 +85,30 @@ export interface InboxRow {
 // Lost on restart by design: after a restart, "nej, penne" politely asks
 // instead of guessing at a stale row.
 export interface ChatState {
-  lastInsert?: { rowIds: string[]; displayNames: string[] };
+  lastInsert?: {
+    rowIds: string[];
+    displayNames: string[];
+    // The canonical bucket each row was inserted under — correct_last needs
+    // this to teach a preference against what the household was ORIGINALLY
+    // shopping for (p4-04), not the replacement's own canonical form.
+    canonicalIngredients: (string | null)[];
+  };
   // A note or edit awaiting its [Ja, spara] press. In-process on purpose
   // (same restart semantics as lastInsert): after a restart the callback
   // says "skicka igen" instead of publishing something stale.
   pendingChange?: PendingChange;
+  // p4-04: "nej, penne" asks [New usual] / [One-off] — the crumb is which
+  // canonical bucket + product the correction just taught, same in-process,
+  // lost-on-restart semantics as lastInsert/pendingChange above.
+  pendingCorrection?: { canonicalIngredient: string; productName: string };
+  // p4-04: [Undo] sits under every learning moment (an explicit
+  // set_preference or a [New usual] tap). What to re-point, and enough to
+  // build the "back to X" confirmation without a re-read.
+  lastPreferenceChange?: {
+    newRowId: string;
+    previousId: string | null;
+    previousProductName: string | null;
+  };
   // The planning conversation carries NO state here — the draft is in
   // planned_meals and every tap re-derives from it (p4-03). The one crumb is
   // the unanswered Script 6 diff question, with the same "ask again" fallback.
@@ -118,8 +143,21 @@ const T = {
     btnOnce: "Bara denna gång",
     corrected: (item: string) => `✏️ ${item} ska det va — utbytt på listan.`,
     nothingToCorrect: "🤔 Inget färskt av dig att rätta — köp den rätta?",
+    btnNewUsual: "Ny standard",
+    // p4-04 Script 3: the stated-memory reply — "was: X since <month>" —
+    // makes the belief inspectable (research-plan A.8) instead of a silent
+    // swap. `since` is formatSinceMonth's output, already localized.
+    prefNoted: (ingredient: string, product: string, was: { product: string; since: string } | null) =>
+      was
+        ? `📝 Noterat: ${ingredient} → ${product} från och med nu (var: ${was.product} sedan ${was.since}). Jag använder den nästa gång. 🌱`
+        : `📝 Noterat: ${ingredient} → ${product} från och med nu. Jag använder den nästa gång. 🌱`,
+    btnUndo: "Ångra",
+    cbCorrUsual: (product: string) => `🌱 Uppfattat — ${product} är den nya standarden nu.`,
+    cbCorrGone: "🤔 Inget färskt att komma ihåg — rätta mig igen? 🙏",
+    cbUndoGone: "🤔 Inget att ångra längre.",
+    cbUndone: (was: string | null) => (was ? `↩️ Ångrat — tillbaka till ${was}.` : "↩️ Ångrat — ingen favorit satt nu."),
     unsupported:
-      "🚧 Det där kan jag inte än (preferenser, \"vad blir det ikväll\") — men listor och planering fixar jag: köp / visa listan / planera 5 dagar 🌱",
+      "🚧 Det där kan jag inte än (\"vad blir det ikväll\") — men listor och planering fixar jag: köp / visa listan / planera 5 dagar 🌱",
     cbRemember: "🌱 Att komma ihåg stapelvaror lär jag mig i nästa uppdatering — noterat i själen!",
     cbOnce: "👍 Bara denna gång, då.",
     noteWhich:
@@ -162,8 +200,18 @@ const T = {
     btnOnce: "Just this once",
     corrected: (item: string) => `✏️ ${item} it is — swapped on the list.`,
     nothingToCorrect: "🤔 Nothing recent of yours to correct — köp the right one?",
+    btnNewUsual: "New usual",
+    prefNoted: (ingredient: string, product: string, was: { product: string; since: string } | null) =>
+      was
+        ? `📝 Noted: ${ingredient} → ${product} from now on (was: ${was.product} since ${was.since}). I'll use it next time. 🌱`
+        : `📝 Noted: ${ingredient} → ${product} from now on. I'll use it next time. 🌱`,
+    btnUndo: "Undo",
+    cbCorrUsual: (product: string) => `🌱 Got it — ${product} is the new usual now.`,
+    cbCorrGone: "🤔 Nothing fresh to remember — correct me again? 🙏",
+    cbUndoGone: "🤔 Nothing to undo anymore.",
+    cbUndone: (was: string | null) => (was ? `↩️ Undone — back to ${was}.` : "↩️ Undone — no preference set now."),
     unsupported:
-      "🚧 Can't do that one yet (preferences, \"what's for dinner\") — lists and planning I can: köp / visa listan / plan the next 5 days 🌱",
+      "🚧 Can't do that one yet (\"what's for dinner\") — lists and planning I can: köp / visa listan / plan the next 5 days 🌱",
     cbRemember: "🌱 I'll learn to remember staples in the next update — noted in spirit!",
     cbOnce: "👍 Just this once then.",
     noteWhich:
@@ -195,6 +243,68 @@ async function loadPreferences(
     .eq("user_id", userId)
     .is("superseded_by", null);
   return currentPreferenceMap(data ?? []);
+}
+
+const PREFERENCE_COLUMNS = "id, canonical_ingredient, product_name, superseded_by, valid_from, source, note";
+
+// p4-04 Script 3 write path: "insert + supersede atomically" (Step 1). The
+// DECISION (what to insert, which row it replaces) is the pure
+// planSupersede; this is only the two-call round trip against it — insert
+// first (the new row needs an id before anything can point at it), then
+// re-point the previous current row, if there was one.
+async function teachPreference(
+  supa: SupabaseClient,
+  userId: string,
+  canonicalIngredient: string,
+  productName: string,
+  source: "explicit" | "correction",
+): Promise<{ newRowId: string; previous: PreferenceRow | null }> {
+  const { data, error: readError } = await supa
+    .from("product_preferences")
+    .select(PREFERENCE_COLUMNS)
+    .eq("user_id", userId)
+    .eq("canonical_ingredient", canonicalIngredient);
+  if (readError) throw new Error(`preference history failed: ${readError.message}`);
+  const plan = planSupersede((data ?? []) as PreferenceRow[], canonicalIngredient, productName, source);
+
+  const { data: inserted, error: insertError } = await supa
+    .from("product_preferences")
+    .insert({ user_id: userId, ...plan.insert })
+    .select("id")
+    .single();
+  if (insertError) throw new Error(`preference insert failed: ${insertError.message}`);
+  const newRowId = (inserted as { id: string }).id;
+
+  if (plan.previous) {
+    const { error: supersedeError } = await supa
+      .from("product_preferences")
+      .update({ superseded_by: newRowId })
+      .eq("id", plan.previous.id);
+    if (supersedeError) throw new Error(`preference supersede failed: ${supersedeError.message}`);
+  }
+  return { newRowId, previous: plan.previous };
+}
+
+// [Undo]: re-point superseded_by (r4 §1) — never a delete, never touching a
+// row's own product_name/canonical_ingredient. planUndo is the pure
+// decision; this is the (up to) two-call round trip against it.
+async function undoPreference(
+  supa: SupabaseClient,
+  change: { newRowId: string; previousId: string | null },
+): Promise<void> {
+  const plan = planUndo(change.newRowId, change.previousId);
+  const { error } = await supa
+    .from("product_preferences")
+    .update({ superseded_by: plan.retireSupersededBy })
+    .eq("id", plan.retireId);
+  if (error) throw new Error(`preference undo failed: ${error.message}`);
+  if (plan.restoreId) {
+    const { error: restoreError } = await supa
+      .from("product_preferences")
+      .update({ superseded_by: null })
+      .eq("id", plan.restoreId);
+    if (restoreError) throw new Error(`preference restore failed: ${restoreError.message}`);
+  }
 }
 
 // Note target resolution: a dish named in the message wins; otherwise what was
@@ -311,12 +421,18 @@ async function executeInserts(
         added_by: row.family_member_id,
       })),
     )
-    .select("id, display_name");
+    .select("id, display_name, canonical_ingredient");
   if (error) throw new Error(`insert failed: ${error.message}`);
 
+  const inserted = (data ?? []) as Array<{
+    id: string;
+    display_name: string;
+    canonical_ingredient: string | null;
+  }>;
   state.lastInsert = {
-    rowIds: (data ?? []).map((r: { id: string }) => r.id),
-    displayNames: (data ?? []).map((r: { display_name: string }) => r.display_name),
+    rowIds: inserted.map((r) => r.id),
+    displayNames: inserted.map((r) => r.display_name),
+    canonicalIngredients: inserted.map((r) => r.canonical_ingredient),
   };
 
   if (row.message_id != null) await tg.react(row.chat_id, row.message_id, REACTIONS.added);
@@ -550,7 +666,14 @@ async function executeOne(
         await tg.sendMessage(row.chat_id, T[lang].nothingToCorrect);
         return;
       }
-      const targetId = last.rowIds[last.rowIds.length - 1];
+      const idx = last.rowIds.length - 1;
+      const targetId = last.rowIds[idx];
+      // p4-04: the bucket the household was ORIGINALLY shopping for — "nej,
+      // penne" corrected a "pasta" insert, and Script 3's teaching question
+      // ("should penne be the new usual [for pasta]?") is scoped to THAT
+      // bucket, not to penne's own canonical form (which is what the list
+      // row itself gets updated to, unchanged from p4-02).
+      const originalCanonical = last.canonicalIngredients[idx];
       const canonical = normalizeIngredientName(action.replacement);
       const displayName = preferences.get(canonical) ?? action.replacement;
       const { error } = await supa
@@ -558,8 +681,40 @@ async function executeOne(
         .update({ display_name: displayName, canonical_ingredient: canonical })
         .eq("id", targetId);
       if (error) throw new Error(`correct failed: ${error.message}`);
-      last.displayNames[last.displayNames.length - 1] = displayName;
-      await tg.sendMessage(row.chat_id, T[lang].corrected(displayName));
+      last.displayNames[idx] = displayName;
+      if (originalCanonical) {
+        state.pendingCorrection = { canonicalIngredient: originalCanonical, productName: displayName };
+        await tg.sendMessage(row.chat_id, T[lang].corrected(displayName), [[
+          { text: T[lang].btnNewUsual, callback_data: "corr_usual" },
+          { text: T[lang].btnOnce, callback_data: "corr_once" },
+        ]]);
+      } else {
+        await tg.sendMessage(row.chat_id, T[lang].corrected(displayName));
+      }
+      return;
+    }
+
+    case "set_preference": {
+      const { newRowId, previous } = await teachPreference(
+        supa,
+        row.user_id,
+        action.canonicalIngredient,
+        action.product,
+        "explicit",
+      );
+      state.lastPreferenceChange = {
+        newRowId,
+        previousId: previous?.id ?? null,
+        previousProductName: previous?.product_name ?? null,
+      };
+      const was = previous
+        ? { product: previous.product_name, since: formatSinceMonth(previous.valid_from, lang) }
+        : null;
+      await tg.sendMessage(
+        row.chat_id,
+        T[lang].prefNoted(action.ingredientAsWritten, action.product, was),
+        [[{ text: T[lang].btnUndo, callback_data: "pref_undo" }]],
+      );
       return;
     }
 
@@ -682,11 +837,68 @@ export async function handleCallback(
     return;
   }
 
-  // v1 stub (p4-02 scope): [Yes, remember] is acknowledged but writes
-  // nothing — preference LEARNING lands in p4-04.
+  // v1 stub (p4-02 scope), UNCHANGED by p4-04: Script 2's "new item, want me
+  // to remember it as a pantry staple?" is a different question (never-seen
+  // item → known item) from Script 3's product-switch teaching below —
+  // [Yes, remember] is still acknowledged but writes nothing.
   if (row.text === "remember" || row.text === "once") {
     const text = row.text === "remember" ? T.sv.cbRemember : T.sv.cbOnce;
     await tg.editMessageText(row.chat_id, row.message_id, text, []);
+    return;
+  }
+
+  // p4-04 Script 3, correction path: "nej, penne" asked [New usual]/
+  // [One-off] — only when the pending correction from THIS process's ask is
+  // still around (same restart semantics as note_yes/no above).
+  if (row.text === "corr_usual" || row.text === "corr_once") {
+    const state = states.get(row.chat_id);
+    const pending = state?.pendingCorrection;
+    if (state) delete state.pendingCorrection;
+    if (row.text === "corr_once") {
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbOnce, []);
+      return;
+    }
+    if (!pending) {
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbCorrGone, []);
+      return;
+    }
+    const { newRowId, previous } = await teachPreference(
+      supa,
+      row.user_id,
+      pending.canonicalIngredient,
+      pending.productName,
+      "correction",
+    );
+    if (state) {
+      state.lastPreferenceChange = {
+        newRowId,
+        previousId: previous?.id ?? null,
+        previousProductName: previous?.product_name ?? null,
+      };
+    }
+    await tg.editMessageText(
+      row.chat_id,
+      row.message_id,
+      T.sv.cbCorrUsual(pending.productName),
+      [[{ text: T.sv.btnUndo, callback_data: "pref_undo" }]],
+    );
+    return;
+  }
+
+  // p4-04 Script 3: [Undo] under every learning moment (set_preference or
+  // [New usual]) — re-points superseded_by (r4 §1), never deletes. The crumb
+  // is cleared immediately so a second tap (double-press, or after a
+  // restart) gets the honest "nothing to undo" instead of undoing twice.
+  if (row.text === "pref_undo") {
+    const state = states.get(row.chat_id);
+    const change = state?.lastPreferenceChange;
+    if (state) delete state.lastPreferenceChange;
+    if (!change) {
+      await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbUndoGone, []);
+      return;
+    }
+    await undoPreference(supa, change);
+    await tg.editMessageText(row.chat_id, row.message_id, T.sv.cbUndone(change.previousProductName), []);
     return;
   }
 

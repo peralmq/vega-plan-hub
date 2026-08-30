@@ -365,3 +365,218 @@ describe("live-20260827 replay through the bot seam", () => {
     expect(refused.text).toContain("🚧");
   });
 });
+
+// p4-04: Script 3 (r1-conversation-scripts.md) end to end — explicit
+// switches and the correction-as-teaching path both write append-only
+// product_preferences rows through the real fake-Supabase adapter, and
+// [Undo] re-points superseded_by rather than deleting anything.
+describe("p4-04: preference learning (Script 3)", () => {
+  const priorRow = () => ({
+    id: "pref-1",
+    user_id: USER,
+    canonical_ingredient: "mjölk",
+    product_name: "Oatly Havredryck Deluxe",
+    superseded_by: null,
+    valid_from: "2026-03-01T00:00:00Z",
+    source: "explicit" as const,
+    note: null,
+  });
+
+  it("set_preference inserts + supersedes atomically and replies with stated memory + [Undo]", async () => {
+    const { calls, tg } = makeTelegram();
+    const seeded = emptyDb();
+    seeded.product_preferences = [priorRow()];
+    const fake = makeFakeSupabase(seeded);
+    const supa = fake as unknown as SupabaseClient;
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("btw vi har bytt från oatly deluxe till ica havredryck, den är billigare"),
+      { intent: "set_preference", ingredient: "mjölk", product: "ICA Havredryck" },
+      new Map(),
+      repo(),
+    );
+
+    const rows = fake.db.product_preferences;
+    expect(rows).toHaveLength(2);
+    const current = rows.find((r) => r.product_name === "ICA Havredryck")!;
+    expect(current.superseded_by).toBeNull();
+    expect(current.source).toBe("explicit");
+    expect(current.family_member_id).toBeNull();
+    expect(rows.find((r) => r.id === "pref-1")!.superseded_by).toBe(current.id);
+
+    const sent = calls.find((c) => c.method === "send")!;
+    expect(sent.text).toContain("ICA Havredryck");
+    expect(sent.text).toContain("Oatly Havredryck Deluxe");
+    expect(sent.text).toContain("mars"); // valid_from month, sv default
+    expect(sent.buttons).toEqual(["pref_undo"]);
+  });
+
+  it("set_preference with nothing taught before it skips the 'was:' clause", async () => {
+    const { calls, tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("vi kör alpro istället för arla nu"),
+      { intent: "set_preference", ingredient: "mjölk", product: "Alpro" },
+      new Map(),
+      repo(),
+    );
+    expect(fake.db.product_preferences).toHaveLength(1);
+    const sent = calls.find((c) => c.method === "send")!;
+    expect(sent.text).not.toMatch(/var:|was:/);
+  });
+
+  it('"nej, penne" then [New usual] teaches the ORIGINAL bucket ("pasta"), tagged source=correction', async () => {
+    const { calls, tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+
+    await handleMessage(supa, tg, messageRow("köp pasta"), { intent: "add_item", items: ["pasta"] }, states, repo());
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("nej, penne"),
+      { intent: "correct_last", replacement: "penne" },
+      states,
+      repo(),
+    );
+    const corrected = calls.filter((c) => c.method === "send").pop()!;
+    expect(corrected.text).toContain("penne");
+    expect(corrected.buttons).toEqual(["corr_usual", "corr_once"]);
+
+    await handleCallback(supa, tg, callbackRow("corr_usual"), states, repo());
+    expect(fake.db.product_preferences).toHaveLength(1);
+    expect(fake.db.product_preferences[0]).toMatchObject({
+      canonical_ingredient: "pasta",
+      product_name: "penne",
+      source: "correction",
+      superseded_by: null,
+    });
+    // the list item itself was already corrected to penne's own canonical
+    // bucket (unchanged p4-02 behaviour) — the taught preference is scoped
+    // to what the household was ORIGINALLY shopping for, per Script 3.
+    expect(fake.db.shopping_list_items[0].canonical_ingredient).toBe("penne");
+  });
+
+  it('"nej, penne" then [One-off] writes no preference row', async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(supa, tg, messageRow("köp pasta"), { intent: "add_item", items: ["pasta"] }, states, repo());
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("nej, penne"),
+      { intent: "correct_last", replacement: "penne" },
+      states,
+      repo(),
+    );
+    await handleCallback(supa, tg, callbackRow("corr_once"), states, repo());
+    expect(fake.db.product_preferences).toHaveLength(0);
+  });
+
+  it("a stale [New usual]/[Undo] tap after a restart asks again instead of guessing", async () => {
+    const { calls, tg } = makeTelegram();
+    const supa = makeFakeSupabase(emptyDb()) as unknown as SupabaseClient;
+    for (const data of ["corr_usual", "corr_once", "pref_undo"]) {
+      await handleCallback(supa, tg, callbackRow(data), new Map(), repo());
+    }
+    const edits = calls.filter((c) => c.method === "edit");
+    expect(edits).toHaveLength(3);
+    for (const edit of edits) expect(edit.text).not.toContain("undefined");
+  });
+
+  it("[Undo] restores the prior current row and re-points the new one — never deletes", async () => {
+    const { tg } = makeTelegram();
+    const seeded = emptyDb();
+    seeded.product_preferences = [priorRow()];
+    const fake = makeFakeSupabase(seeded);
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("vi har bytt till ica havredryck"),
+      { intent: "set_preference", ingredient: "mjölk", product: "ICA Havredryck" },
+      states,
+      repo(),
+    );
+    await handleCallback(supa, tg, callbackRow("pref_undo"), states, repo());
+
+    const rows = fake.db.product_preferences;
+    expect(rows).toHaveLength(2); // nothing deleted, append-only
+    const restored = rows.find((r) => r.id === "pref-1")!;
+    expect(restored.superseded_by).toBeNull();
+    const undone = rows.find((r) => r.id !== "pref-1")!;
+    expect(undone.superseded_by).toBe("pref-1");
+  });
+
+  it("[Undo] with nothing before it retires the just-taught row onto itself", async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("vi kör alpro nu"),
+      { intent: "set_preference", ingredient: "mjölk", product: "Alpro" },
+      states,
+      repo(),
+    );
+    await handleCallback(supa, tg, callbackRow("pref_undo"), states, repo());
+
+    const rows = fake.db.product_preferences;
+    expect(rows).toHaveLength(1); // never deleted
+    expect(rows[0].superseded_by).toBe(rows[0].id);
+  });
+
+  it("undo is single-use — the crumb is cleared after acting, a second tap is a stale-tap reply", async () => {
+    const { calls, tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("vi kör alpro nu"),
+      { intent: "set_preference", ingredient: "mjölk", product: "Alpro" },
+      states,
+      repo(),
+    );
+    await handleCallback(supa, tg, callbackRow("pref_undo"), states, repo());
+    await handleCallback(supa, tg, callbackRow("pref_undo"), states, repo());
+    expect(fake.db.product_preferences).toHaveLength(1); // no second write
+    expect(calls.filter((c) => c.method === "edit").pop()!.text).not.toContain("undefined");
+  });
+
+  it("a taught preference resolves the very next add (the research-plan round trip)", async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("vi har bytt till ica havredryck"),
+      { intent: "set_preference", ingredient: "mjölk", product: "ICA Havredryck" },
+      states,
+      repo(),
+    );
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("köp mjölk"),
+      { intent: "add_item", items: ["mjölk"] },
+      states,
+      repo(),
+    );
+    const added = fake.db.shopping_list_items.find((r) => r.canonical_ingredient === "mjölk")!;
+    expect(added.display_name).toBe("ICA Havredryck");
+  });
+});

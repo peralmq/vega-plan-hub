@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { FamilyMembersManager } from "@/components/account/FamilyMembersManager";
+import { PreferenceBeliefs } from "@/components/account/PreferenceBeliefs";
 import { ChefHat, LogOut, ArrowLeft, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompassionFooter } from "@/components/CompassionFooter";
@@ -69,6 +70,11 @@ export default function Account() {
 
         {/* Family Members */}
         <FamilyMembersManager />
+
+        {/* What the bot believes (p4-04) */}
+        <div className="mt-6">
+          <PreferenceBeliefs />
+        </div>
 
         {/* Sign Out */}
         <div className="mt-6 text-center">

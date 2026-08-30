@@ -23,6 +23,17 @@ export interface CheckItemsAction { type: "check_items"; terms: string[] }
 export interface RemoveItemsAction { type: "remove_items"; terms: string[] }
 export interface CorrectLastAction { type: "correct_last"; replacement: string }
 export interface ShowListAction { type: "show_list"; query?: string }
+// p4-04: an explicit switch ("vi har bytt från X till Y") — canonicalized
+// here (same normalizeIngredientName as insert_item) so bot/tools.ts never
+// has to re-derive it; the write itself (insert + supersede, atomic) lives
+// in the impure tool layer against src/lib/productPreferences' plan
+// functions.
+export interface SetPreferenceAction {
+  type: "set_preference";
+  canonicalIngredient: string;
+  ingredientAsWritten: string;
+  product: string;
+}
 // The repo-write path (p4-08): planning only carries the extracted note —
 // recipe resolution, human confirmation, and the git tool live in bot/.
 export interface NoteRecipeAction { type: "note_recipe"; note: string }
@@ -44,13 +55,16 @@ export type BotAction =
   | RemoveItemsAction
   | CorrectLastAction
   | ShowListAction
+  | SetPreferenceAction
   | NoteRecipeAction
   | PlanAction
   | ShowMenuAction
   | UnsupportedAction
   | NoopAction;
 
-const WRITE_ACTIONS = new Set(["insert_item", "check_items", "remove_items", "correct_last", "note_recipe"]);
+const WRITE_ACTIONS = new Set([
+  "insert_item", "check_items", "remove_items", "correct_last", "note_recipe", "set_preference",
+]);
 
 // "Write" here means the shopping list and the recipe repo — the surfaces the
 // r4 §4 T2 must-not-act guarantee is about. Planning has its own gate (a draft
@@ -60,11 +74,12 @@ export function isWriteAction(action: BotAction): boolean {
   return WRITE_ACTIONS.has(action.type);
 }
 
-// Intents the capture bot deliberately does not act on yet (preference
-// learning, proactive flows — later P4 plans). They get a short "not yet"
-// reply from the consumer, never a data write.
+// Intents the capture bot deliberately does not act on yet (proactive
+// "what's for dinner" — a later P4 plan). set_preference graduated to a
+// write action in p4-04. Unhandled intents get a short "not yet" reply from
+// the consumer, never a data write.
 const UNSUPPORTED: ReadonlySet<string> = new Set([
-  "set_preference", "query_tonight",
+  "query_tonight",
 ]);
 
 // Swedish term matching (definite forms, canonical aliases) lives in
@@ -105,6 +120,15 @@ export function planActions(
         : [{ type: "noop" }];
     case "show_list":
       return [{ type: "show_list", ...(parse.query ? { query: parse.query } : {}) }];
+    case "set_preference":
+      return parse.ingredient && parse.product
+        ? [{
+            type: "set_preference",
+            canonicalIngredient: normalizeIngredientName(parse.ingredient),
+            ingredientAsWritten: parse.ingredient,
+            product: parse.product,
+          }]
+        : [{ type: "noop" }];
     case "note_recipe":
       return parse.note?.trim()
         ? [{ type: "note_recipe", note: parse.note.trim() }]

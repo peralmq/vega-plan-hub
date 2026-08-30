@@ -173,10 +173,26 @@ describe("must-not-act guarantees (r4 §4 T2 / p4-02 verification)", () => {
   });
 
   it("still-unsupported intents plan zero write actions", () => {
-    for (const intent of ["set_preference", "query_tonight"] as const) {
+    for (const intent of ["query_tonight"] as const) {
       const actions = planActions({ intent }, prefs);
       expect(actions.some(isWriteAction), intent).toBe(false);
     }
+  });
+
+  // p4-04: set_preference graduated from UNSUPPORTED to a write action — but
+  // only with both slots filled; a partial parse must stay inert rather than
+  // teach a preference from half a sentence.
+  it("set_preference plans a preference write with both slots, noop with either missing", () => {
+    expect(planActions({ intent: "set_preference", ingredient: "mjölk", product: "ICA Havredryck" }, prefs)).toEqual([
+      {
+        type: "set_preference",
+        canonicalIngredient: "mjölk",
+        ingredientAsWritten: "mjölk",
+        product: "ICA Havredryck",
+      },
+    ]);
+    expect(planActions({ intent: "set_preference", ingredient: "mjölk" }, prefs)).toEqual([{ type: "noop" }]);
+    expect(planActions({ intent: "set_preference", product: "ICA Havredryck" }, prefs)).toEqual([{ type: "noop" }]);
   });
 
   // p4-03: the planning intents graduated from UNSUPPORTED to the
