@@ -6,10 +6,13 @@ price, match quality and delivery eligibility. Cart-ready only:
 checkout, slot booking and payment always stay with the human.
 
 ```
-npm run compare -- --list fixtures/compare-list.json --zip 12038 \
-  [--stores mathem,willys,hemkop,ica,coop] [--day 2026-08-20] [--window 17-20] \
-  [--fill-cart mathem|ica] [--json]
+npm run compare -- --list fixtures/compare-list.json \
+  [--zip 12038] [--stores mathem,willys,hemkop,ica,coop] \
+  [--day 2026-08-20] [--window 17-20] [--fill-cart mathem|ica] [--json]
 ```
+
+`--zip` defaults to the household's own 12038 (Sköntorpsvägen, Årsta) —
+pass it only to check delivery against another address.
 
 - **Batch handoff** (p5-05): `--batch <id|latest>` replaces `--list`
   (mutually exclusive) — signs in as the household (`SUPABASE_URL`,

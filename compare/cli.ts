@@ -626,7 +626,7 @@ function printHuman(
 }
 
 const USAGE =
-  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip 12038] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica] [--record <store>] [--json]";
+  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip <postal>, default 12038] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica] [--record <store>] [--json]";
 
 /**
  * p5-05: `--batch` signs in as the household, pulls the locked batch's
@@ -682,7 +682,9 @@ async function main() {
     console.error(`unknown store(s): ${unknown.join(", ")}`);
     process.exit(1);
   }
-  const zip = typeof args.zip === "string" ? args.zip : null;
+  // Household default (Sköntorpsvägen, Årsta — directive 2026-08-30);
+  // --zip overrides for anyone comparing against another address.
+  const zip = typeof args.zip === "string" ? args.zip : "12038";
   const day = typeof args.day === "string" ? args.day : null;
   const window = typeof args.window === "string" ? args.window : null;
   // --fill-cart: validate before any network work so a typo fails fast.
