@@ -78,6 +78,43 @@ p4-01 + the p4-12 pool delta. The draft lives in `planned_meals`
 (`batch_id IS NULL AND meal_date IS NULL`), so restarting this process
 mid-conversation loses nothing — the next tap picks up where it was.
 
+## Proactive pulse (p4-05)
+
+Three rationed pings, all on the **same** scheduler this process already is
+(the transport p4-02 recorded — no pg_cron, no edge-function timer):
+
+| Ping | Time | Fires when |
+| --- | --- | --- |
+| `tonight` | 16:00 | the active batch still has an uncooked dish |
+| `runs_low` | 17:00 | ≤ 1 dinner left in the pool — buttons open the p4-03 flow |
+| `rating` | 21:00 | something was stamped `cooked_on` today |
+
+Send times, the runs-low threshold and the emoji→1–5 scale live in ONE place:
+`PULSE_CONFIG` in `src/lib/proactivePulse.ts`.
+
+**Night safety.** The scheduler is a 60s tick armed with `setInterval` and
+never called immediately, and a slot is due only inside its own 45-minute
+window. So a restart at any hour — 00:30 included — sends nothing, and a
+laptop that wakes at 23:00 with a missed 16:00 slot behind it does **not**
+catch up. The boot line `[pulse] armed chat=… next: tonight@… runs_low@…
+rating@…` prints the next fire times; they are always in the future.
+
+Mute one ping in chat: "sluta påminna om betyg / middagstipset /
+planeringen" (and "börja påminna om …" to bring it back). `/pulse` in a
+private chat prints what is on, what is muted and when each last spoke —
+the A.6 week-one audit surface. Every send also logs one greppable line:
+`[pulse] sent type=… key=… chat=…`.
+
+Mute flags and the send log live in `bot/.pulse-state.json` (gitignored,
+mode 600, `PULSE_STATE_FILE` to relocate) — this plan adds no schema. The
+target chat is auto-resolved from `telegram_inbox` (a group beats a private
+chat); `PULSE_CHAT_ID` overrides it.
+
+Ratings write the existing `recipe_ratings` rows the web reads
+(`useRecipeRatings`), one per family member, edited in place as both
+partners tap. A confirmed recipe note is additionally mirrored into
+`recipe_comments`, which is what Cook Mode actually renders.
+
 ## NLU trace capture (p4-06)
 
 Every message the assistant parses writes a row to `nlu_traces`

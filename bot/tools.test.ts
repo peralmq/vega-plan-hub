@@ -83,6 +83,7 @@ const emptyDb = (): FakeDb => ({
   plan_batches: [],
   shopping_list_items: [],
   recipe_ratings: [],
+  recipe_comments: [],
   product_preferences: [],
   family_members: [{ id: "fm-1", name: "Pelle", user_id: USER }],
   nlu_traces: [],
@@ -699,5 +700,75 @@ describe("p4-06: NLU trace capture wired through handleMessage/handleCallback", 
     await runTracesReview(supa, tg, messageRow(""), "sv");
     expect(calls.filter((c) => c.method === "send")).toHaveLength(1);
     expect(calls[0].text).toContain("Inget att granska");
+  });
+});
+
+// p4-05 Step 4: "notes resurface in cook mode". The web renders
+// `recipe_comments` under a recipe (RecipeComments in CookMode.tsx); the
+// markdown `## Notes` section the p4-08 path writes is parsed but never
+// displayed. So the confirmed note goes BOTH places from the one existing
+// confirm-and-publish path — no second capture flow, no new table.
+describe("p4-05: a saved note also lands where Cook Mode shows it", () => {
+  it("mirrors the confirmed note into recipe_comments for that recipe", async () => {
+    const { calls, tg } = makeTelegram();
+    const db = emptyDb();
+    db.planned_meals.push({
+      id: "pm-1",
+      user_id: USER,
+      batch_id: null,
+      recipe_id: "chana-dal",
+      servings_multiplier: 1,
+      meal_date: null,
+      cooked_on: localIsoDate(),
+      created_at: "2026-08-31T18:00:00.000Z",
+    });
+    const fake = makeFakeSupabase(db);
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("mindre stark nästa gång bara"),
+      { intent: "note_recipe", note: "mindre stark" },
+      states,
+      repo(),
+    );
+    expect(calls[calls.length - 1].buttons).toEqual(["note_yes", "note_no"]);
+
+    await handleCallback(supa, tg, callbackRow("note_yes"), states, repo());
+    expect(fake.db.recipe_comments).toHaveLength(1);
+    expect(fake.db.recipe_comments[0].recipe_id).toBe("chana-dal");
+    expect(fake.db.recipe_comments[0].user_id).toBe(USER);
+    expect(String(fake.db.recipe_comments[0].content)).toContain("Mindre stark");
+  });
+
+  it("declining the note writes nothing anywhere", async () => {
+    const { calls, tg } = makeTelegram();
+    const db = emptyDb();
+    db.planned_meals.push({
+      id: "pm-1",
+      user_id: USER,
+      batch_id: null,
+      recipe_id: "chana-dal",
+      servings_multiplier: 1,
+      meal_date: null,
+      cooked_on: localIsoDate(),
+      created_at: "2026-08-31T18:00:00.000Z",
+    });
+    const fake = makeFakeSupabase(db);
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("mindre stark nästa gång bara"),
+      { intent: "note_recipe", note: "mindre stark" },
+      states,
+      repo(),
+    );
+    await handleCallback(supa, tg, callbackRow("note_no"), states, repo());
+    expect(fake.db.recipe_comments).toEqual([]);
+    expect(calls[calls.length - 1].text).toContain("Skippar");
   });
 });

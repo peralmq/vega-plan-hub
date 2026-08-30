@@ -375,6 +375,30 @@ async function resolveNoteRecipe(
   return distinct.length === 1 ? byId(distinct[0]) : null;
 }
 
+// p4-05 Step 4 ("notes resurface in cook mode"): the confirmed note is
+// mirrored into `recipe_comments` — the table the web actually renders under
+// a recipe (RecipeComments in CookMode.tsx). The markdown `## Notes` section
+// the p4-08 path writes is parsed by the loader but displayed nowhere, so
+// without this the household's "mindre stark" never comes back to whoever
+// cooks it next. Same table the web writes, unchanged shape (this plan's
+// non-goal: no new rating/notes model), and best-effort: the repo commit has
+// already succeeded and must not be reported as failed over a mirror row.
+async function mirrorNoteToComments(
+  supa: SupabaseClient,
+  userId: string,
+  recipeId: string,
+  content: string,
+): Promise<void> {
+  try {
+    const { error } = await supa
+      .from("recipe_comments")
+      .insert({ user_id: userId, recipe_id: recipeId, content });
+    if (error) console.error(`[note] recipe_comments mirror failed: ${error.message}`);
+  } catch (err) {
+    console.error("[note] recipe_comments mirror failed:", err);
+  }
+}
+
 async function familyMemberName(
   supa: SupabaseClient,
   familyMemberId: string | null,
@@ -923,6 +947,9 @@ export async function handleCallback(
         pending.kind === "edit"
           ? await notes.publishEdit(pending.recipeId, pending.candidates, pending.edit)
           : await notes.publishNote(pending.recipeId, pending.noteLine);
+      if (pending.kind === "note") {
+        await mirrorNoteToComments(supa, row.user_id, pending.recipeId, pending.noteLine);
+      }
       await tg.editMessageText(
         row.chat_id,
         row.message_id,

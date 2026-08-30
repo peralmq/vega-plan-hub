@@ -32,6 +32,9 @@ dist-ssr
 # p4-02/p4-08: bot credentials live outside git (mode-600, see bot/README.md)
 bot/.env
 
+# p4-05: the proactive layer's local state — mute flags + the send log
+bot/.pulse-state.json
+
 # p5-01: store credentials/tokens live outside git (bot/.env pattern)
 compare/.mathem-oauth.json
 compare/.env
