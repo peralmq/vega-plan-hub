@@ -12,6 +12,8 @@ import { handleCallback, handleMessage, type InboxRow, type RecipeRepoDeps, type
 import { makeFakeSupabase, type FakeDb } from "./fakeSupabase";
 import { loadRecipeLibrary } from "./recipeLibrary";
 import type { TelegramApi } from "./telegram";
+import { addDays } from "../src/lib/planDraft";
+import { localIsoDate } from "../src/lib/recipeNotes";
 
 const USER = "user-1";
 const CHAT = 555;
@@ -254,9 +256,13 @@ describe("live-20260827 replay through the bot seam", () => {
     const deps = repo();
     await handleCallback(supa, tg, callbackRow("p:h:5"), states, deps);
     const before = fake.db.planned_meals.length;
-    // index 0 is half of the draft's own 🍱 pair — already a storkok, so the
-    // toggle must be a no-op there and the test aims at a solo dish instead.
-    await handleCallback(supa, tg, callbackRow("p:k:0:1"), states, deps);
+    // The draft always carries one 🍱 pair, but which slot it lands in shifts
+    // with the day's rotation — find it rather than assuming index 0. A dish
+    // that already is a storkok must make the toggle a no-op.
+    const paired = fake.db.planned_meals.findIndex(
+      (row, _i, all) => all.filter((r) => r.recipe_id === row.recipe_id).length > 1,
+    );
+    await handleCallback(supa, tg, callbackRow(`p:k:${paired}:1`), states, deps);
     expect(fake.db.planned_meals).toHaveLength(before);
     const solo = fake.db.planned_meals.findIndex(
       (row, _i, all) => all.filter((r) => r.recipe_id === row.recipe_id).length === 1,
@@ -342,9 +348,11 @@ describe("live-20260827 replay through the bot seam", () => {
     // Starts a couple of days OUT (does not cover today), so a fresh 5-day
     // draft starting today collides with it instead of chaining after it —
     // the same "does not jump over a batch further out" scenario as
-    // src/lib/planConversation.test.ts.
+    // src/lib/planConversation.test.ts. The bot reads the real clock
+    // (localIsoDate), so the seed must be relative to it, not hard-coded.
+    const today = localIsoDate();
     seeded.plan_batches = [
-      { id: "b1", user_id: USER, starts_on: "2026-08-29", ends_on: "2026-09-02" },
+      { id: "b1", user_id: USER, starts_on: addDays(today, 2), ends_on: addDays(today, 6) },
     ];
     const supa = makeFakeSupabase(seeded) as unknown as SupabaseClient;
     const states: StateMap = new Map();
