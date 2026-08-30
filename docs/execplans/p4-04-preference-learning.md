@@ -41,6 +41,10 @@ contract; p4-02 built the tool plumbing this extends. Web side:
 - [x] Supersede/undo semantics tested (append-only invariants)
 - [x] Admin section: list, history, edit, delete
 - [ ] Live: taught preference changes the next add
+- [ ] 2026-08-31 (retro finding): `src/mocks/mockStore.ts` has no
+  `product_preferences` case, so the populated branch of the admin
+  section can't be eyeballed via `./harness dev-mock` — add the mock
+  case before marking this plan done
 
 ## Steps
 

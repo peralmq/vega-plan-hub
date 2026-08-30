@@ -54,6 +54,16 @@ sandbox env, never in the repo.
 - [ ] Runtime → Supabase credential decided, stored, rotating
 - [ ] launchd + lid-closed operation verified
 - [ ] Ops runbook written
+- [ ] 2026-08-31 (queued by the overnight orchestration retro): a
+  deterministic runtime-status query — live checkout HEAD vs expected
+  commit, consumer process alive, pulse armed + send count — replacing
+  tonight's ad-hoc grep/pgrep deploy verification (p4-05 deploy
+  evidence). Machine-local by nature, so it belongs with this plan's
+  ops story, not in `./harness check`. Also fold in: the live consumer
+  currently runs detached via `nohup npm run bot` (started 2026-08-31
+  00:33, no launchd yet), and p4-08's note publisher will implicitly
+  `git push origin main` whatever the live checkout is ahead by —
+  the ops runbook must state the deploy/push discipline.
 
 ## Steps
 
