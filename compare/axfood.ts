@@ -1,10 +1,11 @@
 // Authenticated Axfood (Willys/Hemköp — same platform) session for the
-// delivery-slot tier. Login flow and credential encryption adapted from
-// Erik Hellman's MIT-licensed willys-agent (src/willys-api.ts, src/crypto.ts),
-// which replicates the site's own client-side login encryption (module
-// 89683 in their JS bundle); slot endpoint shape cross-checked against
-// jimmystridh/willys-mcp. Read-only use here: login + slot listing only —
-// no cart writes, no slot booking, no checkout (cart-ready non-goal).
+// delivery-slot tier and, since p5-07, the account cart-fill. Login flow
+// and credential encryption adapted from Erik Hellman's MIT-licensed
+// willys-agent (src/willys-api.ts, src/crypto.ts), which replicates the
+// site's own client-side login encryption (module 89683 in their JS
+// bundle); slot endpoint shape cross-checked against jimmystridh/willys-mcp,
+// cart endpoints against willys-agent. Cart-ready only: fill + readback,
+// never slot booking, checkout, or DELETE /cart (tech.spec 🚫-never).
 import { createCipheriv, pbkdf2Sync, randomBytes } from "node:crypto";
 
 import { validateAxfoodSlots } from "@/lib/feeTotals";
@@ -112,6 +113,47 @@ export class AxfoodSession {
     // 2026) — fail with the moved field, never a silent 0-kr fee.
     validateAxfoodSlots(slots);
     return slots;
+  }
+
+  /** The account cart's current state (requires login) — the readback
+   * of record for the cart-fill; shape-validated by the caller
+   * (validateAxfoodCart) so an API move fails loudly. */
+  async cart(): Promise<unknown> {
+    const res = await this.request("/axfood/rest/cart");
+    if (!res.ok) throw new Error(`cart HTTP ${res.status}`);
+    return res.json();
+  }
+
+  /** Add products to the account cart (p5-07). `qty` is a SET, not a
+   * delta (willys-agent uses qty 0 as its remove) — the convergent fill
+   * therefore never sends a code that is already in the cart. One POST
+   * per product so a refused code reports `✗ shop manually` instead of
+   * sinking the batch (the ICA fill's per-item lesson, applied from the
+   * start). */
+  async addProducts(
+    ops: { code: string; qty: number }[],
+  ): Promise<{ rejected: string[] }> {
+    const rejected: string[] = [];
+    for (const op of ops) {
+      const res = await this.request("/axfood/rest/cart/addProducts", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          products: [
+            {
+              productCodePost: op.code,
+              qty: op.qty,
+              pickUnit: "pieces",
+              hideDiscountToolTip: false,
+              noReplacementFlag: false,
+            },
+          ],
+        }),
+      });
+      if (!res.ok) rejected.push(op.code);
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    return { rejected };
   }
 
   /** The household's recent orders with their delivered lines (requires

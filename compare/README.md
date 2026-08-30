@@ -8,7 +8,7 @@ checkout, slot booking and payment always stay with the human.
 ```
 npm run compare -- --list fixtures/compare-list.json \
   [--zip 12038] [--stores mathem,willys,hemkop,ica,coop] \
-  [--day 2026-08-20] [--window 17-20] [--fill-cart mathem|ica] [--json]
+  [--day 2026-08-20] [--window 17-20] [--fill-cart mathem|ica|hemkop|willys] [--json]
 ```
 
 `--zip` defaults to the household's own 12038 (Sköntorpsvägen, Årsta) —
@@ -88,6 +88,16 @@ pass it only to check delivery against another address.
   sanctioned fallback if the WAF challenges the write, since the
   browser cookie carries the human-obtained WAF token. Checkout,
   slot booking and payment always stay with the human.
+- **Hemköp/Willys cart-fill** (p5-07): `--fill-cart hemkop|willys`
+  pushes the matched basket into the household's **account cart** on
+  the chain's own site (the p5-04 slot-tier credentials; the cart is
+  waiting in the shop on next login — no session handoff needed).
+  Convergent like ICA's: already-carted products are skipped (`⏭`),
+  so re-runs never double — Axfood's `qty` is a set, not a delta, and
+  the fill never sends a code that is already in the cart. One unit
+  per term; item subtotal only — slot/picking fees apply at checkout.
+  Refused products (per-item error) are reported `✗ shop manually`.
+  Checkout, slot booking and payment always stay with the human.
 - Mathem: `npm run mathem-auth` runs the one-time OAuth (PKCE,
   loopback callback) against the **official Mathem MCP**; tokens in
   `compare/.mathem-oauth.json` (gitignored, mode 600, auto-refresh).

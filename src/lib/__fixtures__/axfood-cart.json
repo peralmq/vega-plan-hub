@@ -1,0 +1,18 @@
+{
+  "products": [
+    {
+      "code": "101145716_ST",
+      "name": "Vetemjöl",
+      "quantity": 1,
+      "pickQuantity": 1
+    }
+  ],
+  "totalUnitCount": 1,
+  "subTotalPriceWithoutDiscountsNumber": 16.98,
+  "subtotalWithDiscountsAndPercentageVouchers": {
+    "currencyIso": "SEK",
+    "value": 16.98,
+    "priceType": "BUY",
+    "formattedValue": "16,98 kr"
+  }
+}

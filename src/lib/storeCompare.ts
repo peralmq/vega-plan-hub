@@ -393,11 +393,10 @@ export function cartPlan(comparison: StoreComparison): CartPlan {
   };
 }
 
-/** What the household needs to know after an ICA cart write (p5-06):
+/** What the household needs to know after a cart write (p5-06/p5-07):
  * how many units the cart now holds, what the items cost, and the
- * current quantity per product (apply-quantity SETS quantities, so
- * additive fill must add on top of what is already in the cart). */
-export interface IcaCartTotals {
+ * current quantity per product — the convergent fill's skip-list. */
+export interface CartTotals {
   /** Sum of line quantities. */
   itemCount: number;
   /** Item total after promotions, kr — ICA adds any fees at checkout. */
@@ -412,7 +411,7 @@ export interface IcaCartTotals {
  * Loud on drift, same policy as every other store envelope: an API move
  * must fail visibly, never as a phantom empty cart.
  */
-export function validateIcaCart(raw: unknown): IcaCartTotals {
+export function validateIcaCart(raw: unknown): CartTotals {
   const moved = (field: string, hint: string): Error =>
     new Error(
       `ICA cart shape moved (${field} ${hint}) — update compare/ica-auth.ts and src/lib/__fixtures__/ica-cart.json`,
@@ -447,6 +446,10 @@ export function validateIcaCart(raw: unknown): IcaCartTotals {
  * products already in the cart are skipped entirely — re-running the fill
  * converges instead of doubling, which the retry-after-WAF-cool-down
  * workflow depends on. The human bumps quantities in the shop.
+ *
+ * The Axfood fill (p5-07) reuses this planning unchanged: its qty is a
+ * SET rather than a delta, but on a product this planner emits (never in
+ * the cart) set-to-n and add-n are the same write.
  */
 export function icaFillOps(
   plan: CartPlan,
@@ -463,6 +466,42 @@ export function icaFillOps(
     else ops.push({ productId, quantity });
   }
   return { ops, alreadyInCart };
+}
+
+/**
+ * Validate + summarize the Axfood account-cart envelope (p5-07 — Hemköp/
+ * Willys share it): `products[]` with code/quantity, `totalUnitCount`,
+ * `subtotalWithDiscountsAndPercentageVouchers.value` (items in SEK; slot
+ * fees are separate and stay at checkout). Loud on drift, same policy as
+ * validateIcaCart: an API move must fail visibly, never as a phantom
+ * empty cart.
+ */
+export function validateAxfoodCart(raw: unknown): CartTotals {
+  const moved = (field: string, hint: string): Error =>
+    new Error(
+      `Axfood cart shape moved (${field} ${hint}) — update compare/axfood.ts and src/lib/__fixtures__/axfood-cart.json`,
+    );
+  const cart = raw as {
+    products?: { code?: unknown; quantity?: unknown }[];
+    totalUnitCount?: unknown;
+    subtotalWithDiscountsAndPercentageVouchers?: { value?: unknown };
+  };
+  if (!Array.isArray(cart?.products)) throw moved("products", "missing or not an array");
+  const itemCount = Number(cart?.totalUnitCount);
+  if (!Number.isFinite(itemCount)) throw moved("totalUnitCount", "missing or not numeric");
+  const total = Number(cart?.subtotalWithDiscountsAndPercentageVouchers?.value);
+  if (!Number.isFinite(total)) {
+    throw moved("subtotalWithDiscountsAndPercentageVouchers.value", "missing or not numeric");
+  }
+  const quantities: Record<string, number> = {};
+  for (const line of cart.products) {
+    const quantity = Number(line?.quantity);
+    if (typeof line?.code !== "string" || !Number.isFinite(quantity)) {
+      throw moved("products[].code/quantity", "missing or wrong type");
+    }
+    quantities[line.code] = quantity;
+  }
+  return { itemCount, total, quantities };
 }
 
 export function buildComparison(

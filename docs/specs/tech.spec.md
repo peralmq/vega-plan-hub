@@ -166,7 +166,10 @@ points, binding for P4 work:
 Grocery-store integrations are **outbound calls from the adopted M1
 household host only** — never from the web app, never from edge
 functions. Chains in scope: Mathem (official MCP, OAuth), Willys +
-Hemköp (authenticated Axfood REST), Coop (anonymous API), ICA
+Hemköp (authenticated Axfood REST; cart-fill through the account
+tier adopted 2026-08-30, Pelle in chat — extending the p5-06
+reversal to the Axfood chains; the account cart is what the
+household sees on next login), Coop (anonymous API), ICA
 (anonymous per-store search + **household login tier** — adopted by
 Pelle 2026-08-16 in chat, reversing the same-day gate default; the
 anonymous search leg stays the fallback whenever credentials are

@@ -38,6 +38,7 @@ import {
   extractMathemMcp,
   icaFillOps,
   mergeSeeds,
+  validateAxfoodCart,
   validateIcaCart,
   validateMathemOrders,
   type StoreComparison,
@@ -435,7 +436,7 @@ async function runStore(
 const fmtKr = (n: number) => `${n.toFixed(2).replace(".", ",")} kr`;
 
 interface CartFillResult {
-  store: "mathem" | "ica";
+  store: "mathem" | "ica" | "hemkop" | "willys";
   plan: ReturnType<typeof cartPlan>;
   /** Store-native cart readback (--json); null = nothing matched. */
   cart: unknown;
@@ -499,11 +500,63 @@ async function fillIcaCart(comparison: StoreComparison): Promise<CartFillResult>
   };
 }
 
+/** Chain config for the Axfood account-cart fill (p5-07) — same platform,
+ * one implementation, both chains. */
+const AXFOOD_CHAINS = {
+  hemkop: { host: "www.hemkop.se", envPrefix: "HEMKOP", label: "Hemköp" },
+  willys: { host: "www.willys.se", envPrefix: "WILLYS", label: "Willys" },
+} as const;
+
+/**
+ * Push the matched basket into the household's Hemköp/Willys account cart
+ * (p5-07) — the cart lives on the account, so it is waiting in the shop on
+ * next login. Convergent like the ICA fill: Axfood's qty is a SET (0
+ * removes), so already-carted products are never sent at all and re-runs
+ * cannot double them. Cart-ready only — slot fees apply at checkout,
+ * which stays human.
+ */
+async function fillAxfoodCart(
+  store: "hemkop" | "willys",
+  comparison: StoreComparison,
+): Promise<CartFillResult> {
+  const chain = AXFOOD_CHAINS[store];
+  const plan = cartPlan(comparison);
+  if (plan.ops.length === 0) return { store, plan, cart: null, summary: null };
+  const session = new AxfoodSession(`https://${chain.host}`);
+  await session.login(
+    process.env[`${chain.envPrefix}_USERNAME`]!,
+    process.env[`${chain.envPrefix}_PASSWORD`]!,
+  );
+  const before = validateAxfoodCart(await session.cart());
+  const fill = icaFillOps(plan, before.quantities);
+  const { rejected } =
+    fill.ops.length > 0
+      ? await session.addProducts(fill.ops.map((o) => ({ code: o.productId, qty: o.quantity })))
+      : { rejected: [] as string[] };
+  const cart = await session.cart();
+  const totals = validateAxfoodCart(cart);
+  return {
+    store,
+    plan,
+    cart,
+    rejected,
+    alreadyInCart: fill.alreadyInCart,
+    summary: `cart now ${totals.itemCount} item(s): items ${fmtKr(totals.total)} — slot/picking fees apply at checkout — review & checkout: https://${chain.host} (log in; the cart is on the account)`,
+  };
+}
+
+const FILL_LABELS: Record<CartFillResult["store"], string> = {
+  mathem: "Mathem",
+  ica: "ICA",
+  hemkop: "Hemköp",
+  willys: "Willys",
+};
+
 function printCartFill(
   { store, plan, rejected, alreadyInCart, summary }: CartFillResult,
   annotations: Map<string, string>,
 ): void {
-  const label = store === "mathem" ? "Mathem" : "ICA";
+  const label = FILL_LABELS[store];
   if (summary === null) {
     console.log(`🛒 ${label} cart-fill: nothing matched — cart untouched\n`);
     return;
@@ -626,7 +679,7 @@ function printHuman(
 }
 
 const USAGE =
-  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip <postal>, default 12038] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica] [--record <store>] [--json]";
+  "usage: npm run compare -- (--list <file.json> | --batch <id|latest>) [--zip <postal>, default 12038] [--stores mathem,willys,hemkop,ica,coop] [--day YYYY-MM-DD] [--window HH-HH] [--fill-cart mathem|ica|hemkop|willys] [--record <store>] [--json]";
 
 /**
  * p5-05: `--batch` signs in as the household, pulls the locked batch's
@@ -691,9 +744,14 @@ async function main() {
   const fillStore =
     typeof args["fill-cart"] === "string" ? args["fill-cart"] : args["fill-cart"] === true ? "mathem" : null;
   if (fillStore) {
-    if (fillStore !== "mathem" && fillStore !== "ica") {
+    if (
+      fillStore !== "mathem" &&
+      fillStore !== "ica" &&
+      fillStore !== "hemkop" &&
+      fillStore !== "willys"
+    ) {
       console.error(
-        `--fill-cart ${fillStore}: mathem (official MCP) and ica (login tier, p5-06) are supported; other stores need their account tiers`,
+        `--fill-cart ${fillStore}: mathem (official MCP), ica (login tier, p5-06), hemkop and willys (account tier, p5-07) are supported; coop has no account tier yet`,
       );
       process.exit(1);
     }
@@ -710,6 +768,15 @@ async function main() {
         "--fill-cart ica needs ICA_PERSONNUMMER + ICA_PASSWORD (or ICA_COOKIE) in compare/.env",
       );
       process.exit(1);
+    }
+    if (fillStore === "hemkop" || fillStore === "willys") {
+      const prefix = AXFOOD_CHAINS[fillStore].envPrefix;
+      if (!process.env[`${prefix}_USERNAME`] || !process.env[`${prefix}_PASSWORD`]) {
+        console.error(
+          `--fill-cart ${fillStore} needs ${prefix}_USERNAME + ${prefix}_PASSWORD in compare/.env`,
+        );
+        process.exit(1);
+      }
     }
   }
 
@@ -750,7 +817,13 @@ async function main() {
   if (fillStore) {
     const comparison = reports[fillStore]?.comparison;
     if (comparison) {
-      cartFill = fillStore === "mathem" ? await fillMathemCart(comparison) : await fillIcaCart(comparison);
+      cartFill =
+        fillStore === "mathem"
+          ? await fillMathemCart(comparison)
+          : fillStore === "ica"
+            ? await fillIcaCart(comparison)
+            : // the arg validation above already exits on anything else
+              await fillAxfoodCart(fillStore as "hemkop" | "willys", comparison);
     } else {
       console.error(`cart-fill skipped: ${fillStore} was unreachable — cart untouched`);
     }

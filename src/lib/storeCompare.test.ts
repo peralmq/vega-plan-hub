@@ -8,6 +8,7 @@ import {
   buildComparison,
   cartPlan,
   icaFillOps,
+  validateAxfoodCart,
   validateIcaCart,
   extractAxfood,
   extractCoop,
@@ -25,6 +26,7 @@ import {
   validateAxfoodOrders,
   validateMathemOrders,
 } from "./storeCompare";
+import axfoodCartFixture from "./__fixtures__/axfood-cart.json";
 import axfoodOrders from "./__fixtures__/axfood-orders.json";
 import icaCartFixture from "./__fixtures__/ica-cart.json";
 import mathemOrders from "./__fixtures__/mathem-orders.json";
@@ -348,6 +350,53 @@ describe("ICA cart readback (p5-06)", () => {
     expect(totals.itemCount).toBe(4); // qty 2 + 1 + 1
     expect(totals.total).toBeCloseTo(406.55);
     expect(totals.quantities["c4bb2d50-2b2a-4a73-a5d8-454b57dc6d4c"]).toBe(2);
+  });
+});
+
+describe("Axfood cart readback (p5-07)", () => {
+  it("reads the unit count, the discounted subtotal, and per-product quantities", () => {
+    const totals = validateAxfoodCart({
+      products: [
+        { code: "101_ST", quantity: 2 },
+        { code: "202_ST", quantity: 1 },
+      ],
+      totalUnitCount: 3,
+      subtotalWithDiscountsAndPercentageVouchers: { value: 55.66 },
+    });
+    expect(totals).toEqual({ itemCount: 3, total: 55.66, quantities: { "101_ST": 2, "202_ST": 1 } });
+  });
+
+  it("summarizes an empty cart as zero, not as an error", () => {
+    expect(
+      validateAxfoodCart({
+        products: [],
+        totalUnitCount: 0,
+        subtotalWithDiscountsAndPercentageVouchers: { value: 0 },
+      }),
+    ).toEqual({ itemCount: 0, total: 0, quantities: {} });
+  });
+
+  it("fails loudly when the envelope moves — never a phantom empty cart", () => {
+    expect(() => validateAxfoodCart({ cartId: "x" })).toThrow(/Axfood cart shape moved/);
+    expect(() => validateAxfoodCart({ products: [], totalUnitCount: 0 })).toThrow(
+      /Axfood cart shape moved/,
+    );
+    // Lines missing code/quantity are drift too — the convergent fill's
+    // skip-list depends on reading current quantities, never guessing.
+    expect(() =>
+      validateAxfoodCart({
+        products: [{}],
+        totalUnitCount: 1,
+        subtotalWithDiscountsAndPercentageVouchers: { value: 1 },
+      }),
+    ).toThrow(/Axfood cart shape moved/);
+  });
+
+  it("accepts the committed live cart capture (scrubbed, 2026-08-30)", () => {
+    const totals = validateAxfoodCart(axfoodCartFixture);
+    expect(totals.itemCount).toBe(1);
+    expect(totals.total).toBeCloseTo(16.98);
+    expect(totals.quantities["101145716_ST"]).toBe(1);
   });
 });
 
