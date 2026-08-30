@@ -495,7 +495,7 @@ async function fillIcaCart(comparison: StoreComparison): Promise<CartFillResult>
     cart,
     rejected,
     alreadyInCart: fill.alreadyInCart,
-    summary: `cart now ${totals.itemCount} item(s): items ${fmtKr(totals.total)} — ICA adds any delivery/fees at checkout — review & checkout: https://handlaprivatkund.ica.se/stores/${ICA_DEFAULT_STORE.accountId}/cart`,
+    summary: `cart now ${totals.itemCount} item(s): items ${fmtKr(totals.total)} — ICA adds any delivery/fees at checkout — review & checkout via the varukorg icon at https://handlaprivatkund.ica.se/stores/${ICA_DEFAULT_STORE.accountId} (the shop has no standalone /cart page)`,
   };
 }
 
