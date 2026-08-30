@@ -62,9 +62,9 @@ in this change set.
       incl. the scrubbed live capture.
 - [x] CLI: `--fill-cart hemkop|willys` through the standard pipeline
       (validation, convergent fill, shared print, `--json`); README.
-- [ ] `./harness check` green; commit.
-- [ ] Live: current batch carted at Hemköp, cart URL handed to the
-      household.
+- [x] `./harness check` green; commit 4d5a93f.
+- [x] Live: current batch carted at Hemköp, cart handed to the
+      household for review + checkout.
 
 ## Steps
 
@@ -98,3 +98,22 @@ in this change set.
   (`qty: 0` is willys-agent's own remove).
 - Read-only Hemköp cart probe (structure scrubbed to types): 200,
   envelope fields as in Context; `products` empty pre-fill.
+- One-item add/remove probe: add 200 → readback line carries
+  `code`/`quantity`/`name` (fixture captured, scrubbed); qty 0
+  removed it cleanly (cart back to 0 — no probe artifacts left).
+
+**2026-08-30 (live fill — first Axfood cart run):**
+
+- `--batch latest --stores hemkop --fill-cart hemkop` (cache-warm
+  searches from the day's comparison): **66 ops sent, 0 refused**,
+  readback 66 items / 1 530,45 kr matching the printed totals; the
+  duplicate "salt" rows collapsed into one qty-2 op as planned. 2
+  terms unmatched (bambuspett, mild currypulver), 36 weak matches
+  flagged into the cart for the household's review — the known
+  matcher residual (e.g. "doubanjiang" → glass, "färsk ingefära" →
+  färskost) is the term-normalization follow-up, not this plan.
+- Contract behaviors verified live: account cart visible cross-
+  session (probe add seen by a later login), per-item POST isolation,
+  convergent skip untested against a non-empty cart this run (cart
+  started empty) — the ⏭ path is fixture-tested and shares p5-06's
+  live-proven planner.
