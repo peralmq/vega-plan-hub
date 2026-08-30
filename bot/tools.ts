@@ -45,6 +45,8 @@ import {
   type SynonymEntry,
 } from "../src/lib/recipeEdits";
 import { REACTIONS, TelegramApi } from "./telegram";
+import { buildTraceInsert, formatTraceReview } from "../src/lib/nluTraces";
+import { labelTraceFromReview, linkCorrection, listUnsettled, writeTrace } from "./nluTrace";
 
 // The repo-write seam (p4-08/p4-09): tools.ts decides WHAT to save and asks
 // the sender; recipePublish.ts (injected by the consumer) is the only code
@@ -92,6 +94,11 @@ export interface ChatState {
     // this to teach a preference against what the household was ORIGINALLY
     // shopping for (p4-04), not the replacement's own canonical form.
     canonicalIngredients: (string | null)[];
+    // p4-06: the nlu_traces row this insert's parse was logged under, or
+    // null when the write degraded (missing table, or no traceMeta passed —
+    // e.g. from a caller that pre-dates trace capture). correct_last uses
+    // this to overturn the trace behind the item it is fixing.
+    traceId: string | null;
   };
   // A note or edit awaiting its [Ja, spara] press. In-process on purpose
   // (same restart semantics as lastInsert): after a restart the callback
@@ -176,6 +183,12 @@ const T = {
     cbNoteSkipped: "👍 Skippar anteckningen.",
     cbNoteFailed: (reason: string) => `😵 Kunde inte spara anteckningen: ${reason}`,
     noMenu: "🤔 Ingen låst batch att visa ännu — lås några dagar först 🔒",
+    // p4-06: /traces review digest — one message per unsettled trace.
+    reviewNone: "🌱 Inget att granska just nu — allt uppfattat rätt (eller inget nytt sedan sist)!",
+    btnReviewOk: "✅ Rätt",
+    btnReviewWrong: "❌ Fel",
+    reviewThanksOk: "✅ Tack — noterat som rätt.",
+    reviewThanksWrong: "📝 Tack — noterat som fel.",
   },
   en: {
     help:
@@ -230,6 +243,11 @@ const T = {
     cbNoteSkipped: "👍 Skipping the note.",
     cbNoteFailed: (reason: string) => `😵 Couldn't save the note: ${reason}`,
     noMenu: "🤔 No locked batch to show yet — lock a few days first 🔒",
+    reviewNone: "🌱 Nothing to review right now — all caught up!",
+    btnReviewOk: "✅ Correct",
+    btnReviewWrong: "❌ Wrong",
+    reviewThanksOk: "✅ Thanks — noted as correct.",
+    reviewThanksWrong: "📝 Thanks — noted as wrong.",
   },
 } satisfies Record<Lang, unknown>;
 
@@ -394,6 +412,7 @@ async function executeInserts(
   inserts: InsertItemAction[],
   state: ChatState,
   lang: Lang,
+  traceId: string | null,
 ): Promise<void> {
   // "New one for me" (Script 2) is decided BEFORE inserting, per item:
   // unknown = no preference matched and never seen on the list before.
@@ -433,6 +452,7 @@ async function executeInserts(
     rowIds: inserted.map((r) => r.id),
     displayNames: inserted.map((r) => r.display_name),
     canonicalIngredients: inserted.map((r) => r.canonical_ingredient),
+    traceId,
   };
 
   if (row.message_id != null) await tg.react(row.chat_id, row.message_id, REACTIONS.added);
@@ -444,6 +464,18 @@ async function executeInserts(
   }
 }
 
+// p4-06: what parseUtterance already knew about its own parse — passed
+// through so handleMessage can write the nlu_traces row without re-deriving
+// it. Optional: tests and any future caller that predates trace capture can
+// omit it, in which case no trace is written (matches the existing tests in
+// tools.test.ts, none of which pass this).
+export interface TraceMeta {
+  source: "rules" | "llm";
+  model: string;
+  harnessVersion: string;
+  latencyMs: number;
+}
+
 export async function handleMessage(
   supa: SupabaseClient,
   tg: TelegramApi,
@@ -451,6 +483,7 @@ export async function handleMessage(
   parse: ParsedUtterance,
   states: StateMap,
   notes?: RecipeRepoDeps,
+  traceMeta?: TraceMeta,
 ): Promise<void> {
   const state = states.get(row.chat_id) ?? {};
   states.set(row.chat_id, state);
@@ -458,8 +491,28 @@ export async function handleMessage(
   const lang = detectLanguage(row.text ?? "");
   const preferences = await loadPreferences(supa, row.user_id);
   const actions = planActions(parse, preferences, localIsoDate());
+
+  // Every parse writes a trace (p4-06 Progress item 2) — before acting on
+  // it, so a trace exists even for an action that goes on to fail. Graceful
+  // degradation (missing table, offline DB) lives inside writeTrace itself;
+  // this call never throws and never blocks the actions below.
+  const traceId = traceMeta
+    ? await writeTrace(
+        supa,
+        buildTraceInsert({
+          userId: row.user_id,
+          chatId: row.chat_id,
+          utterance: row.text ?? "",
+          parse,
+          model: traceMeta.source === "rules" ? "rules" : traceMeta.model,
+          harnessVersion: traceMeta.harnessVersion,
+          latencyMs: traceMeta.latencyMs,
+        }),
+      )
+    : null;
+
   const inserts = actions.filter((a): a is InsertItemAction => a.type === "insert_item");
-  if (inserts.length > 0) await executeInserts(supa, tg, row, inserts, state, lang);
+  if (inserts.length > 0) await executeInserts(supa, tg, row, inserts, state, lang, traceId);
 
   for (const action of actions) {
     await executeOne(supa, tg, row, action, state, preferences, lang, notes);
@@ -603,6 +656,28 @@ async function runShowMenu(
   await sendMenuCard(store, tg, row.chat_id, target);
 }
 
+// p4-06 Step 4: `/traces` review surface — the oldest unsettled traces, one
+// message each, one tap to confirm or overturn (design.spec "keep it
+// one-tap"). Private-chat only, same gate as helpText (bot/consumer.ts).
+export async function runTracesReview(
+  supa: SupabaseClient,
+  tg: TelegramApi,
+  row: InboxRow,
+  lang: Lang,
+): Promise<void> {
+  const traces = await listUnsettled(supa, row.user_id, 5);
+  if (traces.length === 0) {
+    await tg.sendMessage(row.chat_id, T[lang].reviewNone);
+    return;
+  }
+  for (const trace of traces) {
+    await tg.sendMessage(row.chat_id, formatTraceReview(trace, lang), [[
+      { text: T[lang].btnReviewOk, callback_data: `nlu_ok:${trace.id}` },
+      { text: T[lang].btnReviewWrong, callback_data: `nlu_wrong:${trace.id}` },
+    ]]);
+  }
+}
+
 async function executeOne(
   supa: SupabaseClient,
   tg: TelegramApi,
@@ -682,6 +757,14 @@ async function executeOne(
         .eq("id", targetId);
       if (error) throw new Error(`correct failed: ${error.message}`);
       last.displayNames[idx] = displayName;
+      // p4-06: "nej, penne" is the implicit-wrong signal for the trace
+      // behind this insert — the repair (what add_item should have
+      // produced) becomes its corrected_parse. Best-effort: the list
+      // correction above has already landed and must not be undone by a
+      // labelling failure (linkCorrection degrades gracefully on its own).
+      if (last.traceId) {
+        await linkCorrection(supa, last.traceId, { intent: "add_item", items: [action.replacement] });
+      }
       if (originalCanonical) {
         state.pendingCorrection = { canonicalIngredient: originalCanonical, productName: displayName };
         await tg.sendMessage(row.chat_id, T[lang].corrected(displayName), [[
@@ -785,6 +868,22 @@ export async function handleCallback(
   if (row.message_id == null) return;
   // Callback data carries no language, so replies follow the household
   // default (Swedish).
+
+  // p4-06 Step 4: [✅ rätt] / [❌ fel] on a /traces review message. Stateless
+  // by design (unlike note_yes/pref_undo above) — the trace id rides in the
+  // callback_data itself, so a tap still works after a restart.
+  if (row.text?.startsWith("nlu_ok:") || row.text?.startsWith("nlu_wrong:")) {
+    const [prefix, traceId] = row.text.split(":");
+    const verdict = prefix === "nlu_ok" ? "correct" : "wrong";
+    await labelTraceFromReview(supa, traceId, verdict);
+    await tg.editMessageText(
+      row.chat_id,
+      row.message_id,
+      verdict === "correct" ? T.sv.reviewThanksOk : T.sv.reviewThanksWrong,
+      [],
+    );
+    return;
+  }
 
   // p4-03: every planning tap. The event is re-executed against fresh DB
   // state, so a press that arrives after a restart (or after the partner

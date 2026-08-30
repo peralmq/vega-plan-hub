@@ -9,6 +9,11 @@
 
 import { interpretEdit } from "./recipeEdits";
 
+// p4-06: stamped on every nlu_traces row so accuracy is comparable across
+// harness/model upgrades on identical real-usage traffic. Bump on any
+// material change to CLASSIFY_PROMPT, SLOT_SPECS, or the rules layer below.
+export const NLU_HARNESS_VERSION = "p4-06.0";
+
 export const INTENTS = [
   "add_item", "remove_item", "check_item", "show_list", "correct_last",
   "set_preference", "query_tonight", "plan_draft", "plan_set_day",

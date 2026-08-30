@@ -8,7 +8,14 @@
 // callback_data it does not recognise.
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { handleCallback, handleMessage, type InboxRow, type RecipeRepoDeps, type StateMap } from "./tools";
+import {
+  handleCallback,
+  handleMessage,
+  runTracesReview,
+  type InboxRow,
+  type RecipeRepoDeps,
+  type StateMap,
+} from "./tools";
 import { makeFakeSupabase, type FakeDb } from "./fakeSupabase";
 import { loadRecipeLibrary } from "./recipeLibrary";
 import type { TelegramApi } from "./telegram";
@@ -78,6 +85,7 @@ const emptyDb = (): FakeDb => ({
   recipe_ratings: [],
   product_preferences: [],
   family_members: [{ id: "fm-1", name: "Pelle", user_id: USER }],
+  nlu_traces: [],
 });
 
 const repo = (): RecipeRepoDeps => {
@@ -578,5 +586,118 @@ describe("p4-04: preference learning (Script 3)", () => {
     );
     const added = fake.db.shopping_list_items.find((r) => r.canonical_ingredient === "mjölk")!;
     expect(added.display_name).toBe("ICA Havredryck");
+  });
+});
+
+describe("p4-06: NLU trace capture wired through handleMessage/handleCallback", () => {
+  const traceMeta = { source: "rules" as const, model: "rules", harnessVersion: "test", latencyMs: 5 };
+
+  it("every parse writes a trace, unsettled", async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("köp pasta"),
+      { intent: "add_item", items: ["pasta"] },
+      new Map(),
+      repo(),
+      traceMeta,
+    );
+    expect(fake.db.nlu_traces).toHaveLength(1);
+    expect(fake.db.nlu_traces[0]).toMatchObject({ utterance: "köp pasta", label: "unsettled" });
+  });
+
+  it("a scripted correct→corrected pair yields one implicit-wrong trace with the repair as corrected_parse", async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    const states: StateMap = new Map();
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("köp pasta"),
+      { intent: "add_item", items: ["pasta"] },
+      states,
+      repo(),
+      traceMeta,
+    );
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("nej, penne"),
+      { intent: "correct_last", replacement: "penne" },
+      states,
+      repo(),
+      traceMeta,
+    );
+    const overturned = fake.db.nlu_traces.find((t) => t.utterance === "köp pasta")!;
+    expect(overturned.label).toBe("implicit_wrong");
+    expect(overturned.label_source).toBe("correction");
+    expect(overturned.corrected_parse).toEqual({ intent: "add_item", items: ["penne"] });
+  });
+
+  it("no traceMeta (a pre-p4-06 caller) never writes a trace and never breaks the insert", async () => {
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(emptyDb());
+    const supa = fake as unknown as SupabaseClient;
+    await handleMessage(supa, tg, messageRow("köp pasta"), { intent: "add_item", items: ["pasta"] }, new Map(), repo());
+    expect(fake.db.nlu_traces).toHaveLength(0);
+    expect(fake.db.shopping_list_items).toHaveLength(1);
+  });
+
+  it("degrades gracefully when nlu_traces is missing — message handling still completes", async () => {
+    const db = emptyDb() as Record<string, unknown[]>;
+    delete db.nlu_traces;
+    const { tg } = makeTelegram();
+    const fake = makeFakeSupabase(db as unknown as FakeDb);
+    const supa = fake as unknown as SupabaseClient;
+    await handleMessage(
+      supa,
+      tg,
+      messageRow("köp pasta"),
+      { intent: "add_item", items: ["pasta"] },
+      new Map(),
+      repo(),
+      traceMeta,
+    );
+    expect(fake.db.shopping_list_items).toHaveLength(1); // the household still got their item
+  });
+
+  it("/traces sends one message per unsettled trace with one-tap buttons, and [✅ rätt] confirms it", async () => {
+    const { calls, tg } = makeTelegram();
+    const fake = makeFakeSupabase({
+      ...emptyDb(),
+      nlu_traces: [
+        {
+          id: "trace-1",
+          user_id: USER,
+          utterance: "köp pasta",
+          parse: { intent: "add_item", items: ["pasta"] },
+          label: "unsettled",
+          created_at: new Date().toISOString(),
+        },
+      ],
+    });
+    const supa = fake as unknown as SupabaseClient;
+    await runTracesReview(supa, tg, messageRow(""), "sv");
+    const sent = calls.find((c) => c.method === "send")!;
+    expect(sent.text).toContain("köp pasta");
+    expect(sent.buttons).toEqual(["nlu_ok:trace-1", "nlu_wrong:trace-1"]);
+
+    await handleCallback(supa, tg, callbackRow("nlu_ok:trace-1"), new Map(), repo());
+    expect(fake.db.nlu_traces[0].label).toBe("confirmed_correct");
+    expect(fake.db.nlu_traces[0].label_source).toBe("review");
+    const edit = calls.find((c) => c.method === "edit")!;
+    expect(edit.buttons).toEqual([]);
+  });
+
+  it("/traces with nothing unsettled says so instead of sending an empty digest", async () => {
+    const { calls, tg } = makeTelegram();
+    const supa = makeFakeSupabase(emptyDb()) as unknown as SupabaseClient;
+    await runTracesReview(supa, tg, messageRow(""), "sv");
+    expect(calls.filter((c) => c.method === "send")).toHaveLength(1);
+    expect(calls[0].text).toContain("Inget att granska");
   });
 });

@@ -7,7 +7,7 @@
 //
 // Run on the M1: npm run bot   (env in bot/.env, chmod 600 — see bot/README.md)
 import { createClient } from "@supabase/supabase-js";
-import { parseUtterance } from "../src/lib/intentParser";
+import { detectLanguage, NLU_HARNESS_VERSION, parseUtterance } from "../src/lib/intentParser";
 import { loadConfig } from "./env";
 import { ollamaChat } from "./nlu";
 import { TelegramApi } from "./telegram";
@@ -15,6 +15,7 @@ import {
   handleCallback,
   handleMessage,
   helpText,
+  runTracesReview,
   type InboxRow,
   type RecipeRepoDeps,
   type StateMap,
@@ -74,13 +75,25 @@ async function processRow(row: InboxRow): Promise<void> {
   if (text.startsWith("/")) {
     const isPrivate =
       (row.payload as { message?: { chat?: { type?: string } } }).message?.chat?.type === "private";
-    if (isPrivate) await tg.sendMessage(row.chat_id, helpText(text));
+    if (isPrivate) {
+      // p4-06 Step 4: /traces reviews the household's unsettled NLU traces —
+      // its own command, alongside /help, never routed through the parser.
+      if (text.startsWith("/traces")) await runTracesReview(supa, tg, row, detectLanguage(text));
+      else await tg.sendMessage(row.chat_id, helpText(text));
+    }
     console.log(`[row ${row.id}] command "${text}" (${isPrivate ? "helped" : "group, silent"})`);
     return;
   }
 
+  const parseStart = performance.now();
   const { parse, source } = await parseUtterance(text, chat);
-  await handleMessage(supa, tg, row, parse, states, notes);
+  const latencyMs = Math.round(performance.now() - parseStart);
+  await handleMessage(supa, tg, row, parse, states, notes, {
+    source,
+    model: cfg.nluModel,
+    harnessVersion: NLU_HARNESS_VERSION,
+    latencyMs,
+  });
   console.log(
     `[row ${row.id}] intent=${parse.intent} source=${source} ` +
       `${Math.round(performance.now() - t0)}ms "${text}"`,

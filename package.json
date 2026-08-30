@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "bot": "tsx bot/consumer.ts",
+    "nlu:sweep": "tsx bot/nluSweep.ts",
+    "nlu:export": "tsx bot/nluExport.ts",
     "compare": "tsx compare/cli.ts",
     "mathem-auth": "tsx compare/mathem-oauth.ts",
     "ica-probe": "tsx compare/ica-probe.ts"

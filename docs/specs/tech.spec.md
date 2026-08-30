@@ -89,7 +89,12 @@ points, binding for P4 work:
   migration. `telegram_inbox` (raw-update queue for the hybrid
   transport, household-scoped RLS, allow-list-gated before enqueue)
   joined the approved set with the transport decision (gate-brief
-  decision 2, 2026-08-14). Gate calls adopted: preference resolution at **add-time**;
+  decision 2, 2026-08-14). `nlu_traces` (append-only parse log —
+  utterance, parse json, model, harness_version, latency_ms, label,
+  label_source, corrected_parse json, household-scoped RLS) joined the
+  approved set (directive Pelle 2026-08-30, p4-06) so the bake-off
+  harness can score against real household usage. Gate calls adopted:
+  preference resolution at **add-time**;
   ad-hoc items batchless until shopping mode gathers them; per-person
   preference column kept but written null in v0.
   **Pool model** (directive Pelle 2026-08-27, design.spec "Pool over

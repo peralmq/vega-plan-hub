@@ -78,6 +78,31 @@ p4-01 + the p4-12 pool delta. The draft lives in `planned_meals`
 (`batch_id IS NULL AND meal_date IS NULL`), so restarting this process
 mid-conversation loses nothing — the next tap picks up where it was.
 
+## NLU trace capture (p4-06)
+
+Every message the assistant parses writes a row to `nlu_traces`
+(utterance, parse, model, harness_version, latency_ms) — write-on-parse
+degrades gracefully (log-and-continue) if the migration is missing, so
+it is safe to deploy ahead of applying it. `nej, X` (correct_last)
+overturns the trace behind the insert it fixed to `implicit_wrong`,
+with the repair recorded as `corrected_parse`. Two more pieces run
+outside the message loop:
+
+- **`/traces`** (private chat): up to 5 unsettled traces, one message
+  each, `[✅ rätt]` / `[❌ fel]` — one tap either way, stateless (the
+  trace id rides in `callback_data`, so it survives a restart).
+- **Nightly sweep**: unsettled traces older than 48h default to
+  `implicit_correct` (silence = the action stood). Run via cron:
+  ```
+  0 4 * * * cd /path/to/checkout && npx tsx bot/nluSweep.ts >> nlu-sweep.log 2>&1
+  ```
+- **Export**: `npx tsx bot/nluExport.ts` turns `confirmed_correct` /
+  `confirmed_wrong` traces into an r3-kit-format fixture file
+  (`spikes/r3-nlu-bakeoff/fixtures-live-<date>.json`), scoreable with
+  the bake-off runners, e.g.
+  `node spikes/r3-nlu-bakeoff/run.mjs --mock --fixtures fixtures-live-<date>.json`
+  or a real model via `run-twostage.mjs --fixtures …`.
+
 ## Run
 
 ```

@@ -9,13 +9,20 @@
 //   BAKEOFF_URL=http://localhost:11434/v1 BAKEOFF_MODEL=qwen3:8b node run.mjs
 //   BAKEOFF_KEY=... BAKEOFF_URL=https://api.anthropic.com/v1 ... (hosted baseline)
 //   node run.mjs --out results-qwen3-8b.json   # also write a JSON report
+//   node run.mjs --fixtures fixtures-live-2026-08-31.json --mock
+//                                               # p4-06: score any r3-kit-shaped
+//                                               # fixture file, e.g. an nlu_traces
+//                                               # export — defaults to fixtures.json
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixtures = JSON.parse(readFileSync(join(here, "fixtures.json"), "utf8"));
+const fixIdx = process.argv.indexOf("--fixtures");
+const FIXFILE = fixIdx > -1 ? process.argv[fixIdx + 1] : "fixtures.json";
+const fixturesPath = isAbsolute(FIXFILE) ? FIXFILE : join(here, FIXFILE);
+const fixtures = JSON.parse(readFileSync(fixturesPath, "utf8"));
 
 const MOCK = process.argv.includes("--mock");
 const outIdx = process.argv.indexOf("--out");
