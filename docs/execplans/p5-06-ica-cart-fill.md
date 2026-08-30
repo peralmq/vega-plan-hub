@@ -184,3 +184,26 @@ posture recorded):**
   "salt" → chips, "vatten" → kokosvatten, "mjölk" → barnmat) —
   human review before checkout is still the safety net; the
   term-normalization follow-up remains open.
+
+**2026-08-30 (evening — ICA_COOKIE hatch tested live; batch swapped
+to Hemköp for this shop):**
+
+- The escape hatch's limit found: a cookie header copied from the
+  household's logged-in Chrome did NOT clear the search challenges
+  when replayed by the CLI (54/68 still challenged) — AWS WAF tokens
+  are bound to the client fingerprint (TLS stack), so a
+  browser-obtained token doesn't transfer to node. Authenticated
+  cart reads/writes keep passing without it. The hatch's remaining
+  honest value is browser-side only; per the polite-client rule no
+  fingerprint games were attempted. (A truncated first copy — the
+  DevTools '…' mid-ellipsis — also crashed undici; loud validation
+  added, commit 523c93f.)
+- Upstream discovery: meals swapped in the WEB APP leave the locked
+  batch's shopping_list_items stale (bot's afterPoolChange
+  regenerates; the app doesn't). The 2026-08-30 morning fills ran on
+  the stale 59-row list; after Pelle ran the one-off reconcile
+  (bot pipeline, checked rows kept: 59 → 68 rows) ICA matched only
+  16/68 under the WAF posture, so the household chose Hemköp for
+  this batch (1 736 kr basket, 66/68, slots live). ICA cart left
+  as-is for the household. Separate task filed for the app-swap
+  list bug; cart-URL print fixed (995e2e3, no /cart route).
