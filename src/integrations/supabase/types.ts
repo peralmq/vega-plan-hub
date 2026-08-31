@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -94,6 +94,54 @@ export type Database = {
           updated_at?: string
           user_id?: string
           week_start?: string
+        }
+        Relationships: []
+      }
+      nlu_traces: {
+        Row: {
+          chat_id: number
+          corrected_parse: Json | null
+          created_at: string
+          harness_version: string
+          id: string
+          label: string
+          label_source: string | null
+          labelled_at: string | null
+          latency_ms: number
+          model: string
+          parse: Json
+          user_id: string
+          utterance: string
+        }
+        Insert: {
+          chat_id: number
+          corrected_parse?: Json | null
+          created_at?: string
+          harness_version: string
+          id?: string
+          label?: string
+          label_source?: string | null
+          labelled_at?: string | null
+          latency_ms: number
+          model: string
+          parse: Json
+          user_id: string
+          utterance: string
+        }
+        Update: {
+          chat_id?: number
+          corrected_parse?: Json | null
+          created_at?: string
+          harness_version?: string
+          id?: string
+          label?: string
+          label_source?: string | null
+          labelled_at?: string | null
+          latency_ms?: number
+          model?: string
+          parse?: Json
+          user_id?: string
+          utterance?: string
         }
         Relationships: []
       }
