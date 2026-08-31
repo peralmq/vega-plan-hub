@@ -97,6 +97,54 @@ export type Database = {
         }
         Relationships: []
       }
+      nlu_traces: {
+        Row: {
+          chat_id: number
+          corrected_parse: Json | null
+          created_at: string
+          harness_version: string
+          id: string
+          label: string
+          label_source: string | null
+          labelled_at: string | null
+          latency_ms: number
+          model: string
+          parse: Json
+          user_id: string
+          utterance: string
+        }
+        Insert: {
+          chat_id: number
+          corrected_parse?: Json | null
+          created_at?: string
+          harness_version: string
+          id?: string
+          label?: string
+          label_source?: string | null
+          labelled_at?: string | null
+          latency_ms: number
+          model: string
+          parse: Json
+          user_id: string
+          utterance: string
+        }
+        Update: {
+          chat_id?: number
+          corrected_parse?: Json | null
+          created_at?: string
+          harness_version?: string
+          id?: string
+          label?: string
+          label_source?: string | null
+          labelled_at?: string | null
+          latency_ms?: number
+          model?: string
+          parse?: Json
+          user_id?: string
+          utterance?: string
+        }
+        Relationships: []
+      }
       plan_batches: {
         Row: {
           ends_on: string
